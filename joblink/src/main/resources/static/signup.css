@@ -1,3 +1,4 @@
+
 /* Thiết lập cơ bản */
 * {
     box-sizing: border-box;
@@ -111,7 +112,7 @@ body {
 .input-with-icon i {
     position: absolute;
     right: 15px;
-    top: 50%;
+    top: 23px;
     transform: translateY(-50%);
     color: var(--light-text-color);
     cursor: pointer;

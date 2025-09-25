@@ -28,22 +28,22 @@
                 <div class="language-selector">
                     <img src="https://flagcdn.com/us.svg" alt="USA Flag" class="flag">
                     <span>English</span>
-                    <span class="arrow-down">▼</span>
                 </div>
             </div>
         </div>
 
         <div class="main-header">
             <div class="logo-section">
-                <span class="logo-icon"><i class="fa-solid fa-briefcase"></i></span>
-                <span class="logo-text">MyJob</span>
+                <i class="fas fa-briefcase"></i>
+                <a th:href="@{/}" class="logo-link">
+                  Joblink
+                </a>
             </div>
 
             <div class="search-section">
                 <div class="country-selector">
-                    <img src="https://flagcdn.com/in.svg" alt="India Flag" class="flag">
-                    <span>India</span>
-                    <span class="arrow-down">▼</span>
+                    <img src="https://flagcdn.com/vn.svg" alt="Vietnam Flag" class="flag">
+                    <span>Vietnam</span>
                 </div>
                 <div class="search-input-container">
                     <input type="text" placeholder="Find job by job title, keyword, company">
@@ -51,7 +51,7 @@
             </div>
 
             <div class="action-buttons">
-                <button class="sign-in-btn">Sign In</button>
+                <a th:href="@{/signin}" class="sign-in-btn">Sign In</a>
                 <button class="post-job-btn">Post A Jobs</button>
             </div>
         </div>
