@@ -2,7 +2,7 @@
 /* Thiết lập cơ bản */
 * {
     box-sizing: border-box;
-    margin: 0;
+    margin: 0px;
     font-family: 'Roboto', sans-serif;
 }
 
