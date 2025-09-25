@@ -1,0 +1,141 @@
+/* Thiết lập chung */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* Header */
+.header {
+    width: 100%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: white;
+}
+
+/* Phần thanh điều hướng trên cùng */
+.top-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 50px;
+    border-bottom: 1px solid #ddd;
+}
+
+.left-links a {
+    text-decoration: none;
+    color: #555;
+    margin-right: 20px;
+    font-size: 14px;
+    padding-bottom: 8px; /* Dùng để tạo gạch chân cho link Home */
+}
+
+.right-links {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.phone-number {
+    color: #555;
+    font-size: 14px;
+}
+
+.language-selector {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.flag {
+    width: 20px;
+    margin-right: 8px;
+}
+
+.arrow-down {
+    margin-left: 5px;
+    font-size: 10px;
+}
+
+/* Phần chính của header */
+.main-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 50px;
+}
+
+.logo-section {
+    display: flex;
+    align-items: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: #5953F5;
+}
+
+.logo-icon {
+    margin-right: 8px;
+}
+
+/* Phần thanh tìm kiếm */
+.search-section {
+    display: flex;
+    flex-grow: 1;
+    margin: 0 50px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden; /* Quan trọng để bo góc đều */
+}
+
+.country-selector {
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    border-right: 1px solid #ddd;
+    cursor: pointer;
+    background-color: #f8f9fa;
+}
+
+.search-input-container {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+}
+
+.search-input-container input {
+    border: none;
+    outline: none;
+    width: 100%;
+    padding: 10px 0;
+    font-size: 16px;
+}
+
+/* Nút hành động */
+.action-buttons {
+    display: flex;
+    gap: 15px;
+}
+
+.action-buttons button {
+    padding: 12px 25px;
+    border: 1px solid;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.sign-in-btn {
+    background-color: white;
+    color: #5953F5;
+}
+
+.post-job-btn {
+    background-color: #5953F5;
+    color: white;
+    border: none;
+}
