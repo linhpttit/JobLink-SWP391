@@ -1,0 +1,61 @@
+    <!DOCTYPE html>
+    <html lang="vi">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Header MyJob</title>
+        <link rel="stylesheet" th:href="@{/header.css}">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+    </head>
+    <body>
+
+    <!-- file: header.html -->
+    <div th:fragment="header">
+        <link rel="stylesheet" th:href="@{/header.css}">
+        <header class="header">
+            <div class="top-nav">
+                <div class="left-links">
+                    <a href="#">Home</a>
+                    <a href="#">Find Job</a>
+                    <a href="#">Employers</a>
+                    <a href="#">Candidates</a>
+                    <a href="#">Pricing Plans</a>
+                    <a href="#">Customer Supports</a>
+                </div>
+                <div class="right-links">
+                    <span class="phone-number"><i class="fa-solid fa-phone"></i> +1-202-555-0178</span>
+                    <div class="language-selector">
+                        <img src="https://flagcdn.com/us.svg" alt="USA Flag" class="flag">
+                        <span>English</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="main-header">
+                <div class="logo-section">
+                    <span class="logo-icon"><i class="fa-solid fa-briefcase"></i></span>
+                    <span class="logo-text">JobLink</span>
+                </div>
+
+                <div class="search-section">
+                    <div class="country-selector">
+                        <img src="https://flagcdn.com/vn.svg" alt="Vietnam Flag" class="flag">
+                        <span>Vietnam</span>
+                    </div>
+                    <div class="search-input-container">
+                        <input type="text" placeholder="Find job by job title, keyword, company">
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <a th:href="@{/signin}" class="sign-in-btn">Sign In</a>
+                    <button class="post-job-btn">Post A Jobs</button>
+                </div>
+            </div>
+        </header>
+    </div>
+
+
+    </body>
+    </html>

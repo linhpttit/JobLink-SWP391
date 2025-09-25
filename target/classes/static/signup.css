@@ -1,0 +1,318 @@
+/* Thiết lập cơ bản */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+}
+
+:root {
+    --primary-color:  #5953F5; /* Màu xanh dương chính */
+    --text-color: #333;
+    --light-text-color: #6c757d;
+    --background-color: #f8f9fa;
+    --input-border-color: #ced4da;
+    --dark-blue: #1c2e4a;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    height: 100vh;
+    background-color: var(--background-color);
+}
+
+.container {
+    display: flex;
+    /* width: 90%; */
+    width: 100%; /* Chiếm 100% chiều rộng */
+    /* max-width: 1200px; */
+    /* Bỏ giới hạn max-width */
+    /* background-color: white; */
+    /* box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); */
+    box-shadow: none; /* Bỏ đổ bóng */
+    /* border-radius: 8px; */
+    border-radius: 0; /* Bỏ góc bo */
+    overflow: hidden;
+}
+
+/* Phần Form (Bên trái) */
+.form-section {
+    flex: 1;
+    padding: 40px 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: white;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--dark-blue);
+    margin-bottom: 20px;
+}
+
+.logo i {
+    color: var(--primary-color);
+    margin-right: 5px;
+}
+.logo-link {
+    text-decoration: none;  /* bỏ gạch chân */
+    color: inherit;         /* giữ nguyên màu chữ */
+    font-size: inherit;     /* giữ cỡ chữ */
+    font-weight: inherit;   /* giữ độ đậm */
+}
+
+.signup-content h1 {
+    display: flex;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 5px;
+}
+
+.login-prompt {
+      display: flex;
+    justify-content: center;
+    font-size: 0.9rem;
+    color: var(--light-text-color);
+    margin-bottom: 30px;
+}
+
+.login-prompt a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+/* Form */
+.signup-form input[type="text"],
+.signup-form input[type="email"],
+.signup-form input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid var(--input-border-color);
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.input-group {
+    display: flex;
+    gap: 15px;
+}
+
+.input-with-icon {
+    position: relative;
+}
+
+.input-with-icon i {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--light-text-color);
+    cursor: pointer;
+}
+
+/* Checkbox Điều khoản */
+.terms-checkbox {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+}
+
+.terms-checkbox input {
+    margin-right: 10px;
+}
+
+.terms-checkbox a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.create-account-btn {
+    width: 100%;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.create-account-btn i {
+    margin-left: 10px;
+}
+
+/* Phân cách */
+.divider {
+    text-align: center;
+    margin: 20px 0;
+    color: var(--light-text-color);
+    position: relative;
+}
+
+.divider::before, .divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 40%;
+    height: 1px;
+    background-color: var(--input-border-color);
+}
+
+.divider::before {
+    left: 0;
+}
+
+.divider::after {
+    right: 0;
+}
+
+/* Đăng nhập Mạng xã hội */
+.social-login {
+    display: flex;
+    gap: 15px;
+}
+
+.social-btn {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid var(--input-border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    background: white;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    color: var(--light-text-color);
+    transition: border-color 0.3s;
+}
+
+.social-btn:hover {
+    border-color: var(--primary-color);
+}
+
+.social-btn i {
+    margin-right: 8px;
+    font-size: 1.1rem;
+}
+
+/* Phần Thống kê (Bên phải) */
+.stats-section {
+    flex: 1;
+    background-color: var(--dark-blue);
+    position: relative;
+    padding: 40px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+/* Hoạ tiết caro (Tái tạo gần đúng) */
+.stats-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: linear-gradient(45deg, rgba(0,0,0,0.1) 25%, transparent 25%, transparent 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1) 75%, transparent 75%, transparent);
+    background-size: 80px 80px; /* Điều chỉnh kích thước ô vuông */
+    opacity: 0.5; /* Điều chỉnh độ mờ */
+}
+
+.stats-content {
+    z-index: 1; /* Đưa nội dung lên trên lớp pattern */
+    text-align: center;
+    max-width: 400px;
+}
+
+.stats-headline {
+    font-size: 1.8rem;
+    font-weight: 500;
+    line-height: 1.4;
+    margin-bottom: 50px;
+}
+
+.stats-cards {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.stat-card {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 20px 10px;
+    border-radius: 4px;
+    flex: 1;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: background-color 0.3s;
+}
+
+.stat-card:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.stat-card i {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    color: white;
+}
+
+.stat-card .number {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.stat-card .label {
+    font-size: 0.85rem;
+    font-weight: 400;
+    opacity: 0.8;
+}
+
+/* Thiết lập responsive cơ bản cho màn hình nhỏ hơn */
+@media (max-width: 992px) {
+    .container {
+        flex-direction: column;
+        width: 100%;
+        max-width: none;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    .form-section {
+        padding: 30px;
+    }
+
+    .stats-section {
+        min-height: 300px;
+        padding: 30px;
+    }
+
+    .input-group {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .social-login {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
