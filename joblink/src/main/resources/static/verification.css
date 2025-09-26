@@ -115,7 +115,7 @@ input[type="text"]:focus {
 }
 
 .btn-primary:hover {
-    background-color: #4b44d9; /* Màu tối hơn một chút khi hover */
+    background-color: #4b44d9; /*  Màu tối hơn một chút khi hover */
 }
 
 .btn-primary i {
