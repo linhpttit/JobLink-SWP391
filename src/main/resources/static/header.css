@@ -55,11 +55,6 @@ body {
     margin-right: 8px;
 }
 
-.arrow-down {
-    margin-left: 5px;
-    font-size: 10px;
-}
-
 /* Phần chính của header */
 .main-header {
     display: flex;
@@ -79,6 +74,15 @@ body {
 .logo-icon {
     margin-right: 8px;
 }
+
+.logo-link {
+    text-decoration: none;  /* bỏ gạch chân */
+    color: #1c2e4a;         /* giữ nguyên màu chữ */
+    font-size: inherit;     /* giữ cỡ chữ */
+    font-weight: inherit;   /* giữ độ đậm */
+    margin-left: 10px;
+}
+
 
 /* Phần thanh tìm kiếm */
 .search-section {
@@ -127,6 +131,15 @@ body {
     font-weight: bold;
     cursor: pointer;
     font-size: 14px;
+}
+.action-buttons a {
+    padding: 12px 25px;
+    border: 1px solid;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: none;
 }
 
 .sign-in-btn {
