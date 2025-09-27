@@ -1,0 +1,13 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Seeker Home</title>
+    <link rel="stylesheet" th:href="@{/css/login.css}">
+</head>
+<body class="theme">
+<div class="center">
+    <h2>Jobseeker Home</h2>
+    <p th:text="'Xin chào ' + ${session.user.email}"></p>
+    <a class="btn ghost" th:href="@{/logout}">Logout</a>
+</div>
+</body>
+</html>

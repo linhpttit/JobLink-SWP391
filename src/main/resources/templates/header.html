@@ -1,30 +1,44 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Header MyJob</title>
     <link rel="stylesheet" th:href="@{/header.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-
 </head>
 <body>
 
 <!-- file: header.html -->
 <div th:fragment="header">
+    <!-- CSS riêng cho header -->
     <link rel="stylesheet" th:href="@{/header.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+    <!-- Auto-login loading overlay -->
+    <div id="autoLoginOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); z-index: 10000; justify-content: center; align-items: center;">
+        <div style="text-align: center; padding: 20px; border-radius: 10px; background: white; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+            <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #007bff; margin-bottom: 15px;"></i>
+            <h3 style="margin: 0 0 10px 0; color: #333;">Welcome back!</h3>
+            <p style="margin: 0; color: #666;">Signing you in automatically...</p>
+        </div>
+    </div>
+
     <header class="header">
+        <!-- Thanh top-nav -->
         <div class="top-nav">
             <div class="left-links">
-                <a href="#">Home</a>
-                <a href="#">Find Job</a>
+                <a th:href="@{/}" href="/">Home</a>
+                <a th:href="@{/search}">Find Job</a>
                 <a href="#">Employers</a>
                 <a href="#">Candidates</a>
                 <a href="#">Pricing Plans</a>
                 <a href="#">Customer Supports</a>
             </div>
             <div class="right-links">
-                <span class="phone-number"><i class="fa-solid fa-phone"></i> +1-202-555-0178</span>
+                <span class="phone-number">
+                    <i class="fa-solid fa-phone"></i> +1-202-555-0178
+                </span>
                 <div class="language-selector">
                     <img src="https://flagcdn.com/us.svg" alt="USA Flag" class="flag">
                     <span>English</span>
@@ -33,6 +47,7 @@
             </div>
         </div>
 
+        <!-- Thanh main-header -->
         <div class="main-header">
             <div class="logo-section">
                 <span class="logo-icon"><i class="fa-solid fa-briefcase"></i></span>
@@ -51,13 +66,104 @@
             </div>
 
             <div class="action-buttons">
-                <button class="sign-in-btn">Sign In</button>
-                <button class="post-job-btn">Post A Jobs</button>
+                <a th:href="@{/signin}" class="sign-in-btn">Sign In</a>
+                <button class="post-job-btn">Post A Job</button>
             </div>
         </div>
     </header>
-</div>
 
+    <!-- Auto-login script -->
+    <script>
+        console.log("Header auto-login script loaded");
+
+        // Auto-login function
+        function attemptHeaderAutoLogin() {
+            console.log("Checking for remembered account in header");
+
+            const remembered = localStorage.getItem('joblink_remembered_account');
+            if (!remembered) {
+                console.log("No remembered account found");
+                return;
+            }
+
+            try {
+                const acc = JSON.parse(remembered);
+
+                // Check expiration (14 days)
+                const fourteenDays = 14 * 24 * 60 * 60 * 1000;
+                if (Date.now() - acc.timestamp > fourteenDays) {
+                    console.log("Remembered account expired");
+                    localStorage.removeItem('joblink_remembered_account');
+                    return;
+                }
+
+                // Check if already auto-logged in this session
+                if (sessionStorage.getItem('joblink_auto_logged')) {
+                    console.log("Already auto-logged in this session");
+                    return;
+                }
+
+                // Skip if we're already on signin page
+                if (window.location.pathname === '/signin') {
+                    console.log("Already on signin page, skipping header auto-login");
+                    return;
+                }
+
+                console.log("Attempting header auto-login for:", acc.email);
+
+                // Show loading overlay
+                const overlay = document.getElementById('autoLoginOverlay');
+                if (overlay) {
+                    overlay.style.display = 'flex';
+                }
+
+                // Create form data
+                const formData = new FormData();
+                formData.append('email', acc.email);
+                formData.append('password', acc.password);
+                formData.append('remember', 'on');
+
+                // Submit auto-login
+                fetch('/login', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    console.log("Header auto-login response status:", response.status);
+                    if (response.redirected) {
+                        console.log("Header auto-login successful, redirecting to:", response.url);
+                        sessionStorage.setItem('joblink_auto_logged', '1');
+                        window.location.href = response.url;
+                    } else {
+                        console.log("Header auto-login failed - no redirect");
+                        if (overlay) overlay.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error("Header auto-login error:", error);
+                    if (overlay) overlay.style.display = 'none';
+                });
+
+            } catch (e) {
+                console.error("Error parsing remembered account in header:", e);
+                localStorage.removeItem('joblink_remembered_account');
+            }
+        }
+
+        // Run auto-login when header loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Small delay to ensure page is fully loaded
+            setTimeout(attemptHeaderAutoLogin, 200);
+        });
+
+        // Clear auto-logged flag when navigating to logout
+        window.addEventListener('beforeunload', function() {
+            if (window.location.href.includes('/logout')) {
+                sessionStorage.removeItem('joblink_auto_logged');
+            }
+        });
+    </script>
+</div>
 
 </body>
 </html>

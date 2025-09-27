@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobLink Sign In</title>
+    <link rel="stylesheet" th:href="@{/signin.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+<div class="container">
+    <div class="left-panel">
+        <div class="logo">
+            <a th:href="@{/}" class="logo-link">
+                <i class="fas fa-briefcase"></i> Joblink
+            </a>
+        </div>
+        <div class="signin-section">
+            <h2>Sign in</h2>
+            <p>
+                Don't have account?
+                <a th:href="@{/signup}" class="create-account">Create Account</a>
+            </p>
+
+            <!-- Auto-login loading indicator -->
+            <div id="autoLoginIndicator" style="display: none; color: blue; margin-bottom: 15px; text-align: center;">
+                <i class="fas fa-spinner fa-spin"></i>
+                <span>Auto signing in...</span>
+            </div>
+
+            <!-- Hiển thị thông báo lỗi -->
+            <div th:if="${error}" class="alert alert-danger" style="color: red; margin-bottom: 15px;">
+                <i class="fas fa-exclamation-circle"></i>
+                <span th:text="${error}"></span>
+            </div>
+
+            <!-- Hiển thị thông báo thành công -->
+            <div th:if="${msg}" class="alert alert-success" style="color: green; margin-bottom: 15px;">
+                <i class="fas fa-check-circle"></i>
+                <span th:text="${msg}"></span>
+            </div>
+
+            <form id="loginForm" th:action="@{/login}" method="post">
+                <div class="input-group">
+                    <label for="email">Email address</label>
+                    <input type="email" id="email" name="email"
+                           th:value="${loginRequest?.email}"
+                           placeholder="Email address" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password"
+                           placeholder="Password" required>
+                    <span class="password-toggle" onclick="togglePassword('password')">
+                        <i class="fas fa-eye"></i>
+                    </span>
+                </div>
+                <div class="remember-forgot">
+                    <label>
+                        <input type="checkbox" id="remember" name="remember"> Remember Me
+                    </label>
+                    <a th:href="@{/forgot}" class="forgot-password">Forgot password</a>
+                </div>
+                <button type="submit" class="sign-in-button">
+                    Sign In <i class="fas fa-arrow-right"></i>
+                </button>
+            </form>
+
+            <div class="or-divider">or</div>
+            <div class="social-signin">
+                <button class="social-btn google" type="button">
+                    <img src="https://www.gstatic.com/images/branding/product/1x/gsa_64dp.png"
+                         alt="Google logo" width="20" height="20">
+                    Sign in with Google
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="right-panel">
+        <div class="overlay"></div>
+        <div class="stats-content">
+            <p class="stats-headline">Over 1,75,324 candidates waiting for good employees.</p>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <i class="fas fa-briefcase"></i>
+                    <p>1,75,324</p>
+                    <span>Live Job</span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-building"></i>
+                    <p>97,354</p>
+                    <span>Companies</span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-file-alt"></i>
+                    <p>7,532</p>
+                    <span>New Jobs</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    console.log("Auto-login script loaded");
+
+    function togglePassword(inputId) {
+        const input = document.getElementById(inputId);
+        const icon = input.nextElementSibling.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+
+    // Lưu thông tin khi submit form với Remember Me
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        console.log("Form submitted");
+        const rememberCheckbox = document.getElementById('remember');
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        console.log("Remember checked:", rememberCheckbox.checked);
+        console.log("Email:", email);
+
+        if (rememberCheckbox.checked && email && password) {
+            console.log("Saving credentials to localStorage");
+            localStorage.setItem('joblink_remembered_account', JSON.stringify({
+                email: email,
+                password: password,
+                timestamp: Date.now()
+            }));
+        } else {
+            console.log("Clearing saved credentials");
+            localStorage.removeItem('joblink_remembered_account');
+        }
+    });
+
+    // Auto-login khi load trang
+    window.addEventListener('DOMContentLoaded', function() {
+        console.log("DOM loaded, checking for remembered account");
+
+        // Kiểm tra xem đã có session chưa (nếu có error/msg thì có nghĩa là đã từ server)
+        const hasError = document.querySelector('.alert.alert-danger');
+        const hasMsg = document.querySelector('.alert.alert-success');
+
+        if (hasError || hasMsg) {
+            console.log("Page has error/message, skipping auto-login");
+            return;
+        }
+
+        const remembered = localStorage.getItem('joblink_remembered_account');
+        if (remembered) {
+            console.log("Found remembered account");
+            try {
+                const acc = JSON.parse(remembered);
+
+                // Kiểm tra thời gian (14 ngày)
+                const fourteenDays = 14 * 24 * 60 * 60 * 1000;
+                if (Date.now() - acc.timestamp > fourteenDays) {
+                    console.log("Remembered account expired");
+                    localStorage.removeItem('joblink_remembered_account');
+                    return;
+                }
+
+                // Kiểm tra xem đã auto-login trong session này chưa
+                if (sessionStorage.getItem('joblink_auto_logged')) {
+                    console.log("Already auto-logged in this session");
+                    return;
+                }
+
+                console.log("Attempting auto-login for:", acc.email);
+
+                // Hiện indicator
+                const indicator = document.getElementById('autoLoginIndicator');
+                indicator.style.display = 'block';
+
+                // Tạo form data
+                const formData = new FormData();
+                formData.append('email', acc.email);
+                formData.append('password', acc.password);
+                formData.append('remember', 'on');
+
+                // Submit auto-login
+                fetch('/login', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    console.log("Auto-login response status:", response.status);
+                    if (response.redirected) {
+                        console.log("Auto-login successful, redirecting to:", response.url);
+                        sessionStorage.setItem('joblink_auto_logged', '1');
+                        window.location.href = response.url;
+                    } else {
+                        console.log("Auto-login failed - no redirect");
+                        indicator.style.display = 'none';
+                        // Có thể clear localStorage nếu login thất bại
+                        // localStorage.removeItem('joblink_remembered_account');
+                    }
+                })
+                .catch(error => {
+                    console.error("Auto-login error:", error);
+                    indicator.style.display = 'none';
+                });
+
+            } catch (e) {
+                console.error("Error parsing remembered account:", e);
+                localStorage.removeItem('joblink_remembered_account');
+            }
+        } else {
+            console.log("No remembered account found");
+        }
+    });
+
+    // Clear auto-logged flag khi logout
+    window.addEventListener('beforeunload', function() {
+        // Chỉ clear nếu đang navigate đến trang logout
+        if (window.location.href.includes('/logout')) {
+            sessionStorage.removeItem('joblink_auto_logged');
+        }
+    });
+</script>
+</body>
+</html>
