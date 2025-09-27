@@ -1,4 +1,4 @@
-package com.joblink.joblink;
+package com.joblink.joblink.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
