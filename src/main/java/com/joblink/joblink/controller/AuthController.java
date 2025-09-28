@@ -9,12 +9,13 @@ import com.joblink.joblink.service.AuthService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.dao.DataAccessException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 public class AuthController {
@@ -32,6 +33,20 @@ public class AuthController {
         this.userDao = userDao;
         this.rememberMeService = rememberMeService;
         this.auth = auth;
+    }
+
+    /* =========================
+       API ENDPOINTS
+       ========================= */
+
+    @GetMapping("/api/session-check")
+    @ResponseBody
+    public ResponseEntity<Map<String, Boolean>> checkSession(HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("loggedIn", user != null);
+        System.out.println("Session check - User logged in: " + (user != null));
+        return ResponseEntity.ok(response);
     }
 
     /* =========================
@@ -82,7 +97,7 @@ public class AuthController {
             case "admin"    -> "redirect:/admin/home";
             case "employer" -> "redirect:/employer/home";
             case "seeker"   -> "redirect:/seeker/home";
-            default         -> "redirect:/signin"; // Fixed: was "/login"
+            default         -> "redirect:/signin";
         };
 
         System.out.println("Redirecting to: " + redirectUrl);
@@ -101,7 +116,7 @@ public class AuthController {
         }
         rememberMeService.clear(resp);
         System.out.println("Redirecting to signin page");
-        return "redirect:/signin"; // Fixed: was "/login"
+        return "redirect:/signin";
     }
 
     /* =========================

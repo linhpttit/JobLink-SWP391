@@ -66,7 +66,12 @@
             </div>
 
             <div class="action-buttons">
-                <a th:href="@{/signin}" class="sign-in-btn">Sign In</a>
+                <!-- Hiển thị Sign In nếu chưa đăng nhập -->
+                <a th:if="${session.user == null}" th:href="@{/signin}" class="sign-in-btn">Sign In</a>
+
+                <!-- Hiển thị Log Out nếu đã đăng nhập -->
+                <a th:if="${session.user != null}" th:href="@{/logout}" class="sign-in-btn">Log Out</a>
+
                 <button class="post-job-btn">Post A Job</button>
             </div>
         </div>

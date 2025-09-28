@@ -10,57 +10,61 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.http.HttpServletRequest;
 import com.joblink.joblink.auth.model.User;
-import jakarta.servlet.http.HttpSession;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-
 
 @Controller
 public class HomeController implements ErrorController {
-    private boolean ensureLogin(HttpSession s) { return s.getAttribute("user") != null; }
-    private void addUser(Model m, HttpSession s) { m.addAttribute("user", (User) s.getAttribute("user")); }
+
+    private boolean ensureLogin(HttpSession s) {
+        return s.getAttribute("user") != null;
+    }
+
+    private void addUser(Model m, HttpSession s) {
+        m.addAttribute("user", (User) s.getAttribute("user"));
+    }
+
     private void putUser(Model m, HttpSession s) {
         m.addAttribute("user",(User) s.getAttribute("user"));
     }
 
     @GetMapping("/")
-    public String home() {
+    public String home(HttpSession session, Model model) {
+        // Add user to model for header to work properly
+        User user = (User) session.getAttribute("user");
+        model.addAttribute("user", user);
         return "index";
     }
 
-
-
     @GetMapping("/search")
-    public String search(){
+    public String search(HttpSession session, Model model){
+        // Add user to model for header
+        User user = (User) session.getAttribute("user");
+        model.addAttribute("user", user);
         return "search";
     }
 
-
     @GetMapping("/admin/home")
     public String adminHome(HttpSession s, Model m) {
-        if (!ensureLogin(s)) return "redirect:/login";
+        if (!ensureLogin(s)) return "redirect:/signin"; // ✅ Fixed: was /login
         User u = (User) s.getAttribute("user");
-        if(!"admin".equalsIgnoreCase(u.getRole())) return "redirect:/login";
+        if(!"admin".equalsIgnoreCase(u.getRole())) return "redirect:/signin"; // ✅ Fixed
         putUser(m,s);
         return "admin-home";
     }
 
     @GetMapping("/employer/home")
     public String employerHome(HttpSession s, Model m) {
-        if (!ensureLogin(s)) return "redirect:/login";
+        if (!ensureLogin(s)) return "redirect:/signin"; // ✅ Fixed: was /login
         User u = (User) s.getAttribute("user");
-        if (!"employer".equalsIgnoreCase(u.getRole())) return "redirect:/login";
+        if (!"employer".equalsIgnoreCase(u.getRole())) return "redirect:/signin"; // ✅ Fixed
         putUser(m, s);
-
         return "employer-home";
     }
 
     @GetMapping("/seeker/home")
     public String seekerHome(HttpSession s, Model m) {
-        if (!ensureLogin(s)) return "redirect:/login";
+        if (!ensureLogin(s)) return "redirect:/signin"; // ✅ Fixed: was /login
         User u = (User) s.getAttribute("user");
-        if (!"seeker".equalsIgnoreCase(u.getRole())) return "redirect:/login";
+        if (!"seeker".equalsIgnoreCase(u.getRole())) return "redirect:/signin"; // ✅ Fixed
         putUser(m, s);
         return "seeker-home";
     }
