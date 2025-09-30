@@ -9,86 +9,63 @@
 </head>
 <body>
 <div class="container">
-    <div class="left-panel">
+    <!-- Form Section (Left) -->
+    <div class="form-section">
         <div class="logo">
             <a th:href="@{/}" class="logo-link">
                 <i class="fas fa-briefcase"></i> Joblink
             </a>
         </div>
-        <div class="signup-section">
-            <h2>Create account</h2>
-            <p>
+
+        <div class="signup-content">
+            <h1>Create account</h1>
+            <p class="login-prompt">
                 Already have account?
-                <a th:href="@{/login}" class="login-link">Log In</a>
+                <a th:href="@{/login}">Log In</a>
             </p>
 
             <!-- Hiển thị thông báo lỗi -->
-            <div th:if="${error}" class="alert alert-danger">
+            <div th:if="${error}" style="background-color: #f8d7da; color: #721c24; padding: 12px; border-radius: 4px; margin-bottom: 15px; border: 1px solid #f5c6cb;">
                 <i class="fas fa-exclamation-circle"></i>
                 <span th:text="${error}"></span>
             </div>
 
             <!-- Hiển thị thông báo thành công -->
-            <div th:if="${msg}" class="alert alert-success">
+            <div th:if="${msg}" style="background-color: #d4edda; color: #155724; padding: 12px; border-radius: 4px; margin-bottom: 15px; border: 1px solid #c3e6cb;">
                 <i class="fas fa-check-circle"></i>
                 <span th:text="${msg}"></span>
             </div>
 
-            <form th:action="@{/signup}" method="post">
-                <div class="form-grid">
-                    <div class="input-group">
-                        <label for="fullName">Full Name</label>
-                        <input type="text" id="fullName" name="fullName"
-                               th:value="${registerRequest?.fullName}"
-                               placeholder="Full Name" required>
-                    </div>
-                    <div class="input-group">
-                        <label for="username">Username</label>
-                        <input type="text" id="username" name="username"
-                               th:value="${registerRequest?.username}"
-                               placeholder="Username" required>
-                    </div>
-                </div>
-
+            <form th:action="@{/signup}" method="post" class="signup-form">
                 <div class="input-group">
-                    <label for="email">Email address</label>
-                    <input type="email" id="email" name="email"
-                           th:value="${registerRequest?.email}"
-                           placeholder="Email address" required>
+                    <input type="text" id="fullName" name="fullName"
+                           th:value="${registerRequest?.fullName}"
+                           placeholder="Full Name" required>
+
+                    <input type="text" id="username" name="username"
+                           th:value="${registerRequest?.username}"
+                           placeholder="Username" required>
                 </div>
 
-                <div class="input-group">
-                    <label for="password">Password</label>
-                    <div class="password-field">
-                        <input type="password" id="password" name="password"
-                               placeholder="Password" required>
-                        <span class="password-toggle" onclick="togglePassword('password')">
-                            <i class="fas fa-eye"></i>
-                        </span>
-                    </div>
+                <input type="email" id="email" name="email"
+                       th:value="${registerRequest?.email}"
+                       placeholder="Email address" required>
+
+                <div class="input-with-icon">
+                    <input type="password" id="password" name="password"
+                           placeholder="Password" required>
+                    <i class="fas fa-eye" onclick="togglePassword('password')"></i>
                 </div>
 
-                <div class="input-group">
-                    <label for="confirmPassword">Confirm Password</label>
-                    <div class="password-field">
-                        <input type="password" id="confirmPassword" name="confirmPassword"
-                               placeholder="Confirm Password" required>
-                        <span class="password-toggle" onclick="togglePassword('confirmPassword')">
-                            <i class="fas fa-eye"></i>
-                        </span>
-                    </div>
+                <div class="input-with-icon">
+                    <input type="password" id="confirmPassword" name="confirmPassword"
+                           placeholder="Confirm Password" required>
+                    <i class="fas fa-eye" onclick="togglePassword('confirmPassword')"></i>
                 </div>
 
-                <div class="input-group">
-                    <label for="role">Role</label>
-                    <select id="role" name="role" required>
-                        <option value="">Select Role</option>
-                        <option value="seeker" th:selected="${registerRequest?.role == 'seeker'}">Job Seeker</option>
-                        <option value="employer" th:selected="${registerRequest?.role == 'employer'}">Employer</option>
-                    </select>
-                </div>
+                <input type="hidden" id="role" name="role" value="seeker" />
 
-                <div class="checkbox-group">
+                <div class="terms-checkbox">
                     <input type="checkbox" id="agreeTerms" name="agreeTerms" required>
                     <label for="agreeTerms">
                         I've read and agree with your
@@ -96,42 +73,43 @@
                     </label>
                 </div>
 
-                <button type="submit" class="signup-button">
+                <button type="submit" class="create-account-btn">
                     Create Account <i class="fas fa-arrow-right"></i>
                 </button>
             </form>
 
-            <div class="or-divider">
+            <div class="divider">
                 <span>or</span>
             </div>
-            <div class="social-signin">
+
+            <div class="social-login">
                 <button class="social-btn google" type="button">
-                    <img src="https://www.gstatic.com/images/branding/product/1x/gsa_64dp.png"
-                         alt="Google logo" width="20" height="20">
+                    <img src="https://www.gstatic.com/images/branding/product/1x/gsa_64dp.png" alt="Google logo" width="40">
                     Sign up with Google
                 </button>
             </div>
         </div>
     </div>
-    <div class="right-panel">
-        <div class="overlay"></div>
+
+    <!-- Stats Section (Right) -->
+    <div class="stats-section">
         <div class="stats-content">
             <p class="stats-headline">Over 1,75,324 candidates waiting for good employees.</p>
-            <div class="stats-grid">
-                <div class="stat-item">
+            <div class="stats-cards">
+                <div class="stat-card">
                     <i class="fas fa-briefcase"></i>
-                    <p>1,75,324</p>
-                    <span>Live Job</span>
+                    <p class="number">1,75,324</p>
+                    <span class="label">Live Job</span>
                 </div>
-                <div class="stat-item">
+                <div class="stat-card">
                     <i class="fas fa-building"></i>
-                    <p>97,354</p>
-                    <span>Companies</span>
+                    <p class="number">97,354</p>
+                    <span class="label">Companies</span>
                 </div>
-                <div class="stat-item">
+                <div class="stat-card">
                     <i class="fas fa-file-alt"></i>
-                    <p>7,532</p>
-                    <span>New Jobs</span>
+                    <p class="number">7,532</p>
+                    <span class="label">New Jobs</span>
                 </div>
             </div>
         </div>
@@ -141,7 +119,8 @@
 <script>
     function togglePassword(inputId) {
         const input = document.getElementById(inputId);
-        const icon = input.nextElementSibling.querySelector('i');
+        const icon = input.nextElementSibling;
+
         if (input.type === 'password') {
             input.type = 'text';
             icon.classList.remove('fa-eye');

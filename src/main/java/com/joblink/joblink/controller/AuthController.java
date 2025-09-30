@@ -123,67 +123,116 @@ public class AuthController {
        REGISTER
        ========================= */
 
-    @GetMapping("/signup")
-    public String registerPage(Model model) {
-        model.addAttribute("registerRequest", new RegisterRequest());
-        return "signup";
-    }
-
-    @PostMapping("/signup")
-    public String doRegister(@ModelAttribute RegisterRequest form, Model model) {
-        try {
-            // Validation cho các trường bắt buộc
-            if (form.getFullName() == null || form.getFullName().trim().isEmpty()) {
-                throw new IllegalArgumentException("Họ và tên là bắt buộc");
-            }
-
-            if (form.getUsername() == null || form.getUsername().trim().isEmpty()) {
-                throw new IllegalArgumentException("Tên đăng nhập là bắt buộc");
-            }
-
-            if (form.getEmail() == null || form.getEmail().trim().isEmpty()) {
-                throw new IllegalArgumentException("Email là bắt buộc");
-            }
-
-            if (form.getPassword() == null || form.getPassword().trim().isEmpty()) {
-                throw new IllegalArgumentException("Mật khẩu là bắt buộc");
-            }
-
-            if (form.getConfirmPassword() == null || !form.getPassword().equals(form.getConfirmPassword())) {
-                throw new IllegalArgumentException("Mật khẩu xác nhận không khớp");
-            }
-
-            if (form.getRole() == null || form.getRole().trim().isEmpty()) {
-                throw new IllegalArgumentException("Vai trò là bắt buộc");
-            }
-
-            if (!form.isAgreeTerms()) {
-                throw new IllegalArgumentException("Bạn phải đồng ý với điều khoản dịch vụ");
-            }
-
-            // Kiểm tra độ mạnh của mật khẩu
-            if (!form.getPassword().matches(PASSWORD_POLICY_REGEX)) {
-                throw new IllegalArgumentException("Mật khẩu phải ≥8 ký tự và chứa ít nhất 1 chữ hoa, 1 số, 1 ký tự đặc biệt");
-            }
-
-            // Đăng ký người dùng
-            auth.register(form.getEmail(), form.getPassword(), form.getRole());
-
-            model.addAttribute("msg", "Đăng ký thành công. Hãy đăng nhập.");
-            model.addAttribute("loginRequest", new LoginRequest());
-            return "signin";
-
-        } catch (IllegalArgumentException ex) {
-            model.addAttribute("error", ex.getMessage());
-            model.addAttribute("registerRequest", form);
-            return "signup";
-        } catch (DataAccessException ex) {
-            model.addAttribute("error", "Không thể đăng ký: " + ex.getMostSpecificCause().getMessage());
-            model.addAttribute("registerRequest", form);
+        @GetMapping("/signup")
+        public String registerPage(Model model) {
+            model.addAttribute("registerRequest", new RegisterRequest());
             return "signup";
         }
-    }
 
+        @PostMapping("/signup")
+        public String doRegister(@ModelAttribute RegisterRequest form, HttpSession session,  Model model) {
+            try {
+                // Validation cho các trường bắt buộc
+                if (form.getFullName() == null || form.getFullName().trim().isEmpty()) {
+                    throw new IllegalArgumentException("Họ và tên là bắt buộc");
+                }
+
+                if (form.getUsername() == null || form.getUsername().trim().isEmpty()) {
+                    throw new IllegalArgumentException("Tên đăng nhập là bắt buộc");
+                }
+
+                if (form.getEmail() == null || form.getEmail().trim().isEmpty()) {
+                    throw new IllegalArgumentException("Email là bắt buộc");
+                }
+
+                if (form.getPassword() == null || form.getPassword().trim().isEmpty()) {
+                    throw new IllegalArgumentException("Mật khẩu là bắt buộc");
+                }
+
+                if (form.getConfirmPassword() == null || !form.getPassword().equals(form.getConfirmPassword())) {
+                    throw new IllegalArgumentException("Mật khẩu xác nhận không khớp");
+                }
+
+                if (form.getRole() == null || form.getRole().trim().isEmpty()) {
+                    throw new IllegalArgumentException("Vai trò là bắt buộc");
+                }
+
+                if (!form.isAgreeTerms()) {
+                    throw new IllegalArgumentException("Bạn phải đồng ý với điều khoản dịch vụ");
+                }
+
+                // Kiểm tra độ mạnh của mật khẩu
+                if (!form.getPassword().matches(PASSWORD_POLICY_REGEX)) {
+                    throw new IllegalArgumentException("Mật khẩu phải ≥8 ký tự và chứa ít nhất 1 chữ hoa, 1 số, 1 ký tự đặc biệt");
+                }
+
+                // Bước mới: gửi OTP, lưu session
+                auth.startRegister(form.getEmail(), form.getPassword(), form.getRole(), session);
+
+                // Chuyển sang trang nhập OTP
+                model.addAttribute("email", form.getEmail());
+                return "Verify-OTP";
+
+            } catch (IllegalArgumentException ex) {
+                model.addAttribute("error", ex.getMessage());
+                model.addAttribute("registerRequest", form);
+                return "signup";
+            } catch (DataAccessException ex) {
+                model.addAttribute("error", "Không thể đăng ký: " + ex.getMostSpecificCause().getMessage());
+                model.addAttribute("registerRequest", form);
+                return "signup";
+            }
+
+        }
+        @GetMapping("/Verify-OTP")
+        public String verifyOtpPage() {
+            return "Verify-OTP";  // view: verify-otp.html
+        }
+
+    @PostMapping("/Verify-OTP")
+    public String doVerifyOtp(@RequestParam String otp,
+                              HttpSession session,
+                              Model model) {
+        try {
+            // Xác minh OTP + insert DB
+            auth.verifyOtp(otp, session);
+
+            // Lấy email và password từ session
+            String email = (String) session.getAttribute("pendingEmail");
+            String password = (String) session.getAttribute("pendingPassword");
+
+            // Đăng nhập luôn
+            User u = auth.authenticate(email, password);
+            if (u != null) {
+                // Nếu role chưa set thì gán mặc định seeker
+                if (u.getRole() == null || u.getRole().trim().isEmpty()) {
+                    u.setRole("seeker");
+                }
+                session.setAttribute("user", u);
+
+                // Redirect thẳng về home tương ứng với role
+                String redirectUrl = switch (u.getRole().toLowerCase()) {
+                    case "employer" -> "redirect:/employer/home";
+                    case "seeker"   -> "redirect:/seeker/home";
+                    case "admin"    -> "redirect:/admin/home";
+                    default         -> "redirect:/seeker/home";
+                };
+                return redirectUrl;
+            }
+
+            // Fallback nếu login lỗi (không nên xảy ra)
+            model.addAttribute("msg", "Đăng ký thành công. Hãy đăng nhập.");
+            model.addAttribute("loginRequest", new LoginRequest());
+            return "redirect:/signin";
+
+        } catch (IllegalArgumentException | IllegalStateException ex) {
+            // ✅ FIX: Thêm email vào model khi có lỗi
+            String email = (String) session.getAttribute("pendingEmail");
+            model.addAttribute("email", email);
+            model.addAttribute("error", ex.getMessage());
+            return "Verify-OTP";
+        }
+    }
     /* =========================
        FORGOT PASSWORD
        ========================= */

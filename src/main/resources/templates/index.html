@@ -6,6 +6,7 @@
     <title>MyJob - Employer Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{/homepage.css}">
+    <script th:src="@{/js/translate.js}"></script>
 </head>
 <body>
 <!-- Header fragment -->
@@ -18,17 +19,22 @@
         <div class="container">
             <div class="hero-content">
                 <div class="hero-text">
-                    <h1>Find a job that suits your interest & skills.</h1>
-                    <p>Aliquam vitae turpis in diam convallis finibus in at risus. Nullam in scelerisque leo, eget sollicitudin velit bestibulum.</p>
+                    <h1 data-i18n="hero_title">Find a job that suits your interest & skills.</h1>
+                    <p data-i18n="hero_description">Aliquam vitae turpis in diam convallis finibus in at risus. Nullam in scelerisque leo, eget sollicitudin velit bestibulum.</p>
 
                     <div class="search-container">
-                        <input type="text" class="search-input" placeholder="Job title, Keyword...">
-                        <input type="text" class="search-input" placeholder="Your Location">
-                        <button class="search-btn">Find Job</button>
+                        <input type="text" class="search-input" data-i18n-placeholder="hero_search_job" placeholder="Job title, Keyword...">
+                        <input type="text" class="search-input" data-i18n-placeholder="hero_search_location" placeholder="Your Location">
+                        <button class="search-btn" data-i18n="hero_find_job">Find Job</button>
                     </div>
 
                     <div class="suggestions">
-                        Suggestion: <a href="#">Designer</a>, <a href="#">Programming</a>, <a href="#">Digital Marketing</a>, <a href="#">Video</a>, <a href="#">Animation</a>.
+                        <span data-i18n="hero_suggestion">Suggestion:</span>
+                        <a href="#" data-i18n="cat_designer">Designer</a>,
+                        <a href="#" data-i18n="cat_programming">Programming</a>,
+                        <a href="#" data-i18n="cat_digital_marketing">Digital Marketing</a>,
+                        <a href="#" data-i18n="cat_video">Video</a>,
+                        <a href="#" data-i18n="cat_animation">Animation</a>.
                     </div>
                 </div>
 
@@ -58,28 +64,28 @@
                         <i class="fas fa-briefcase"></i>
                     </div>
                     <div class="stat-number">1,75,324</div>
-                    <div class="stat-label">Live Job</div>
+                    <div class="stat-label" data-i18n="stat_live_job">Live Job</div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-icon">
                         <i class="fas fa-building"></i>
                     </div>
                     <div class="stat-number">97,354</div>
-                    <div class="stat-label">Companies</div>
+                    <div class="stat-label" data-i18n="stat_companies">Companies</div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-icon">
                         <i class="fas fa-users"></i>
                     </div>
                     <div class="stat-number">38,47,154</div>
-                    <div class="stat-label">Candidates</div>
+                    <div class="stat-label" data-i18n="stat_candidates">Candidates</div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-icon">
                         <i class="fas fa-plus-circle"></i>
                     </div>
                     <div class="stat-number">7,532</div>
-                    <div class="stat-label">New Jobs</div>
+                    <div class="stat-label" data-i18n="stat_new_jobs">New Jobs</div>
                 </div>
             </div>
         </div>
@@ -89,8 +95,8 @@
     <section class="categories-section">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">Popular category</h2>
-                <a href="#" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+                <h2 class="section-title" data-i18n="section_popular_category">Popular category</h2>
+                <a href="#" class="view-all"><span data-i18n="view_all">View All</span> <i class="fas fa-arrow-right"></i></a>
             </div>
 
             <div class="categories-grid">
@@ -98,64 +104,64 @@
                     <div class="category-icon blue">
                         <i class="fas fa-palette"></i>
                     </div>
-                    <h3 class="category-title">Graphics & Design</h3>
-                    <p class="category-jobs">357 Open position</p>
+                    <h3 class="category-title" data-i18n="cat_graphics_design">Graphics & Design</h3>
+                    <p class="category-jobs"><span>357</span> <span data-i18n="open_position">Open position</span></p>
                 </div>
 
                 <div class="category-card">
                     <div class="category-icon green">
                         <i class="fas fa-code"></i>
                     </div>
-                    <h3 class="category-title">Code & Programming</h3>
-                    <p class="category-jobs">312 Open position</p>
+                    <h3 class="category-title" data-i18n="cat_code_programming">Code & Programming</h3>
+                    <p class="category-jobs"><span>312</span> <span data-i18n="open_position">Open position</span></p>
                 </div>
 
                 <div class="category-card">
                     <div class="category-icon purple">
                         <i class="fas fa-bullhorn"></i>
                     </div>
-                    <h3 class="category-title">Digital Marketing</h3>
-                    <p class="category-jobs">297 Open position</p>
+                    <h3 class="category-title" data-i18n="cat_digital_marketing">Digital Marketing</h3>
+                    <p class="category-jobs"><span>297</span> <span data-i18n="open_position">Open position</span></p>
                 </div>
 
                 <div class="category-card">
                     <div class="category-icon orange">
                         <i class="fas fa-video"></i>
                     </div>
-                    <h3 class="category-title">Video & Animation</h3>
-                    <p class="category-jobs">247 Open position</p>
+                    <h3 class="category-title" data-i18n="cat_video_animation">Video & Animation</h3>
+                    <p class="category-jobs"><span>247</span> <span data-i18n="open_position">Open position</span></p>
                 </div>
 
                 <div class="category-card">
                     <div class="category-icon pink">
                         <i class="fas fa-music"></i>
                     </div>
-                    <h3 class="category-title">Music & Audio</h3>
-                    <p class="category-jobs">204 Open position</p>
+                    <h3 class="category-title" data-i18n="cat_music_audio">Music & Audio</h3>
+                    <p class="category-jobs"><span>204</span> <span data-i18n="open_position">Open position</span></p>
                 </div>
 
                 <div class="category-card">
                     <div class="category-icon cyan">
                         <i class="fas fa-calculator"></i>
                     </div>
-                    <h3 class="category-title">Account & Finance</h3>
-                    <p class="category-jobs">167 Open position</p>
+                    <h3 class="category-title" data-i18n="cat_account_finance">Account & Finance</h3>
+                    <p class="category-jobs"><span>167</span> <span data-i18n="open_position">Open position</span></p>
                 </div>
 
                 <div class="category-card">
                     <div class="category-icon blue">
                         <i class="fas fa-heartbeat"></i>
                     </div>
-                    <h3 class="category-title">Health & Care</h3>
-                    <p class="category-jobs">125 Open position</p>
+                    <h3 class="category-title" data-i18n="cat_health_care">Health & Care</h3>
+                    <p class="category-jobs"><span>125</span> <span data-i18n="open_position">Open position</span></p>
                 </div>
 
                 <div class="category-card">
                     <div class="category-icon green">
                         <i class="fas fa-database"></i>
                     </div>
-                    <h3 class="category-title">Data & Science</h3>
-                    <p class="category-jobs">57 Open position</p>
+                    <h3 class="category-title" data-i18n="cat_data_science">Data & Science</h3>
+                    <p class="category-jobs"><span>57</span> <span data-i18n="open_position">Open position</span></p>
                 </div>
             </div>
         </div>
@@ -165,25 +171,25 @@
     <section class="featured-jobs-section">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">Featured job</h2>
-                <a href="#" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+                <h2 class="section-title" data-i18n="section_featured_job">Featured job</h2>
+                <a href="#" class="view-all"><span data-i18n="view_all">View All</span> <i class="fas fa-arrow-right"></i></a>
             </div>
 
             <div class="job-card">
                 <div class="job-info">
                     <div class="job-logo" style="background: #10b981;">Up</div>
                     <div class="job-details">
-                        <h3>Senior UX Designer</h3>
+                        <h3 data-i18n="job_senior_ux">Senior UX Designer</h3>
                         <div class="job-meta">
-                            <span><i class="fas fa-map-marker-alt"></i> Australia</span>
+                            <span><i class="fas fa-map-marker-alt"></i> <span data-i18n="location_australia">Australia</span></span>
                             <span><i class="fas fa-dollar-sign"></i> $30K-$35K</span>
-                            <span><i class="fas fa-clock"></i> 4 Days Remaining</span>
+                            <span><i class="fas fa-clock"></i> <span>4</span> <span data-i18n="days_remaining">Days Remaining</span></span>
                         </div>
                     </div>
                 </div>
                 <div class="job-actions">
                     <button class="btn-outline"><i class="fas fa-bookmark"></i></button>
-                    <button class="btn-primary">Apply Now <i class="fas fa-arrow-right"></i></button>
+                    <button class="btn-primary"><span data-i18n="apply_now">Apply Now</span> <i class="fas fa-arrow-right"></i></button>
                 </div>
             </div>
 
@@ -191,17 +197,17 @@
                 <div class="job-info">
                     <div class="job-logo" style="background: #1e293b;"><i class="fab fa-apple"></i></div>
                     <div class="job-details">
-                        <h3>Software Engineer</h3>
+                        <h3 data-i18n="job_software_engineer">Software Engineer</h3>
                         <div class="job-meta">
-                            <span><i class="fas fa-map-marker-alt"></i> China</span>
+                            <span><i class="fas fa-map-marker-alt"></i> <span data-i18n="location_china">China</span></span>
                             <span><i class="fas fa-dollar-sign"></i> $50K-$60K</span>
-                            <span><i class="fas fa-clock"></i> 4 Days Remaining</span>
+                            <span><i class="fas fa-clock"></i> <span>4</span> <span data-i18n="days_remaining">Days Remaining</span></span>
                         </div>
                     </div>
                 </div>
                 <div class="job-actions">
                     <button class="btn-outline"><i class="fas fa-bookmark"></i></button>
-                    <button class="btn-primary">Apply Now <i class="fas fa-arrow-right"></i></button>
+                    <button class="btn-primary"><span data-i18n="apply_now">Apply Now</span> <i class="fas fa-arrow-right"></i></button>
                 </div>
             </div>
 
@@ -209,17 +215,17 @@
                 <div class="job-info">
                     <div class="job-logo" style="background: #8b5cf6;"><i class="fas fa-paint-brush"></i></div>
                     <div class="job-details">
-                        <h3>Junior Graphic Designer</h3>
+                        <h3 data-i18n="job_junior_graphic">Junior Graphic Designer</h3>
                         <div class="job-meta">
-                            <span><i class="fas fa-map-marker-alt"></i> Canada</span>
+                            <span><i class="fas fa-map-marker-alt"></i> <span data-i18n="location_canada">Canada</span></span>
                             <span><i class="fas fa-dollar-sign"></i> $50K-$70K</span>
-                            <span><i class="fas fa-clock"></i> 4 Days Remaining</span>
+                            <span><i class="fas fa-clock"></i> <span>4</span> <span data-i18n="days_remaining">Days Remaining</span></span>
                         </div>
                     </div>
                 </div>
                 <div class="job-actions">
                     <button class="btn-outline"><i class="fas fa-bookmark"></i></button>
-                    <button class="btn-primary">Apply Now <i class="fas fa-arrow-right"></i></button>
+                    <button class="btn-primary"><span data-i18n="apply_now">Apply Now</span> <i class="fas fa-arrow-right"></i></button>
                 </div>
             </div>
         </div>
@@ -229,7 +235,7 @@
     <section class="companies-section">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">Top companies</h2>
+                <h2 class="section-title" data-i18n="section_top_companies">Top companies</h2>
                 <div style="display: flex; gap: 10px;">
                     <button class="btn-outline"><i class="fas fa-chevron-left"></i></button>
                     <button class="btn-outline"><i class="fas fa-chevron-right"></i></button>
@@ -240,29 +246,29 @@
                 <div class="company-card">
                     <div class="company-logo" style="background: #ec4899;">Dr</div>
                     <h3 class="company-name">Dribbble</h3>
-                    <p class="company-location"><i class="fas fa-map-marker-alt"></i> United States</p>
-                    <button class="company-btn">Open Position</button>
+                    <p class="company-location"><i class="fas fa-map-marker-alt"></i> <span data-i18n="location_us">United States</span></p>
+                    <button class="company-btn" data-i18n="open_position">Open Position</button>
                 </div>
 
                 <div class="company-card">
                     <div class="company-logo" style="background: #10b981;">Up</div>
                     <h3 class="company-name">Upwork</h3>
-                    <p class="company-location"><i class="fas fa-map-marker-alt"></i> United States</p>
-                    <button class="company-btn">Open Position</button>
+                    <p class="company-location"><i class="fas fa-map-marker-alt"></i> <span data-i18n="location_us">United States</span></p>
+                    <button class="company-btn" data-i18n="open_position">Open Position</button>
                 </div>
 
                 <div class="company-card">
                     <div class="company-logo" style="background: #3b82f6;"><i class="fab fa-slack"></i></div>
                     <h3 class="company-name">Slack</h3>
-                    <p class="company-location"><i class="fas fa-map-marker-alt"></i> China</p>
-                    <button class="company-btn">Open Position</button>
+                    <p class="company-location"><i class="fas fa-map-marker-alt"></i> <span data-i18n="location_china">China</span></p>
+                    <button class="company-btn" data-i18n="open_position">Open Position</button>
                 </div>
 
                 <div class="company-card">
                     <div class="company-logo" style="background: #1e40af;">Fr</div>
                     <h3 class="company-name">Freepik</h3>
-                    <p class="company-location"><i class="fas fa-map-marker-alt"></i> United States</p>
-                    <button class="company-btn">Open Position</button>
+                    <p class="company-location"><i class="fas fa-map-marker-alt"></i> <span data-i18n="location_us">United States</span></p>
+                    <button class="company-btn" data-i18n="open_position">Open Position</button>
                 </div>
             </div>
         </div>
@@ -273,15 +279,15 @@
         <div class="container">
             <div class="cta-grid">
                 <div class="cta-card candidate">
-                    <h3>Become a Candidate</h3>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras cursus a dolor convallis efficitur.</p>
-                    <button class="cta-btn blue">Register Now <i class="fas fa-arrow-right"></i></button>
+                    <h3 data-i18n="cta_become_candidate">Become a Candidate</h3>
+                    <p data-i18n="cta_candidate_desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras cursus a dolor convallis efficitur.</p>
+                    <button class="cta-btn blue"><span data-i18n="cta_register_now">Register Now</span> <i class="fas fa-arrow-right"></i></button>
                 </div>
 
                 <div class="cta-card employer">
-                    <h3>Become a Employers</h3>
-                    <p>Cras in massa pellentesque, mollis ligula non, luctus dui. Morbi sed efficitur dolor. Pelque cursus risus, aliqu.</p>
-                    <button class="cta-btn white">Register Now <i class="fas fa-arrow-right"></i></button>
+                    <h3 data-i18n="cta_become_employer">Become a Employers</h3>
+                    <p data-i18n="cta_employer_desc">Cras in massa pellentesque, mollis ligula non, luctus dui. Morbi sed efficitur dolor. Pelque cursus risus, aliqu.</p>
+                    <button class="cta-btn white"><span data-i18n="cta_register_now">Register Now</span> <i class="fas fa-arrow-right"></i></button>
                 </div>
             </div>
         </div>
