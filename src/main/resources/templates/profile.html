@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Edit Profile</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" th:href="@{/profile.css}">
+
+</head>
+<body class="bg-soft">
+
+<div class="container py-5">
+  <div class="row g-4">
+
+    <!-- Left: Profile card -->
+    <div class="col-lg-4">
+      <div class="card card-soft shadow-sm border-0">
+        <div class="card-body text-center">
+          <h4 class="fw-semibold mb-1"><span  th:text="${profile.companyName}"></span></h4>
+
+          <div class="avatar-wrapper position-relative my-4">
+            <img class="rounded-circle avatar-img" th:src="${profile.urlAvt}" alt="avatar">
+          </div>
+
+          <div class="d-grid">
+            <label class="btn btn-upload mb-3">
+              <i class="bi bi-upload me-2"></i> Cập nhật ảnh
+              <input type="file" class="d-none" accept="image/*">
+            </label>
+          </div>
+
+          <div class="small p-3 rounded bg-body-tertiary border">
+            Upload a new avatar. Larger image will be resized automatically.
+            <div class="mt-1">Maximum upload size is <strong>1 MB</strong></div>
+          </div>
+
+          <div class="text-muted small mt-4">
+            Thành viên kể từ: <strong>  <span th:text="${profile.createdAt}"></span> </strong>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Form -->
+    <div class="col-lg-8">
+      <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+          <!-- Tabs -->
+          <ul class="nav nav-tabs px-4 pt-3" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-user" type="button" role="tab">
+                Thông tin 
+              </button>
+            </li>
+          </ul>
+
+          <div class="tab-content p-4">
+            <!-- User info -->
+            <div class="tab-pane fade show active" id="tab-user" role="tabpanel">
+              <form class="row g-4" th:action="@{/employer/profile}" th:object="${profile}" method="post">
+
+                <div class="col-md-6">
+                  <label class="form-label">Tên công ty</label>
+                  <input type="text" class="form-control" th:field="*{companyName}">
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Địa chỉ</label>
+                  <input type="text" class="form-control" th:field="*{address}">
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Số điện thoại</label>
+                  <input type="tel"
+                         class="form-control"
+                         placeholder="Ví dụ: 0912345678"
+                         inputmode="tel"
+                         pattern="^0[0-9]{9,10}$"
+                         title="Số điện thoại bắt đầu bằng 0, 10–11 chữ số"
+                         th:field="*{phoneNumber}">
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Email</label>
+                  <input type="email" class="form-control fw-semibold" th:field="*{email}">
+                </div>
+
+                <div class="mt-4 text-start">
+                  <label for="companyIntro" class="form-label fw-semibold">Giới thiệu công ty</label>
+                  <textarea id="companyIntro" class="form-control" rows="4"
+                            placeholder="Nhập mô tả ngắn về công ty..."
+                            th:field="*{description}"></textarea>
+                </div>
+
+                <div class="col-12 pt-2">
+                  <button type="submit" class="btn btn-update">
+                    <i class="bi bi-check2-circle me-1"></i> Cập nhật
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /Right -->
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
