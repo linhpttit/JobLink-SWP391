@@ -219,7 +219,7 @@
             <span th:text="${email}">your.email@example.com</span>
         </div>
 
-        <form id="otpForm" th:action="@{/Verify-OTP}" method="post">
+        <form id="otpForm" th:action="@{/verify-otp}" method="post">
             <input type="hidden" name="email" th:value="${email}">
 
             <div class="alert error" th:if="${error}" th:text="${error}"></div>
@@ -237,32 +237,28 @@
             <input type="hidden" name="otpCode" id="otpCodeInput">
 
             <div class="timer" id="timer">
-                ⏰ Code expires in: <strong id="countdown">5:00</strong>
+                Code expires in: <strong id="countdown">5:00</strong>
             </div>
 
             <button class="btn main" type="submit" id="verifyBtn">Verify OTP</button>
         </form>
 
-        <form th:action="@{/resend-otp}" method="post" id="resendForm">
-            <input type="hidden" name="email" th:value="${email}">
-            <button class="btn secondary" type="button" id="resendBtn">
-                Resend Code (<span id="resendTimer">60</span>s)
-            </button>
-        </form>
+        <button class="btn secondary" type="button" id="resendBtn">
+            Resend Code (<span id="resendTimer">60</span>s)
+        </button>
 
         <div class="center">
-            <a th:href="@{/forgot}" href="/forgot" class="link">
+            <a th:href="@{/signup}" href="/signup" class="link">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M19 12H5M12 19l-7-7 7-7"/>
                 </svg>
-                Change Email
+                Back to Sign Up
             </a>
         </div>
     </section>
 </main>
 
 <script>
-    // OTP Input handling
     const otpInputs = document.querySelectorAll('.otp-input');
     const otpCodeInput = document.getElementById('otpCodeInput');
     const otpForm = document.getElementById('otpForm');
@@ -270,11 +266,9 @@
     otpInputs.forEach((input, index) => {
         input.addEventListener('input', (e) => {
             const value = e.target.value;
-
             if (value && index < otpInputs.length - 1) {
                 otpInputs[index + 1].focus();
             }
-
             updateOTPCode();
         });
 
@@ -287,13 +281,11 @@
         input.addEventListener('paste', (e) => {
             e.preventDefault();
             const pastedData = e.clipboardData.getData('text').slice(0, 6);
-
             pastedData.split('').forEach((char, i) => {
                 if (i < otpInputs.length && /[0-9]/.test(char)) {
                     otpInputs[i].value = char;
                 }
             });
-
             updateOTPCode();
             otpInputs[Math.min(pastedData.length, otpInputs.length - 1)].focus();
         });
@@ -304,7 +296,6 @@
         otpCodeInput.value = code;
     }
 
-    // Auto-submit when all 6 digits are entered
     otpForm.addEventListener('input', () => {
         const allFilled = Array.from(otpInputs).every(input => input.value);
         if (allFilled) {
@@ -312,7 +303,6 @@
         }
     });
 
-    // Countdown timer (5 minutes)
     let timeLeft = 300;
     const countdownEl = document.getElementById('countdown');
     const timerEl = document.getElementById('timer');
@@ -334,11 +324,9 @@
         }
     }, 1000);
 
-    // Resend OTP functionality
     let resendTimeLeft = 60;
     const resendBtn = document.getElementById('resendBtn');
     const resendTimerEl = document.getElementById('resendTimer');
-
     resendBtn.disabled = true;
 
     const resendCountdown = setInterval(() => {
@@ -348,68 +336,47 @@
         if (resendTimeLeft <= 0) {
             clearInterval(resendCountdown);
             resendBtn.disabled = false;
-            resendBtn.innerHTML = '🔄 Resend Code';
+            resendBtn.textContent = 'Resend Code';
         }
     }, 1000);
 
     resendBtn.addEventListener('click', async () => {
-        const email = document.querySelector('input[name="email"]').value;
-
         try {
             resendBtn.disabled = true;
-            resendBtn.innerHTML = 'Sending...';
+            resendBtn.textContent = 'Sending...';
 
             const response = await fetch('/resend-otp', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `email=${encodeURIComponent(email)}`
+                }
             });
 
             if (response.ok) {
-                alert('✅ New OTP code has been sent to your email!');
-
-                // Reset timers
+                alert('New OTP code has been sent to your email!');
                 timeLeft = 300;
                 resendTimeLeft = 60;
                 timerEl.classList.remove('warning');
                 document.getElementById('verifyBtn').disabled = false;
-
-                // Clear OTP inputs
                 otpInputs.forEach(input => input.value = '');
                 otpInputs[0].focus();
 
-                // Restart resend countdown
                 resendBtn.innerHTML = `Resend Code (<span id="resendTimer">60</span>s)`;
-                const newResendTimerEl = document.getElementById('resendTimer');
-
-                const newResendCountdown = setInterval(() => {
-                    resendTimeLeft--;
-                    newResendTimerEl.textContent = resendTimeLeft;
-
-                    if (resendTimeLeft <= 0) {
-                        clearInterval(newResendCountdown);
-                        resendBtn.disabled = false;
-                        resendBtn.innerHTML = '🔄 Resend Code';
-                    }
-                }, 1000);
             } else {
-                alert('❌ Failed to resend OTP. Please try again.');
+                alert('Failed to resend OTP. Please try again.');
                 resendBtn.disabled = false;
-                resendBtn.innerHTML = '🔄 Resend Code';
+                resendBtn.textContent = 'Resend Code';
             }
         } catch (error) {
-            alert('❌ An error occurred. Please try again.');
+            alert('An error occurred. Please try again.');
             resendBtn.disabled = false;
-            resendBtn.innerHTML = '🔄 Resend Code';
+            resendBtn.textContent = 'Resend Code';
         }
     });
 
-    // Auto-focus first input
     window.addEventListener('load', () => {
         otpInputs[0].focus();
     });
-    </script>
+</script>
 </body>
 </html>

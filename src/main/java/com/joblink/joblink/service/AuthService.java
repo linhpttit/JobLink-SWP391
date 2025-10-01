@@ -108,7 +108,69 @@ public class AuthService {
         session.removeAttribute("otp");
         session.removeAttribute("otpCreatedAt");
     }
+    public void sendOtpForPasswordReset(String email, HttpSession session) {
+        // Generate 6-digit OTP
+        String otp = generateOtp();
 
+        // Store OTP and timestamp in session
+        session.setAttribute("otp", otp);
+        session.setAttribute("otpCreatedAt", System.currentTimeMillis());
+
+        // Send OTP via email
+        String subject = "JobLink - Mã xác thực đặt lại mật khẩu";
+        String body = String.format(
+                "Xin chào,\n\n" +
+                        "Bạn đã yêu cầu đặt lại mật khẩu cho tài khoản JobLink của mình.\n\n" +
+                        "Mã OTP của bạn là: %s\n\n" +
+                        "Mã này sẽ hết hạn sau 5 phút.\n\n" +
+                        "Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.\n\n" +
+                        "Trân trọng,\n" +
+                        "JobLink Team",
+                otp
+        );
+
+        emailService.sendOtp(email, otp);
+    }
+
+    /**
+     * Verify OTP for password reset
+     * Similar to verifyOtp but doesn't create user account
+     */
+    public void verifyOtpForPasswordReset(String inputOtp, HttpSession session) {
+        String storedOtp = (String) session.getAttribute("otp");
+        Long otpCreatedAt = (Long) session.getAttribute("otpCreatedAt");
+
+        // Validate OTP exists
+        if (storedOtp == null || otpCreatedAt == null) {
+            throw new IllegalStateException("Không tìm thấy mã OTP. Vui lòng yêu cầu gửi lại.");
+        }
+
+        // Check OTP expiration (5 minutes)
+        long currentTime = System.currentTimeMillis();
+        long otpAge = currentTime - otpCreatedAt;
+        long fiveMinutesInMillis = 5 * 60 * 1000;
+
+        if (otpAge > fiveMinutesInMillis) {
+            throw new IllegalStateException("Mã OTP đã hết hạn. Vui lòng yêu cầu gửi lại.");
+        }
+
+        // Verify OTP matches
+        if (!storedOtp.equals(inputOtp.trim())) {
+            throw new IllegalArgumentException("Mã OTP không đúng. Vui lòng thử lại.");
+        }
+
+        // OTP is valid - no need to create account, just mark as verified
+        // The controller will handle the password reset
+    }
+
+    /**
+     * Generate random 6-digit OTP
+     */
+    private String generateOtp() {
+        Random random = new Random();
+        int otp = 100000 + random.nextInt(900000); // 6-digit number
+        return String.valueOf(otp);
+    }
     public User authenticate(String email, String password) {
         return userDao.login(email, password);
     }
