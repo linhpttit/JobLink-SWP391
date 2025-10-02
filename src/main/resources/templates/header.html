@@ -79,7 +79,7 @@
             <div class="action-buttons">
                 <a th:if="${session.user == null}" th:href="@{/signin}" class="sign-in-btn" data-i18n="sign_in">Sign In</a>
                 <a th:if="${session.user != null}" th:href="@{/logout}" class="sign-in-btn" data-i18n="log_out">Log Out</a>
-                <button class="post-job-btn" data-i18n="post_job">Post A Job</button>
+                <a th:if="${session.user == null}" th:href="@{/signup}" class="post-job-btn" data-i18n="post_job">Post A Job</a>
             </div>
         </div>
     </header>

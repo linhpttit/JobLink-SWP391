@@ -63,8 +63,13 @@
                     <i class="fas fa-eye" onclick="togglePassword('confirmPassword')"></i>
                 </div>
 
-                <input type="hidden" id="role" name="role" value="seeker" />
-
+<!--                <input type="hidden" id="role" name="role" value="seeker" />-->
+                <div class="role-picker">
+                    <input type="radio" id="role-employer" name="role" value="employer" checked>
+                    <label for="role-employer">Employer</label>
+                    <input type="radio" id="role-seeker" name="role" value="seeker">
+                    <label for="role-seeker">Jobseeker</label>
+                </div>
                 <div class="terms-checkbox">
                     <input type="checkbox" id="agreeTerms" name="agreeTerms" required>
                     <label for="agreeTerms">
