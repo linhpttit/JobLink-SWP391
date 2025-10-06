@@ -69,18 +69,60 @@
                 <div class="country-selector">
                     <img src="https://flagcdn.com/vn.svg" alt="Vietnam Flag" class="flag">
                     <span>Vietnam</span>
-<!--                    <span class="arrow-down">▼</span>-->
+                    <!--                    <span class="arrow-down">▼</span>-->
                 </div>
                 <div class="search-input-container">
                     <input type="text" data-i18n-placeholder="search_placeholder" placeholder="Find job by job title, keyword, company">
                 </div>
             </div>
+            <!-- TRONG header.html -->
+<!--            <div class="action-buttons">-->
+<!--                <a th:if="${session.user == null}" th:href="@{/signin}" class="sign-in-btn">Sign In</a>-->
 
+<!--                &lt;!&ndash; CHO Form Login users &ndash;&gt;-->
+<!--                <form th:if="${session.user != null}" th:action="@{/logout}" method="post" style="display: inline;">-->
+<!--                    <button type="submit" class="sign-in-btn" style="background: none; border: none; color: inherit; cursor: pointer;">-->
+<!--                        Log Out-->
+<!--                    </button>-->
+<!--                </form>-->
+
+<!--                <button class="post-job-btn">Post A Job</button>-->
+<!--            </div>-->
+            <!-- TRONG header.html - PHẦN ACTION BUTTONS -->
             <div class="action-buttons">
-                <a th:if="${session.user == null}" th:href="@{/signin}" class="sign-in-btn" data-i18n="sign_in">Sign In</a>
-                <a th:if="${session.user != null}" th:href="@{/logout}" class="sign-in-btn" data-i18n="log_out">Log Out</a>
+                <!-- Khi CHƯA đăng nhập - Hiển thị Sign In -->
+                <div th:if="${session.user == null}">
+                    <a th:href="@{/signin}" class="sign-in-btn" data-i18n="sign_in">Sign In</a>
+                </div>
+
+                <!-- Khi ĐÃ đăng nhập - Hiển thị user info + Log Out -->
+                <div th:if="${session.user != null}" class="user-logged-in">
+                    <div class="user-info">
+                        <span class="user-welcome" th:text="'Xin chào, ' + ${session.user.fullName}"></span>
+                        <form th:action="@{/logout}" method="post" style="display: inline;">
+                            <button type="submit" class="logout-btn" data-i18n="log_out">
+                                <i class="fas fa-sign-out-alt"></i> Log Out
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
                 <button class="post-job-btn" data-i18n="post_job">Post A Job</button>
             </div>
+
+
+<!--                        <div class="action-buttons">-->
+<!--                            <a th:if="${session.user == null}" th:href="@{/signin}" class="sign-in-btn" data-i18n="sign_in">Sign In</a>-->
+<!--                            <a th:if="${session.user != null}" th:href="@{/logout}" class="sign-in-btn" data-i18n="log_out">Log Out</a>-->
+<!--                            <button class="post-job-btn" data-i18n="post_job">Post A Job</button>-->
+<!--                        </div>-->
+<!--                        <div class="action-buttons">-->
+<!--                            <a th:if="${!isLoggedIn}" th:href="@{/signin}" class="sign-in-btn" data-i18n="sign_in">Sign In</a>-->
+<!--                            <a th:if="${isLoggedIn}" th:href="@{/logout}" class="sign-in-btn" data-i18n="log_out">Log Out</a>-->
+<!--                            <button class="post-job-btn" data-i18n="post_job">Post A Job</button>-->
+<!--                        </div>-->
+
+
         </div>
     </header>
 
