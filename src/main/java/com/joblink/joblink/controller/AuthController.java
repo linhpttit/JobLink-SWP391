@@ -59,46 +59,87 @@ public class AuthController {
         return "signin";
     }
 
-    @PostMapping("/login")
-    public String doLogin(@ModelAttribute LoginRequest form,
-                          @RequestParam(value = "remember", required = false) String remember,
-                          HttpSession session,
-                          HttpServletResponse resp,
-                          Model model) {
+//    @PostMapping("/login")
+//    public String doLogin(@ModelAttribute LoginRequest form,
+//                          @RequestParam(value = "remember", required = false) String remember,
+//                          HttpSession session,
+//                          HttpServletResponse resp,
+//                          Model model) {
+//
+//        User u = auth.authenticate(form.getEmail(), form.getPassword());
+//        if (u == null) {
+//            model.addAttribute("error", "Email hoặc mật khẩu không đúng");
+//            model.addAttribute("loginRequest", form);
+//            return "signin";
+//        }
+//
+//        session.setAttribute("user", u);
+//
+//        if (remember != null && ("on".equals(remember) || "true".equals(remember))) {
+//            rememberMeService.remember(resp, u.getUserId());
+//        } else {
+//            rememberMeService.clear(resp);
+//        }
+//
+//        String redirectUrl = switch (u.getRole().toLowerCase()) {
+//            case "admin"    -> "redirect:/admin/home";
+//            case "employer" -> "redirect:/employer/home";
+//            case "seeker"   -> "redirect:/seeker/home";
+//            default         -> "redirect:/signin";
+//        };
+//
+//        return redirectUrl;
+//    }
+@PostMapping("/login")
+public String doLogin(@ModelAttribute LoginRequest form,
+                      @RequestParam(value = "remember", required = false) String remember,
+                      HttpSession session,
+                      HttpServletResponse resp,
+                      Model model) {
 
-        User u = auth.authenticate(form.getEmail(), form.getPassword());
-        if (u == null) {
-            model.addAttribute("error", "Email hoặc mật khẩu không đúng");
-            model.addAttribute("loginRequest", form);
-            return "signin";
-        }
-
-        session.setAttribute("user", u);
-
-        if (remember != null && ("on".equals(remember) || "true".equals(remember))) {
-            rememberMeService.remember(resp, u.getUserId());
-        } else {
-            rememberMeService.clear(resp);
-        }
-
-        String redirectUrl = switch (u.getRole().toLowerCase()) {
-            case "admin"    -> "redirect:/admin/home";
-            case "employer" -> "redirect:/employer/home";
-            case "seeker"   -> "redirect:/seeker/home";
-            default         -> "redirect:/signin";
-        };
-
-        return redirectUrl;
+    User u = auth.authenticate(form.getEmail(), form.getPassword());
+    if (u == null) {
+        model.addAttribute("error", "Email hoặc mật khẩu không đúng");
+        model.addAttribute("loginRequest", form);
+        return "signin";
     }
 
-    @GetMapping("/logout")
-    public String logout(HttpSession session, HttpServletResponse resp) {
-        if (session != null) {
-            session.invalidate();
-        }
+    session.setAttribute("user", u);
+
+    if (remember != null && ("on".equals(remember) || "true".equals(remember))) {
+        rememberMeService.remember(resp, u.getUserId());
+    } else {
         rememberMeService.clear(resp);
-        return "redirect:/";
     }
+
+    // GIỮ NGUYÊN - redirect theo role
+    String redirectUrl = switch (u.getRole().toLowerCase()) {
+        case "admin"    -> "redirect:/admin/home";
+        case "employer" -> "redirect:/employer/home";
+        case "seeker"   -> "redirect:/seeker/home";
+        default         -> "redirect:/signin";
+    };
+
+    return redirectUrl;
+}
+
+//    @PostMapping("/logout")
+//    public String handleLogoutPost(HttpSession session, HttpServletResponse response) {
+//        // Spring Security sẽ xử lý, nhưng thêm logic cleanup nếu cần
+//        if (session != null) {
+//            session.invalidate();
+//        }
+//        rememberMeService.clear(response);
+//        return "redirect:/?logout=true";
+//    }
+//    @GetMapping("/logout")
+//    public String logout(HttpSession session, HttpServletResponse resp) {
+//        if (session != null) {
+//            session.invalidate();
+//        }
+//        rememberMeService.clear(resp);
+//        return "redirect:/";
+//    }
 
     /* =========================
        REGISTER WITH OTP
