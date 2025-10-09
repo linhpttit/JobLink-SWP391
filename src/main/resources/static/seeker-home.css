@@ -1,0 +1,141 @@
+/* =========================
+   PROFILE PAGE – ADD-ONS
+   ========================= */
+
+/* khối chung của trang (an toàn nếu bạn muốn scope) */
+.profile-page .title { margin-bottom: .75rem; }
+
+/* card nhỏ cho từng item (skill/experience/education/...) */
+.profile-page .item-card {
+  border: 1px solid #e9ecef;
+  background: #fff;
+  border-radius: 12px;
+  padding: .8rem .9rem;
+  display: flex;
+  gap: .75rem;
+  align-items: center;
+  justify-content: space-between;
+  transition: box-shadow .2s ease, transform .15s ease;
+}
+.profile-page .item-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0,0,0,.06);
+}
+
+/* tên + mô tả bên trái trong card */
+.profile-page .item-meta .meta-title{
+  font-weight: 600;
+  color: var(--dark);
+  margin-bottom: .2rem;
+}
+.profile-page .item-meta .meta-sub {
+  font-size: .875rem;
+  color: #6b7b8c;
+}
+
+/* nhóm nút thao tác phải */
+.profile-page .item-actions .btn{
+  padding: .2rem .5rem;
+  border-radius: 8px;
+  line-height: 1.2;
+}
+.profile-page .btn-outline-primary{
+  color: var(--primary);
+  border-color: rgba(0, 184, 123, .35);
+}
+.profile-page .btn-outline-primary:hover{
+  background: var(--primary);
+  color: #fff;
+}
+.profile-page .btn-outline-danger{
+  color: #dc3545;
+  border-color: rgba(220,53,69,.35);
+}
+.profile-page .btn-outline-danger:hover{
+  background: #dc3545;
+  color: #fff;
+}
+
+/* progress bar trong card skill */
+.profile-page .progress {
+  height: 6px;
+  background: #eff2f5;
+}
+.profile-page .progress .progress-bar{
+  background: var(--primary);
+  transition: width .6s ease;
+}
+
+/* trạng thái trống */
+.profile-page .empty-state{
+  border: 1px dashed #ced4da;
+  background: #fafbfc;
+  color: #6b7b8c;
+  padding: .9rem;
+  border-radius: 12px;
+}
+
+/* nút “Add …” ở tiêu đề section */
+.profile-page .section-header{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+}
+
+/* —— Hồ sơ bên phải (widget %) —— */
+.profile-progress{
+  border-radius: 16px;
+  transition: all .25s ease;
+  border: 1px solid #eef0f2;
+}
+.profile-progress:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,.08);
+}
+.profile-progress .alert{
+  background: #fcfcfd;
+}
+
+.progress-circle { position: relative; width: 120px; height: 120px; }
+.progress-circle svg { transform: rotate(-90deg); }
+.progress-circle text { transform: rotate(90deg); font-weight: 700; }
+.progress-circle circle:last-child{
+  stroke: var(--primary);
+  transition: stroke-dashoffset .7s ease;
+}
+
+/* danh sách phần còn thiếu */
+.profile-progress ul{
+  padding-left: 1rem;
+}
+.profile-progress ul li{
+  margin: .25rem 0;
+}
+
+/* avatar + tên trong about */
+.profile-page .avatar-md{
+  width: 72px; height: 72px; border-radius: 50%;
+  object-fit: cover; border: 3px solid rgba(0,0,0,.06);
+}
+
+/* modal form – bo tròn theo theme */
+.modal-content{ border-radius: 14px; }
+.modal-header{ border-bottom: 1px solid #eef0f2; }
+.modal-footer{ border-top: 1px solid #eef0f2; }
+
+/* responsive cho cột phải */
+@media (max-width: 991.98px){
+  .profile-progress{
+    position: static !important;
+    width: 100% !important;
+    margin-top: 1rem;
+  }
+}
+
+/* anchor highlight khi quay lại section */
+:target { scroll-margin-top: 80px; }
+
+/* icon “+” trên link thêm */
+a.link-add{ color: var(--primary); text-decoration: none; }
+a.link-add:hover{ opacity: .85; }
