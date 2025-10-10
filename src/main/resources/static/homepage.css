@@ -489,39 +489,144 @@
             }
         }
 
-        /* --- User menu --- */
-        .usermenu {
-          position: fixed;
-          top: 14px;          /* rìa phải giống header top-nav */
-          right: 18px;
-          z-index: 1001;
-        }
-        .usermenu__btn {
-          display: flex; align-items: center; gap: 8px;
-          border: 1px solid #e5e7eb; background: #fff;
-          padding: 6px 10px; border-radius: 999px; cursor: pointer;
-          box-shadow: 0 2px 8px rgba(0,0,0,.05);
-        }
-        .usermenu__btn img { width: 32px; height: 32px; border-radius: 50%; }
-        .usermenu__caret { font-size: 14px; color: #374151; }
+/* User section styling */
+.user-section {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    position: relative;
+}
 
-        .usermenu__dropdown {
-          position: absolute; right: 0; margin-top: 8px;
-          width: 280px; background: #fff; border: 1px solid #e5e7eb;
-          border-radius: 10px; box-shadow: 0 16px 40px rgba(0,0,0,.12);
-          display: none; /* toggle qua JS */
-        }
-        .usermenu__dropdown.open { display: block; }
+/* Usermenu styling để nằm cố định trong header */
+.usermenu {
+    position: relative;
+    display: inline-block;
+}
 
-        .usermenu__header { display: flex; gap: 12px; padding: 14px 14px 10px; }
-        .usermenu__avatar { width: 44px; height: 44px; border-radius: 50%; }
-        .usermenu__name { font-weight: 700; color: #111827; }
-        .usermenu__email { font-size: 13px; color: #6b7280; }
+.usermenu__btn {
+    margin-right: 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: background-color 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
 
-        .usermenu__item {
-          display: flex; align-items: center; gap: 10px;
-          padding: 10px 14px; color: #111827; text-decoration: none;
-        }
-        .usermenu__item:hover { background: #f9fafb; }
-        .usermenu__item--danger { color: #b91c1c; }
-        .usermenu__sep { height: 1px; background: #f3f4f6; margin: 8px 0; }
+.usermenu__btn:hover {
+    background-color: #f5f5f5;
+}
+
+.usermenu__btn img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.usermenu__caret {
+    font-size: 12px;
+    color: #666;
+}
+
+/* Dropdown styling */
+.usermenu__dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 280px;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    margin-top: 8px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+
+.usermenu__dropdown.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Dropdown header */
+.usermenu__header {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    border-bottom: 1px solid #f0f0f0;
+    gap: 12px;
+}
+
+.usermenu__avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.usermenu__who {
+    flex: 1;
+}
+
+.usermenu__name {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.usermenu__email {
+    font-size: 14px;
+    color: #666;
+}
+
+/* Dropdown items */
+.usermenu__item {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    color: #333;
+    text-decoration: none;
+    transition: background-color 0.3s;
+    gap: 12px;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+}
+
+.usermenu__item:hover {
+    background-color: #f8f9fa;
+}
+
+.usermenu__item svg {
+    color: #666;
+}
+
+.usermenu__sep {
+    height: 1px;
+    background-color: #f0f0f0;
+    margin: 8px 0;
+}
+
+/* Danger item */
+.usermenu__item--danger {
+    color: #dc3545;
+}
+
+.usermenu__item--danger:hover {
+    background-color: #fff5f5;
+}
+
+.usermenu__item--danger svg {
+    color: #dc3545;
+}
+
