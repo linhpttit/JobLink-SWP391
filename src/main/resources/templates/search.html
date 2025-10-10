@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Find Job - JobLink</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <script th:src="@{/JS/translate.js}"></script>
     <style>
         * {
             margin: 0;
@@ -599,26 +600,26 @@
 
 <main class="search-main">
     <div class="search-container">
-        <h2 class="search-title">Find Job</h2>
+        <h2 class="search-title" data-i18n="find_job_title">Find Job</h2>
 
         <div class="search-bar">
-            <input type="text" placeholder="Job title, Keyword..." class="search-input search-keyword">
-            <input type="text" placeholder="Location" class="search-input search-location">
+            <input type="text" data-i18n-placeholder="job_title_placeholder" placeholder="Job title, Keyword..." class="search-input search-keyword">
+            <input type="text" data-i18n-placeholder="location_placeholder" placeholder="Location" class="search-input search-location">
             <select class="search-input search-category">
-                <option>Select Category</option>
-                <option>Design</option>
-                <option>Programming</option>
-                <option>Marketing</option>
+                <option data-i18n="select_category">Select Category</option>
+                <option data-i18n="cat_designer">Design</option>
+                <option data-i18n="cat_programming">Programming</option>
+                <option data-i18n="cat_digital_marketing">Marketing</option>
                 <option>Sales</option>
                 <option>Customer Service</option>
             </select>
             <div class="search-btn-wrap">
-                <button class="search-btn">Find Job</button>
+                <button class="search-btn" data-i18n="find_job_btn">Find Job</button>
             </div>
             <div class="search-adv-wrap">
                 <button class="advance-filter-btn" id="openAdvanceFilter">
                     <i class="fas fa-sliders-h"></i>
-                    Advance Filter
+                    <span data-i18n="advance_filter">Advance Filter</span>
                 </button>
             </div>
         </div>
@@ -629,15 +630,15 @@
             </div>
             <div class="filter-right">
                 <select class="search-sort">
-                    <option>Latest</option>
-                    <option>Oldest</option>
-                    <option>Salary: High to Low</option>
-                    <option>Salary: Low to High</option>
+                    <option data-i18n="latest">Latest</option>
+                    <option data-i18n="oldest">Oldest</option>
+                    <option data-i18n="salary_high_to_low">Salary: High to Low</option>
+                    <option data-i18n="salary_low_to_high">Salary: Low to High</option>
                 </select>
                 <select class="search-page">
-                    <option>12 per page</option>
-                    <option>24 per page</option>
-                    <option>48 per page</option>
+                    <option>12 <span data-i18n="per_page">per page</span></option>
+                    <option>24 <span data-i18n="per_page">per page</span></option>
+                    <option>48 <span data-i18n="per_page">per page</span></option>
                 </select>
                 <button class="search-view search-view-grid active">
                     <i class="fa fa-th-large"></i>

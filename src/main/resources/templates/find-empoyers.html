@@ -6,37 +6,38 @@
     <title>Find Employers - JobLink</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{/find-employers.css}">
+    <script th:src="@{/JS/translate.js}"></script>
 </head>
 <body>
 <div th:replace="~{header :: header}"></div>
 
 <main class="employers-main">
     <div class="page-header">
-        <h1 class="page-title">Find Employers</h1>
+        <h1 class="page-title" data-i18n="find_employers">Find Employers</h1>
         <div class="breadcrumb">
-            <a href="/">Home</a> / <span>Find Employers</span>
+            <a href="/" data-i18n="breadcrumb_home">Home</a> / <span data-i18n="breadcrumb_find_employers">Find Employers</span>
         </div>
     </div>
 
     <div class="search-bar-container">
         <div class="search-input-group">
             <i class="fas fa-search"></i>
-            <input type="text" placeholder="Job title, Keyword...">
+            <input type="text" data-i18n-placeholder="job_title_placeholder" placeholder="Job title, Keyword...">
         </div>
         <div class="search-input-group">
             <i class="fas fa-map-marker-alt"></i>
-            <input type="text" placeholder="Location">
+            <input type="text" data-i18n-placeholder="location_placeholder" placeholder="Location">
         </div>
         <div class="search-input-group">
             <i class="fas fa-layer-group"></i>
             <select>
-                <option>Select Category</option>
-                <option>Design</option>
+                <option data-i18n="select_category">Select Category</option>
+                <option data-i18n="cat_designer">Design</option>
                 <option>Development</option>
-                <option>Marketing</option>
+                <option data-i18n="cat_digital_marketing">Marketing</option>
             </select>
         </div>
-        <button class="find-job-btn">Find Job</button>
+        <button class="find-job-btn" data-i18n="find_job_btn">Find Job</button>
     </div>
 
     <div class="content-wrapper">
@@ -44,12 +45,12 @@
         <aside class="sidebar">
             <button class="filter-btn">
                 <i class="fas fa-sliders-h"></i>
-                Filter
+                <span data-i18n="filter">Filter</span>
             </button>
 
             <div class="filter-section">
                 <div class="filter-title">
-                    <span>Location Radius: <span class="radius-value">32 miles</span></span>
+                    <span><span data-i18n="location_radius">Location Radius:</span> <span class="radius-value">32 <span data-i18n="miles">miles</span></span></span>
                     <i class="fas fa-chevron-up"></i>
                 </div>
                 <div class="radius-slider">
@@ -59,33 +60,33 @@
 
             <div class="filter-section">
                 <div class="filter-title">
-                    <span>Organization Type</span>
+                    <span data-i18n="organization_type">Organization Type</span>
                     <i class="fas fa-chevron-up"></i>
                 </div>
                 <div class="filter-options">
                     <div class="filter-option">
                         <input type="checkbox" id="gov">
-                        <label for="gov">Government</label>
+                        <label for="gov" data-i18n="government">Government</label>
                     </div>
                     <div class="filter-option">
                         <input type="checkbox" id="semi-gov">
-                        <label for="semi-gov">Semi Government</label>
+                        <label for="semi-gov" data-i18n="semi_government">Semi Government</label>
                     </div>
                     <div class="filter-option">
                         <input type="checkbox" id="ngo">
-                        <label for="ngo">NGO</label>
+                        <label for="ngo" data-i18n="ngo">NGO</label>
                     </div>
                     <div class="filter-option">
                         <input type="checkbox" id="private">
-                        <label for="private">Private Company</label>
+                        <label for="private" data-i18n="private_company">Private Company</label>
                     </div>
                     <div class="filter-option">
                         <input type="checkbox" id="international">
-                        <label for="international">International Agencies</label>
+                        <label for="international" data-i18n="international_agencies">International Agencies</label>
                     </div>
                     <div class="filter-option">
                         <input type="checkbox" id="others">
-                        <label for="others">Others</label>
+                        <label for="others" data-i18n="others">Others</label>
                     </div>
                 </div>
             </div>
@@ -96,15 +97,15 @@
             <div class="content-header">
                 <div class="sort-controls">
                     <select id="sortSelect">
-                        <option value="most_jobs">Most Jobs</option>
-                        <option value="latest">Latest</option>
-                        <option value="name_az">A → Z</option>
-                        <option value="name_za">Z → A</option>
+                        <option value="most_jobs" data-i18n="most_jobs">Most Jobs</option>
+                        <option value="latest" data-i18n="latest">Latest</option>
+                        <option value="name_az" data-i18n="name_az">A → Z</option>
+                        <option value="name_za" data-i18n="name_za">Z → A</option>
                     </select>
                     <select id="pageSize">
-                        <option value="12">12 per page</option>
-                        <option value="24">24 per page</option>
-                        <option value="48">48 per page</option>
+                        <option value="12">12 <span data-i18n="per_page">per page</span></option>
+                        <option value="24">24 <span data-i18n="per_page">per page</span></option>
+                        <option value="48">48 <span data-i18n="per_page">per page</span></option>
                     </select>
                 </div>
                 <div class="view-toggle">
@@ -115,7 +116,7 @@
 
             <!-- Grid hiển thị dữ liệu động -->
             <div class="employers-grid" id="employerGrid">
-                <p style="text-align:center;width:100%;padding:40px;color:#888;">Nhấn “Find Job” để bắt đầu tìm kiếm...</p>
+                <p style="text-align:center;width:100%;padding:40px;color:#888;" data-i18n="click_find_job">Click "Find Job" to start searching...</p>
             </div>
 
             <!-- Pagination -->
