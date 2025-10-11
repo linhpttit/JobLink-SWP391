@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -22,8 +23,15 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
-        registry.addRedirectViewController("/login", "/signin"); // điều hướng từ login sang signin
-//        registry.addRedirectViewController("/profile", "/jobseeker/profile"); // điều hướng từ click vào profile tới profile page djtme mệt vcl
+        registry.addRedirectViewController("/login", "/signin");
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/avatars/**")
+                .addResourceLocations("file:src/main/resources/static/uploads/avatars/");
+        registry.addResourceHandler("/certificates/**")
+                .addResourceLocations("file:src/main/resources/static/uploads/certificates/");
     }
 
     @Override
@@ -62,6 +70,7 @@ public class WebConfig implements WebMvcConfigurer {
 
                         // Static resources
                         "/css/**", "/js/**", "/images/**", "/static/**", "/webjars/**",
+                        "/avatars/**", "/certificates/**", "/uploads/**",
 
                         // Error
                         "/error", "/404"

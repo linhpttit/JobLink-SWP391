@@ -36,4 +36,3 @@ public final class ProfileJsonUtil {
         return arr.toString();
     }
 }
-

@@ -167,7 +167,7 @@ public class AuthController {
                 return switch (user.getRole().toLowerCase()) {
                     case "admin" -> "redirect:/admin/home";
                     case "employer" -> "redirect:/employer/home";
-                    case "seeker" -> "redirect:/jobseeker/profile";
+                    case "seeker" -> "redirect:/seeker/home";
                     default -> "redirect:/";
                 };
             }

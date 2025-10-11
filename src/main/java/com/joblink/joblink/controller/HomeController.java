@@ -59,8 +59,8 @@ public class HomeController implements ErrorController {
         return "admin-home";
     }
 
-//    @RequestMapping("/error")
-//    public String handleError(HttpServletRequest request) {
-//        return "error";
-//    }
+    @RequestMapping("/error")
+    public String handleError(HttpServletRequest request) {
+        return "error";
+    }
 }

@@ -1,6 +1,5 @@
 package com.joblink.joblink.dao;
 
-import com.joblink.joblink.auth.model.JobSeekerProfile;
 import com.joblink.joblink.auth.model.User;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -114,63 +113,4 @@ public class UserDao {
         String sql = "UPDATE dbo.Users SET password_hash = HASHBYTES('SHA2_256', ?) WHERE email = ?";
         return jdbc.update(sql, rawPassword, email);
     }
-
-    /* ===========================
-       PROFILE TỐI THIỂU (để render)
-       =========================== */
-    public Optional<JobSeekerProfile> findProfileMinimalById(int userId) {
-        String sql = """
-                SELECT user_id, username, email, url_avt
-                FROM dbo.Users WHERE user_id = ?
-                """;
-        try {
-            JobSeekerProfile p = jdbc.queryForObject(sql, (rs, rn) -> {
-                JobSeekerProfile pr = new JobSeekerProfile();
-                pr.setUserId(rs.getInt("user_id"));
-                // DB không có full_name → dùng username
-                pr.setFullName(rs.getString("username"));
-                pr.setUsername(rs.getString("username"));
-                pr.setEmail(rs.getString("email"));
-                pr.setAvatarUrl(rs.getString("url_avt"));
-                return pr;
-            }, userId);
-            return Optional.ofNullable(p);
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
-    }
-
-    /**
-     * Cập nhật thông tin cơ bản: ở schema hiện tại chỉ có thể cập nhật username + email (+ url_avt nếu muốn).
-     */
-    public int updateBasicInfo(int userId, String fullNameOrUsername, String username, String email) {
-        // fullNameOrUsername bị bỏ qua vì DB không có full_name; giữ chữ ký hàm để không phải sửa service
-        return jdbc.update("""
-                UPDATE dbo.Users
-                SET username = ?, email = ?
-                WHERE user_id = ?
-                """, (username != null ? username : fullNameOrUsername), email, userId);
-    }
-
-    /**
-     * Cập nhật avatar (url_avt) nếu bạn cần.
-     */
-    public int updateAvatar(int userId, String avatarUrl) {
-        return jdbc.update("UPDATE dbo.Users SET url_avt = ? WHERE user_id = ?", avatarUrl, userId);
-    }
 }
-
-//Nếu sau
-//này bạn
-//muốn tách
-//full_name khỏi
-//username,
-//khi có
-//cột mới
-//trong DB
-//chỉ cần
-//sửa lại
-//các alias
-//phần u.
-//
-//setFullName(...) và các câu SELECT tương ứng.
