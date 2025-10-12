@@ -15,7 +15,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 
     <!-- Auto-login loading overlay -->
-    <div id="autoLoginOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); z-index: 10000; justify-content: center; align-items: center;">
+    <div id="autoLoginOverlay"
+         style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); z-index: 10000; justify-content: center; align-items: center;">
         <div style="text-align: center; padding: 20px; border-radius: 10px; background: white; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
             <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #007bff; margin-bottom: 15px;"></i>
             <h3 style="margin: 0 0 10px 0; color: #333;" data-i18n="welcome_back">Welcome back!</h3>
@@ -69,17 +70,26 @@
                 <div class="country-selector">
                     <img src="https://flagcdn.com/vn.svg" alt="Vietnam Flag" class="flag">
                     <span>Vietnam</span>
-<!--                    <span class="arrow-down">▼</span>-->
+                    <!--                    <span class="arrow-down">▼</span>-->
                 </div>
                 <div class="search-input-container">
-                    <input type="text" data-i18n-placeholder="search_placeholder" placeholder="Find job by job title, keyword, company">
+                    <input type="text" data-i18n-placeholder="search_placeholder"
+                           placeholder="Find job by job title, keyword, company">
                 </div>
             </div>
 
             <div class="action-buttons">
-                <a th:if="${session.user == null}" th:href="@{/signin}" class="sign-in-btn" data-i18n="sign_in">Sign In</a>
-                <a th:if="${session.user != null}" th:href="@{/logout}" class="sign-in-btn" data-i18n="log_out">Log Out</a>
-                <a th:if="${session.user == null}" th:href="@{/signup}" class="post-job-btn" data-i18n="post_job">Post A Job</a>
+
+                <a th:if="${session.user != null}" th:href="@{/messages}" class="message-icon-btn" id="messageIconBtn">
+                    <i class="fas fa-envelope"></i>
+                    <span class="message-badge" id="messageBadge" style="display: none;">0</span>
+                </a>
+                <a th:if="${session.user == null}" th:href="@{/signin}" class="sign-in-btn" data-i18n="sign_in">Sign
+                    In</a>
+                <a th:if="${session.user != null}" th:href="@{/logout}" class="sign-in-btn" data-i18n="log_out">Log
+                    Out</a>
+                <a th:if="${session.user == null}" th:href="@{/signup}" class="post-job-btn" data-i18n="post_job">Post A
+                    Job</a>
             </div>
         </div>
     </header>
@@ -168,6 +178,32 @@
             changeLanguage(savedLang);
         }
 
+        function updateUnreadMessageCount() {
+            const messageBadge = document.getElementById('messageBadge');
+            if (!messageBadge) return;
+
+            fetch('/messages/api/unread-count')
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Not authenticated');
+                })
+                .then(data => {
+                    const count = data.count || 0;
+                    if (count > 0) {
+                        messageBadge.textContent = count > 99 ? '99+' : count;
+                        messageBadge.style.display = 'inline-block';
+                    } else {
+                        messageBadge.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.log('[v0] Could not fetch unread count:', error);
+                    messageBadge.style.display = 'none';
+                });
+        }
+
         // Auto-login function
         function attemptHeaderAutoLogin() {
             console.log("Checking for remembered account in header");
@@ -249,6 +285,10 @@
 
             // Then attempt auto-login
             setTimeout(attemptHeaderAutoLogin, 200);
+
+            updateUnreadMessageCount();
+            // Update every 30 seconds
+            setInterval(updateUnreadMessageCount, 30000);
         });
 
         // Clear auto-logged flag when navigating to logout

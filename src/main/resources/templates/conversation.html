@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversation - JobLink</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .messages-container {
+            height: calc(100vh - 350px);
+            overflow-y: auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+        }
+        .message.sent {
+            justify-content: flex-end;
+        }
+        .message.received {
+            justify-content: flex-start;
+        }
+        .message-bubble {
+            max-width: 60%;
+            padding: 10px 15px;
+            border-radius: 18px;
+            position: relative;
+        }
+        .message.sent .message-bubble {
+            background-color: #007bff;
+            color: white;
+        }
+        .message.received .message-bubble {
+            background-color: white;
+            border: 1px solid #dee2e6;
+        }
+        .message-recalled {
+            font-style: italic;
+            opacity: 0.6;
+        }
+        .message-time {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+        .message-actions {
+            position: absolute;
+            top: -25px;
+            right: 0;
+            display: none;
+        }
+        .message:hover .message-actions {
+            display: block;
+        }
+        .avatar-small {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .message-type-address {
+            background-color: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 5px;
+        }
+        .input-group {
+            border-top: 1px solid #dee2e6;
+            padding: 15px;
+            background-color: white;
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mt-3">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <div>
+                        <a href="/messages" class="text-white me-3">
+                            <i class="fas fa-arrow-left"></i>
+                        </a>
+                        <span th:text="${conversation.otherUserName}">User Name</span>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a class="dropdown-item" href="#" onclick="shareAddress()">
+                                    <i class="fas fa-map-marker-alt"></i> Share Address
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item text-danger" href="#"
+                                   th:onclick="'blockUser(' + ${conversation.otherUserId} + ')'">
+                                    <i class="fas fa-ban"></i> Block User
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="messages-container" id="messagesContainer">
+                    <div th:each="msg : ${messages}"
+                         th:class="${msg.senderUserId == currentUserId ? 'message sent' : 'message received'}"
+                         th:attr="data-message-id=${msg.messageId}">
+                        <img th:if="${msg.senderUserId != currentUserId}"
+                             th:src="${msg.senderAvatar}"
+                             class="avatar-small"
+                             alt="Avatar">
+                        <div class="message-bubble">
+                            <div th:if="${msg.isRecalled}" class="message-recalled">
+                                <i class="fas fa-undo"></i> Message recalled
+                            </div>
+                            <div th:unless="${msg.isRecalled}">
+                                <div th:if="${msg.messageType == 'address'}" class="message-type-address">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <strong>Address:</strong>
+                                    <div th:text="${msg.messageContent}"></div>
+                                </div>
+                                <div th:unless="${msg.messageType == 'address'}" th:text="${msg.messageContent}"></div>
+                            </div>
+                            <div class="message-time" th:text="${#temporals.format(msg.sentAt, 'HH:mm')}"></div>
+                            <div th:if="${msg.senderUserId == currentUserId && !msg.isRecalled}" class="message-actions">
+                                <button class="btn btn-sm btn-danger"
+                                        th:onclick="'recallMessage(' + ${msg.messageId} + ')'">
+                                    <i class="fas fa-undo"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <input type="text"
+                           id="messageInput"
+                           class="form-control"
+                           placeholder="Type a message..."
+                           onkeypress="if(event.key === 'Enter') sendMessage()">
+                    <button class="btn btn-primary" onclick="sendMessage()">
+                        <i class="fas fa-paper-plane"></i> Send
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+Share Address Modal
+<div class="modal fade" id="addressModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Share Address</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                    <textarea id="addressInput" class="form-control" rows="3"
+                              placeholder="Enter your address..."></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="sendAddress()">Share</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+<script th:inline="javascript">
+    const currentUserId = /*[[${currentUserId}]]*/ 0;
+    const conversationId = /*[[${conversation.conversationId}]]*/ 0;
+    const receiverUserId = /*[[${conversation.otherUserId}]]*/ 0;
+    const seekerId = /*[[${conversation.seekerId}]]*/ 0;
+    const employerId = /*[[${conversation.employerId}]]*/ 0;
+
+    let stompClient = null;
+
+    // Connect to WebSocket
+    function connect() {
+        const socket = new SockJS('/ws-messaging');
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, function(frame) {
+            console.log('[v0] Connected to WebSocket');
+
+            // Subscribe to personal message queue
+            stompClient.subscribe('/user/' + currentUserId + '/queue/messages', function(message) {
+                const msg = JSON.parse(message.body);
+                if (msg.conversationId === conversationId) {
+                    appendMessage(msg);
+                }
+            });
+
+            // Subscribe to recall notifications
+            stompClient.subscribe('/user/' + currentUserId + '/queue/recall', function(message) {
+                const data = JSON.parse(message.body);
+                markMessageAsRecalled(data.messageId);
+            });
+        });
+    }
+
+    function sendMessage() {
+        const input = document.getElementById('messageInput');
+        const content = input.value.trim();
+
+        if (!content) return;
+
+        fetch('/messages/send', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                receiverUserId: receiverUserId,
+                content: content,
+                messageType: 'text',
+                seekerId: seekerId,
+                employerId: employerId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                appendMessage(data.message);
+                input.value = '';
+
+                // Send via WebSocket for real-time delivery
+                if (stompClient) {
+                    stompClient.send('/app/chat.sendMessage', {}, JSON.stringify(data.message));
+                }
+            } else {
+                alert(data.error);
+            }
+        });
+    }
+
+    function shareAddress() {
+        const modal = new bootstrap.Modal(document.getElementById('addressModal'));
+        modal.show();
+    }
+
+    function sendAddress() {
+        const address = document.getElementById('addressInput').value.trim();
+        if (!address) return;
+
+        fetch('/messages/send', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                receiverUserId: receiverUserId,
+                content: address,
+                messageType: 'address',
+                seekerId: seekerId,
+                employerId: employerId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                appendMessage(data.message);
+                document.getElementById('addressInput').value = '';
+                bootstrap.Modal.getInstance(document.getElementById('addressModal')).hide();
+
+                if (stompClient) {
+                    stompClient.send('/app/chat.sendMessage', {}, JSON.stringify(data.message));
+                }
+            } else {
+                alert(data.error);
+            }
+        });
+    }
+
+    function recallMessage(messageId) {
+        if (!confirm('Are you sure you want to recall this message?')) return;
+
+        fetch('/messages/recall/' + messageId, {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                markMessageAsRecalled(messageId);
+
+                if (stompClient) {
+                    stompClient.send('/app/chat.recallMessage', {}, JSON.stringify({
+                        messageId: messageId,
+                        receiverUserId: receiverUserId
+                    }));
+                }
+            } else {
+                alert(data.error);
+            }
+        });
+    }
+
+    function blockUser(userId) {
+        const reason = prompt('Reason for blocking (optional):');
+        if (reason === null) return;
+
+        fetch('/messages/block', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                blockedUserId: userId,
+                reason: reason
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('User blocked successfully');
+                window.location.href = '/messages';
+            } else {
+                alert(data.error);
+            }
+        });
+    }
+
+    function appendMessage(msg) {
+        const container = document.getElementById('messagesContainer');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = msg.senderUserId === currentUserId ? 'message sent' : 'message received';
+        messageDiv.setAttribute('data-message-id', msg.messageId);
+
+        let content = `<div class="message-bubble">`;
+        if (msg.messageType === 'address') {
+            content += `<div class="message-type-address">
+                <i class="fas fa-map-marker-alt"></i>
+                <strong>Address:</strong>
+                <div>${msg.messageContent}</div>
+            </div>`;
+        } else {
+            content += `<div>${msg.messageContent}</div>`;
+        }
+        content += `<div class="message-time">${new Date().toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'})}</div>`;
+        if (msg.senderUserId === currentUserId) {
+            content += `<div class="message-actions">
+                <button class="btn btn-sm btn-danger" onclick="recallMessage(${msg.messageId})">
+                    <i class="fas fa-undo"></i>
+                </button>
+            </div>`;
+        }
+        content += `</div>`;
+
+        messageDiv.innerHTML = content;
+        container.appendChild(messageDiv);
+        container.scrollTop = container.scrollHeight;
+    }
+
+    function markMessageAsRecalled(messageId) {
+        const messageDiv = document.querySelector(`[data-message-id="${messageId}"]`);
+        if (messageDiv) {
+            const bubble = messageDiv.querySelector('.message-bubble');
+            bubble.innerHTML = `<div class="message-recalled">
+                <i class="fas fa-undo"></i> Message recalled
+            </div>`;
+        }
+    }
+
+    // Auto-scroll to bottom on load
+    window.onload = function() {
+        const container = document.getElementById('messagesContainer');
+        container.scrollTop = container.scrollHeight;
+        connect();
+    };
+</script>
+</body>
+</html>
