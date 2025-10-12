@@ -3,17 +3,13 @@ package com.joblink.joblink.config;
 import com.joblink.joblink.auth.model.User;
 import com.joblink.joblink.security.RememberMeService;
 import jakarta.servlet.*;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-
 import java.io.IOException;
 
-/**
- * Nếu chưa có session user thì kiểm tra cookie REMEMBER để auto-login
- */
 @Component
 @Order(-100)
 public class RememberMeFilter implements Filter {
@@ -29,35 +25,33 @@ public class RememberMeFilter implements Filter {
             throws IOException, ServletException {
 
         HttpServletRequest req = (HttpServletRequest) request;
+        HttpServletResponse res = (HttpServletResponse) response;
+        String uri = req.getRequestURI();
+
+        // 🔹 Bỏ qua các đường dẫn không cần kiểm tra auto-login
+        if (uri.startsWith("/signin") || uri.startsWith("/signup") || uri.startsWith("/login") ||
+                uri.startsWith("/logout") || uri.startsWith("/forgot") || uri.startsWith("/verify-otp") ||
+                uri.startsWith("/css/") || uri.startsWith("/js/") || uri.startsWith("/images/") ||
+                uri.startsWith("/static/") || uri.startsWith("/webjars/") || uri.startsWith("/api/") ||
+                uri.equals("/error") || uri.equals("/404")) {
+            chain.doFilter(request, response);
+            return;
+        }
+
         HttpSession session = req.getSession(false);
 
-        System.out.println("RememberMeFilter is running for: " + req.getRequestURI());
-
         if (session == null || session.getAttribute("user") == null) {
-            System.out.println("No session found, checking remember me cookie...");
+            System.out.println("[RememberMeFilter] No session found → checking remember cookie...");
 
-            // Kiểm tra cookie có tồn tại không
-            Cookie[] cookies = req.getCookies();
-            if (cookies != null) {
-                for (Cookie cookie : cookies) {
-                    if ("REMEMBER".equals(cookie.getName())) {
-                        System.out.println("Found REMEMBER cookie: " + cookie.getValue());
-                        break;
-                    }
-                }
-            } else {
-                System.out.println("No cookies found in request");
-            }
+            // ✅ Gọi autoLogin với cả request + response
+            User u = rememberMeService.autoLogin(req, res);
 
-            User u = rememberMeService.autoLogin(req);
             if (u != null) {
-                System.out.println("Auto login successful for user: " + u.getEmail());
                 req.getSession(true).setAttribute("user", u);
+                System.out.println("[RememberMeFilter] Auto login success: " + u.getEmail());
             } else {
-                System.out.println("Auto login failed - no valid cookie or user not found");
+                System.out.println("[RememberMeFilter] Auto login failed or expired cookie.");
             }
-        } else {
-            System.out.println("User already logged in via session");
         }
 
         chain.doFilter(request, response);

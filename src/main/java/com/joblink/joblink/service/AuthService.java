@@ -3,14 +3,16 @@ package com.joblink.joblink.service;
 import com.joblink.joblink.auth.model.User;
 import com.joblink.joblink.auth.util.PasswordPolicy;
 import com.joblink.joblink.dao.UserDao;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
-import jakarta.servlet.http.HttpSession;
+import java.util.Locale;
 import java.util.Random;
 
 @Service
 public class AuthService {
+
     private final UserDao userDao;
     private final EmailService emailService;
 
@@ -19,159 +21,162 @@ public class AuthService {
         this.emailService = emailService;
     }
 
-    /**
-     * Hàm cũ – ghi user thẳng xuống DB
-     */
+    /* =========================================================
+       1) ĐĂNG KÝ TRỰC TIẾP (chỉ dùng nội bộ cho OTP step 2)
+       ========================================================= */
     public void register(String email, String password, String role) {
-        // Validate role
-        String r = role == null ? "" : role.toLowerCase();
-        if (!r.equals("employer") && !r.equals("seeker")) {
-            throw new IllegalArgumentException("Role chỉ được employer hoặc seeker");
+        final String normEmail = normalizeEmail(email);
+        final String r = normalizeRole(role);
+
+        if (!isAllowedRole(r)) {
+            throw new IllegalArgumentException("Role chỉ được admin, employer hoặc seeker");
         }
-        // Validate password theo policy
         if (!PasswordPolicy.isValid(password)) {
-            throw new IllegalArgumentException("Mật khẩu phải >=8 ký tự, có ít nhất 1 chữ hoa, 1 số, 1 ký tự đặc biệt");
+            throw new IllegalArgumentException("Mật khẩu phải ≥8 ký tự, chứa ít nhất 1 chữ hoa, 1 số và 1 ký tự đặc biệt");
         }
-        // Validate email
-        if (userDao.emailExists(email)) {
+        if (userDao.emailExists(normEmail)) {
             throw new IllegalArgumentException("Email đã tồn tại");
         }
-        // Insert DB
+
         try {
-            userDao.register(email, password, r);
+            userDao.register(normEmail, password, r);
         } catch (DataAccessException ex) {
-            throw ex;
+            throw new IllegalStateException("Không thể tạo tài khoản: " + ex.getMostSpecificCause().getMessage());
         }
     }
 
-    /**
-     * Bước 1: Đăng ký tạm -> gửi OTP
-     */
     public void startRegister(String email, String password, String role, HttpSession session) {
-        // Validate sớm bằng hàm cũ, nhưng chưa insert DB
-        String r = role == null ? "" : role.toLowerCase();
-        if (!r.equals("employer") && !r.equals("seeker")) {
-            throw new IllegalArgumentException("Role chỉ được employer hoặc seeker");
+        final String normEmail = normalizeEmail(email);
+        final String r = normalizeRole(role);
+
+        // Validate sớm (nhưng CHƯA ghi DB)
+        if (!isAllowedRole(r)) {
+            throw new IllegalArgumentException("Role chỉ được admin, employer hoặc seeker");
         }
         if (!PasswordPolicy.isValid(password)) {
-            throw new IllegalArgumentException("Mật khẩu phải >=8 ký tự, có ít nhất 1 chữ hoa, 1 số, 1 ký tự đặc biệt");
+            throw new IllegalArgumentException("Mật khẩu phải ≥8 ký tự, có ít nhất 1 chữ hoa, 1 số, 1 ký tự đặc biệt");
         }
-        if (userDao.emailExists(email)) {
+        if (userDao.emailExists(normEmail)) {
             throw new IllegalArgumentException("Email đã tồn tại");
         }
+        String otp = generateOtp();
+        emailService.sendOtp(normEmail, otp);
 
-        // Sinh OTP
-        String otp = String.format("%06d", new Random().nextInt(999999));
-        emailService.sendOtp(email, otp);
-
-        // Lưu session
-        session.setAttribute("pendingEmail", email);
+        // Lưu phiên chờ xác minh
+        session.setAttribute("pendingEmail", normEmail);
         session.setAttribute("pendingPassword", password);
         session.setAttribute("pendingRole", r);
         session.setAttribute("otp", otp);
         session.setAttribute("otpCreatedAt", System.currentTimeMillis());
+
+        System.out.println("[AuthService] OTP sent to: " + normEmail);
     }
 
-    /**
-     * Bước 2: Xác minh OTP -> nếu đúng thì gọi register()
-     */
     public void verifyOtp(String inputOtp, HttpSession session) {
-        String otp = (String) session.getAttribute("otp");
-        String email = (String) session.getAttribute("pendingEmail");
-        String password = (String) session.getAttribute("pendingPassword");
-        String role = (String) session.getAttribute("pendingRole");
-        Long createdAt = (Long) session.getAttribute("otpCreatedAt");
+        String otp       = (String) session.getAttribute("otp");
+        String email     = (String) session.getAttribute("pendingEmail");
+        String password  = (String) session.getAttribute("pendingPassword");
+        String role      = (String) session.getAttribute("pendingRole");
+        Long createdAt   = (Long) session.getAttribute("otpCreatedAt");
 
         if (otp == null || email == null || password == null || role == null) {
             throw new IllegalStateException("Không có phiên đăng ký đang chờ xác minh");
         }
 
         if (createdAt == null || System.currentTimeMillis() - createdAt > 5 * 60 * 1000) {
-            clearSession(session);
+            clearOtpSession(session);
             throw new IllegalArgumentException("OTP đã hết hạn, vui lòng đăng ký lại");
         }
 
-        if (!otp.equals(inputOtp)) {
-            throw new IllegalArgumentException("OTP không đúng");
+        if (!otp.equals(inputOtp == null ? "" : inputOtp.trim())) {
+            throw new IllegalArgumentException("Mã OTP không đúng");
         }
 
-        // OTP đúng -> gọi lại register()
         register(email, password, role);
-
-        clearSession(session);
+        clearOtpSession(session);
+        System.out.println("[AuthService] Register success for: " + email);
     }
 
-    private void clearSession(HttpSession session) {
-        session.removeAttribute("pendingEmail");
-        session.removeAttribute("pendingPassword");
-        session.removeAttribute("pendingRole");
-        session.removeAttribute("otp");
-        session.removeAttribute("otpCreatedAt");
-    }
     public void sendOtpForPasswordReset(String email, HttpSession session) {
-        // Generate 6-digit OTP
-        String otp = generateOtp();
+        final String normEmail = normalizeEmail(email);
 
-        // Store OTP and timestamp in session
+        if (normEmail == null || normEmail.isBlank()) {
+            throw new IllegalArgumentException("Email không được để trống");
+        }
+
+        User user = userDao.findByEmail(normEmail);
+        if (user == null) {
+            throw new IllegalArgumentException("Email không tồn tại trong hệ thống");
+        }
+
+        String otp = generateOtp();
+        emailService.sendOtp(normEmail, otp);
+
         session.setAttribute("otp", otp);
         session.setAttribute("otpCreatedAt", System.currentTimeMillis());
 
-        // Send OTP via email
-        String subject = "JobLink - Mã xác thực đặt lại mật khẩu";
-        String body = String.format(
-                "Xin chào,\n\n" +
-                        "Bạn đã yêu cầu đặt lại mật khẩu cho tài khoản JobLink của mình.\n\n" +
-                        "Mã OTP của bạn là: %s\n\n" +
-                        "Mã này sẽ hết hạn sau 5 phút.\n\n" +
-                        "Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.\n\n" +
-                        "Trân trọng,\n" +
-                        "JobLink Team",
-                otp
-        );
-
-        emailService.sendOtp(email, otp);
+        System.out.println("[AuthService] Reset OTP sent to: " + normEmail);
     }
 
-    /**
-     * Verify OTP for password reset
-     * Similar to verifyOtp but doesn't create user account
-     */
     public void verifyOtpForPasswordReset(String inputOtp, HttpSession session) {
-        String storedOtp = (String) session.getAttribute("otp");
+        String storedOtp  = (String) session.getAttribute("otp");
         Long otpCreatedAt = (Long) session.getAttribute("otpCreatedAt");
 
-        // Validate OTP exists
         if (storedOtp == null || otpCreatedAt == null) {
             throw new IllegalStateException("Không tìm thấy mã OTP. Vui lòng yêu cầu gửi lại.");
         }
 
-        // Check OTP expiration (5 minutes)
-        long currentTime = System.currentTimeMillis();
-        long otpAge = currentTime - otpCreatedAt;
-        long fiveMinutesInMillis = 5 * 60 * 1000;
-
-        if (otpAge > fiveMinutesInMillis) {
+        if (System.currentTimeMillis() - otpCreatedAt > 5 * 60 * 1000) {
+            clearOtpSession(session);
             throw new IllegalStateException("Mã OTP đã hết hạn. Vui lòng yêu cầu gửi lại.");
         }
 
-        // Verify OTP matches
-        if (!storedOtp.equals(inputOtp.trim())) {
+        if (!storedOtp.equals(inputOtp == null ? "" : inputOtp.trim())) {
             throw new IllegalArgumentException("Mã OTP không đúng. Vui lòng thử lại.");
         }
-
-        // OTP is valid - no need to create account, just mark as verified
-        // The controller will handle the password reset
     }
 
-    /**
-     * Generate random 6-digit OTP
-     */
+    public User authenticate(String email, String password) {
+        if (email == null || password == null) return null;
+        try {
+            final String normEmail = normalizeEmail(email);
+            User u = userDao.login(normEmail, password.trim());
+            if (u == null) {
+                System.out.println("[AuthService] Login failed for: " + normEmail);
+            } else {
+                // đảm bảo có đủ fullName/role/email
+                if (u.getEmail() == null) u.setEmail(normEmail);
+                System.out.println("[AuthService] Login OK for: " + u.getEmail() + " role=" + u.getRole());
+            }
+            return u;
+        } catch (Exception e) {
+            System.out.println("[AuthService] Login error: " + e.getMessage());
+            return null;
+        }
+    }
+
+    private String normalizeEmail(String email) {
+        return email == null ? null : email.trim().toLowerCase(Locale.ROOT);
+    }
+
+    private String normalizeRole(String role) {
+        return role == null ? "" : role.trim().toLowerCase(Locale.ROOT);
+    }
+
+    private boolean isAllowedRole(String role) {
+        return "admin".equals(role) || "employer".equals(role) || "seeker".equals(role);
+    }
+
     private String generateOtp() {
-        Random random = new Random();
-        int otp = 100000 + random.nextInt(900000); // 6-digit number
+        int otp = 100000 + new Random().nextInt(900000);
         return String.valueOf(otp);
     }
-    public User authenticate(String email, String password) {
-        return userDao.login(email, password);
+
+    private void clearOtpSession(HttpSession session) {
+        session.removeAttribute("otp");
+        session.removeAttribute("otpCreatedAt");
+        session.removeAttribute("pendingEmail");
+        session.removeAttribute("pendingPassword");
+        session.removeAttribute("pendingRole");
     }
 }
