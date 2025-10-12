@@ -1,4 +1,3 @@
-
 package com.joblink.joblink.service;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -26,6 +25,11 @@ public class FileUploadService {
     public String uploadCertificate(MultipartFile file) throws IOException {
         validateImageFile(file);
         return uploadFile(file, "certificates");
+    }
+
+    public String uploadCV(MultipartFile file) throws IOException {
+        validateCVFile(file);
+        return uploadFile(file, "cvs");
     }
 
     private String uploadFile(MultipartFile file, String subDir) throws IOException {
@@ -67,6 +71,27 @@ public class FileUploadService {
         // Check file size (max 5MB)
         if (file.getSize() > 5 * 1024 * 1024) {
             throw new IllegalArgumentException("Kích thước file không được vượt quá 5MB");
+        }
+    }
+
+    private void validateCVFile(MultipartFile file) {
+        if (file.isEmpty()) {
+            throw new IllegalArgumentException("CV file is required");
+        }
+
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null) {
+            throw new IllegalArgumentException("Invalid file name");
+        }
+
+        String extension = originalFilename.toLowerCase();
+        if (!extension.endsWith(".pdf") && !extension.endsWith(".doc") && !extension.endsWith(".docx")) {
+            throw new IllegalArgumentException("CV must be in .pdf, .doc, or .docx format");
+        }
+
+        // Check file size (max 5MB)
+        if (file.getSize() > 5 * 1024 * 1024) {
+            throw new IllegalArgumentException("File size must be under 5MB");
         }
     }
 

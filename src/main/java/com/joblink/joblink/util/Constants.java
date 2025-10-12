@@ -1,4 +1,3 @@
-
 package com.joblink.joblink.util;
 
 import java.util.Arrays;
@@ -126,6 +125,77 @@ public class Constants {
             "Español (Spanish)",
             "Русский (Russian)",
             "ภาษาไทย (Thai)"
+    );
+
+    public static final List<String> VIETNAMESE_CITIES = Arrays.asList(
+            "Hà Nội",
+            "TP. Hồ Chí Minh",
+            "Đà Nẵng",
+            "Hải Phòng",
+            "Cần Thơ",
+            "Biên Hòa",
+            "Nha Trang",
+            "Huế",
+            "Buôn Ma Thuột",
+            "Quy Nhơn",
+            "Vũng Tàu",
+            "Nam Định",
+            "Thái Nguyên",
+            "Vinh",
+            "Hạ Long",
+            "Bắc Ninh",
+            "Bắc Giang",
+            "Hải Dương",
+            "Thái Bình",
+            "Long Xuyên",
+            "Mỹ Tho",
+            "Rạch Giá",
+            "Cà Mau",
+            "Bến Tre",
+            "Vĩnh Long",
+            "Trà Vinh",
+            "Sóc Trăng",
+            "Phan Thiết",
+            "Đà Lạt",
+            "Pleiku",
+            "Kon Tum",
+            "Tây Ninh",
+            "Bình Dương",
+            "Đồng Nai"
+    );
+
+    public static final List<String> JOB_LEVELS = Arrays.asList(
+            "Intern",
+            "Fresher",
+            "Junior",
+            "Middle",
+            "Senior",
+            "Team Leader",
+            "Manager",
+            "Senior Manager",
+            "Director",
+            "Vice President",
+            "C-Level (CEO, CTO, CFO, etc.)"
+    );
+
+    public static final List<String> WORK_MODES = Arrays.asList(
+            "Online",
+            "Offline",
+            "Flexible"
+    );
+
+    public static final List<String> SALARY_RANGES = Arrays.asList(
+            "Under 5 million VND",
+            "5-10 million VND",
+            "10-15 million VND",
+            "15-20 million VND",
+            "20-30 million VND",
+            "30-40 million VND",
+            "40-50 million VND",
+            "50-70 million VND",
+            "70-100 million VND",
+            "Over 100 million VND",
+            "Negotiable"
     );
 
     // Certificate types by language

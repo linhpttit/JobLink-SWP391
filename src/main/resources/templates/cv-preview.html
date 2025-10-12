@@ -22,14 +22,13 @@
 
 <div class="cv-container">
     <div class="cv-page">
-        CV Header
         <header class="cv-header">
             <div class="cv-avatar">
                 <img th:src="${profile.avatarUrl != null ? profile.avatarUrl : '/images/user.png'}"
-                     alt="Profile Photo">
+                     alt="Profile Photo" src="">
             </div>
             <div class="cv-header-info">
-                <h1 class="cv-name" th:text="${profile.fullName ?: 'Your Name'}">Full Name</h1>
+                <h1 class="cv-name" th:text="${profile.fullname ?: 'Your Name'}">Full Name</h1>
                 <div class="cv-contact">
                     <div class="contact-item" th:if="${profile.email}">
                         <i class="fas fa-envelope"></i>
@@ -39,9 +38,9 @@
                         <i class="fas fa-phone"></i>
                         <span th:text="${profile.phoneNumber}">0123456789</span>
                     </div>
-                    <div class="contact-item" th:if="${profile.homeAddress}">
+                    <div class="contact-item" th:if="${profile.location}">
                         <i class="fas fa-map-marker-alt"></i>
-                        <span th:text="${profile.homeAddress}">Address</span>
+                        <span th:text="${profile.location}">Address</span>
                     </div>
                     <div class="contact-item" th:if="${profile.dateOfBirth}">
                         <i class="fas fa-birthday-cake"></i>
@@ -55,17 +54,16 @@
             </div>
         </header>
 
-        About Me Section
-        <section class="cv-section" th:if="${profile.selfIntroduction}">
+        <section class="cv-section" th:if="${profile.about}">
             <h2 class="cv-section-title">
                 <i class="fas fa-user"></i> About Me
             </h2>
-            <p class="cv-about" th:text="${profile.selfIntroduction}">
+            <p class="cv-about" th:text="${profile.about}">
                 Self introduction text goes here...
             </p>
         </section>
 
-        Education Section
+
         <section class="cv-section" th:if="${!educations.isEmpty()}">
             <h2 class="cv-section-title">
                 <i class="fas fa-graduation-cap"></i> Education
@@ -86,7 +84,6 @@
             </div>
         </section>
 
-        Experience Section
         <section class="cv-section" th:if="${!experiences.isEmpty()}">
             <h2 class="cv-section-title">
                 <i class="fas fa-briefcase"></i> Work Experience
@@ -110,7 +107,6 @@
             </div>
         </section>
 
-        Skills Section
         <section class="cv-section" th:if="${!skills.isEmpty()}">
             <h2 class="cv-section-title">
                 <i class="fas fa-code"></i> Skills
@@ -126,7 +122,7 @@
             </div>
         </section>
 
-        Languages Section
+
         <section class="cv-section" th:if="${!languages.isEmpty()}">
             <h2 class="cv-section-title">
                 <i class="fas fa-language"></i> Languages
@@ -139,7 +135,7 @@
             </div>
         </section>
 
-        Certificates Section
+
         <section class="cv-section" th:if="${!certificates.isEmpty()}">
             <h2 class="cv-section-title">
                 <i class="fas fa-certificate"></i> Certificates
@@ -151,13 +147,13 @@
                         <p th:text="'Year: ' + ${cert.yearOfCompletion}">Year: 2024</p>
                     </div>
                     <div class="certificate-image" th:if="${cert.certificateImageUrl}">
-                        <img th:src="${cert.certificateImageUrl}" alt="Certificate">
+                        <img th:src="${cert.certificateImageUrl}" alt="Certificate" src="">
                     </div>
                 </div>
             </div>
         </section>
 
-        CV Footer
+
         <footer class="cv-footer">
             <p>Generated on <span th:text="${#temporals.format(#temporals.createNow(), 'dd MMMM yyyy')}">Date</span></p>
         </footer>
