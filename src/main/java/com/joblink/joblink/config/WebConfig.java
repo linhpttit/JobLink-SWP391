@@ -32,11 +32,13 @@ public class WebConfig implements WebMvcConfigurer {
                 .addResourceLocations("file:src/main/resources/static/uploads/avatars/");
         registry.addResourceHandler("/certificates/**")
                 .addResourceLocations("file:src/main/resources/static/uploads/certificates/");
+        registry.addResourceHandler("/cvs/**")
+                .addResourceLocations("file:src/main/resources/static/uploads/cvs/");
     }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new HandlerInterceptor(){
+        registry.addInterceptor(new HandlerInterceptor() {
                     @Override
                     public boolean preHandle(HttpServletRequest req, HttpServletResponse res, Object handler) {
                         HttpSession session = req.getSession(false);
@@ -70,7 +72,7 @@ public class WebConfig implements WebMvcConfigurer {
 
                         // Static resources
                         "/css/**", "/js/**", "/images/**", "/static/**", "/webjars/**",
-                        "/avatars/**", "/certificates/**", "/uploads/**",
+                        "/avatars/**", "/certificates/**", "/cvs/**", "/uploads/**",
 
                         // Error
                         "/error", "/404"

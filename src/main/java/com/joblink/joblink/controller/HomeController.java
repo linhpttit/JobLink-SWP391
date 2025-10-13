@@ -49,7 +49,10 @@ public class HomeController implements ErrorController {
         putUser(model, session);
         return "employer-home";
     }
-
+    @GetMapping("/employers")
+    public String employers() {
+        return "find-empoyers";
+    }
     @GetMapping("/admin/home")
     public String adminHome(Model model, HttpSession session) {
         if (!ensureLogin(session)) return "redirect:/signin";
