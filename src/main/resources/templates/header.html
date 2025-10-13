@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,54 +10,296 @@
 </head>
 <body>
 
-<!-- file: header.html -->
 <div th:fragment="header">
     <link rel="stylesheet" th:href="@{/header.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+    <!-- Auto-login loading overlay -->
+    <div id="autoLoginOverlay"
+         style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); z-index: 10000; justify-content: center; align-items: center;">
+        <div style="text-align: center; padding: 20px; border-radius: 10px; background: white; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+            <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #007bff; margin-bottom: 15px;"></i>
+            <h3 style="margin: 0 0 10px 0; color: #333;" data-i18n="welcome_back">Welcome back!</h3>
+            <p style="margin: 0; color: #666;" data-i18n="signing_in">Signing you in automatically...</p>
+        </div>
+    </div>
+
     <header class="header">
+        <!-- Thanh top-nav -->
         <div class="top-nav">
             <div class="left-links">
-                <a href="#">Home</a>
-                <a href="#">Find Job</a>
-                <a href="#">Employers</a>
-                <a href="#">Candidates</a>
-                <a href="#">Pricing Plans</a>
-                <a href="#">Customer Supports</a>
+                <a th:href="@{/}" href="/" data-i18n="home">Home</a>
+                <a th:href="@{/search}" data-i18n="find_job">Find Job</a>
+                <a href="/employers" data-i18n="employers">Employers</a>
+                <a href="#" data-i18n="candidates">Candidates</a>
+                <a href="#" data-i18n="pricing_plans">Pricing Plans</a>
+                <a href="#" data-i18n="customer_support">Customer Supports</a>
             </div>
             <div class="right-links">
-                <span class="phone-number"><i class="fa-solid fa-phone"></i> +1-202-555-0178</span>
-                <div class="language-selector">
-                    <img src="https://flagcdn.com/us.svg" alt="USA Flag" class="flag">
-                    <span>English</span>
+                <span class="phone-number">
+                    <i class="fa-solid fa-phone"></i> +1-202-555-0178
+                </span>
+                <div class="language-dropdown">
+                    <div class="language-selector">
+                        <img id="currentLangFlag" src="https://flagcdn.com/us.svg" alt="Flag" class="flag">
+                        <span id="currentLangText">English</span>
+                        <span class="arrow-down">▼</span>
+                    </div>
+                    <div class="language-dropdown-content">
+                        <a href="#" onclick="changeLanguage('en'); return false;">
+                            <img src="https://flagcdn.com/us.svg" alt="English" class="flag" style="width: 24px;">
+                            <span>English</span>
+                        </a>
+                        <a href="#" onclick="changeLanguage('vi'); return false;">
+                            <img src="https://flagcdn.com/vn.svg" alt="Tiếng Việt" class="flag" style="width: 24px;">
+                            <span>Tiếng Việt</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
 
+        <!-- Thanh main-header -->
         <div class="main-header">
             <div class="logo-section">
-                <i class="fas fa-briefcase"></i>
-                <a th:href="@{/}" class="logo-link">
-                    Joblink
-                </a>
+                <span class="logo-icon"><i class="fa-solid fa-briefcase"></i></span>
+                <span class="logo-text">Joblink</span>
             </div>
 
             <div class="search-section">
                 <div class="country-selector">
                     <img src="https://flagcdn.com/vn.svg" alt="Vietnam Flag" class="flag">
                     <span>Vietnam</span>
+                    <!--                    <span class="arrow-down">▼</span>-->
                 </div>
                 <div class="search-input-container">
-                    <input type="text" placeholder="Find job by job title, keyword, company">
+                    <input type="text" data-i18n-placeholder="search_placeholder"
+                           placeholder="Find job by job title, keyword, company">
                 </div>
             </div>
 
             <div class="action-buttons">
-                <a th:href="@{/signin}" class="sign-in-btn">Sign In</a>
-                <button class="post-job-btn">Post A Jobs</button>
+
+                <a th:if="${session.user != null}" th:href="@{/messages}" class="message-icon-btn" id="messageIconBtn">
+                    <i class="fas fa-envelope"></i>
+                    <span class="message-badge" id="messageBadge" style="display: none;">0</span>
+                </a>
+                <a th:if="${session.user == null}" th:href="@{/signin}" class="sign-in-btn" data-i18n="sign_in">Sign
+                    In</a>
+                <a th:if="${session.user != null}" th:href="@{/logout}" class="sign-in-btn" data-i18n="log_out">Log
+                    Out</a>
+                <a th:if="${session.user == null}" th:href="@{/signup}" class="post-job-btn" data-i18n="post_job">Post A
+                    Job</a>
             </div>
         </div>
     </header>
-</div>
 
+    <!-- Language translations and auto-login script -->
+    <script>
+        // Translations object
+        const translations = {
+            en: {
+                home: "Home",
+                find_job: "Find Job",
+                employers: "Employers",
+                candidates: "Candidates",
+                pricing_plans: "Pricing Plans",
+                customer_support: "Customer Supports",
+                sign_in: "Sign In",
+                log_out: "Log Out",
+                post_job: "Post A Job",
+                search_placeholder: "Find job by job title, keyword, company",
+                welcome_back: "Welcome back!",
+                signing_in: "Signing you in automatically..."
+            },
+            vi: {
+                home: "Trang chủ",
+                find_job: "Tìm việc",
+                employers: "Nhà tuyển dụng",
+                candidates: "Ứng viên",
+                pricing_plans: "Bảng giá",
+                customer_support: "Hỗ trợ khách hàng",
+                sign_in: "Đăng nhập",
+                log_out: "Đăng xuất",
+                post_job: "Đăng tin",
+                search_placeholder: "Tìm việc theo tiêu đề, từ khóa, công ty",
+                welcome_back: "Chào mừng trở lại!",
+                signing_in: "Đang đăng nhập tự động..."
+            }
+        };
+
+        // Change language function
+        function changeLanguage(lang) {
+            // Save language preference
+            localStorage.setItem('joblink_language', lang);
+
+            // Update flag and text
+            const flagImg = document.getElementById('currentLangFlag');
+            const langText = document.getElementById('currentLangText');
+
+            if (lang === 'vi') {
+                flagImg.src = 'https://flagcdn.com/vn.svg';
+                langText.textContent = 'Tiếng Việt';
+            } else {
+                flagImg.src = 'https://flagcdn.com/us.svg';
+                langText.textContent = 'English';
+            }
+
+            // Update all text elements
+            applyTranslations(lang);
+        }
+
+        // Apply translations to page
+        function applyTranslations(lang) {
+            const elements = document.querySelectorAll('[data-i18n]');
+            elements.forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (translations[lang] && translations[lang][key]) {
+                    element.textContent = translations[lang][key];
+                }
+            });
+
+            // Update placeholders
+            const placeholderElements = document.querySelectorAll('[data-i18n-placeholder]');
+            placeholderElements.forEach(element => {
+                const key = element.getAttribute('data-i18n-placeholder');
+                if (translations[lang] && translations[lang][key]) {
+                    element.placeholder = translations[lang][key];
+                }
+            });
+
+            // Update HTML lang attribute
+            document.documentElement.lang = lang;
+        }
+
+        // Initialize language on page load
+        function initializeLanguage() {
+            const savedLang = localStorage.getItem('joblink_language') || 'en';
+            changeLanguage(savedLang);
+        }
+
+        function updateUnreadMessageCount() {
+            const messageBadge = document.getElementById('messageBadge');
+            if (!messageBadge) return;
+
+            fetch('/messages/api/unread-count')
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Not authenticated');
+                })
+                .then(data => {
+                    const count = data.count || 0;
+                    if (count > 0) {
+                        messageBadge.textContent = count > 99 ? '99+' : count;
+                        messageBadge.style.display = 'inline-block';
+                    } else {
+                        messageBadge.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.log('[v0] Could not fetch unread count:', error);
+                    messageBadge.style.display = 'none';
+                });
+        }
+
+        // Auto-login function
+        function attemptHeaderAutoLogin() {
+            console.log("Checking for remembered account in header");
+
+            const remembered = localStorage.getItem('joblink_remembered_account');
+            if (!remembered) {
+                console.log("No remembered account found");
+                return;
+            }
+
+            try {
+                const acc = JSON.parse(remembered);
+
+                // Check expiration (14 days)
+                const fourteenDays = 14 * 24 * 60 * 60 * 1000;
+                if (Date.now() - acc.timestamp > fourteenDays) {
+                    console.log("Remembered account expired");
+                    localStorage.removeItem('joblink_remembered_account');
+                    return;
+                }
+
+                // Check if already auto-logged in this session
+                if (sessionStorage.getItem('joblink_auto_logged')) {
+                    console.log("Already auto-logged in this session");
+                    return;
+                }
+
+                // Skip if we're already on signin page
+                if (window.location.pathname === '/signin') {
+                    console.log("Already on signin page, skipping header auto-login");
+                    return;
+                }
+
+                console.log("Attempting header auto-login for:", acc.email);
+
+                // Show loading overlay
+                const overlay = document.getElementById('autoLoginOverlay');
+                if (overlay) {
+                    overlay.style.display = 'flex';
+                }
+
+                // Create form data
+                const formData = new FormData();
+                formData.append('email', acc.email);
+                formData.append('password', acc.password);
+                formData.append('remember', 'on');
+
+                // Submit auto-login
+                fetch('/login', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    console.log("Header auto-login response status:", response.status);
+                    if (response.redirected) {
+                        console.log("Header auto-login successful, redirecting to:", response.url);
+                        sessionStorage.setItem('joblink_auto_logged', '1');
+                        window.location.href = response.url;
+                    } else {
+                        console.log("Header auto-login failed - no redirect");
+                        if (overlay) overlay.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error("Header auto-login error:", error);
+                    if (overlay) overlay.style.display = 'none';
+                });
+
+            } catch (e) {
+                console.error("Error parsing remembered account in header:", e);
+                localStorage.removeItem('joblink_remembered_account');
+            }
+        }
+
+        // Run on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize language first
+            initializeLanguage();
+
+            // Then attempt auto-login
+            setTimeout(attemptHeaderAutoLogin, 200);
+
+            updateUnreadMessageCount();
+            // Update every 30 seconds
+            setInterval(updateUnreadMessageCount, 30000);
+        });
+
+        // Clear auto-logged flag when navigating to logout
+        window.addEventListener('beforeunload', function() {
+            if (window.location.href.includes('/logout')) {
+                sessionStorage.removeItem('joblink_auto_logged');
+            }
+        });
+    </script>
+
+</div>
 
 </body>
 </html>

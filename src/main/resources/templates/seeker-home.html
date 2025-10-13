@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyJob - Employer Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/homepage.css}">
+</head>
+<body>
+<!-- Header fragment -->
+<div th:replace="header :: header"></div>
+
+<!-- ✅ USER MENU (chỉ hiện khi seeker đã đăng nhập) -->
+<div class="usermenu" data-menu
+     th:if="${session.user != null and #strings.equalsIgnoreCase(session.user.role, 'seeker')}">
+    <button class="usermenu__btn" id="usermenuBtn" aria-haspopup="menu" aria-expanded="false">
+        <img src="src/main/resources/images/user.png" alt="user" />
+        <span class="usermenu__caret">▾</span>
+    </button>
+
+    <div class="usermenu__dropdown" role="menu" aria-labelledby="usermenuBtn" id="usermenuDropdown">
+        <div class="usermenu__header">
+            <img class="usermenu__avatar" src="images/user.png" alt="avatar">
+            <div class="usermenu__who">
+                <!-- dùng thuộc tính từ session.user -->
+                <div class="usermenu__name" th:text="${session.user.fullName}"></div>
+                <div class="usermenu__email" th:text="${session.user.email}"></div>
+            </div>
+        </div>
+
+        <a class="usermenu__item" href="/jobseeker/dashboard">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path d="M3 3h8v8H3V3zm10 0h8v6h-8V3zM3 13h6v8H3v-8zm8 4h10v4H11v-4z" fill="currentColor"/></svg>
+            <span>Dashboard</span>
+        </a>
+
+        <a class="usermenu__item" href="/jobseeker/cv">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+            <span>CV Attachment</span>
+        </a>
+
+        <a class="usermenu__item" th:href="@{/jobseeker/profile}">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5zm0 2c-5 0-9 2.5-9 5v1h18v-1c0-2.5-4-5-9-5z" fill="currentColor"/></svg>
+            <span>Profile</span>
+        </a>
+
+        <a class="usermenu__item" href="/jobseeker/jobs">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path d="M9 6V4h6v2h5a2 2 0 0 1 2 2v4H2V8a2 2 0 0 1 2-2h5zm13 6v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6h8v1h4v-1z" fill="currentColor"/></svg>
+            <span>My Jobs</span>
+        </a>
+
+        <a class="usermenu__item" href="/jobseeker/invitations">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path d="M3 7l9-4 9 4v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM3 7l9 5 9-5" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+            <span>Job Invitation</span>
+        </a>
+
+        <a class="usermenu__item" href="/subscriptions">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path d="M4 4h16v16H4z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 6l8 6 8-6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+            <span>Email Subscriptions</span>
+        </a>
+
+        <a class="usermenu__item" href="/notifications">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 22a2 2 0 0 0 2-2H10a2 2 0 0 0 2 2zm6-6V11a6 6 0 0 0-5-5.91V4a1 1 0 1 0-2 0v1.09A6 6 0 0 0 6 11v5l-2 2v1h16v-1l-2-2z" fill="currentColor"/></svg>
+            <span>Notifications</span>
+        </a>
+
+        <a class="usermenu__item" href="/settings">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path d="M19.4 12.9a7.7 7.7 0 0 0 0-1.8l2-1.5-2-3.5-2.3.9a7.5 7.5 0 0 0-1.6-.9L15 2h-6l-.5 3.1a7.5 7.5 0 0 0-1.6.9l-2.3-.9-2 3.5 2 1.5a7.7 7.7 0 0 0 0 1.8l-2 1.5 2 3.5 2.3-.9c.5.4 1 .7 1.6.9L9 22h6l.5-3.1c.6-.2 1.1-.5 1.6-.9l2.3.9 2-3.5zM12 15.5A3.5 3.5 0 1 1 15.5 12 3.5 3.5 0 0 1 12 15.5z" fill="currentColor"/></svg>
+            <span>Settings</span>
+        </a>
+
+        <div class="usermenu__sep"></div>
+
+        <a class="usermenu__item usermenu__item--danger" href="/logout">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path d="M10 17l5-5-5-5v3H3v4h7v3zM13 3h8v18h-8" fill="currentColor"/></svg>
+            <span>Sign Out</span>
+        </a>
+    </div>
+</div>
+
+
+<!-- Main content wrapper -->
+<div class="main-content">
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1>Find a job that suits your interest & skills.</h1>
+                    <p>Aliquam vitae turpis in diam convallis finibus in at risus. Nullam in scelerisque leo, eget sollicitudin velit bestibulum.</p>
+
+                    <div class="search-container">
+                        <input type="text" class="search-input" placeholder="Job title, Keyword...">
+                        <input type="text" class="search-input" placeholder="Your Location">
+                        <button class="search-btn">Find Job</button>
+                    </div>
+
+                    <div class="suggestions">
+                        Suggestion: <a href="#">Designer</a>, <a href="#">Programming</a>, <a href="#">Digital Marketing</a>, <a href="#">Video</a>, <a href="#">Animation</a>.
+                    </div>
+                </div>
+
+                <div class="hero-illustration">
+                    <svg width="400" height="300" viewBox="0 0 400 300" fill="none">
+                        <!-- Simplified illustration -->
+                        <rect x="50" y="100" width="300" height="200" rx="10" fill="white" opacity="0.9"/>
+                        <circle cx="120" cy="80" r="30" fill="#60a5fa"/>
+                        <rect x="70" y="130" width="260" height="8" rx="4" fill="#e5e7eb"/>
+                        <rect x="70" y="150" width="200" height="8" rx="4" fill="#e5e7eb"/>
+                        <rect x="70" y="170" width="180" height="8" rx="4" fill="#e5e7eb"/>
+                        <circle cx="300" cy="200" r="20" fill="#34d399"/>
+                        <circle cx="280" cy="220" r="15" fill="#f59e0b"/>
+                        <circle cx="320" cy="240" r="18" fill="#8b5cf6"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <div class="stat-number">1,75,324</div>
+                    <div class="stat-label">Live Job</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <div class="stat-number">97,354</div>
+                    <div class="stat-label">Companies</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-number">38,47,154</div>
+                    <div class="stat-label">Candidates</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="fas fa-plus-circle"></i>
+                    </div>
+                    <div class="stat-number">7,532</div>
+                    <div class="stat-label">New Jobs</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Popular Categories -->
+    <section class="categories-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Popular category</h2>
+                <a href="#" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+            </div>
+
+            <div class="categories-grid">
+                <div class="category-card">
+                    <div class="category-icon blue">
+                        <i class="fas fa-palette"></i>
+                    </div>
+                    <h3 class="category-title">Graphics & Design</h3>
+                    <p class="category-jobs">357 Open position</p>
+                </div>
+
+                <div class="category-card">
+                    <div class="category-icon green">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h3 class="category-title">Code & Programming</h3>
+                    <p class="category-jobs">312 Open position</p>
+                </div>
+
+                <div class="category-card">
+                    <div class="category-icon purple">
+                        <i class="fas fa-bullhorn"></i>
+                    </div>
+                    <h3 class="category-title">Digital Marketing</h3>
+                    <p class="category-jobs">297 Open position</p>
+                </div>
+
+                <div class="category-card">
+                    <div class="category-icon orange">
+                        <i class="fas fa-video"></i>
+                    </div>
+                    <h3 class="category-title">Video & Animation</h3>
+                    <p class="category-jobs">247 Open position</p>
+                </div>
+
+                <div class="category-card">
+                    <div class="category-icon pink">
+                        <i class="fas fa-music"></i>
+                    </div>
+                    <h3 class="category-title">Music & Audio</h3>
+                    <p class="category-jobs">204 Open position</p>
+                </div>
+
+                <div class="category-card">
+                    <div class="category-icon cyan">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <h3 class="category-title">Account & Finance</h3>
+                    <p class="category-jobs">167 Open position</p>
+                </div>
+
+                <div class="category-card">
+                    <div class="category-icon blue">
+                        <i class="fas fa-heartbeat"></i>
+                    </div>
+                    <h3 class="category-title">Health & Care</h3>
+                    <p class="category-jobs">125 Open position</p>
+                </div>
+
+                <div class="category-card">
+                    <div class="category-icon green">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <h3 class="category-title">Data & Science</h3>
+                    <p class="category-jobs">57 Open position</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Jobs -->
+    <section class="featured-jobs-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Featured job</h2>
+                <a href="#" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+            </div>
+
+            <div class="job-card">
+                <div class="job-info">
+                    <div class="job-logo" style="background: #10b981;">Up</div>
+                    <div class="job-details">
+                        <h3>Senior UX Designer</h3>
+                        <div class="job-meta">
+                            <span><i class="fas fa-map-marker-alt"></i> Australia</span>
+                            <span><i class="fas fa-dollar-sign"></i> $30K-$35K</span>
+                            <span><i class="fas fa-clock"></i> 4 Days Remaining</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="job-actions">
+                    <button class="btn-outline"><i class="fas fa-bookmark"></i></button>
+                    <button class="btn-primary">Apply Now <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <div class="job-card">
+                <div class="job-info">
+                    <div class="job-logo" style="background: #1e293b;"><i class="fab fa-apple"></i></div>
+                    <div class="job-details">
+                        <h3>Software Engineer</h3>
+                        <div class="job-meta">
+                            <span><i class="fas fa-map-marker-alt"></i> China</span>
+                            <span><i class="fas fa-dollar-sign"></i> $50K-$60K</span>
+                            <span><i class="fas fa-clock"></i> 4 Days Remaining</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="job-actions">
+                    <button class="btn-outline"><i class="fas fa-bookmark"></i></button>
+                    <button class="btn-primary">Apply Now <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <div class="job-card">
+                <div class="job-info">
+                    <div class="job-logo" style="background: #8b5cf6;"><i class="fas fa-paint-brush"></i></div>
+                    <div class="job-details">
+                        <h3>Junior Graphic Designer</h3>
+                        <div class="job-meta">
+                            <span><i class="fas fa-map-marker-alt"></i> Canada</span>
+                            <span><i class="fas fa-dollar-sign"></i> $50K-$70K</span>
+                            <span><i class="fas fa-clock"></i> 4 Days Remaining</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="job-actions">
+                    <button class="btn-outline"><i class="fas fa-bookmark"></i></button>
+                    <button class="btn-primary">Apply Now <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Top Companies -->
+    <section class="companies-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Top companies</h2>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn-outline"><i class="fas fa-chevron-left"></i></button>
+                    <button class="btn-outline"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+
+            <div class="companies-grid">
+                <div class="company-card">
+                    <div class="company-logo" style="background: #ec4899;">Dr</div>
+                    <h3 class="company-name">Dribbble</h3>
+                    <p class="company-location"><i class="fas fa-map-marker-alt"></i> United States</p>
+                    <button class="company-btn">Open Position</button>
+                </div>
+
+                <div class="company-card">
+                    <div class="company-logo" style="background: #10b981;">Up</div>
+                    <h3 class="company-name">Upwork</h3>
+                    <p class="company-location"><i class="fas fa-map-marker-alt"></i> United States</p>
+                    <button class="company-btn">Open Position</button>
+                </div>
+
+                <div class="company-card">
+                    <div class="company-logo" style="background: #3b82f6;"><i class="fab fa-slack"></i></div>
+                    <h3 class="company-name">Slack</h3>
+                    <p class="company-location"><i class="fas fa-map-marker-alt"></i> China</p>
+                    <button class="company-btn">Open Position</button>
+                </div>
+
+                <div class="company-card">
+                    <div class="company-logo" style="background: #1e40af;">Fr</div>
+                    <h3 class="company-name">Freepik</h3>
+                    <p class="company-location"><i class="fas fa-map-marker-alt"></i> United States</p>
+                    <button class="company-btn">Open Position</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action -->
+<!--    <section class="cta-section">-->
+<!--        <div class="container">-->
+<!--            <div class="cta-grid">-->
+<!--                <div class="cta-card candidate">-->
+<!--                    <h3>Become a Candidate</h3>-->
+<!--                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras cursus a dolor convallis efficitur.</p>-->
+<!--                    <button class="cta-btn blue">Register Now <i class="fas fa-arrow-right"></i></button>-->
+<!--                </div>-->
+
+<!--                <div class="cta-card employer">-->
+<!--                    <h3>Become a Employers</h3>-->
+<!--                    <p>Cras in massa pellentesque, mollis ligula non, luctus dui. Morbi sed efficitur dolor. Pelque cursus risus, aliqu.</p>-->
+<!--                    <button class="cta-btn white">Register Now <i class="fas fa-arrow-right"></i></button>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </section>-->
+</div>
+
+<!-- Footer fragment -->
+<div th:replace="footer :: footer"></div>
+
+<script>
+    (function(){
+      const btn = document.getElementById('usermenuBtn');
+      const dropdown = document.getElementById('usermenuDropdown');
+
+      if (!btn || !dropdown) return;
+
+      const close = () => {
+        dropdown.classList.remove('open');
+        btn.setAttribute('aria-expanded','false');
+      };
+      const open = () => {
+        dropdown.classList.add('open');
+        btn.setAttribute('aria-expanded','true');
+      };
+
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdown.classList.contains('open') ? close() : open();
+      });
+
+      // click outside
+      document.addEventListener('click', (e) => {
+        if (!dropdown.contains(e.target) && e.target !== btn) close();
+      });
+
+      // ESC
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') close();
+      });
+    })();
+</script>
+
+</body>
+</html>

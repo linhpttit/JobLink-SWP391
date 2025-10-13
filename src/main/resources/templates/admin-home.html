@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Home – JobLink</title>
+    <link rel="stylesheet" th:href="@{/css/login.css}">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        .shell{max-width:1100px;margin:48px auto;padding:0 20px}
+        .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:18px}
+        .tile{background:#fff;border:1px solid #e9e9f3;border-radius:14px;padding:18px}
+        .tile h3{margin:0 0 8px}
+        .kpi{font-weight:800;font-size:28px;color:#313159}
+        .head{display:flex;justify-content:space-between;align-items:center}
+        .logout{color:#fff;text-decoration:none}
+        .nav a{display:inline-flex;align-items:center;gap:8px;background:#f6f7fb;
+               border:1px solid #ececf4;border-radius:12px;padding:10px 14px;
+               color:#313159;text-decoration:none;margin-right:10px}
+        .nav a:hover{background:#eef0fb}
+    </style>
+</head>
+<body class="theme">
+
+<!-- thanh tím trên -->
+<div style="background:#20185e;padding:16px 0;">
+    <div class="shell head" style="color:#fff">
+        <strong>JobLink Admin</strong>
+        <div>
+            <span th:text="${user.email}">admin@example.com</span>
+            &nbsp;·&nbsp;
+            <a th:href="@{/logout}" class="logout">Logout</a>
+        </div>
+    </div>
+</div>
+
+<div class="shell">
+    <div class="nav">
+        <a href="#"><i class="fa-solid fa-users-gear"></i> Users</a>
+        <a href="#"><i class="fa-solid fa-building"></i> Employers</a>
+        <a href="#"><i class="fa-solid fa-user"></i> Seekers</a>
+        <a href="#"><i class="fa-solid fa-briefcase"></i> Jobs</a>
+        <a href="#"><i class="fa-solid fa-ticket"></i> Packages</a>
+        <a href="#"><i class="fa-solid fa-file-invoice-dollar"></i> Billing</a>
+    </div>
+
+    <div class="grid">
+        <div class="tile">
+            <h3><i class="fa-solid fa-user"></i> Total Users</h3>
+            <div class="kpi" th:text="${#numbers.formatInteger(1234, 0)}">1234</div>
+        </div>
+        <div class="tile">
+            <h3><i class="fa-solid fa-building"></i> Employers</h3>
+            <div class="kpi" th:text="${#numbers.formatInteger(220, 0)}">220</div>
+        </div>
+        <div class="tile">
+            <h3><i class="fa-solid fa-user-tie"></i> Seekers</h3>
+            <div class="kpi" th:text="${#numbers.formatInteger(1014, 0)}">1014</div>
+        </div>
+        <div class="tile">
+            <h3><i class="fa-solid fa-briefcase"></i> Active Jobs</h3>
+            <div class="kpi" th:text="${#numbers.formatInteger(86, 0)}">86</div>
+        </div>
+        <div class="tile">
+            <h3><i class="fa-solid fa-crown"></i> Active Subscriptions</h3>
+            <div class="kpi" th:text="${#numbers.formatInteger(45, 0)}">45</div>
+        </div>
+        <div class="tile">
+            <h3><i class="fa-solid fa-coins"></i> MRR (₫)</h3>
+            <div class="kpi" th:text="${#numbers.formatInteger(4990000, 0)}">4,990,000</div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

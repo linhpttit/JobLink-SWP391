@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Edit Profile - JobLink</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/profile-edit.css}">
+</head>
+<body>
+<!-- Header -->
+<div th:replace="~{header :: header}"></div>
+
+<div class="profile-container">
+    <!-- Sidebar -->
+    <aside class="progress-sidebar">
+        <div class="progress-card">
+            <h3>Profile Completion</h3>
+            <div class="progress-circle">
+                <svg viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="45" class="progress-bg"></circle>
+                    <circle cx="50" cy="50" r="45" class="progress-bar"
+                            th:attr="stroke-dashoffset=${283 - (283 * profile.completionPercentage / 100)}"></circle>
+                </svg>
+                <div class="progress-text" th:text="${profile.completionPercentage} + '%'">0%</div>
+            </div>
+
+            <div class="missing-sections" th:if="${!missingSections.isEmpty()}">
+                <h4>Missing Sections:</h4>
+                <ul>
+                    <li th:each="section : ${missingSections}" th:text="${section}"></li>
+                </ul>
+            </div>
+
+            <a href="/jobseeker/profile/preview" class="btn-preview">
+                <i class="fas fa-eye"></i> Preview CV
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="profile-main">
+        <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+        <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+
+        <!-- Basic Information -->
+        <section class="profile-section">
+            <div class="section-header">
+                <h2><i class="fas fa-user"></i> Basic Information</h2>
+            </div>
+
+            <form action="/jobseeker/profile/basic-info" method="post" class="profile-form">
+                <div class="avatar-upload">
+                    <div class="avatar-preview">
+                        <img id="avatarPreview"
+                             th:src="${profile.avatarUrl != null ? profile.avatarUrl : '/images/user.png'}"
+                             alt="Avatar" src="/images/user.png">
+                    </div>
+                    <div class="avatar-actions">
+                        <label for="avatarInput" class="btn-upload">
+                            <i class="fas fa-camera"></i> Change Avatar
+                        </label>
+                        <input type="file" id="avatarInput" accept="image/*" style="display:none;">
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Full Name <span class="required">*</span></label>
+                        <input type="text" name="fullname" th:value="${profile.fullname}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Date of Birth <span class="required">*</span></label>
+                        <input type="date" name="dob" th:value="${profile.dateOfBirth}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Phone Number <span class="required">*</span></label>
+                        <input type="tel" name="phone" th:value="${profile.phoneNumber}" pattern="0[0-9]{9}" required>
+                        <small>Must be 10 digits starting with 0</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email <span class="required">*</span></label>
+                        <input type="email" name="email" th:value="${profile.email}" readonly disabled>
+                        <small>Email cannot be changed</small>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>Home Address <span class="required">*</span></label>
+                        <input type="text" name="location" th:value="${profile.location}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Gender <span class="required">*</span></label>
+                        <select name="gender" required>
+                            <option value="">Select Gender</option>
+                            <option value="male" th:selected="${profile.gender == 'male'}">Male</option>
+                            <option value="female" th:selected="${profile.gender == 'female'}">Female</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label>Self Introduction <span class="required">*</span></label>
+                    <textarea name="about" rows="5" th:text="${profile.about}" placeholder="Write 100-150 words..."></textarea>
+                    <small id="wordCount">0 words (100-150 required)</small>
+                </div>
+
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-save"></i> Save Basic Info
+                </button>
+            </form>
+        </section>
+
+        <!-- Education -->
+        <section class="profile-section">
+            <div class="section-header">
+                <h2><i class="fas fa-graduation-cap"></i> Education</h2>
+                <button class="btn-add" onclick="openEducationModal()">
+                    <i class="fas fa-plus"></i> Add Education
+                </button>
+            </div>
+
+            <div class="items-list" id="educationList">
+                <div class="item-card" th:each="edu : ${educations}">
+                    <div class="item-content">
+                        <h3 th:text="${edu.university}">University</h3>
+                        <p class="item-meta">
+                            <span th:text="${edu.degreeLevel}">Degree</span> •
+                            <span th:text="${edu.startDate} + ' - ' + ${edu.graduationDate != null ? edu.graduationDate : 'Present'}">2020 - Present</span>
+                        </p>
+                        <p class="item-desc" th:text="${edu.description}">Description</p>
+                    </div>
+                    <div class="item-actions">
+                        <button class="btn-icon" th:onclick="'editEducation(' + ${edu.educationId} + ')'">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-icon btn-danger" th:onclick="'deleteEducation(' + ${edu.educationId} + ')'">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="empty-state" th:if="${educations.isEmpty()}">
+                    <i class="fas fa-graduation-cap"></i>
+                    <p>No education added yet</p>
+                </div>
+            </div>
+
+            <!-- Modal container cho Education (form sẽ hiển thị tại đây) -->
+            <div id="educationModalContainer"></div>
+        </section>
+
+        <!-- Experience -->
+        <section class="profile-section">
+            <div class="section-header">
+                <h2><i class="fas fa-briefcase"></i> Experience</h2>
+                <button class="btn-add" onclick="openExperienceModal()">
+                    <i class="fas fa-plus"></i> Add Experience
+                </button>
+            </div>
+
+            <div class="items-list" id="experienceList">
+                <div class="item-card" th:each="exp : ${experiences}">
+                    <div class="item-content">
+                        <h3 th:text="${exp.jobTitle}">Job Title</h3>
+                        <p class="item-meta">
+                            <span th:text="${exp.companyName}">Company</span> •
+                            <span th:text="${exp.startDate} + ' - ' + ${exp.endDate != null ? exp.endDate : 'Present'}">2020 - Present</span>
+                        </p>
+                        <p class="item-desc" th:if="${exp.projectLink}">
+                            <a th:href="${exp.projectLink}" target="_blank">View Project</a>
+                        </p>
+                    </div>
+                    <div class="item-actions">
+                        <button class="btn-icon" th:onclick="'editExperience(' + ${exp.experienceId} + ')'">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-icon btn-danger" th:onclick="'deleteExperience(' + ${exp.experienceId} + ')'">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="empty-state" th:if="${experiences.isEmpty()}">
+                    <i class="fas fa-briefcase"></i>
+                    <p>No experience added yet</p>
+                </div>
+            </div>
+
+            <div id="experienceModalContainer"></div>
+        </section>
+
+        <!-- Skills -->
+        <section class="profile-section">
+            <div class="section-header">
+                <h2><i class="fas fa-code"></i> Skills</h2>
+                <button class="btn-add" onclick="openSkillModal()">
+                    <i class="fas fa-plus"></i> Add Skill
+                </button>
+            </div>
+
+            <div class="skills-grid" id="skillsList">
+                <div class="skill-card" th:each="skill : ${skills}">
+                    <div class="skill-content">
+                        <h4 th:text="${skill.skillName}">Skill Name</h4>
+                        <p class="skill-years" th:text="${skill.yearsOfExperience} + ' years'">0 years</p>
+                        <p class="skill-desc" th:text="${skill.description}">Description</p>
+                    </div>
+                    <div class="skill-actions">
+                        <button class="btn-icon" th:onclick="'editSkill(' + ${skill.skillId} + ')'">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-icon btn-danger" th:onclick="'deleteSkill(' + ${skill.skillId} + ')'">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="empty-state" th:if="${skills.isEmpty()}">
+                    <i class="fas fa-code"></i>
+                    <p>No skills added yet</p>
+                </div>
+            </div>
+
+            <div id="skillsModalContainer"></div>
+        </section>
+
+        <!-- Languages -->
+        <section class="profile-section">
+            <div class="section-header">
+                <h2><i class="fas fa-language"></i> Languages</h2>
+                <button class="btn-add" onclick="openLanguageModal()">
+                    <i class="fas fa-plus"></i> Add Language
+                </button>
+            </div>
+
+            <div class="items-list" id="languagesList">
+                <div class="item-card" th:each="lang : ${languages}">
+                    <div class="item-content">
+                        <h3 th:text="${lang.languageName}">Language</h3>
+                        <p class="item-meta" th:text="${lang.certificateType}">Certificate</p>
+                    </div>
+                    <div class="item-actions">
+                        <button class="btn-icon" th:onclick="'editLanguage(' + ${lang.languageId} + ')'">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-icon btn-danger" th:onclick="'deleteLanguage(' + ${lang.languageId} + ')'">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="empty-state" th:if="${languages.isEmpty()}">
+                    <i class="fas fa-language"></i>
+                    <p>No languages added yet</p>
+                </div>
+            </div>
+
+            <div id="languagesModalContainer"></div>
+        </section>
+
+        <!-- Certificates -->
+        <section class="profile-section">
+            <div class="section-header">
+                <h2><i class="fas fa-certificate"></i> Certificates</h2>
+                <button class="btn-add" onclick="openCertificateModal()">
+                    <i class="fas fa-plus"></i> Add Certificate
+                </button>
+            </div>
+
+            <div class="certificates-grid" id="certificatesList">
+                <div class="certificate-card" th:each="cert : ${certificates}">
+                    <div class="certificate-image" th:if="${cert.certificateImageUrl}">
+                        <img th:src="${cert.certificateImageUrl}" alt="Certificate" src="/images/user.png">
+                    </div>
+                    <div class="certificate-content">
+                        <h4 th:text="${cert.issuingOrganization}">Organization</h4>
+                        <p th:text="${cert.yearOfCompletion}">2024</p>
+                    </div>
+                    <div class="certificate-actions">
+                        <button class="btn-icon" th:onclick="'editCertificate(' + ${cert.certificateId} + ')'">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-icon btn-danger" th:onclick="'deleteCertificate(' + ${cert.certificateId} + ')'">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="empty-state" th:if="${certificates.isEmpty()}">
+                    <i class="fas fa-certificate"></i>
+                    <p>No certificates added yet</p>
+                </div>
+            </div>
+
+            <div id="certificatesModalContainer"></div>
+        </section>
+    </main>
+</div>
+
+<!-- Fallback modal container (ít dùng) -->
+<div id="modalContainer"></div>
+
+<!-- Footer -->
+<div th:replace="~{footer :: footer}"></div>
+
+<!-- Biến inject từ server -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const universities        = /*[[${universities}]]*/ [];
+    const degreeLevels        = /*[[${degreeLevels}]]*/ [];
+    const commonSkills        = /*[[${commonSkills}]]*/ [];
+    const recognizedLanguages = /*[[${recognizedLanguages}]]*/ [];
+    const educations          = /*[[${educations}]]*/ [];
+    const experiences         = /*[[${experiences}]]*/ [];
+    const skills              = /*[[${skills}]]*/ [];
+    const languages           = /*[[${languages}]]*/ [];
+    const certificates        = /*[[${certificates}]]*/ [];
+    /*]]>*/
+</script>
+<script th:src="@{/JS/profile-edit.js}"></script>
+</body>
+</html>

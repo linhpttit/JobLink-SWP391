@@ -4,11 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JobLink Sign In</title>
-    <!-- CSS -->
-    <link href="/signin.css" rel="stylesheet">
-    <!-- FontAwesome -->
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/signin.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
 <div class="container">
@@ -24,34 +21,57 @@
                 Don't have account?
                 <a th:href="@{/signup}" class="create-account">Create Account</a>
             </p>
-            <form th:action="@{/signin}" method="post">
+
+            <!-- Auto-login loading indicator -->
+            <div id="autoLoginIndicator" style="display: none; color: blue; margin-bottom: 15px; text-align: center;">
+                <i class="fas fa-spinner fa-spin"></i>
+                <span>Auto signing in...</span>
+            </div>
+
+            <!-- Hiển thị thông báo lỗi -->
+            <div th:if="${error}" class="alert alert-danger" style="color: red; margin-bottom: 15px;">
+                <i class="fas fa-exclamation-circle"></i>
+                <span th:text="${error}"></span>
+            </div>
+
+            <!-- Hiển thị thông báo thành công -->
+            <div th:if="${msg}" class="alert alert-success" style="color: green; margin-bottom: 15px;">
+                <i class="fas fa-check-circle"></i>
+                <span th:text="${msg}"></span>
+            </div>
+
+            <form id="loginForm" th:action="@{/login}" method="post">
                 <div class="input-group">
                     <label for="email">Email address</label>
-                    <input type="email" id="email" name="email" placeholder="Email address" required>
+                    <input type="email" id="email" name="email"
+                           th:value="${loginRequest?.email}"
+                           placeholder="Email address" required>
                 </div>
                 <div class="input-group">
                     <label for="password">Password</label>
-                    <input type="password" id="password" name="password" placeholder="Password" required>
-                    <span class="password-toggle"><i class="fas fa-eye"></i></span>
+                    <input type="password" id="password" name="password"
+                           placeholder="Password" required>
+                    <span class="password-toggle" onclick="togglePassword('password')">
+                        <i class="fas fa-eye"></i>
+                    </span>
                 </div>
                 <div class="remember-forgot">
                     <label>
-                        <input type="checkbox" name="remember"> Remember Me
+                        <input type="checkbox" id="remember" name="remember"> Remember Me
                     </label>
-                    <a th:href="@{/forgot-password}" class="forgot-password">Forgot password</a>
+                    <a th:href="@{/forgot}" class="forgot-password">Forgot password</a>
                 </div>
-                <form action="verification.html" method="get">
-                    <button type="submit" class="sign-in-button">
-                        Sign In <i class="fas fa-arrow-right"></i>
-                    </button>
-                </form>
-
+                <button type="submit" class="sign-in-button">
+                    Sign In <i class="fas fa-arrow-right"></i>
+                </button>
             </form>
+
             <div class="or-divider">or</div>
             <div class="social-signin">
                 <button class="social-btn google" type="button">
-                    <img src="https://www.gstatic.com/images/branding/product/1x/gsa_64dp.png" alt="Google logo" width="40">
-                    Sign up with Google
+                    <img src="https://www.gstatic.com/images/branding/product/1x/gsa_64dp.png"
+                         alt="Google logo" width="20" height="20">
+                    Sign in with Google
                 </button>
             </div>
         </div>
@@ -80,5 +100,7 @@
         </div>
     </div>
 </div>
+
+<script th:src="@{/JS/signin.js}" defer></script>
 </body>
 </html>
