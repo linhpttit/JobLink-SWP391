@@ -17,7 +17,7 @@ public class EmployerProfileController {
 
     @GetMapping
     public String getProfile(){
-        return "employer";
+        return "employer/employer-layout";
     }
     @GetMapping("/dashboard")
     public String viewDashboard(){
@@ -29,9 +29,10 @@ public class EmployerProfileController {
     }
 
     @GetMapping("/password")
-    public String viewPasswordPage(){
-        
-        return "password";
+    public String viewPasswordPage(Model model){
+        model.addAttribute("pageTitle", "Đổi mật khẩu");
+        model.addAttribute("pageCss", "/password.css"); // CSS riêng
+        return "employer/password";
     }
 
     @PostMapping("/password")
@@ -43,9 +44,11 @@ public class EmployerProfileController {
         boolean result = employerService.changePassword(currentPass,newPass,confirmPass);
         if (result) {
             model.addAttribute("message", "Đổi mật khẩu thành công!");
+            model.addAttribute("pageCss", "/password.css"); // CSS riêng
             return "redirect:/employer/password"; // về trang
         } else {
             model.addAttribute("error", "Mật khẩu không hợp lệ hoặc xác nhận sai!");
+            model.addAttribute("pageCss", "/password.css"); // CSS riêng
             return "password"; // hiển thị lại form
         }
     }
@@ -53,7 +56,7 @@ public class EmployerProfileController {
     public String getProfile(Model model){
         EmployerProfileDto employerProfileDto = employerService.getActiveEmployerProfile();
                 model.addAttribute("profile", employerProfileDto);
-                return "profile";
+                return "employer/profile";
 
     }
 

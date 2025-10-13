@@ -20,12 +20,14 @@ public class EmployerService implements IEmployerService{
 
     @Override
     public boolean changePassword(String curPass, String newPass, String confirmPass) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String username = auth.getName();
+//        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//        String username = auth.getName();
+        String username = "testUser";
         Employer employer = employerRepository.findByUserUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
-
-        if(passwordEncoder.matches(curPass,employer.getUser().getPasswordHash()) && newPass.equals(confirmPass)){
+        System.out.print(employer.getUser().getPasswordHash());
+        if(passwordEncoder.matches(passwordEncoder.encode(curPass),employer.getUser().getPasswordHash())
+                && newPass.equals(confirmPass)){
             employer.getUser().setPasswordHash(passwordEncoder.encode(newPass));
             employerRepository.save(employer);
             return true;
@@ -35,8 +37,9 @@ public class EmployerService implements IEmployerService{
 
     @Override
     public void editProfile(EmployerProfileDto employerProfileDto) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String username = auth.getName();
+//        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//        String username = auth.getName();
+        String username = "testUser";
         Employer employer = employerRepository.findByUserUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
         if (employerRepository.existsByUserEmailAndIdNot(employerProfileDto.getEmail(), employer.getId())) {

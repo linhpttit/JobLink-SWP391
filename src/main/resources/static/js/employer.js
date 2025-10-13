@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // Auto load Dashboard khi mở trang
-    loadContent("/employer/dashboard");
+//    loadContent("/employer/dashboard");
 });
 
 // Toggle notification dropdown
@@ -42,13 +42,13 @@ window.addEventListener("click", (event) => {
     }
 });
 
-// Hàm load nội dung động
-function loadContent(url) {
-    fetch(url)
-            .then(response => response.text())
-            .then(html => {
-                document.getElementById("content-area").innerHTML = html;
-                history.pushState(null, "", url); // cập nhật URL trên trình duyệt
-            })
-            .catch(err => console.error("Lỗi khi load content:", err));
-}
+//// Hàm load nội dung động
+//function loadContent(url) {
+//    fetch(url)
+//            .then(response => response.text())
+//            .then(html => {
+//                document.getElementById("content-area").innerHTML = html;
+//                history.pushState(null, "", url); // cập nhật URL trên trình duyệt
+//            })
+//            .catch(err => console.error("Lỗi khi load content:", err));
+//}
