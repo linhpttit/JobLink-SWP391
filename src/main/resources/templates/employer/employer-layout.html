@@ -1,12 +1,16 @@
 <!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Website Tìm kiếm việc làm</title>
     <!-- CSS -->
-    <!-- <link rel="stylesheet" href="../static/employer.css"> -->
       <link rel="stylesheet" th:href="@{/employer.css}">
+    <!-- Nếu trang con có css riêng -->
+    <th:block th:if="${pageCss != null}">
+        <link rel="stylesheet" th:href="${pageCss}">
+    </th:block>
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -59,8 +63,8 @@
                     <i class="fa fa-caret-down caret-icon"></i>
                 </div>
                 <div class="profile-dropdown">
-                    <a onclick="loadContent('/employer/profile')" class="dropdown-item"><i class="fa fa-user"></i> Hồ sơ </a>
-                    <a onclick="loadContent('/employer/password')" class="dropdown-item"><i class="fa fa-cog"></i> Cài đặt</a>
+                    <a th:href="@{/employer/profile}" class="dropdown-item"><i class="fa fa-user"></i> Hồ sơ </a>
+                    <a th:href="@{/employer/password}" class="dropdown-item"><i class="fa fa-cog"></i> Cài đặt</a>
                     <a th:href="@{/logout}" class="dropdown-item"><i class="fa fa-sign-out-alt"></i> Đăng xuất</a>
                 </div>
             </div>
@@ -72,22 +76,11 @@
         <aside class="sidebar">
             <nav class="sidebar-nav">
                 <ul>
-                    <li class="nav-item active" onclick="loadContent('/employer/dashboard')">
+
+                    <li class="nav-item" onclick="loadContent('statistic.html')">
                         <a href="javascript:void(0)">
-                            <span class="nav-icon"><i class="fa fa-chart-line"></i></span>
-                            <span class="nav-text">Dashboard</span>
-                        </a>
-                    </li>
-                    <li class="nav-item" onclick="loadContent('/employer/jobseeker')">
-                        <a href="javascript:void(0)">
-                            <span class="nav-icon"><i class="fa fa-user"></i></span>
-                            <span class="nav-text">Tài khoản người tìm việc</span>
-                        </a>
-                    </li>
-                    <li class="nav-item" onclick="loadContent('employer.html')">
-                        <a href="javascript:void(0)">
-                            <span class="nav-icon"><i class="fa fa-building"></i></span>
-                            <span class="nav-text">Tài khoản nhà tuyển dụng</span>
+                            <span class="nav-icon"><i class="fa fa-chart-bar"></i></span>
+                            <span class="nav-text">Tổng quan</span>
                         </a>
                     </li>
                     <li class="nav-item" onclick="loadContent('recruitment.html')">
@@ -99,19 +92,25 @@
                     <li class="nav-item" onclick="loadContent('applications.html')">
                         <a href="javascript:void(0)">
                             <span class="nav-icon"><i class="fa fa-file-alt"></i></span>
-                            <span class="nav-text">Tất cả CV</span>
+                            <span class="nav-text">Hồ sơ ứng tuyển</span>
                         </a>
                     </li>
                     <li class="nav-item" onclick="loadContent('companies.html')">
                          <a href="javascript:void(0)">
                             <span class="nav-icon"><i class="fa fa-industry"></i></span>
-                            <span class="nav-text">Thông tin công ty</span>
+                            <span class="nav-text">Danh sách việc làm</span>
                         </a>
                     </li>
                     <li class="nav-item" onclick="loadContent('blog.html')">
                         <a href="javascript:void(0)">
                             <span class="nav-icon"><i class="fa fa-pen-to-square"></i></span>
-                            <span class="nav-text">Nội dung blog/tin tức</span>
+                            <span class="nav-text">Ứng viên đã lưu</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" onclick="loadContent('feedbacks.html')">
+                        <a href="javascript:void(0)">
+                            <span class="nav-icon"><i class="fa fa-comments"></i></span>
+                            <span class="nav-text">Phản hồi/khiếu nại</span>
                         </a>
                     </li>
                     <li class="nav-item" onclick="loadContent('premium.html')">
@@ -123,30 +122,19 @@
                     <li class="nav-item" onclick="loadContent('payments.html')">
                         <a href="javascript:void(0)">
                             <span class="nav-icon"><i class="fa fa-money-bill-wave"></i></span>
-                            <span class="nav-text">Thanh toán & hóa đơn</span>
-                        </a>
-                    </li>
-                    <li class="nav-item" onclick="loadContent('feedbacks.html')">
-                        <a href="javascript:void(0)">
-                            <span class="nav-icon"><i class="fa fa-comments"></i></span>
-                            <span class="nav-text">Phản hồi/khiếu nại</span>
-                        </a>
-                    </li>
-                   <li class="nav-item" onclick="loadContent('statistic.html')">
-                        <a href="javascript:void(0)">
-                            <span class="nav-icon"><i class="fa fa-chart-bar"></i></span>
-                            <span class="nav-text">Thống kê hệ thống</span>
+                            <span class="nav-text">Lịch sử thanh toán</span>
                         </a>
                     </li>
                 </ul>
             </nav>
         </aside>
-         <main id="content-area" class="content-area">
-
+        <main class="content-area" layout:fragment="content">
+            <!-- Nội dung trang con sẽ được nhúng tại đây -->
         </main>
     </div>
 </div>
 
 <!-- JS -->
-<script th:src="@{/js/employer.js}"></script></body>
+<!--<script th:src="@{/js/employer.js}"></script>-->
+</body>
 </html>
