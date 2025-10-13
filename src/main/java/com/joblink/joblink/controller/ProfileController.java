@@ -125,6 +125,9 @@ public class ProfileController {
             JobSeekerProfile profile = profileService.getOrCreateProfile(user.getUserId());
             profile.setAvatarUrl(avatarUrl);
             profileService.updateBasicInfo(profile);
+            // Also update avatar on the session user so header shows new avatar immediately
+            user.setAvatarUrl(avatarUrl);
+            session.setAttribute("user", user);
             ra.addFlashAttribute("success", "Cập nhật avatar thành công");
         } catch (Exception e) {
             ra.addFlashAttribute("error", "Lỗi upload avatar: " + e.getMessage());

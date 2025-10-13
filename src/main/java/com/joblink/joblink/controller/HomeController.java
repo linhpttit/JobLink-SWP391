@@ -21,8 +21,25 @@ public class HomeController implements ErrorController {
 
     @GetMapping("/")
     public String home(Model model, HttpSession session) {
+        // If user logged in, redirect to area by role
+        Object obj = session.getAttribute("user");
+        if (obj instanceof User) {
+            User u = (User) obj;
+            String role = u.getRole() == null ? "" : u.getRole().toLowerCase();
+            switch (role) {
+                case "admin":
+                    return "redirect:/admin";
+                case "employer":
+                    return "redirect:/employer/home";
+                case "seeker":
+                    return "redirect:/seeker/home";
+                default:
+                    break;
+            }
+        }
+
         putUser(model, session);
-        return "index"; // ✅ trang chủ
+        return "index"; // trang chủ
     }
 
     @GetMapping("/search")
@@ -58,8 +75,8 @@ public class HomeController implements ErrorController {
         if (!ensureLogin(session)) return "redirect:/signin";
         User u = (User) session.getAttribute("user");
         if (!"admin".equalsIgnoreCase(u.getRole())) return "redirect:/signin";
-        putUser(model, session);
-        return "admin-home";
+        // canonical admin shell is served at /admin
+        return "redirect:/admin";
     }
 
     @RequestMapping("/error")

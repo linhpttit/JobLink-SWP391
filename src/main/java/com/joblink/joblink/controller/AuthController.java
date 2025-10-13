@@ -79,9 +79,10 @@ public class AuthController {
             rememberMeService.clear(resp);
         }
 
-        // ✅ Chuyển hướng đúng role
-        String redirectUrl = switch (u.getRole().toLowerCase()) {
-            case "admin" -> "redirect:/admin/home";
+        // ✅ Chuyển hướng đúng role (null-safe)
+        String role = u.getRole() == null ? "" : u.getRole().toLowerCase();
+        String redirectUrl = switch (role) {
+            case "admin" -> "redirect:/admin";
             case "employer" -> "redirect:/employer/home";
             case "seeker"   -> "redirect:/seeker/home";
             default -> "redirect:/";
@@ -164,8 +165,9 @@ public class AuthController {
             if (user != null) {
                 session.setAttribute("user", user);
                 clearOtpSession(session);
-                return switch (user.getRole().toLowerCase()) {
-                    case "admin" -> "redirect:/admin/home";
+                String role2 = user.getRole() == null ? "" : user.getRole().toLowerCase();
+                return switch (role2) {
+                    case "admin" -> "redirect:/admin";
                     case "employer" -> "redirect:/employer/home";
                     case "seeker" -> "redirect:/seeker/home";
                     default -> "redirect:/";

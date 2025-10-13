@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý CV</title>
+    <link rel="stylesheet" href="applications.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="applications-management">
+    <!-- Header -->
+    <div class="applications-header">
+        <h2 class="applications-title"><i class="fa-solid fa-file"></i>Quản lý CV / Ứng viên</h2>
+        <div class="applications-actions">
+            <button class="btn btn-primary">
+                <i class="fas fa-download"></i> Xuất Excel
+            </button>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="applications-filters">
+        <div class="filter-row">
+            <div class="filter-group">
+                <label for="searchCV">Tìm kiếm</label>
+                <div class="search-box">
+                    <input type="text" id="searchCV" placeholder="Tìm theo tên, email, công việc...">
+                    <i class="fas fa-search"></i>
+                </div>
+            </div>
+            <div class="filter-group">
+                <label for="statusFilter">Trạng thái</label>
+                <select id="statusFilter">
+                    <option value="">Tất cả</option>
+                    <option value="submitted">Đã nộp</option>
+                    <option value="reviewing">Đang xem xét</option>
+                    <option value="accepted">Chấp nhận</option>
+                    <option value="denied">Từ chối</option>
+                    <option value="withdrawn">Rút hồ sơ</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="jobFilter">Công việc</label>
+                <select id="jobFilter">
+                    <option value="">Tất cả</option>
+                    <!-- Options từ backend -->
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="dateFilter">Ngày nộp</label>
+                <select id="dateFilter">
+                    <option value="">Tất cả</option>
+                    <option value="today">Hôm nay</option>
+                    <option value="week">Tuần này</option>
+                    <option value="month">Tháng này</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="applications-stats">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-clipboard-list"></i>
+            </div>
+            <div class="stat-info">
+                <h3>245</h3>
+                <p>Tổng số CV</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon reviewing">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-info">
+                <h3>120</h3>
+                <p>Đang xem xét</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon accepted">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-info">
+                <h3>75</h3>
+                <p>Đã chấp nhận</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon denied">
+                <i class="fas fa-times-circle"></i>
+            </div>
+            <div class="stat-info">
+                <h3>50</h3>
+                <p>Đã từ chối</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Applications Table -->
+    <div class="applications-table-container">
+        <table class="applications-table">
+            <thead>
+            <tr>
+                <th>Ứng viên</th>
+                <th>Email</th>
+                <th>Công việc</th>
+                <th>Ngày nộp</th>
+                <th>Trạng thái</th>
+                <th>CV / Tài liệu</th>
+                <th>Ghi chú</th>
+                <th>Thao tác</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="no-data">
+                <td colspan="8" style="text-align:center; padding: 20px; color: #888;">
+                    Không có dữ liệu
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+        <div class="pagination-info">
+            Hiển thị 1-10 của 245 kết quả
+        </div>
+        <div class="pagination-controls">
+            <button class="pagination-btn" disabled>
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="pagination-btn active">1</button>
+            <button class="pagination-btn">2</button>
+            <button class="pagination-btn">3</button>
+            <button class="pagination-btn">...</button>
+            <button class="pagination-btn">10</button>
+            <button class="pagination-btn">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+</div>
+</body>
+</html>
