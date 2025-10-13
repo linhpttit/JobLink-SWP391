@@ -1,6 +1,8 @@
 package com.joblink.joblink.config;
 
 import com.joblink.joblink.auth.model.User;
+import com.joblink.joblink.dto.UserSessionDTO;
+import com.joblink.joblink.util.SessionHelper;
 import com.joblink.joblink.security.RememberMeService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,9 +18,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebConfig implements WebMvcConfigurer {
 
     private final RememberMeService rememberMeService;
+    private final SessionHelper sessionHelper;
 
-    public WebConfig(RememberMeService rememberMeService) {
+    public WebConfig(RememberMeService rememberMeService, SessionHelper sessionHelper) {
         this.rememberMeService = rememberMeService;
+        this.sessionHelper = sessionHelper;
     }
 
     @Override
@@ -51,7 +55,8 @@ public class WebConfig implements WebMvcConfigurer {
                         // Thử auto-login bằng cookie REMEMBER
                         User u = rememberMeService.autoLogin(req, res);
                         if (u != null) {
-                            req.getSession(true).setAttribute("user", u);
+                            UserSessionDTO dto = sessionHelper.toSessionDTO(u);
+                            req.getSession(true).setAttribute("user", dto);
                             System.out.println("[WebConfig] ✅ Auto-login from cookie: " + u.getEmail());
                         } else {
                             System.out.println("[WebConfig] ⚠️ No valid REMEMBER cookie or expired session.");

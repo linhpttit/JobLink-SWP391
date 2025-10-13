@@ -35,7 +35,7 @@ public class CVController {
 
     @GetMapping("/cv")
     public String cvUploadPage(HttpSession session, Model model, RedirectAttributes ra) {
-        User user = (User) session.getAttribute("user");
+        com.joblink.joblink.dto.UserSessionDTO user = (com.joblink.joblink.dto.UserSessionDTO) session.getAttribute("user");
         if (user == null) {
             ra.addFlashAttribute("error", "Please login to continue");
             return "redirect:/signin";

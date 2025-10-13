@@ -1,6 +1,6 @@
 package com.joblink.joblink.controller;
 
-import com.joblink.joblink.auth.model.User;
+// domain User import removed; we read UserSessionDTO from session when needed
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.boot.web.servlet.error.ErrorController;
@@ -23,8 +23,8 @@ public class HomeController implements ErrorController {
     public String home(Model model, HttpSession session) {
         // If user logged in, redirect to area by role
         Object obj = session.getAttribute("user");
-        if (obj instanceof User) {
-            User u = (User) obj;
+        if (obj instanceof com.joblink.joblink.dto.UserSessionDTO) {
+            com.joblink.joblink.dto.UserSessionDTO u = (com.joblink.joblink.dto.UserSessionDTO) obj;
             String role = u.getRole() == null ? "" : u.getRole().toLowerCase();
             switch (role) {
                 case "admin":
@@ -51,7 +51,7 @@ public class HomeController implements ErrorController {
     @GetMapping("/seeker/home")
     public String seekerHome(HttpSession s, Model m) {
         if (s.getAttribute("user") == null) return "redirect:/signin";
-        User u = (User) s.getAttribute("user");
+        com.joblink.joblink.dto.UserSessionDTO u = (com.joblink.joblink.dto.UserSessionDTO) s.getAttribute("user");
         if (!"seeker".equalsIgnoreCase(u.getRole())) return "redirect:/signin";
         m.addAttribute("user", u);
         return "seeker-home";
@@ -61,7 +61,7 @@ public class HomeController implements ErrorController {
     @GetMapping("/employer/home")
     public String employerHome(Model model, HttpSession session) {
         if (!ensureLogin(session)) return "redirect:/signin";
-        User u = (User) session.getAttribute("user");
+        com.joblink.joblink.dto.UserSessionDTO u = (com.joblink.joblink.dto.UserSessionDTO) session.getAttribute("user");
         if (!"employer".equalsIgnoreCase(u.getRole())) return "redirect:/signin";
         putUser(model, session);
         return "employer-home";
@@ -73,7 +73,7 @@ public class HomeController implements ErrorController {
     @GetMapping("/admin/home")
     public String adminHome(Model model, HttpSession session) {
         if (!ensureLogin(session)) return "redirect:/signin";
-        User u = (User) session.getAttribute("user");
+        com.joblink.joblink.dto.UserSessionDTO u = (com.joblink.joblink.dto.UserSessionDTO) session.getAttribute("user");
         if (!"admin".equalsIgnoreCase(u.getRole())) return "redirect:/signin";
         // canonical admin shell is served at /admin
         return "redirect:/admin";

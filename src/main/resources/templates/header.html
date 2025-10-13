@@ -85,12 +85,12 @@
                     <span class="message-badge" id="messageBadge" style="display: none;">0</span>
                 </a>
 
-                <!-- Avatar for logged-in users. Use session.user.avatarUrl if available -->
-<!--                <div th:if="${session.user != null}" class="header-avatar-wrap">-->
-<!--                    <a th:href="@{/jobseeker/profile}" title="My Profile">-->
-<!--                        <img id="headerAvatar" th:src="${session.user.avatarUrl != null ? session.user.avatarUrl : '/images/user.png'}" src="/images/user.png" alt="Avatar" class="header-avatar site-avatar">-->
-<!--                    </a>-->
-<!--                </div>-->
+<!--                 Avatar for logged-in users. Use session.user.avatarUrl if available-->
+                <div th:if="${session.user != null}" class="header-avatar-wrap">
+                    <a th:href="@{/jobseeker/profile}" title="My Profile">
+                        <img id="headerAvatar" th:src="${session.user.avatarUrl != null ? session.user.avatarUrl : '/images/user.png'}" src="/images/user.png" alt="Avatar" class="header-avatar site-avatar">
+                    </a>
+                </div>
 
                 <a th:if="${session.user == null}" th:href="@{/signin}" class="sign-in-btn" data-i18n="sign_in">Sign
                     In</a>
