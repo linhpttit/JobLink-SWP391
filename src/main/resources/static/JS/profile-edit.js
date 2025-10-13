@@ -1326,10 +1326,12 @@ document.getElementById("avatarInput")?.addEventListener("change", (e) => {
         showNotification("Avatar uploaded successfully", "success");
         // Update header avatar immediately if present
         const headerImg = document.getElementById('headerAvatar');
-        if (headerImg) {
-          // Use preview image (data URL) to reflect change instantly
-          const previewSrc = document.getElementById('avatarPreview')?.src;
-          if (previewSrc) headerImg.src = previewSrc;
+        // Update all avatar elements used across the site (header, usermenu, etc.)
+        const previewSrc = document.getElementById('avatarPreview')?.src;
+        if (previewSrc) {
+          document.querySelectorAll('.site-avatar').forEach(img => {
+            try { img.src = previewSrc; } catch (e) { /* ignore */ }
+          });
         }
       } else {
         showNotification("Failed to upload avatar", "error");

@@ -108,7 +108,9 @@ public class ProfileService {
 
         return (done * 100) / total;
     }
-
+    public JobSeekerProfile getProfileByUserId(int userId) {
+        return profileDao.findByUserId(userId);
+    }
     public List<String> getMissingSections(int seekerId) {
         JobSeekerProfile p = profileDao.findBySeekerId(seekerId);
         List<String> miss = new ArrayList<>();

@@ -16,13 +16,13 @@
 <div class="usermenu" data-menu
      th:if="${session.user != null and #strings.equalsIgnoreCase(session.user.role, 'seeker')}">
     <button class="usermenu__btn" id="usermenuBtn" aria-haspopup="menu" aria-expanded="false">
-        <img src="src/main/resources/images/user.png" alt="user" />
+        <img th:src="${session.user.avatarUrl != null ? session.user.avatarUrl : '/images/user.png'}" alt="user" class="site-avatar usermenu__avatar" />
         <span class="usermenu__caret">▾</span>
     </button>
 
     <div class="usermenu__dropdown" role="menu" aria-labelledby="usermenuBtn" id="usermenuDropdown">
         <div class="usermenu__header">
-            <img class="usermenu__avatar" src="images/user.png" alt="avatar">
+            <img class="usermenu__avatar site-avatar" th:src="${session.user.avatarUrl != null ? session.user.avatarUrl : '/images/user.png'}" alt="avatar">
             <div class="usermenu__who">
                 <!-- dùng thuộc tính từ session.user -->
                 <div class="usermenu__name" th:text="${session.user.fullName}"></div>
