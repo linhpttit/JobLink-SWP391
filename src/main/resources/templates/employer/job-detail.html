@@ -122,13 +122,13 @@
         <!-- Actions -->
         <footer class="actions">
             <!-- XÓA TIN -->
-            <form th:action="@{/jobPosting/detail/{id}/delete(id=${job.jobId})}" method="post" class="inline">
+            <form th:action="@{/jobPosting/{id}/delete(id=${job.jobId})}" method="post" class="inline">
                 <input type="hidden" name="_method" value="delete"/>
                 <button class="btn danger" type="submit">Xóa tin</button>
             </form>
 
             <!-- CHỈNH SỬA TIN -->
-            <a class="btn primary" th:href="@{/jobs/{id}/edit(id=${job.jobId})}">Chỉnh sửa tin</a>
+            <a class="btn primary" th:href="@{/jobPosting/{id}/edit(id=${job.jobId})}">Chỉnh sửa tin</a>
         </footer>
 
     </article>

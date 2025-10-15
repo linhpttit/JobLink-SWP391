@@ -5,7 +5,10 @@ import com.joblink.joblink.entity.District;
 import com.joblink.joblink.entity.JobPosting;
 import com.joblink.joblink.entity.Province;
 import com.joblink.joblink.entity.Skill;
+import com.joblink.joblink.service.IDistrictService;
 import com.joblink.joblink.service.IJobPostingService;
+import com.joblink.joblink.service.IProvinceService;
+import com.joblink.joblink.service.ISkillService;
 import org.springframework.ui.Model;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -20,7 +23,9 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class JobPostingController {
     private final IJobPostingService jobPostingService;
-
+    private final ISkillService skillService;
+    private final IProvinceService provinceService;
+    private final IDistrictService districtService;
     @GetMapping
     public String showCreateForm(Model model){
         model.addAttribute("jobForm", new JobPostingDto());
@@ -72,9 +77,30 @@ public class JobPostingController {
             model.addAttribute("job",jobPosting);
             return "employer/job-detail";
     }
-    @PostMapping("/detail/{id}/delete")
+    @PostMapping("/{id}/delete")
     public String deleteJobPosting(@PathVariable("id") Long id){
             jobPostingService.deleteJobPostingById(id);
+        return "redirect:/jobPosting/viewList";
+    }
+
+    @GetMapping("/{id}/edit")
+    public String editJobPosting(@PathVariable("id") Long id, Model model){
+        JobPosting jobPosting = jobPostingService.findJobPostingById(id)
+                .orElseThrow(() -> new RuntimeException("Job not found"));
+        model.addAttribute("job",jobPosting);
+
+        // Bổ sung danh sách để hiển thị trong dropdown
+        model.addAttribute("skills", skillService.getAllSkills());
+        model.addAttribute("provinces", provinceService.getAllProvinces());
+        model.addAttribute("districts", districtService.getAllDistricts());
+        return "employer/edit-job-posting";
+    }
+
+    @PostMapping("/{id}/edit")
+    public String editJobPosting(@PathVariable("id") Long id,
+                                 JobPosting posting,
+                                 Model model){
+        jobPostingService.editJobPostingByEntity(id, posting);
         return "redirect:/jobPosting/viewList";
     }
 
