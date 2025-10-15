@@ -1,12 +1,8 @@
-// File: JobDAO.java (PHIÊN BẢN HOÀN CHỈNH ĐÃ BỔ SUNG findById)
+// File: com/joblink/joblink/dao/JobDAO.java (ĐÃ ĐƯỢC TINH GỌN)
 package com.joblink.joblink.dao;
 
-import com.joblink.joblink.auth.model.JobPosting;
-import com.joblink.joblink.auth.model.JobSearchResult;
-import lombok.RequiredArgsConstructor;
-import org.springframework.dao.EmptyResultDataAccessException;
+import com.joblink.joblink.auth.model.JobSearchResult; // Model này chỉ dùng cho kết quả search
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Repository;
@@ -18,11 +14,10 @@ import java.util.Map;
 @Repository
 public class JobDAO {
 
-    private final JdbcTemplate jdbcTemplate;
     private final SimpleJdbcCall searchJobsCall;
 
-    public JobDAO(JdbcTemplate jdbcTemplate, DataSource dataSource) {
-        this.jdbcTemplate = jdbcTemplate;
+    public JobDAO(DataSource dataSource) {
+        // Bỏ jdbcTemplate vì không còn dùng cho các query khác
         this.searchJobsCall = new SimpleJdbcCall(dataSource)
                 .withProcedureName("sp_Jobs_SearchBySkills")
                 .returningResultSet("#result-set-1", (rs, rowNum) -> {
@@ -38,46 +33,7 @@ public class JobDAO {
                 });
     }
 
-    private final RowMapper<JobPosting> jobPostingRowMapper = (rs, rowNum) -> {
-        JobPosting job = new JobPosting();
-        job.setJobId(rs.getInt("job_id"));
-        job.setEmployerId(rs.getInt("employer_id"));
-        job.setCategoryId(rs.getObject("category_id", Integer.class));
-        job.setTitle(rs.getString("title"));
-        job.setDescription(rs.getString("description"));
-        job.setLocation(rs.getString("location"));
-        job.setSalaryMin(rs.getBigDecimal("salary_min"));
-        job.setSalaryMax(rs.getBigDecimal("salary_max"));
-        job.setPostedAt(rs.getTimestamp("posted_at").toLocalDateTime());
-        return job;
-    };
-
-    // === PHƯƠNG THỨC CÒN THIẾU MÀ BẠN CẦN ===
-    /**
-     * Tìm một công việc cụ thể bằng ID của nó.
-     * @param jobId ID của công việc.
-     * @return Đối tượng JobPosting hoặc null nếu không tìm thấy.
-     */
-    public JobPosting findById(int jobId) {
-        String sql = "SELECT * FROM JobsPosting WHERE job_id = ?";
-        try {
-            return jdbcTemplate.queryForObject(sql, jobPostingRowMapper, jobId);
-        } catch (EmptyResultDataAccessException e) {
-            // queryForObject sẽ ném exception nếu không tìm thấy, chúng ta bắt và trả về null
-            return null;
-        }
-    }
-
-    public List<JobPosting> findByEmployerId(int employerId) {
-        String sql = "SELECT * FROM JobsPosting WHERE employer_id = ? ORDER BY posted_at DESC";
-        return jdbcTemplate.query(sql, jobPostingRowMapper, employerId);
-    }
-
-    public List<JobPosting> findRelatedJobs(int categoryId, int excludeJobId, int limit) {
-        String sql = "SELECT TOP (?) * FROM JobsPosting WHERE category_id = ? AND job_id <> ? ORDER BY posted_at DESC";
-        return jdbcTemplate.query(sql, jobPostingRowMapper, limit, categoryId, excludeJobId);
-    }
-
+    // Chỉ giữ lại phương thức searchJobs
     @SuppressWarnings("unchecked")
     public List<JobSearchResult> searchJobs(String skills, String location,
                                             Double minSalary, Double maxSalary,

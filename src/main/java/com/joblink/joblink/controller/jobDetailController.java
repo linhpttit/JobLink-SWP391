@@ -1,54 +1,70 @@
-// File: JobDetailController.java (ĐÃ SỬA LỖI)
+// File: com/joblink/joblink/controller/jobDetailController.java (PHIÊN BẢN SỬA LỖI HOÀN CHỈNH)
 package com.joblink.joblink.controller;
 
-import com.joblink.joblink.dto.UserSessionDTO; // Thêm import
-import com.joblink.joblink.model.CVUpload; // Thêm import
-import com.joblink.joblink.auth.model.EmployerProfile; // Sửa lại package model
-import com.joblink.joblink.auth.model.JobPosting; // Sửa lại package model
-import com.joblink.joblink.service.CVUploadService; // Thêm import
-import com.joblink.joblink.service.EmployerService;
+import com.joblink.joblink.dto.UserSessionDTO;
+import com.joblink.joblink.model.CVUpload;
+import com.joblink.joblink.entity.Employer; // Sử dụng Employer entity
+import com.joblink.joblink.entity.JobPosting;
+import com.joblink.joblink.service.CVUploadService;
+import com.joblink.joblink.service.EmployerService; // Giả sử service này trả về Employer
 import com.joblink.joblink.service.JobService;
-import com.joblink.joblink.service.ProfileService; // Thêm import
+import com.joblink.joblink.service.ProfileService;
 import jakarta.servlet.http.HttpSession;
-import lombok.RequiredArgsConstructor; // Thêm import
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
-@RequiredArgsConstructor // SỬA LỖI 1: Tự động inject các service qua constructor
-public class jobDetailController { // SỬA LỖI 2: Sửa lại tên class theo chuẩn Java
+@RequiredArgsConstructor
+public class jobDetailController {
 
-    // Inject các service cần thiết
     private final JobService jobService;
     private final EmployerService employerService;
     private final CVUploadService cvUploadService;
-    private final ProfileService profileService; // Dùng để lấy seekerId từ userId
+    private final ProfileService profileService;
 
     @GetMapping("/job-detail/{jobId}")
-    public String jobDetailPage(@PathVariable("jobId") int jobId, Model model, HttpSession session) {
+    @Transactional(readOnly = true)
+    public String jobDetailPage(@PathVariable("jobId") Long jobId, Model model, HttpSession session) {
 
-        JobPosting job = jobService.getJobById(jobId);
-        if (job == null) {
-            return "error"; // Trả về trang lỗi chung
+        // Bước 1: Lấy JobPosting từ service, nó trả về Optional
+        Optional<JobPosting> jobOptional = jobService.getJobById(jobId);
+        if (jobOptional.isEmpty()) {
+            return "error"; // Không tìm thấy Job, trả về trang lỗi
+        }
+        JobPosting job = jobOptional.get();
+
+        // Bước 2: SỬA LỖI - Lấy đối tượng Employer trực tiếp từ JobPosting
+        Employer employer = job.getEmployer();
+        if (employer == null) {
+            return "error"; // Lỗi dữ liệu: Job không có thông tin nhà tuyển dụng
         }
 
-        EmployerProfile employer = employerService.getProfileByEmployerId(job.getEmployerId());
-        List<JobPosting> relatedJobs = jobService.getRelatedJobs(job.getCategoryId(), job.getJobId());
+        // Bước 3: SỬA LỖI - Lấy các job liên quan qua Category ID
+        List<JobPosting> relatedJobs = Collections.emptyList();
+        if (job.getCategory() != null) {
+            relatedJobs = jobService.getRelatedJobs(job.getCategory().getCategoryId().intValue(), job.getJobId());
+        }
 
+        // Bước 4: Lấy thông tin CV của người dùng (nếu đang đăng nhập là seeker)
         UserSessionDTO currentUser = (UserSessionDTO) session.getAttribute("user");
         if (currentUser != null && "seeker".equalsIgnoreCase(currentUser.getRole())) {
-            // SỬA LỖI 3: Lấy seekerId từ userId, sau đó mới dùng seekerId để lấy CV
             int seekerId = profileService.getOrCreateProfile(currentUser.getUserId()).getSeekerId();
             List<CVUpload> userCVs = cvUploadService.getCVsBySeekerId(seekerId);
             model.addAttribute("userCVs", userCVs);
         }
 
+        // Bước 5: Đưa tất cả dữ liệu vào model
         model.addAttribute("job", job);
-        model.addAttribute("employer", employer);
+        model.addAttribute("employer", employer); // Gửi cả đối tượng Employer
         model.addAttribute("relatedJobs", relatedJobs);
 
         return "job-detail";

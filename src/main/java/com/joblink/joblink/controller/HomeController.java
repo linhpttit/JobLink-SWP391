@@ -30,7 +30,7 @@ public class HomeController implements ErrorController {
                 case "admin":
                     return "redirect:/admin";
                 case "employer":
-                    return "redirect:/employer/home";
+                    return "redirect:/employer/employer-layout";
                 case "seeker":
                     return "redirect:/seeker/home";
                 default:
@@ -64,7 +64,7 @@ public class HomeController implements ErrorController {
         com.joblink.joblink.dto.UserSessionDTO u = (com.joblink.joblink.dto.UserSessionDTO) session.getAttribute("user");
         if (!"employer".equalsIgnoreCase(u.getRole())) return "redirect:/signin";
         putUser(model, session);
-        return "employer-home";
+        return "employer/employer-layout";
     }
     @GetMapping("/employers")
     public String employers() {

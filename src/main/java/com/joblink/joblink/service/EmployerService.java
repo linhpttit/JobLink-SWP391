@@ -1,8 +1,10 @@
 package com.joblink.joblink.service;
 
+import com.joblink.joblink.auth.model.EmployerProfile;
+import com.joblink.joblink.dao.EmployerProfileDao;
 import com.joblink.joblink.dto.EmployerProfileDto;
 import com.joblink.joblink.entity.Employer;
-import com.joblink.joblink.repository.EmployerRepository;
+import com.joblink.joblink.Repository.EmployerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -11,12 +13,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class EmployerService implements IEmployerService{
     private final EmployerRepository employerRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmployerProfileDao employerProfileDao;
 
     @Override
     public boolean changePassword(String curPass, String newPass, String confirmPass) {
@@ -75,5 +79,13 @@ public class EmployerService implements IEmployerService{
         dto.setCreatedAt(employer.getUser().getCreatedAt().toLocalDate().format(formatter));
         return dto;
 
+    }
+    public EmployerProfile getProfileByEmployerId(int employerId) {
+        return employerProfileDao.findById(employerId);
+    }
+    public List<EmployerProfile> searchOpenEmployers(String keyword, String location, String industry, String sortBy) {
+        // TODO: Viết logic tìm kiếm trong EmployerProfileDao và gọi ở đây
+//        return employerProfileDao.searchWithOpenJobs(keyword, location, industry, sortBy);
+        return List.of();
     }
 }

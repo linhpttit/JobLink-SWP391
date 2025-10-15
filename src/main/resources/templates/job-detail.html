@@ -3,69 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${job.title} + ' - JobLink'">Senior UX Designer - JobLink</title>
+    <title th:text="${job.title} + ' - JobLink'">Job Detail - JobLink</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-    <link rel="stylesheet" th:href="@{/CSS/job-detail.css}">
+    <link rel="stylesheet" th:href="@{/CSS/job-detail-new.css}">
     <link rel="stylesheet" th:href="@{/CSS/header.css}">
 </head>
 <body>
 <div th:replace="~{header :: header}"></div>
 
 <main class="detail-main">
-    <div class="breadcrumb">
-        <a href="/">Home</a> / <a href="/search">Find Job</a> / <span th:text="${job.title}">Senior UX Designer</span>
+
+    <div class="company-header-card">
+        <div class="company-header-main">
+            <div class="company-logo">
+                <i class="fas fa-building"></i>
+            </div>
+            <div class="company-info">
+                <h1 th:text="${employer.companyName}">Twitter</h1>
+                <p th:text="${employer.industry}">Information Technology (IT)</p>
+            </div>
+        </div>
+        <div class="company-header-action">
+            <a href="#open-positions" class="btn-primary">View Open Position <i class="fas fa-arrow-right"></i></a>
+        </div>
     </div>
 
     <div class="detail-container">
         <div class="job-detail-left">
-            <div class="job-header">
-                <div class="job-logo-large">
-                    <img th:if="${employer.logoUrl}" th:src="${employer.logoUrl}" alt="Company Logo">
-                    <i th:unless="${employer.logoUrl}" class="fab fa-instagram"></i> </div>
-                <div class="job-header-info">
-                    <div class="job-info-left">
-                        <h1 class="job-title" th:text="${job.title}">Senior UX Designer</h1>
-                        <div class="job-company">
-                            <span><i class="fas fa-building"></i> <span th:text="${employer.companyName}">Instagram</span></span>
-                            <span><i class="fas fa-map-marker-alt"></i> <span th:text="${job.location}">New York, USA</span></span>
-                        </div>
-                        <div class="job-badges">
-                            <span class="badge badge-featured" th:if="${job.isFeatured}">Featured</span>
-                            <span class="badge badge-fulltime" th:text="${job.jobType}">Full Time</span>
-                        </div>
-                    </div>
-                    <div class="job-actions-top">
-                        <button class="btn-bookmark-large">
-                            <i class="far fa-bookmark"></i>
-                        </button>
-                        <button class="btn-primary-large" id="applyNowBtn">
-                            Apply Now <i class="fas fa-arrow-right"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
             <div class="section">
-                <h2 class="section-title">Job Description</h2>
+                <h2 class="section-title">Description</h2>
                 <div class="section-content" th:utext="${job.description}">
-                    <p>Velstar is a Shopify Plus agency...</p>
+                    <p>Lorem ipsum dolor sit amet...</p>
                 </div>
             </div>
 
-            <div class="section" th:if="${job.responsibilities != null and !#lists.isEmpty(job.responsibilities)}">
-                <h2 class="section-title">Responsibilities</h2>
-                <ul class="responsibilities-list">
-                    <li th:each="resp : ${job.responsibilities}" th:text="${resp}">Collaborate with other team members...</li>
-                </ul>
+            <div class="section" th:if="${job.benefits != null and !job.benefits.isEmpty()}">
+                <h2 class="section-title">Company Benefits</h2>
+                <div class="section-content" th:utext="${job.benefits}"></div>
             </div>
 
-            <div class="section" th:if="${job.requirements != null and !#lists.isEmpty(job.requirements)}">
-                <h2 class="section-title">Requirements</h2>
-                <ul class="responsibilities-list">
-                    <li th:each="req : ${job.requirements}" th:text="${req}">Great troubleshooting and analytical skills...</li>
-                </ul>
+            <div class="section" th:if="${employer.description != null and !employer.description.isEmpty()}">
+                <h2 class="section-title">Company Vision</h2>
+                <div class="section-content" th:utext="${employer.description}"></div>
             </div>
 
+            <div class="share-profile">
+                <span>Share profile:</span>
+                <a href="#"><i class="fab fa-facebook-f"></i> Facebook</a>
+                <a href="#"><i class="fab fa-pinterest"></i> Pinterest</a>
+            </div>
         </div>
 
         <div class="job-detail-right">
@@ -74,36 +60,22 @@
                 <div class="info-item">
                     <div class="info-icon"><i class="fas fa-calendar-alt"></i></div>
                     <div class="info-content">
-                        <h4>Job Posted:</h4>
-                        <p th:text="${#dates.format(job.postedAt, 'dd MMM, yyyy')}">14 Jun, 2021</p>
+                        <h4>Date Posted:</h4>
+                        <p th:text="${#temporals.format(job.postedAt, 'dd MMM, yyyy')}">14 Jun, 2021</p>
                     </div>
                 </div>
                 <div class="info-item">
                     <div class="info-icon"><i class="fas fa-hourglass-end"></i></div>
                     <div class="info-content">
-                        <h4>Job Expire In:</h4>
-                        <p th:text="${#dates.format(job.expireAt, 'dd MMM, yyyy')}">14 Aug, 2021</p>
+                        <h4>Expiration Date:</h4>
+                        <p th:text="${#temporals.format(job.expireAt, 'dd MMM, yyyy')}">14 Aug, 2021</p>
                     </div>
                 </div>
-                <div class="info-item">
-                    <div class="info-icon"><i class="fas fa-graduation-cap"></i></div>
+                <div class="info-item" th:if="${employer.industry}">
+                    <div class="info-icon"><i class="fas fa-industry"></i></div>
                     <div class="info-content">
-                        <h4>Education:</h4>
-                        <p th:text="${job.educationLevel}">Graduation</p>
-                    </div>
-                </div>
-                <div class="info-item">
-                    <div class="info-icon"><i class="fas fa-user-tie"></i></div>
-                    <div class="info-content">
-                        <h4>Experience:</h4>
-                        <p th:text="${job.experienceYears} + ' Year'">2-3 Year</p>
-                    </div>
-                </div>
-                <div class="info-item">
-                    <div class="info-icon"><i class="fas fa-map-marker-alt"></i></div>
-                    <div class="info-content">
-                        <h4>Location:</h4>
-                        <p th:text="${job.location}">New York, USA</p>
+                        <h4>Industry Type:</h4>
+                        <p th:text="${employer.industry}">Technology</p>
                     </div>
                 </div>
                 <div class="info-item">
@@ -115,80 +87,50 @@
                 </div>
             </div>
 
-            <div class="info-card company-card">
-                <div class="company-logo-large">
-                    <img th:if="${employer.logoUrl}" th:src="${employer.logoUrl}" alt="Company Logo">
-                    <i th:unless="${employer.logoUrl}" class="fab fa-instagram"></i>
+            <div class="info-card">
+                <h3>Contact Information</h3>
+                <div class="contact-item" th:if="${employer.phoneNumber}">
+                    <span class="contact-label">Phone:</span>
+                    <span class="contact-value" th:text="${employer.phoneNumber}">+1-203-555-0161</span>
                 </div>
-                <h3 th:text="${employer.companyName}">Instagram</h3>
-                <p style="color: #64748b; margin-bottom: 20px;" th:text="${employer.industry}">Digital Marketing Agency</p>
+                <div class="contact-item" th:if="${job.contactEmail}">
+                    <span class="contact-label">Email:</span>
+                    <span class="contact-value" th:text="${job.contactEmail}">esther.howard@gmail.com</span>
+                </div>
 
-                <div class="company-info-list">
-                    <div class="company-info-item">
-                        <span class="company-info-label">Company size:</span>
-                        <span class="company-info-value" th:text="${employer.companySize}">100-500 Employees</span>
-                    </div>
-                    <div class="company-info-item">
-                        <span class="company-info-label">Phone:</span>
-                        <span class="company-info-value" th:text="${employer.phoneNumber}">(406) 555-0120</span>
-                    </div>
-                    <div class="company-info-item">
-                        <span class="company-info-label">Email:</span>
-                        <span class="company-info-value">
-                            <a th:href="'mailto:' + ${employer.email}" class="company-link" th:text="${employer.email}">career@instagram.com</a>
-                        </span>
-                    </div>
-                    <div class="company-info-item">
-                        <span class="company-info-label">Website:</span>
-                        <span class="company-info-value">
-                            <a th:href="${employer.websiteUrl}" target="_blank" class="company-link" th:text="${employer.websiteUrl}">https://instagram.com</a>
-                        </span>
+                <div class="social-follow">
+                    <span>Follow us on:</span>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="related-jobs" th:if="${not #lists.isEmpty(relatedJobs)}">
-        <h2>Related Jobs</h2>
+    <div id="open-positions" class="related-jobs-section" th:if="${relatedJobs != null and !relatedJobs.isEmpty()}">
+        <h2 class="related-jobs-title" th:text="'Open Position (' + ${#lists.size(relatedJobs)} + ')'">Open Position (05)</h2>
         <div class="related-jobs-grid">
-            <div class="related-job-card" th:each="relatedJob : ${relatedJobs}" th:onclick="|window.location.href='/job-detail/${relatedJob.jobId}'|">
+            <div class="related-job-card" th:each="relatedJob : ${relatedJobs}">
                 <div class="related-job-header">
-                    <div class="related-job-logo" style="background: #1877f2;"> <i class="fab fa-facebook-f"></i>
+                    <div class="related-job-logo">
+                        <i class="fas fa-building"></i>
                     </div>
-                    <div class="related-job-info">
-                        <h4 th:text="${relatedJob.title}">Visual Designer</h4>
-                        <p class="related-job-company" th:text="${relatedJob.companyName} + ' • ' + ${relatedJob.location}">Facebook • UK</p>
+                    <div class="related-job-company">
+                        <h4 th:text="${relatedJob.employer.companyName}">Freepik</h4>
+                        <p th:text="${relatedJob.employer.location}">China</p>
                     </div>
                 </div>
+                <h3 class="related-job-title" th:text="${relatedJob.title}">Visual Designer</h3>
                 <div class="related-job-footer">
-                    <span th:text="${relatedJob.jobType} + ' • ' + ${#numbers.formatCurrency(relatedJob.salaryMin)} + '-' + ${#numbers.formatCurrency(relatedJob.salaryMax)}">Full Time • $30K-$35K</span>
+                    <span class="related-job-type" th:text="${relatedJob.jobType}">Full Time</span>
+                    <span class="related-job-salary" th:text="'$' + ${relatedJob.salaryMin} + ' - $' + ${relatedJob.salaryMax}">$15K - $18K</span>
                 </div>
             </div>
         </div>
     </div>
 </main>
-
-<div class="modal-overlay" id="applyModal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2 class="modal-title" th:text="'Apply Job: ' + ${job.title}">Apply Job: Senior UX Designer</h2>
-            <button class="modal-close" id="closeModal"><i class="fas fa-times"></i></button>
-        </div>
-        <div class="modal-body">
-            <form id="applyForm" th:action="@{/apply/{jobId}(jobId=${job.jobId})}" method="post">
-                <div class="form-group" th:if="${userCVs != null}">
-                    <label class="form-label">Choose Resume</label>
-                    <select class="form-select" name="cvId">
-                        <option value="">Select...</option>
-                        <option th:each="cv : ${userCVs}" th:value="${cv.cvId}" th:text="${cv.cvFileName}">Resume-UX-Designer.pdf</option>
-                    </select>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-<script th:src="@{/JS/job-detail.js}" defer></script>
-<div th:replace="~{footer :: footer}"></div>
 </body>
 </html>

@@ -1,8 +1,7 @@
 package com.joblink.joblink.controller;
-
+import com.joblink.joblink.entity.JobPosting;
 import com.joblink.joblink.dto.JobPostingDto;
 import com.joblink.joblink.entity.District;
-import com.joblink.joblink.entity.JobPosting;
 import com.joblink.joblink.entity.Province;
 import com.joblink.joblink.entity.Skill;
 import com.joblink.joblink.service.IJobPostingService;
@@ -13,7 +12,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @Controller
 @RequestMapping("/jobPosting")
@@ -51,10 +49,42 @@ public class JobPostingController {
 
     @PostMapping
     public String createJobPosting(
-            @ModelAttribute("jobForm") JobPostingDto dto,
+            @ModelAttribute("jobForm") JobPostingDto dto, Long employerId,
             BindingResult result,
             Model model){
-        jobPostingService.createJobPosting(dto);
+        if (result.hasErrors()) {
+            // CÓ LỖI:
+            // Phải tải lại toàn bộ dữ liệu cần thiết cho các dropdown list của form
+            // vì khi trả về, trang "job-post" sẽ cần các dữ liệu này để hiển thị.
+            System.out.println("Validation errors found: " + result.getAllErrors()); // Dòng này để debug, có thể xóa
+
+            List<Skill> skills = List.of(
+                    new Skill(1L, "Java"),
+                    new Skill(2L, "Spring Boot"),
+                    new Skill(3L, "React"),
+                    new Skill(4L, "SQL")
+            );
+
+            List<Province> provinces = List.of(
+                    new Province(1L, "Hà Nội", "HN"),
+                    new Province(2L, "TP Hồ Chí Minh", "HCM")
+            );
+
+            List<District> districts = List.of(
+                    new District(1L, "Quận 1", 1L),
+                    new District(2L, "Quận 3", 1L),
+                    new District(3L, "Ba Đình", 1L)
+            );
+
+            // Đưa dữ liệu trở lại Model để Thymeleaf có thể render trang
+            model.addAttribute("skills", skills);
+            model.addAttribute("provinces", provinces);
+            model.addAttribute("districts", districts);
+
+            // Trả về lại trang form để người dùng sửa lỗi
+            return "employer/job-post";
+        }
+        jobPostingService.createJobPosting(dto, employerId);
         return "redirect:/jobPosting/viewList";
     }
 
