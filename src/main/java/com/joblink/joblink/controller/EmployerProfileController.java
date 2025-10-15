@@ -1,6 +1,7 @@
 package com.joblink.joblink.controller;
 
 import com.joblink.joblink.dto.EmployerProfileDto;
+import com.joblink.joblink.dto.JobPostingDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.ui.Model;
@@ -19,21 +20,10 @@ public class EmployerProfileController {
     public String getProfile(){
         return "employer/employer-layout";
     }
-    @GetMapping("/dashboard")
-    public String viewDashboard(){
-        return "dashboard";
-    }
-    @GetMapping("/jobseeker")
-    public String viewJobseeker(){
-        return "jobseeker";
-    }
-
     @GetMapping("/password")
-    public String viewPasswordPage(Model model){
-        model.addAttribute("pageTitle", "Đổi mật khẩu");
-        model.addAttribute("pageCss", "/password.css"); // CSS riêng
-        return "employer/password";
-    }
+    public String viewPasswordPage(){ return "employer/password";  }
+    @GetMapping("/job-posting")
+    public String viewJobPostingPage() { return "employer/job-post"; }
 
     @PostMapping("/password")
     public String changePassword(
@@ -57,7 +47,6 @@ public class EmployerProfileController {
         EmployerProfileDto employerProfileDto = employerService.getActiveEmployerProfile();
                 model.addAttribute("profile", employerProfileDto);
                 return "employer/profile";
-
     }
 
     @PostMapping("/profile")
@@ -73,6 +62,5 @@ public class EmployerProfileController {
                 }
                 return "redirect:/employer/profile";
     }
-
 
 }
