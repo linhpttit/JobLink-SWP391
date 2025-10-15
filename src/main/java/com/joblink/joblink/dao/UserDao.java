@@ -210,4 +210,53 @@ public class UserDao {
             return 0;
         }
     }
+
+    /**
+     * Set the user's hidden/active flag. Assumes there is a column `is_hidden` or `enabled`.
+     * If your Users table uses a different column, adjust SQL accordingly.
+     */
+    public int setHidden(int userId, boolean hidden) {
+        try {
+            // Try to update `is_hidden` column; fallback to `enabled` if necessary
+            String sql = "UPDATE dbo.Users SET is_hidden = ? WHERE user_id = ?";
+            return jdbc.update(sql, hidden ? 1 : 0, userId);
+        } catch (Exception e) {
+            try {
+                String sql2 = "UPDATE dbo.Users SET enabled = ? WHERE user_id = ?";
+                return jdbc.update(sql2, hidden ? 0 : 1, userId);
+            } catch (Exception ex) {
+                System.err.println("[UserDao] setHidden error: " + ex.getMessage());
+                return 0;
+            }
+        }
+    }
+
+    /**
+     * Update a user's notification preference for followed companies posts.
+     * This assumes a simple user_settings table or a column on Users table.
+     * Adjust SQL to match your schema.
+     */
+    public int updateNotificationPref(int userId, boolean emailFollowPosts) {
+        try {
+            String sql = "UPDATE dbo.Users SET email_follow_posts = ? WHERE user_id = ?";
+            return jdbc.update(sql, emailFollowPosts ? 1 : 0, userId);
+        } catch (Exception e) {
+            System.err.println("[UserDao] updateNotificationPref error: " + e.getMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * Unblock a company from user's blocked list (implementation depends on schema).
+     * We'll attempt to delete from a hypothetical table user_blocked_companies(user_id, company_id).
+     */
+    public int unblockCompany(int userId, int companyId) {
+        try {
+            String sql = "DELETE FROM dbo.user_blocked_companies WHERE user_id = ? AND company_id = ?";
+            return jdbc.update(sql, userId, companyId);
+        } catch (Exception e) {
+            System.err.println("[UserDao] unblockCompany error: " + e.getMessage());
+            return 0;
+        }
+    }
 }

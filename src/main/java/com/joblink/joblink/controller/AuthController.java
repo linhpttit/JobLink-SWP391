@@ -228,12 +228,20 @@ public class AuthController {
     /**
      * Tạo UserSessionDTO với thông tin đầy đủ bao gồm avatar và fullName
      */
+    // Trong file AuthController.java
+
+    // Trong file AuthController.java
+
     private UserSessionDTO createSessionUser(User user) {
         UserSessionDTO dto = new UserSessionDTO();
         dto.setUserId(user.getUserId());
         dto.setEmail(user.getEmail());
         dto.setUsername(user.getUsername());
         dto.setRole(user.getRole());
+
+        // ===> THÊM DÒNG NÀY VÀO <===
+        // Sao chép googleId từ User gốc sang DTO để session có thông tin này
+        dto.setGoogleId(user.getGoogleId());
 
         // ✅ Load avatar và fullName từ profile nếu là seeker
         if ("seeker".equalsIgnoreCase(user.getRole())) {

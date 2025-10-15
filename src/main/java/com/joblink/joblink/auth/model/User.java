@@ -15,7 +15,8 @@ public class User {
     private String avatarUrl;
     private boolean enabled;
     private LocalDateTime createdAt;
-
+    private String googleId;
+    private String passwordHash;
 
 
 }

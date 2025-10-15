@@ -1,4 +1,3 @@
-
 package com.joblink.joblink.service;
 
 import com.joblink.joblink.dao.CVUploadDao;
@@ -28,6 +27,17 @@ public class CVUploadService {
 
     public CVUpload getCVById(int cvId) {
         return cvUploadDao.findById(cvId);
+    }
+
+    // === PHƯƠNG THỨC ĐÃ BỔ SUNG ===
+    /**
+     * Lấy tất cả các CV đã tải lên của một người tìm việc.
+     * @param seekerId ID của người tìm việc (seeker_id).
+     * @return Danh sách các CVUpload.
+     */
+    public List<CVUpload> getCVsBySeekerId(int seekerId) {
+        // Giả sử CVUploadDao có phương thức này
+        return cvUploadDao.findBySeekerId(seekerId);
     }
 
     private void validateCV(CVUpload cv) {
