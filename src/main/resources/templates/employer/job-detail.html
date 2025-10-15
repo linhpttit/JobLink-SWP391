@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{employer/employer-layout}">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Chi tiết tin tuyển dụng</title>
+    <link rel="stylesheet" th:href="@{/job-detail.css}"/>
+</head>
+<body class="bg-soft">
+<main class="wrap" layout:fragment="content">
+    <article class="card">
+
+        <!-- Header -->
+        <header class="head">
+            <h1>Chi tiết tin tuyển dụng</h1>
+        </header>
+
+        <!-- Tiêu đề job -->
+        <a class="chip" th:text="${job.title}"></a>
+
+        <!-- 1. Ngành nghề -->
+        <section class="block">
+            <h2>Ngành nghề</h2>
+<!--            <ul class="list">-->
+<!--                <li th:text="${job.industry}"></li>-->
+<!--            </ul>-->
+        </section>
+
+        <!-- 2. Kinh nghiệm -->
+        <section class="block">
+            <h2>Kinh nghiệm</h2>
+            <ul class="list">
+                <li th:text="${job.yearExperience}"></li>
+            </ul>
+        </section>
+
+        <!-- 3. Số lượng tuyển -->
+        <section class="block">
+            <h2>Số lượng tuyển</h2>
+            <ul class="list">
+                <li th:text="${job.hiringNumber}"></li>
+            </ul>
+        </section>
+
+        <!-- 4. Hạn nộp hồ sơ -->
+        <section class="block">
+            <h2>Hạn nộp hồ sơ</h2>
+            <div class="deadline">
+                <strong th:text="${#temporals.format(job.submissionDeadline, 'dd/MM/yyyy')}"></strong>
+            </div>
+        </section>
+
+        <!-- 5. Thành phố -->
+        <section class="block">
+            <h2>Thành phố</h2>
+            <ul class="list">
+                <li th:text="${job.province.provinceName}"></li>
+            </ul>
+        </section>
+
+        <!-- 6. Hình thức làm việc -->
+        <section class="block">
+            <h2>Hình thức làm việc</h2>
+            <ul class="list">
+                <li th:text="${job.workType}"></li>
+            </ul>
+        </section>
+
+        <!-- 7. Vị trí -->
+        <section class="block">
+            <h2>Vị trí</h2>
+            <ul class="list">
+                <li th:text="${job.position}"></li>
+            </ul>
+        </section>
+
+        <!-- 8. Mức lương -->
+        <section class="block">
+            <h2>Mức lương</h2>
+            <ul class="list">
+                <li th:text="${job.salaryMax}"></li>
+            </ul>
+        </section>
+
+        <!-- 9. Mô tả công việc -->
+        <section class="block">
+            <h2>Mô tả công việc</h2>
+            <ul class="list">
+                <li th:text="${job.jobDescription}"></li>
+            </ul>
+        </section>
+
+        <!-- 10. Yêu cầu công việc -->
+        <section class="block">
+            <h2>Yêu cầu công việc</h2>
+            <ul class="list">
+                <li th:text="${job.jobRequirements}"></li>
+            </ul>
+        </section>
+
+        <!-- 11. Quyền lợi -->
+        <section class="block">
+            <h2>Quyền lợi</h2>
+            <ul class="list">
+                <li th:text="${job.benefits}"></li>
+            </ul>
+        </section>
+
+        <!-- 12. Thông tin người liên hệ: Họ tên -->
+        <section class="block">
+            <h2>Người liên hệ</h2>
+            <ul class="list">
+                <li>Họ tên: <span th:text="${job.contactName}"></span></li>
+                <li>Email: <span th:text="${job.contactEmail}"></span></li>
+                <li>Điện thoại: <span th:text="${job.contactPhone}"></span></li>
+            </ul>
+        </section>
+
+        <!-- Actions -->
+        <footer class="actions">
+            <!-- XÓA TIN -->
+            <form th:action="@{/jobs/{id}/delete(id=${job.jobId})}" method="post" class="inline">
+                <input type="hidden" name="_method" value="delete"/>
+                <button class="btn danger" type="submit">Xóa tin</button>
+            </form>
+
+            <!-- CHỈNH SỬA TIN -->
+            <a class="btn primary" th:href="@{/jobs/{id}/edit(id=${job.jobId})}">Chỉnh sửa tin</a>
+        </footer>
+
+    </article>
+</main>
+</body>
+</html>
