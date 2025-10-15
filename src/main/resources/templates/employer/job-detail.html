@@ -122,7 +122,7 @@
         <!-- Actions -->
         <footer class="actions">
             <!-- XÓA TIN -->
-            <form th:action="@{/jobs/{id}/delete(id=${job.jobId})}" method="post" class="inline">
+            <form th:action="@{/jobPosting/detail/{id}/delete(id=${job.jobId})}" method="post" class="inline">
                 <input type="hidden" name="_method" value="delete"/>
                 <button class="btn danger" type="submit">Xóa tin</button>
             </form>

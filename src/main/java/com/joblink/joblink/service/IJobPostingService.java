@@ -8,6 +8,7 @@ import java.util.Optional;
 
 public interface IJobPostingService {
     void createJobPosting(JobPostingDto dto);
+    void deleteJobPostingById(Long id);
     List<JobPosting> getAllJobPostings();
     Optional<JobPosting>  findJobPostingById(Long id);
 }

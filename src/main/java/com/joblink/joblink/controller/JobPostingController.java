@@ -72,5 +72,10 @@ public class JobPostingController {
             model.addAttribute("job",jobPosting);
             return "employer/job-detail";
     }
+    @PostMapping("/detail/{id}/delete")
+    public String deleteJobPosting(@PathVariable("id") Long id){
+            jobPostingService.deleteJobPostingById(id);
+        return "redirect:/jobPosting/viewList";
+    }
 
 }

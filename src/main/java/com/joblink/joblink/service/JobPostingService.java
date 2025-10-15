@@ -57,6 +57,11 @@ public class JobPostingService implements  IJobPostingService{
     }
 
     @Override
+    public void deleteJobPostingById(Long id) {
+        jobPostingRepository.deleteById(id);
+    }
+
+    @Override
     public List<JobPosting> getAllJobPostings() {
         return jobPostingRepository.findAll();
     }
