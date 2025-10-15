@@ -1,0 +1,195 @@
+:root {
+  --ink:#063b2a;
+  --muted:#5f9181;
+  --line:#38d39f;
+  --chip:#e6fbf2;
+  --chip-ink:#1f6e57;
+  --bg:#f7faf9;
+  --card:#ffffff;
+  --accent:#16a34a;
+}
+
+/* Reset + base */
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  font: 14px/1.5 Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: #0b3b2d;
+}
+
+/* Container */
+.wrap {
+  max-width: 1100px;
+  margin: 24px auto;
+  padding: 0 12px;
+}
+
+/* Danh sách job */
+.list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2 cột */
+  gap: 30px;
+}
+
+/* Card */
+.job-card {
+  display: grid;
+  grid-template-columns: 96px 1fr 150px;
+  gap: 16px;
+  padding: 16px;
+  border: 2px solid var(--line);
+  border-radius: 16px;
+  background: #f8fffb;
+  box-shadow: 0 2px 0 0 rgba(22,163,74,.08) inset;
+}
+.job-card + .job-card {
+  margin-top: 2px;
+}
+
+/* Logo */
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border: 1px solid #d1fae5;
+  border-radius: 12px;
+}
+.logo img {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+}
+
+/* Main content */
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.row1 {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.title {
+  font-weight: 700;
+  color: #0f766e;
+  text-decoration: none;
+  display: inline-block;
+  line-height: 1.35;
+}
+.title:hover {
+  text-decoration: underline;
+}
+.exp-verify {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.strong {
+  font-weight: 700;
+  color: #065f46;
+}
+.verify {
+  color: #16a34a;
+  font-size: 13px;
+}
+.company {
+  color: #4b5563;
+  text-transform: uppercase;
+  letter-spacing: .02em;
+}
+
+.tags {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+.tag {
+  background: var(--chip);
+  color: var(--chip-ink);
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 12px;
+  border: 1px solid #c7f2e3;
+}
+.meta-line {
+  color: #6b7280;
+  margin-top: 6px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.meta-line .plus {
+  color: #16a34a;
+  font-weight: 700;
+}
+
+/* Aside (phần phải) */
+.aside {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-end;
+}
+.salary {
+  color: #059669;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.salary.deal {
+  color: #16a34a;
+}
+.salary.xs {
+  display: none; /* salary cho mobile trong row1 */
+}
+
+.time {
+  color: #6b7280;
+  font-size: 13px;
+}
+.wish {
+  border: 1px solid #bbf7d0;
+  background: #fff;
+  color: #16a34a;
+  border-radius: 999px;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+}
+.wish.saved {
+  background: #16a34a;
+  color: #fff;
+  border-color: #16a34a;
+}
+
+/* Responsive */
+@media (max-width: 860px) {
+  .list {
+    grid-template-columns: 1fr; /* về 1 cột khi màn hình nhỏ */
+  }
+  .job-card {
+    grid-template-columns: 72px 1fr;
+    align-items: start;
+  }
+  .aside {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .salary {
+    display: none;
+  }
+  .salary.xs {
+    display: inline;
+    color: #059669;
+  }
+  .logo img {
+    width: 60px;
+    height: 60px;
+  }
+}
