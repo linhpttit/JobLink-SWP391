@@ -67,7 +67,7 @@
                 <div class="profile-dropdown">
                     <a th:href="@{/employer/profile}" class="dropdown-item"><i class="fa fa-user"></i> Hồ sơ </a>
                     <a th:href="@{/employer/password}" class="dropdown-item"><i class="fa fa-cog"></i> Cài đặt</a>
-                    <a th:href="@{/logout}" class="dropdown-item"><i class="fa fa-sign-out-alt"></i> Đăng xuất</a>
+                    <a th:if="${session.user != null}" th:href="@{/logout}" class="dropdown-item"><i class="fa fa-sign-out-alt"></i> Đăng xuất</a>
                 </div>
             </div>
         </div>
