@@ -3,7 +3,7 @@ package com.joblink.joblink.service;
 
 import com.joblink.joblink.dto.JobPostingDto;
 import com.joblink.joblink.entity.*;
-import com.joblink.joblink.Repository.*; // Gộp các import repository
+import com.joblink.joblink.repository.*; // Gộp các import repository
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,22 +23,22 @@ public class JobPostingService implements IJobPostingService {
 
     @Override
     @Transactional
-    public JobPosting createJobPosting(JobPostingDto dto, Long employerId) {
+    public JobPosting createJobPosting(JobPostingDto dto) {
         JobPosting posting = new JobPosting();
 
-        Employer employer = employerRepository.findById(employerId)
-                .orElseThrow(() -> new RuntimeException("Employer not found with id: " + employerId));
+        posting.setTitle(dto.getTitle());
         Skill skill = skillRepository.findById(dto.getSkillId())
                 .orElseThrow(() -> new RuntimeException("Skill not found"));
-        Province province = provinceRepository.findById(dto.getProvinceId())
-                .orElseThrow(() -> new RuntimeException("Province not found"));
-        District district = districtRepository.findById(dto.getDistrictId())
-                .orElseThrow(() -> new RuntimeException("District not found"));
-
-        posting.setTitle(dto.getTitle());
+        posting.setSkill(skill);
         posting.setYearExperience(dto.getYearExperience());
         posting.setHiringNumber(dto.getHiringNumber());
         posting.setSubmissionDeadline(dto.getSubmissionDeadline());
+        Province province = provinceRepository.findById(dto.getProvinceId())
+                .orElseThrow(() -> new RuntimeException("Province not found"));
+        posting.setProvince(province);
+        District district = districtRepository.findById(dto.getDistrictId())
+                .orElseThrow(() -> new RuntimeException("District not found"));
+        posting.setDistrict(district);
         posting.setStreetAddress(dto.getStreetAddress());
         posting.setWorkType(dto.getWorkType());
         posting.setPosition(dto.getPosition());
@@ -51,13 +51,12 @@ public class JobPostingService implements IJobPostingService {
         posting.setContactEmail(dto.getContactEmail());
         posting.setContactPhone(dto.getContactPhone());
 
+        Employer employer = new Employer();
+        employer.setId(1L);
         posting.setEmployer(employer);
-        posting.setSkill(skill);
-        posting.setProvince(province);
-        posting.setDistrict(district);
-        posting.setStatus("ACTIVE");
 
-        return jobPostingRepository.save(posting);
+        jobPostingRepository.save(posting);
+        return posting;
     }
 
     @Override

@@ -84,7 +84,7 @@ public class JobPostingController {
             // Trả về lại trang form để người dùng sửa lỗi
             return "employer/job-post";
         }
-        jobPostingService.createJobPosting(dto, employerId);
+        jobPostingService.createJobPosting(dto);
         return "redirect:/jobPosting/viewList";
     }
 
@@ -99,12 +99,12 @@ public class JobPostingController {
     public String showDetailPosting(@PathVariable("id") Long id, Model model){
         JobPosting jobPosting = jobPostingService.findJobPostingById(id)
                 .orElseThrow(() -> new RuntimeException("Job not found"));
-            model.addAttribute("job",jobPosting);
-            return "employer/job-detail";
+        model.addAttribute("job",jobPosting);
+        return "employer/job-detail";
     }
     @PostMapping("/detail/{id}/delete")
     public String deleteJobPosting(@PathVariable("id") Long id){
-            jobPostingService.deleteJobPostingById(id);
+        jobPostingService.deleteJobPostingById(id);
         return "redirect:/jobPosting/viewList";
     }
 

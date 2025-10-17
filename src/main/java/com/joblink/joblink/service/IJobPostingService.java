@@ -10,7 +10,7 @@ import java.util.Optional;
 public interface IJobPostingService {
 
     // Giữ nguyên: Nhận thêm employerId để không bị hard-code
-    JobPosting createJobPosting(JobPostingDto dto, Long employerId);
+    JobPosting createJobPosting(JobPostingDto dto);
 
     // Bổ sung phương thức cập nhật
     Optional<JobPosting> updateJobPosting(Long jobPostingId, JobPostingDto dto);

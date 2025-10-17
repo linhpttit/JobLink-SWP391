@@ -4,17 +4,15 @@ import com.joblink.joblink.auth.model.EmployerProfile;
 import com.joblink.joblink.dao.EmployerProfileDao;
 import com.joblink.joblink.dto.EmployerProfileDto;
 import com.joblink.joblink.entity.Employer;
-import com.joblink.joblink.Repository.EmployerRepository;
+import com.joblink.joblink.repository.EmployerRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class EmployerService implements IEmployerService{

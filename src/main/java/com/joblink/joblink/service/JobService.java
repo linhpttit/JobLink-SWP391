@@ -3,9 +3,8 @@ package com.joblink.joblink.service;
 
 import com.joblink.joblink.auth.model.JobSearchResult; // Dùng cho search
 import com.joblink.joblink.dao.JobDAO;
-import com.joblink.joblink.dto.JobPostingDto;
 import com.joblink.joblink.entity.JobPosting; // Import đúng entity
-import com.joblink.joblink.Repository.JobPostingRepository;
+import com.joblink.joblink.repository.JobPostingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +18,9 @@ public class JobService {
 
     private final JobDAO jobDAO; // Giữ lại DAO chỉ cho việc search
     private final JobPostingRepository jobPostingRepository; // Dùng repository cho các thao tác CRUD
-
+    public Optional<JobPosting> getJobById(Long jobId) {
+        return jobPostingRepository.findById(jobId);
+    }
     // 1. Phương thức tìm kiếm (giữ nguyên, gọi DAO)
     public List<JobSearchResult> searchJobs(String skills, String location,
                                             Double minSalary, Double maxSalary,
@@ -28,9 +29,7 @@ public class JobService {
     }
 
     // 2. Lấy Job theo ID (dùng repository)
-    public Optional<JobPosting> getJobById(Long jobId) {
-        return jobPostingRepository.findById(jobId);
-    }
+
 
     // 3. Lấy các Job liên quan (dùng repository)
     public List<JobPosting> getRelatedJobs(Integer categoryId, Long excludeJobId) {
@@ -39,6 +38,8 @@ public class JobService {
         }
         return jobPostingRepository.findTop3ByCategoryCategoryIdAndJobIdNotOrderByPostedAtDesc(categoryId, excludeJobId);
     }
-
+    public List<JobPosting> getRelatedJobsBySkill(Long skillId, Long excludeJobId) {
+        return jobPostingRepository.findBySkillSkillIdAndJobIdNot(skillId, excludeJobId);
+    }
     // (Bạn có thể thêm các phương thức khác từ IJobPostingService vào đây nếu cần)
 }
