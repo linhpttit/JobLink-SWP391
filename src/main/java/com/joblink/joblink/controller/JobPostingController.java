@@ -1,10 +1,12 @@
 package com.joblink.joblink.controller;
+import com.joblink.joblink.dto.UserSessionDTO;
 import com.joblink.joblink.entity.JobPosting;
 import com.joblink.joblink.dto.JobPostingDto;
 import com.joblink.joblink.entity.District;
 import com.joblink.joblink.entity.Province;
 import com.joblink.joblink.entity.Skill;
 import com.joblink.joblink.service.IJobPostingService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.ui.Model;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -20,6 +22,19 @@ public class JobPostingController {
     private final IJobPostingService jobPostingService;
 
     @GetMapping
+    public String showList(){
+        return "redirect:/jobPosting/viewList";
+    }
+
+
+    @GetMapping("/viewList")
+    public String showJobPostingList(Model model) {
+        List<JobPosting> jobPostings = jobPostingService.getAllJobPostings();
+        model.addAttribute("jobs", jobPostings);
+        return "employer/job-list-view";
+    }
+
+    @GetMapping("/showCreateForm")
     public String showCreateForm(Model model){
         model.addAttribute("jobForm", new JobPostingDto());
         // ✅ Dữ liệu giả để test (sau này lấy từ DB)
@@ -49,7 +64,8 @@ public class JobPostingController {
 
     @PostMapping
     public String createJobPosting(
-            @ModelAttribute("jobForm") JobPostingDto dto, Long employerId,
+            HttpSession session,
+            @ModelAttribute("jobForm") JobPostingDto dto, Long userId,
             BindingResult result,
             Model model){
         if (result.hasErrors()) {
@@ -84,15 +100,9 @@ public class JobPostingController {
             // Trả về lại trang form để người dùng sửa lỗi
             return "employer/job-post";
         }
-        jobPostingService.createJobPosting(dto, employerId);
+        userId = Long.valueOf(((UserSessionDTO) session.getAttribute("user")).getUserId());
+        jobPostingService.createJobPosting(dto, userId);
         return "redirect:/jobPosting/viewList";
-    }
-
-    @GetMapping("/viewList")
-    public String showJobPostingList(Model model) {
-        List<JobPosting> jobPostings = jobPostingService.getAllJobPostings();
-        model.addAttribute("jobs", jobPostings);
-        return "employer/job-list-view";
     }
 
     @GetMapping("/detail/{id}")
