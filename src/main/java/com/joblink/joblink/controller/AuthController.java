@@ -241,7 +241,7 @@ public class AuthController {
 
         // ===> THÊM DÒNG NÀY VÀO <===
         // Sao chép googleId từ User gốc sang DTO để session có thông tin này
-        dto.setGoogleId(user.getGoogleId());
+        dto.setGoogleID(user.getGoogleId());
 
         // ✅ Load avatar và fullName từ profile nếu là seeker
         if ("seeker".equalsIgnoreCase(user.getRole())) {
