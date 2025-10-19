@@ -29,14 +29,17 @@ public class CVUploadService {
         return cvUploadDao.findById(cvId);
     }
 
-    // === PHƯƠNG THỨC ĐÃ BỔ SUNG ===
     /**
      * Lấy tất cả các CV đã tải lên của một người tìm việc.
-     * @param seekerId ID của người tìm việc (seeker_id).
-     * @return Danh sách các CVUpload.
      */
     public List<CVUpload> getCVsBySeekerId(int seekerId) {
-        // Giả sử CVUploadDao có phương thức này
+        return cvUploadDao.findBySeekerId(seekerId);
+    }
+
+    /**
+     * ✅ METHOD MỚI - Lấy tất cả CV để hiển thị trong modal apply
+     */
+    public List<CVUpload> getAllCVsBySeeker(int seekerId) {
         return cvUploadDao.findBySeekerId(seekerId);
     }
 

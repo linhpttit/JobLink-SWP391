@@ -9,7 +9,7 @@
     <link rel="stylesheet" th:href="@{/CSS/homepage.css}">
 </head>
 
-<body>
+<body th:data-is-logged-in="${isLoggedIn}">
 <div th:replace="~{header :: header}"></div>
 
 <main class="detail-main">
@@ -256,13 +256,13 @@
                             <a href="mailto:career@company.com" class="company-link">career@company.com</a>
                         </span>
                     </div>
-                    <div class="company-info-item" th:if="${job != null and job.employer != null and job.employer.website != null}">
-                        <span class="company-info-label">Website:</span>
-                        <span class="company-info-value">
-                            <a th:href="${job.employer.website}" target="_blank" class="company-link" th:text="${job.employer.website}">https://company.com</a>
-                        </span>
+                    <div class="company-info-item" th:if="${job != null and job.employer != null }">
+<!--                        <span class="company-info-label">Website:</span>and job.employer.website != null-->
+<!--                        <span class="company-info-value">and job.employer.website != null-->
+<!--                            <a th:href="${job.employer.website}" target="_blank" class="company-link" th:text="${job.employer.website}">https://company.com</a>-->
+<!--                        </span>-->
                     </div>
-                    <div class="company-info-item" th:unless="${job != null and job.employer != null and job.employer.website != null}">
+                    <div class="company-info-item" th:unless="${job != null and job.employer != null }">
                         <span class="company-info-label">Website:</span>
                         <span class="company-info-value">
                             <a href="https://company.com" target="_blank" class="company-link">https://company.com</a>
@@ -329,7 +329,7 @@
 <div class="modal-overlay" id="applyModal">
     <div class="modal-content">
         <div class="modal-header">
-            <h2 class="modal-title">Apply Job: <span th:text="${job != null ? job.title : 'Senior Software Engineer'}">Senior Software Engineer</span></h2>
+<!--            <h2 class="modal-title">Apply Job: <span th:text="${job != null ? job.title : 'Senior Software Engineer'}">Senior Software Engineer</span></h2>-->
             <button class="modal-close" id="closeModal">
                 <i class="fas fa-times"></i>
             </button>
@@ -338,11 +338,13 @@
             <form id="applyForm">
                 <div class="form-group">
                     <label class="form-label">Choose Resume</label>
-                    <select class="form-select">
-                        <option>Select...</option>
-                        <option>Resume-UX-Designer.pdf</option>
-                        <option>John-Doe-CV-2024.pdf</option>
-                        <option>Portfolio-Resume.pdf</option>
+                    <select class="form-select" id="cvSelect">
+                        <option value="">Select...</option>
+                        <option th:each="cv : ${userCVs}"
+                                th:value="${cv.cvId}"
+                                th:text="${cv.cvFileName}">
+                            Resume-UX-Designer.pdf
+                        </option>
                     </select>
                 </div>
 
