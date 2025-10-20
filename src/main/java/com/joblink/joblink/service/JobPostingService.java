@@ -3,7 +3,7 @@ package com.joblink.joblink.service;
 
 import com.joblink.joblink.dto.JobPostingDto;
 import com.joblink.joblink.entity.*;
-import com.joblink.joblink.Repository.*; // Gộp các import repository
+import com.joblink.joblink.repository.*; // Gộp các import repository
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +15,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class JobPostingService implements IJobPostingService {
 
-    private final JobPostingRepository jobPostingRepository;
+    private final com.joblink.joblink.Repository.JobPostingRepository jobPostingRepository;
     private final com.joblink.joblink.repository.SkillRepository skillRepository;
     private final com.joblink.joblink.repository.ProvinceRepository provinceRepository;
     private final com.joblink.joblink.repository.DistrictRepository districtRepository;
@@ -23,11 +23,10 @@ public class JobPostingService implements IJobPostingService {
 
     @Override
     @Transactional
-    public JobPosting createJobPosting(JobPostingDto dto, Long employerId) {
+    public JobPosting createJobPosting(JobPostingDto dto, Long userId) {
         JobPosting posting = new JobPosting();
-
-        Employer employer = employerRepository.findById(employerId)
-                .orElseThrow(() -> new RuntimeException("Employer not found with id: " + employerId));
+        Employer employer = employerRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Employer not found with id: " + userId));
         Skill skill = skillRepository.findById(dto.getSkillId())
                 .orElseThrow(() -> new RuntimeException("Skill not found"));
         Province province = provinceRepository.findById(dto.getProvinceId())

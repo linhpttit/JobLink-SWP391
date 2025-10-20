@@ -4,7 +4,7 @@ import com.joblink.joblink.auth.model.EmployerProfile;
 import com.joblink.joblink.dao.EmployerProfileDao;
 import com.joblink.joblink.dto.EmployerProfileDto;
 import com.joblink.joblink.entity.Employer;
-import com.joblink.joblink.Repository.EmployerRepository;
+import com.joblink.joblink.repository.EmployerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
