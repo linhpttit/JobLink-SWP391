@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -99,6 +101,27 @@ public class JobPostingService implements IJobPostingService {
     public void deleteJobPostingById(Long id) {
         jobPostingRepository.deleteById(id);
     }
+
+    @Override
+    public void editJobPostingByEntity(Long id, JobPosting updatedPosting) {
+        JobPosting posting = jobPostingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Job not found"));
+
+        posting.setTitle(updatedPosting.getTitle());
+        posting.setSkill(updatedPosting.getSkill());
+        posting.setProvince(updatedPosting.getProvince());
+        posting.setDistrict(updatedPosting.getDistrict());
+        posting.setSalaryMax(updatedPosting.getSalaryMax());
+        posting.setJobDescription(updatedPosting.getJobDescription());
+        posting.setJobRequirements(updatedPosting.getJobRequirements());
+        posting.setBenefits(updatedPosting.getBenefits());
+        posting.setContactName(updatedPosting.getContactName());
+        posting.setContactEmail(updatedPosting.getContactEmail());
+        posting.setContactPhone(updatedPosting.getContactPhone());
+        jobPostingRepository.save(posting);
+
+    }
+
 
     @Override
     public List<JobPosting> getAllJobPostings() {

@@ -15,6 +15,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class JobPostingDto {
+    private Long jobId;
     private String title;
     private Long skillId;
     private String yearExperience;

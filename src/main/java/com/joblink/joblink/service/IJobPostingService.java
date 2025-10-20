@@ -1,4 +1,3 @@
-// File: IJobPostingService.java (ĐÃ SỬA LẠI HOÀN CHỈNH)
 package com.joblink.joblink.service;
 
 import com.joblink.joblink.dto.JobPostingDto;
@@ -16,7 +15,7 @@ public interface IJobPostingService {
     Optional<JobPosting> updateJobPosting(Long jobPostingId, JobPostingDto dto);
 
     void deleteJobPostingById(Long id);
-
+    void editJobPostingByEntity(Long id, JobPosting posting);
     List<JobPosting> getAllJobPostings();
 
     // Sửa lại kiểu dữ liệu của ID thành Long cho nhất quán
