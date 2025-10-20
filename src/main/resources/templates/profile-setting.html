@@ -109,14 +109,14 @@
         <section class="settings-section">
             <h2 class="section-title">Password</h2>
 
-            <div class="password-info" th:if="${user.googleId != null}">
-                <p class="info-note">
-                    <i class="fas fa-info-circle"></i>
-                    You signed up with Google, so your account doesn't have a password.
-                </p>
-            </div>
+<!--            <div class="password-info" th:if="${user.googleId != null}">-->
+<!--                <p class="info-note">-->
+<!--                    <i class="fas fa-info-circle"></i>-->
+<!--                    You signed up with Google, so your account doesn't have a password.-->
+<!--                </p>th:unless="${user.googleId != null}"-->
+<!--            </div>-->
 
-            <div class="password-change" th:unless="${user.googleId != null}">
+            <div class="password-change" >
                 <button class="btn-secondary" onclick="openChangePasswordModal()">
                     <i class="fas fa-key"></i>
                     Change Password
