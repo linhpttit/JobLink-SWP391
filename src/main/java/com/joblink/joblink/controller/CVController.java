@@ -1,7 +1,6 @@
-
 package com.joblink.joblink.controller;
 
-import com.joblink.joblink.auth.model.User;
+import com.joblink.joblink.dto.UserSessionDTO; // ✅ IMPORT ĐÚNG
 import com.joblink.joblink.model.CVUpload;
 import com.joblink.joblink.model.JobSeekerProfile;
 import com.joblink.joblink.service.CVUploadService;
@@ -12,7 +11,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-        import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
@@ -35,7 +34,8 @@ public class CVController {
 
     @GetMapping("/cv")
     public String cvUploadPage(HttpSession session, Model model, RedirectAttributes ra) {
-        User user = (User) session.getAttribute("user");
+        // ✅ SỬ DỤNG UserSessionDTO
+        UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
         if (user == null) {
             ra.addFlashAttribute("error", "Please login to continue");
             return "redirect:/signin";
@@ -78,7 +78,8 @@ public class CVController {
             HttpSession session,
             RedirectAttributes ra) {
 
-        User user = (User) session.getAttribute("user");
+        // ✅ ĐỔI THÀNH UserSessionDTO
+        UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
         if (user == null) {
             ra.addFlashAttribute("error", "Please login to continue");
             return "redirect:/signin";

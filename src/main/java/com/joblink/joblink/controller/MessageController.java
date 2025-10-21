@@ -1,7 +1,8 @@
 
 package com.joblink.joblink.controller;
 
-import com.joblink.joblink.auth.model.User;
+// domain User import removed; controllers read UserSessionDTO from session
+import com.joblink.joblink.dto.UserSessionDTO;
 import com.joblink.joblink.model.Conversation;
 import com.joblink.joblink.model.Message;
 import com.joblink.joblink.service.MessageService;
@@ -28,7 +29,7 @@ public class MessageController {
 
     @GetMapping
     public String messagesPage(HttpSession session, Model model, RedirectAttributes ra) {
-        User user = (User) session.getAttribute("user");
+    UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
         if (user == null) {
             ra.addFlashAttribute("error", "Vui lòng đăng nhập");
             return "redirect:/signin";
@@ -51,7 +52,7 @@ public class MessageController {
             Model model,
             RedirectAttributes ra) {
 
-        User user = (User) session.getAttribute("user");
+    UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
         if (user == null) {
             ra.addFlashAttribute("error", "Vui lòng đăng nhập");
             return "redirect:/signin";
@@ -84,7 +85,7 @@ public class MessageController {
             HttpSession session) {
 
         Map<String, Object> response = new HashMap<>();
-        User user = (User) session.getAttribute("user");
+    UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
 
         if (user == null) {
             response.put("error", "Vui lòng đăng nhập");
@@ -116,7 +117,7 @@ public class MessageController {
             HttpSession session) {
 
         Map<String, Object> response = new HashMap<>();
-        User user = (User) session.getAttribute("user");
+    UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
 
         if (user == null) {
             response.put("error", "Vui lòng đăng nhập");
@@ -141,7 +142,7 @@ public class MessageController {
             HttpSession session) {
 
         Map<String, Object> response = new HashMap<>();
-        User user = (User) session.getAttribute("user");
+    UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
 
         if (user == null) {
             response.put("error", "Vui lòng đăng nhập");
@@ -165,7 +166,7 @@ public class MessageController {
             HttpSession session) {
 
         Map<String, Object> response = new HashMap<>();
-        User user = (User) session.getAttribute("user");
+    UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
 
         if (user == null) {
             response.put("error", "Vui lòng đăng nhập");
@@ -185,7 +186,7 @@ public class MessageController {
     @GetMapping("/api/conversations")
     @ResponseBody
     public ResponseEntity<List<Conversation>> getConversations(HttpSession session) {
-        User user = (User) session.getAttribute("user");
+    UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
         if (user == null) {
             return ResponseEntity.status(401).build();
         }
@@ -198,7 +199,7 @@ public class MessageController {
             @PathVariable int conversationId,
             HttpSession session) {
 
-        User user = (User) session.getAttribute("user");
+        UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
         if (user == null) {
             return ResponseEntity.status(401).build();
         }
@@ -208,7 +209,7 @@ public class MessageController {
     @GetMapping("/api/unread-count")
     @ResponseBody
     public ResponseEntity<Map<String, Integer>> getUnreadCount(HttpSession session) {
-        User user = (User) session.getAttribute("user");
+        UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
         if (user == null) {
             return ResponseEntity.status(401).build();
         }

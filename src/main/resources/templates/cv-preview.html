@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CV Preview - JobLink</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-    <link rel="stylesheet" th:href="@{/cv-preview.css}">
+    <link rel="stylesheet" th:href="@{/CSS/cv-preview.css}">
 </head>
 <body>
 <div class="cv-toolbar">
@@ -24,7 +24,7 @@
     <div class="cv-page">
         <header class="cv-header">
             <div class="cv-avatar">
-                <img th:src="${profile.avatarUrl != null ? profile.avatarUrl : '/images/user.png'}"
+                <img class="site-avatar" th:src="${profile.avatarUrl != null ? profile.avatarUrl : '/images/user.png'}"
                      alt="Profile Photo" src="">
             </div>
             <div class="cv-header-info">

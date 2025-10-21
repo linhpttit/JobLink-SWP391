@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Settings - JobLink</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/CSS/profile-setting.css}">
+    <link rel="stylesheet" th:href="@{/CSS/homepage.css}">
+</head>
+<body>
+<!-- Header -->
+<div th:replace="~{header :: header}"></div>
+
+<div class="settings-container">
+    <!-- Sidebar -->
+    <aside class="settings-sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-hand-sparkles"></i>
+            <div>
+                <p class="welcome-text">Welcome</p>
+                <h3 class="user-name" th:text="${profile.fullname ?: 'User'}">Thành công</h3>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="/jobseeker/dashboard" class="nav-item">
+                <i class="fas fa-th-large"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="/jobseeker/cv" class="nav-item">
+                <i class="fas fa-file-alt"></i>
+                <span>CV Attachment</span>
+            </a>
+            <a href="/jobseeker/profile" class="nav-item">
+                <i class="fas fa-user"></i>
+                <span>ITviec Profile</span>
+            </a>
+            <a href="/jobseeker/jobs" class="nav-item">
+                <i class="fas fa-briefcase"></i>
+                <span>My Jobs</span>
+            </a>
+            <a href="/jobseeker/invitations" class="nav-item">
+                <i class="fas fa-envelope"></i>
+                <span>Job Invitation</span>
+                <span class="badge" th:if="${invitationCount > 0}" th:text="${invitationCount}">0</span>
+            </a>
+            <a href="/subscriptions" class="nav-item">
+                <i class="fas fa-bell"></i>
+                <span>Email Subscriptions</span>
+            </a>
+            <a href="/notifications" class="nav-item">
+                <i class="fas fa-bell"></i>
+                <span>Notifications</span>
+            </a>
+            <a href="/settings" class="nav-item active">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="settings-main">
+        <!-- Success/Error Messages -->
+        <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+        <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+
+        <!-- Account Information Section -->
+        <section class="settings-section">
+            <h2 class="section-title">Account Information</h2>
+
+            <div class="info-group">
+                <div class="info-label">Email:</div>
+                <div class="info-value">
+                    <span th:text="${user.email}">ccc123cxqo@gmail.com</span>
+                    <p class="info-note">
+                        <i class="fas fa-info-circle"></i>
+                        You cannot change your account email.
+                    </p>
+                </div>
+            </div>
+
+            <div class="info-group">
+                <div class="info-label">Full name:</div>
+                <div class="info-value">
+                    <span th:if="${profile.fullname}" th:text="${profile.fullname}">Thành công</span>
+                    <div th:unless="${profile.fullname}" class="no-profile-warning">
+                        <p class="warning-text">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            You haven't completed your profile information yet.
+                        </p>
+                        <a th:href="@{/jobseeker/profile}" class="link-primary">
+                            Update profile information <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                    <p class="info-note" th:if="${profile.fullname}">
+                        <i class="fas fa-info-circle"></i>
+                        Your account name is synchronized with profile information.
+                    </p>
+                    <a th:if="${profile.fullname}" th:href="@{/jobseeker/profile}" class="link-primary">
+                        Update profile information <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Password Section -->
+        <section class="settings-section">
+            <h2 class="section-title">Password</h2>
+
+<!--            <div class="password-info" th:if="${user.googleId != null}">-->
+<!--                <p class="info-note">-->
+<!--                    <i class="fas fa-info-circle"></i>-->
+<!--                    You signed up with Google, so your account doesn't have a password.-->
+<!--                </p>th:unless="${user.googleId != null}"-->
+<!--            </div>-->
+
+            <div class="password-change" >
+                <button class="btn-secondary" onclick="openChangePasswordModal()">
+                    <i class="fas fa-key"></i>
+                    Change Password
+                </button>
+            </div>
+        </section>
+
+        <!-- Job Invitation Settings Section -->
+        <section class="settings-section">
+            <div class="section-header-with-link">
+                <h2 class="section-title">Job Invitation Settings</h2>
+                <a href="#" class="link-learn">
+                    Learn more <i class="fas fa-external-link-alt"></i>
+                </a>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <span>Receive job invitations from employers via email, SMS and ITviec Inbox</span>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="receiveInvitations" checked onchange="toggleInvitations(this)">
+                    <span class="toggle-slider"></span>
+                    <span class="toggle-label">Yes</span>
+                </label>
+            </div>
+
+            <div class="blocked-companies" id="blockedCompaniesSection">
+                <p class="blocked-title">Don't receive invitations from:</p>
+                <p class="blocked-subtitle">Maximum 5 employers</p>
+
+                <div class="company-search">
+                    <input type="text"
+                           id="companySearch"
+                           placeholder="Search company"
+                           class="search-input">
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+
+                <p class="no-companies" id="noCompanies">No companies selected</p>
+
+                <div class="blocked-list" id="blockedList" style="display: none;">
+                    <!-- Blocked companies will appear here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Delete Account Section -->
+        <section class="settings-section danger-section">
+            <h2 class="section-title">Delete Account</h2>
+
+            <p class="danger-warning">
+                Account deletion is a permanent action and cannot be undone. If you are deleting your account due to an excessive email notifications, you can unsubscribe from emails
+                <a href="/subscriptions" class="link-inline">here</a>.
+            </p>
+
+            <button class="btn-danger" onclick="confirmDeleteAccount()">
+                Delete your account
+            </button>
+        </section>
+    </main>
+</div>
+
+<!-- Change Password Modal -->
+<div id="changePasswordModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Change Password</h3>
+            <button class="close-modal" onclick="closeChangePasswordModal()">&times;</button>
+        </div>
+        <form id="changePasswordForm" action="/settings/change-password" method="post">
+            <div class="form-group">
+                <label>Current Password <span class="required">*</span></label>
+                <input type="password" name="currentPassword" required>
+            </div>
+            <div class="form-group">
+                <label>New Password <span class="required">*</span></label>
+                <input type="password" name="newPassword" required minlength="6">
+                <small>Minimum 6 characters</small>
+            </div>
+            <div class="form-group">
+                <label>Confirm New Password <span class="required">*</span></label>
+                <input type="password" name="confirmPassword" required>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="closeChangePasswordModal()">Cancel</button>
+                <button type="submit" class="btn-primary">Change Password</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Account Confirmation Modal -->
+<div id="deleteAccountModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header danger">
+            <h3><i class="fas fa-exclamation-triangle"></i> Confirm Account Deletion</h3>
+            <button class="close-modal" onclick="closeDeleteAccountModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p class="danger-text">
+                Are you sure you want to delete your account? This action will deactivate your account and you will no longer be able to access it.
+            </p>
+            <p class="warning-text">
+                <i class="fas fa-info-circle"></i>
+                Your data will be hidden but not permanently deleted from our system. You can contact support if you want to reactivate your account.
+            </p>
+            <form id="deleteAccountForm" action="/settings/delete-account" method="post">
+                <div class="form-group">
+                    <label>Type "DELETE" to confirm <span class="required">*</span></label>
+                    <input type="text" id="deleteConfirm" name="confirmation" required placeholder="DELETE">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeDeleteAccountModal()">Cancel</button>
+                    <button type="submit" class="btn-danger" id="confirmDeleteBtn" disabled>Delete Account</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<div th:replace="~{footer :: footer}"></div>
+
+<script  >
+    // Toggle job invitations
+   function toggleInvitations(checkbox) {
+       const section = document.getElementById('blockedCompaniesSection');
+       if (checkbox.checked) {
+           section.style.display = 'block';
+           checkbox.nextElementSibling.nextElementSibling.textContent = 'Yes';
+       } else {
+           section.style.display = 'none';
+           checkbox.nextElementSibling.nextElementSibling.textContent = 'No';
+       }
+
+       // Send to server
+       fetch('/settings/toggle-invitations', {
+           method: 'POST',
+           headers: {
+               'Content-Type': 'application/json',
+           },
+           body: JSON.stringify({ enabled: checkbox.checked })
+       });
+   }
+
+   // Change Password Modal
+   function openChangePasswordModal() {
+       document.getElementById('changePasswordModal').style.display = 'flex';
+   }
+
+   function closeChangePasswordModal() {
+       document.getElementById('changePasswordModal').style.display = 'none';
+       document.getElementById('changePasswordForm').reset();
+   }
+
+   // Delete Account Modal
+   function confirmDeleteAccount() {
+       document.getElementById('deleteAccountModal').style.display = 'flex';
+   }
+
+   function closeDeleteAccountModal() {
+       document.getElementById('deleteAccountModal').style.display = 'none';
+       document.getElementById('deleteAccountForm').reset();
+       document.getElementById('confirmDeleteBtn').disabled = true;
+   }
+
+   // Enable delete button only when "DELETE" is typed
+   document.getElementById('deleteConfirm')?.addEventListener('input', function(e) {
+       const btn = document.getElementById('confirmDeleteBtn');
+       if (e.target.value === 'DELETE') {
+           btn.disabled = false;
+       } else {
+           btn.disabled = true;
+       }
+   });
+
+   // Handle delete account form submission
+   document.getElementById('deleteAccountForm')?.addEventListener('submit', function(e) {
+       e.preventDefault();
+
+       fetch('/settings/delete-account', {
+           method: 'POST',
+           headers: {
+               'Content-Type': 'application/json',
+           }
+       })
+       .then(response => response.json())
+       .then(data => {
+           if (data.success) {
+               alert('Your account has been deactivated successfully.');
+               window.location.href = '/logout';
+           } else {
+               alert('Error: ' + data.message);
+           }
+       })
+       .catch(error => {
+           console.error('Error:', error);
+           alert('An error occurred while deleting your account.');
+       });
+   });
+
+   // Close modals when clicking outside
+   window.onclick = function(event) {
+       const passwordModal = document.getElementById('changePasswordModal');
+       const deleteModal = document.getElementById('deleteAccountModal');
+
+       if (event.target === passwordModal) {
+           closeChangePasswordModal();
+       }
+       if (event.target === deleteModal) {
+           closeDeleteAccountModal();
+       }
+   }
+
+   // Company search functionality (placeholder)
+   document.getElementById('companySearch')?.addEventListener('focus', function() {
+       // TODO: Implement company search dropdown
+       console.log('Company search focused');
+   });
+</script>
+</body>
+</html>

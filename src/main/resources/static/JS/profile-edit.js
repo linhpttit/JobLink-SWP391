@@ -1322,8 +1322,20 @@ document.getElementById("avatarInput")?.addEventListener("change", (e) => {
 
   fetch("/jobseeker/profile/avatar", { method: "POST", body: formData })
     .then((res) => {
-      if (res.ok) showNotification("Avatar uploaded successfully", "success");
-      else showNotification("Failed to upload avatar", "error");
+      if (res.ok) {
+        showNotification("Avatar uploaded successfully", "success");
+        // Update header avatar immediately if present
+        const headerImg = document.getElementById('headerAvatar');
+        // Update all avatar elements used across the site (header, usermenu, etc.)
+        const previewSrc = document.getElementById('avatarPreview')?.src;
+        if (previewSrc) {
+          document.querySelectorAll('.site-avatar').forEach(img => {
+            try { img.src = previewSrc; } catch (e) { /* ignore */ }
+          });
+        }
+      } else {
+        showNotification("Failed to upload avatar", "error");
+      }
       setTimeout(() => location.reload(), 1000);
     })
     .catch(() => showNotification("Error uploading avatar", "error"));

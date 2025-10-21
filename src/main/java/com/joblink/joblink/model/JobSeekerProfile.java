@@ -1,28 +1,25 @@
-package com.joblink.joblink.model;
+// File: JobSeekerProfile.java (Đảm bảo file này có nội dung như sau)
+package com.joblink.joblink.model; // Hoặc package tương ứng của bạn
 
 import lombok.Data;
 import java.time.LocalDate;
 
 @Data
 public class JobSeekerProfile {
-    // Khóa
-    private Integer seekerId;          // PK (identity)
-    private Integer userId;            // FK -> Users.user_id (UNIQUE)
+    private Integer seekerId;
+    private int userId;
+    private String fullname;
+    private String gender;
+    private String location;
+    private String headline;
+    private Integer experienceYears;
+    private String about;
+    private String email;
+    private String phoneNumber; // Khớp với phương thức getPhoneNumber()
+    private LocalDate dateOfBirth;
+    private String avatarUrl;
+    private int completionPercentage;
 
-    // Trường cơ bản
-    private String  fullname;
-    private String  gender;
-    private String  location;
-    private String  headline;
-    private Integer experienceYears;   // có thể null
-    private String  about;
-
-    // Mở rộng (đang được DAO map)
-    private String  email;
-    private String  phoneNumber;
-    private LocalDate dateOfBirth;     // map từ cột dob
-    private String  avatarUrl;
-
-    // Tiến độ hoàn thành
-    private Integer completionPercentage;
+    // === THUỘC TÍNH BẠN CẦN THÊM VÀO ĐÂY ===
+    private boolean receiveInvitations;
 }

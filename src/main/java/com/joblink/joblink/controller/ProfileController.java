@@ -1,6 +1,7 @@
 package com.joblink.joblink.controller;
 
-import com.joblink.joblink.auth.model.User;
+// domain User is not stored in session anymore; use UserSessionDTO
+import com.joblink.joblink.dto.UserSessionDTO; // New import for UserSessionDTO
 import com.joblink.joblink.model.*;
 import com.joblink.joblink.service.FileUploadService;
 import com.joblink.joblink.service.ProfileService;
@@ -33,7 +34,7 @@ public class ProfileController {
 
     @GetMapping("/profile")
     public String profilePage(HttpSession session, Model model, RedirectAttributes ra) {
-        User user = (User) session.getAttribute("user");
+        UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
         if (user == null) {
             ra.addFlashAttribute("error", "Vui lòng đăng nhập");
             return "redirect:/signin";
@@ -76,7 +77,7 @@ public class ProfileController {
             HttpSession session,
             RedirectAttributes ra) {
 
-        User user = (User) session.getAttribute("user");
+        UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
         if (user == null) {
             ra.addFlashAttribute("error", "Vui lòng đăng nhập");
             return "redirect:/signin";
@@ -114,7 +115,7 @@ public class ProfileController {
             HttpSession session,
             RedirectAttributes ra) {
 
-        User user = (User) session.getAttribute("user");
+        UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
         if (user == null) {
             ra.addFlashAttribute("error", "Vui lòng đăng nhập");
             return "redirect:/signin";
@@ -125,6 +126,9 @@ public class ProfileController {
             JobSeekerProfile profile = profileService.getOrCreateProfile(user.getUserId());
             profile.setAvatarUrl(avatarUrl);
             profileService.updateBasicInfo(profile);
+            // Also update avatar on the session user so header shows new avatar immediately
+            user.setAvatarUrl(avatarUrl);
+            session.setAttribute("user", user);
             ra.addFlashAttribute("success", "Cập nhật avatar thành công");
         } catch (Exception e) {
             ra.addFlashAttribute("error", "Lỗi upload avatar: " + e.getMessage());
@@ -146,7 +150,7 @@ public class ProfileController {
             HttpSession session) {
 
         Map<String, Object> response = new HashMap<>();
-        User user = (User) session.getAttribute("user");
+        UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
 
         if (user == null) {
             response.put("error", "Vui lòng đăng nhập");
@@ -186,7 +190,7 @@ public class ProfileController {
             HttpSession session) {
 
         Map<String, Object> response = new HashMap<>();
-        User user = (User) session.getAttribute("user");
+        UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
 
         if (user == null) {
             response.put("error", "Vui lòng đăng nhập");
@@ -220,7 +224,7 @@ public class ProfileController {
             HttpSession session) {
 
         Map<String, Object> response = new HashMap<>();
-        User user = (User) session.getAttribute("user");
+        UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
 
         if (user == null) {
             response.put("error", "Vui lòng đăng nhập");
@@ -252,7 +256,7 @@ public class ProfileController {
             HttpSession session) {
 
         Map<String, Object> response = new HashMap<>();
-        User user = (User) session.getAttribute("user");
+        UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
 
         if (user == null) {
             response.put("error", "Vui lòng đăng nhập");
@@ -292,7 +296,7 @@ public class ProfileController {
             HttpSession session) {
 
         Map<String, Object> response = new HashMap<>();
-        User user = (User) session.getAttribute("user");
+        UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
 
         if (user == null) {
             response.put("error", "Vui lòng đăng nhập");
@@ -326,7 +330,7 @@ public class ProfileController {
             HttpSession session) {
 
         Map<String, Object> response = new HashMap<>();
-        User user = (User) session.getAttribute("user");
+        UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
 
         if (user == null) {
             response.put("error", "Vui lòng đăng nhập");
@@ -356,7 +360,7 @@ public class ProfileController {
             HttpSession session) {
 
         Map<String, Object> response = new HashMap<>();
-        User user = (User) session.getAttribute("user");
+        UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
 
         if (user == null) {
             response.put("error", "Vui lòng đăng nhập");
@@ -391,7 +395,7 @@ public class ProfileController {
             HttpSession session) {
 
         Map<String, Object> response = new HashMap<>();
-        User user = (User) session.getAttribute("user");
+        UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
 
         if (user == null) {
             response.put("error", "Vui lòng đăng nhập");
@@ -423,7 +427,7 @@ public class ProfileController {
             HttpSession session) {
 
         Map<String, Object> response = new HashMap<>();
-        User user = (User) session.getAttribute("user");
+        UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
 
         if (user == null) {
             response.put("error", "Vui lòng đăng nhập");
@@ -450,7 +454,7 @@ public class ProfileController {
             HttpSession session) {
 
         Map<String, Object> response = new HashMap<>();
-        User user = (User) session.getAttribute("user");
+        UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
 
         if (user == null) {
             response.put("error", "Vui lòng đăng nhập");
@@ -483,7 +487,7 @@ public class ProfileController {
             HttpSession session) {
 
         Map<String, Object> response = new HashMap<>();
-        User user = (User) session.getAttribute("user");
+        UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
 
         if (user == null) {
             response.put("error", "Vui lòng đăng nhập");
@@ -514,7 +518,7 @@ public class ProfileController {
             HttpSession session) {
 
         Map<String, Object> response = new HashMap<>();
-        User user = (User) session.getAttribute("user");
+        UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
 
         if (user == null) {
             response.put("error", "Vui lòng đăng nhập");
@@ -542,7 +546,7 @@ public class ProfileController {
             HttpSession session) {
 
         Map<String, Object> response = new HashMap<>();
-        User user = (User) session.getAttribute("user");
+        UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
 
         if (user == null) {
             response.put("error", "Vui lòng đăng nhập");
@@ -583,7 +587,7 @@ public class ProfileController {
             HttpSession session) {
 
         Map<String, Object> response = new HashMap<>();
-        User user = (User) session.getAttribute("user");
+        UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
 
         if (user == null) {
             response.put("error", "Vui lòng đăng nhập");
@@ -620,7 +624,7 @@ public class ProfileController {
             HttpSession session) {
 
         Map<String, Object> response = new HashMap<>();
-        User user = (User) session.getAttribute("user");
+        UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
 
         if (user == null) {
             response.put("error", "Vui lòng đăng nhập");
@@ -647,7 +651,7 @@ public class ProfileController {
     // Preview CV
     @GetMapping("/profile/preview")
     public String previewCV(HttpSession session, Model model, RedirectAttributes ra) {
-        User user = (User) session.getAttribute("user");
+        UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
         if (user == null) {
             ra.addFlashAttribute("error", "Vui lòng đăng nhập");
             return "redirect:/signin";

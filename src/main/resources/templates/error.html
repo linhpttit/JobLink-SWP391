@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Page Not Found - JobLink</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <script th:src="@{/JS/translate.js}"></script>
     <style>
         * {
             margin: 0;
@@ -366,19 +367,19 @@
 
         <div class="error-container">
             <div class="error-content">
-                <h1 class="error-title">Opps! Page not found</h1>
-                <p class="error-message">
+                <h1 class="error-title" data-i18n="page_not_found">Opps! Page not found</h1>
+                <p class="error-message" data-i18n="page_not_found_message">
                     Something went wrong. It's look like the link is<br>
                     broken or the <strong>page is removed</strong>.
                 </p>
                 <div class="error-buttons">
                     <a href="/" class="btn btn-primary">
                         <i class="fas fa-home"></i>
-                        Home
+                        <span data-i18n="go_home">Home</span>
                     </a>
                     <a href="javascript:history.back()" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i>
-                        Go Back
+                        <span data-i18n="go_back">Go Back</span>
                     </a>
                 </div>
             </div>
