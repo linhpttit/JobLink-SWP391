@@ -24,7 +24,19 @@ public class JobPostingController {
     private final ISkillService skillService;
     private final IProvinceService provinceService;
     private final IDistrictService districtService;
+
     @GetMapping
+    public String showList(){
+        return "redirect:/jobPosting/viewList";
+    }
+    @GetMapping("/viewList")
+    public String showJobPostingList(Model model) {
+        List<JobPosting> jobPostings = jobPostingService.getAllJobPostings();
+        model.addAttribute("jobs", jobPostings);
+        return "employer/job-list-view";
+    }
+
+    @GetMapping("/showCreateForm")
     public String showCreateForm(Model model){
         model.addAttribute("jobForm", new JobPostingDto());
         // ✅ Dữ liệu giả để test (sau này lấy từ DB)
@@ -91,13 +103,6 @@ public class JobPostingController {
         }
         jobPostingService.createJobPosting(dto);
         return "redirect:/jobPosting/viewList";
-    }
-
-    @GetMapping("/viewList")
-    public String showJobPostingList(Model model) {
-        List<JobPosting> jobPostings = jobPostingService.getAllJobPostings();
-        model.addAttribute("jobs", jobPostings);
-        return "employer/job-list-view";
     }
 
     @GetMapping("/detail/{id}")
