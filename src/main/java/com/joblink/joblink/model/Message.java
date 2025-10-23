@@ -8,8 +8,10 @@ import java.time.LocalDateTime;
 public class Message {
     private Integer messageId;
     private Integer conversationId;
-    private Integer senderUserId;
-    private Integer receiverUserId;
+    private Integer seekerId;
+    private Integer seekerId2;
+    private Integer userId;
+    private Integer userId2;
     private String messageContent;
     private String messageType; // 'text', 'address', 'system'
     private Boolean isRead;

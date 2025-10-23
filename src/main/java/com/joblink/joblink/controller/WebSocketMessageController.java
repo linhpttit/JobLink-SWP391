@@ -22,7 +22,7 @@ public class WebSocketMessageController {
     public void sendMessage(@Payload Message message) {
         // Send to specific user's queue
         messagingTemplate.convertAndSendToUser(
-                String.valueOf(message.getReceiverUserId()),
+                String.valueOf(message.getMessageId()),
                 "/queue/messages",
                 message
         );

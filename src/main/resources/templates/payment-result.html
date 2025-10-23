@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kết Quả Thanh Toán - JobLink</title>
+    <link rel="stylesheet" th:href="@{/header.css}">
+    <style>
+        .result-container {
+            max-width: 600px;
+            margin: 150px auto;
+            padding: 40px;
+            text-align: center;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .result-icon.success {
+            color: #4caf50;
+        }
+
+        .result-icon.error {
+            color: #f44336;
+        }
+
+        .result-message {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .result-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{header :: header}"></div>
+
+<div class="result-container">
+    <div class="result-icon" th:classappend="${success} ? 'success' : 'error'">
+        <span th:if="${success}">✓</span>
+        <span th:unless="${success}">✗</span>
+    </div>
+
+    <h1 th:if="${success}">Thanh Toán Thành Công!</h1>
+    <h1 th:unless="${success}">Thanh Toán Thất Bại</h1>
+
+    <p class="result-message" th:text="${message}"></p>
+
+    <div class="result-actions">
+        <a th:href="@{/jobseeker/cv-templates}" class="btn btn-primary" th:if="${success}">
+            Khám Phá CV Templates
+        </a>
+        <a th:href="@{/jobseeker/premium}" class="btn btn-secondary">
+            Quay Lại
+        </a>
+    </div>
+</div>
+</body>
+</html>

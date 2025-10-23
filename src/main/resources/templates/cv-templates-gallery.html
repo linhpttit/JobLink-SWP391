@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mẫu CV Chuyên Nghiệp - JobLink</title>
+    <link rel="stylesheet" th:href="@{/header.css}">
+    <style>
+        .cv-gallery-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        .gallery-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .gallery-header h1 {
+            font-size: 32px;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .gallery-header p {
+            font-size: 16px;
+            color: #7f8c8d;
+        }
+        .templates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+        .template-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .template-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px rgba(0,0,0,0.15);
+        }
+        .template-thumbnail {
+            width: 100%;
+            height: 400px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 48px;
+            font-weight: bold;
+        }
+        .template-info {
+            padding: 20px;
+        }
+        .template-name {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+        .template-description {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 15px;
+        }
+        .template-category {
+            display: inline-block;
+            background: #ecf0f1;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            color: #34495e;
+            margin-bottom: 15px;
+        }
+        .template-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-preview, .btn-export {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn-preview {
+            background: #3498db;
+            color: white;
+        }
+        .btn-preview:hover {
+            background: #2980b9;
+        }
+        .btn-export {
+            background: #2ecc71;
+            color: white;
+        }
+        .btn-export:hover {
+            background: #27ae60;
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{header :: header}"></div>
+
+<div class="cv-gallery-container">
+    <div class="gallery-header">
+        <h1>Mẫu CV Chuyên Nghiệp</h1>
+        <p>Chọn mẫu CV phù hợp và tạo CV ấn tượng của bạn</p>
+    </div>
+
+    <div class="templates-grid">
+        <div th:each="template : ${templates}" class="template-card">
+            <div class="template-thumbnail" th:text="${template.templateCode}"></div>
+            <div class="template-info">
+                <div class="template-name" th:text="${template.templateName}"></div>
+                <div class="template-description" th:text="${template.description}"></div>
+                <span class="template-category" th:text="${template.category}"></span>
+                <div class="template-actions">
+                    <button class="btn-preview"
+                            th:onclick="'window.location.href=\'/jobseeker/cv-templates/preview/' + ${template.templateId} + '\''">
+                        Xem trước
+                    </button>
+                    <button class="btn-export"
+                            th:attr="data-template-id=${template.templateId}"
+                            onclick="exportCV(this)">
+                        Xuất PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function exportCV(button) {
+        const templateId = button.getAttribute('data-template-id');
+
+        fetch(`/jobseeker/cv-templates/export/${templateId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('CV đã được xuất thành công!');
+                // Download the file
+                window.location.href = `/jobseeker/cv-templates/download/${templateId}`;
+            } else {
+                alert('Lỗi: ' + data.error);
+            }
+        })
+        .catch(error => {
+            alert('Có lỗi xảy ra: ' + error.message);
+        });
+    }
+</script>
+</body>
+</html>

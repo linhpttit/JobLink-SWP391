@@ -2,6 +2,7 @@ package com.joblink.joblink.model;
 
 import lombok.Data;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 public class JobSeekerProfile {
@@ -16,6 +17,7 @@ public class JobSeekerProfile {
     private String  headline;
     private Integer experienceYears;   // có thể null
     private String  about;
+
 
     // Mở rộng (đang được DAO map)
     private String  email;

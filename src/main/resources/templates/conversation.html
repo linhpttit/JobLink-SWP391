@@ -97,7 +97,9 @@
                                     <i class="fas fa-map-marker-alt"></i> Share Address
                                 </a>
                             </li>
-                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
                             <li>
                                 <a class="dropdown-item text-danger" href="#"
                                    th:onclick="'blockUser(' + ${conversation.otherUserId} + ')'">
@@ -109,9 +111,9 @@
                 </div>
                 <div class="messages-container" id="messagesContainer">
                     <div th:each="msg : ${messages}"
-                         th:class="${msg.senderUserId == currentUserId ? 'message sent' : 'message received'}"
+                         th:class="${msg.userId == currentUserId ? 'message sent' : 'message received'}"
                          th:attr="data-message-id=${msg.messageId}">
-                        <img th:if="${msg.senderUserId != currentUserId}"
+                        <img th:if="${msg.userId != currentUserId}"
                              th:src="${msg.senderAvatar}"
                              class="avatar-small"
                              alt="Avatar">
@@ -128,7 +130,8 @@
                                 <div th:unless="${msg.messageType == 'address'}" th:text="${msg.messageContent}"></div>
                             </div>
                             <div class="message-time" th:text="${#temporals.format(msg.sentAt, 'HH:mm')}"></div>
-                            <div th:if="${msg.senderUserId == currentUserId && !msg.isRecalled}" class="message-actions">
+                            <div th:if="${msg.userId == currentUserId && !msg.isRecalled}"
+                                 class="message-actions">
                                 <button class="btn btn-sm btn-danger"
                                         th:onclick="'recallMessage(' + ${msg.messageId} + ')'">
                                     <i class="fas fa-undo"></i>
@@ -152,7 +155,7 @@
     </div>
 </div>
 
-Share Address Modal
+Share Address Modal <span th:text="${conversation.seekerId2}">User Name</span>
 <div class="modal fade" id="addressModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -178,9 +181,15 @@ Share Address Modal
 <script th:inline="javascript">
     const currentUserId = /*[[${currentUserId}]]*/ 0;
     const conversationId = /*[[${conversation.conversationId}]]*/ 0;
-    const receiverUserId = /*[[${conversation.otherUserId}]]*/ 0;
+    const seekerId2 = /*[[${conversation.seekerId2}]]*/ 0;
     const seekerId = /*[[${conversation.seekerId}]]*/ 0;
     const employerId = /*[[${conversation.employerId}]]*/ 0;
+    const conversation = /*[[${conversation}]]*/ {};
+    const userId2 = /*[[${conversation.userId2}]]*/ 0;
+    const userId = /*[[${conversation.userId}]]*/ 0;
+
+
+    console.log('conversation =', conversation);
 
     let stompClient = null;
 
@@ -219,10 +228,12 @@ Share Address Modal
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
             body: new URLSearchParams({
-                receiverUserId: receiverUserId,
+                seekerId2,
                 content: content,
                 messageType: 'text',
-                seekerId: seekerId,
+                seekerId,
+                userId,
+                userId2,
                 employerId: employerId
             })
         })
@@ -331,7 +342,7 @@ Share Address Modal
     function appendMessage(msg) {
         const container = document.getElementById('messagesContainer');
         const messageDiv = document.createElement('div');
-        messageDiv.className = msg.senderUserId === currentUserId ? 'message sent' : 'message received';
+        messageDiv.className = msg.userId === currentUserId ? 'message sent' : 'message received';
         messageDiv.setAttribute('data-message-id', msg.messageId);
 
         let content = `<div class="message-bubble">`;
@@ -345,7 +356,7 @@ Share Address Modal
             content += `<div>${msg.messageContent}</div>`;
         }
         content += `<div class="message-time">${new Date().toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'})}</div>`;
-        if (msg.senderUserId === currentUserId) {
+        if (msg.userId === currentUserId) {
             content += `<div class="message-actions">
                 <button class="btn btn-sm btn-danger" onclick="recallMessage(${msg.messageId})">
                     <i class="fas fa-undo"></i>

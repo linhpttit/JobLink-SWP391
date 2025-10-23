@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gói Premium - JobLink</title>
+    <link rel="stylesheet" th:href="@{/header.css}">
+    <link rel="stylesheet" th:href="@{/premium-packages.css}">
+</head>
+<body>
+<div th:replace="~{header :: header}"></div>
+
+<div class="premium-container">
+    <div class="premium-header">
+        <h1>Nâng Cấp Tài Khoản Premium</h1>
+        <p>Mở khóa các tính năng cao cấp để tăng cơ hội tìm việc của bạn</p>
+    </div>
+
+    <div th:if="${activeSubscription != null}" class="active-subscription-banner">
+        <h3>Bạn đang sử dụng gói: <span th:text="${activeSubscription.packageName}"></span></h3>
+        <p>Hết hạn: <span th:text="${#temporals.format(activeSubscription.endDate, 'dd/MM/yyyy HH:mm')}"></span></p>
+    </div>
+
+    <div class="packages-grid">
+        <div th:each="package : ${packages}" class="package-card"
+             th:classappend="${package.code == 'LEGENDSTAR_PREMIUM'} ? 'featured' : ''">
+            <div class="package-header">
+                <!-- Display package names with badges -->
+                <div class="package-badge" th:if="${package.code == 'LEGENDSTAR_PREMIUM'}">⭐ PHỔ BIẾN NHẤT</div>
+                <h2 th:text="${package.name}"></h2>
+                <div class="package-price">
+                    <span class="price-amount" th:text="${#numbers.formatDecimal(package.price, 0, 'COMMA', 0, 'POINT')}"></span>
+                    <span class="price-currency">đ</span>
+                    <span class="price-period" th:text="'/' + ${package.durationDays} + ' ngày'"></span>
+                </div>
+            </div>
+
+            <div class="package-features">
+                <!-- Updated feature descriptions based on new requirements -->
+
+                <!-- Star-Premium features -->
+                <div class="feature-item" th:if="${package.code == 'STAR_PREMIUM' or package.code == 'SUPERSTAR_PREMIUM' or package.code == 'LEGENDSTAR_PREMIUM'}">
+                    <span class="feature-icon">✓</span>
+                    <span>Nhắn tin trực tiếp với nhà tuyển dụng sau khi ứng tuyển</span>
+                </div>
+
+                <!-- SuperStar-Premium features -->
+                <div class="feature-item" th:if="${package.code == 'SUPERSTAR_PREMIUM' or package.code == 'LEGENDSTAR_PREMIUM'}">
+                    <span class="feature-icon">✓</span>
+                    <span>Lọc top 5 công việc phù hợp nhất dựa trên kỹ năng của bạn</span>
+                </div>
+
+                <!-- LegendStar-Premium features -->
+                <div class="feature-item" th:if="${package.code == 'LEGENDSTAR_PREMIUM'}">
+                    <span class="feature-icon">✓</span>
+                    <span>Truy cập 5 mẫu CV chuyên nghiệp</span>
+                </div>
+                <div class="feature-item" th:if="${package.code == 'LEGENDSTAR_PREMIUM'}">
+                    <span class="feature-icon">✓</span>
+                    <span>Xuất CV dạng PDF không giới hạn</span>
+                </div>
+                <div class="feature-item" th:if="${package.code == 'LEGENDSTAR_PREMIUM'}">
+                    <span class="feature-icon">✓</span>
+                    <span>Nhắn tin với người tìm việc khác (Networking)</span>
+                </div>
+
+                <!-- Common features -->
+                <div class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span>Hỗ trợ ưu tiên 24/7</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span>Thông báo việc làm phù hợp</span>
+                </div>
+            </div>
+
+            <button class="purchase-btn"
+                    th:attr="data-package-id=${package.packageId}"
+                    th:disabled="${activeSubscription != null}"
+                    onclick="purchasePackage(this)">
+                <span th:if="${activeSubscription == null}">Mua Ngay</span>
+                <span th:if="${activeSubscription != null}">Đang Sử Dụng</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Add free features section -->
+    <div class="free-features-section">
+        <h2>Tính Năng Miễn Phí</h2>
+        <div class="free-features-grid">
+            <div class="free-feature-item">
+                <span class="feature-icon-large">🤝</span>
+                <h3>Kết Nối Networking</h3>
+                <p>Kết nối với người tìm việc có kỹ năng tương tự hoàn toàn miễn phí</p>
+            </div>
+            <div class="free-feature-item">
+                <span class="feature-icon-large">🔍</span>
+                <h3>Tìm Kiếm Việc Làm</h3>
+                <p>Tìm kiếm và ứng tuyển không giới hạn</p>
+            </div>
+            <div class="free-feature-item">
+                <span class="feature-icon-large">📝</span>
+                <h3>Quản Lý Hồ Sơ</h3>
+                <p>Tạo và cập nhật hồ sơ cá nhân</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function purchasePackage(button) {
+        const packageId = button.getAttribute('data-package-id');
+
+        // Redirect to demo payment page
+        window.location.href = '/jobseeker/premium/payment-demo?packageId=' + packageId;
+    }
+</script>
+</body>
+</html>

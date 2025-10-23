@@ -1,6 +1,5 @@
 // Messaging Feature JavaScript
 
-// Declare SockJS and Stomp variables
 const SockJS = window.SockJS
 const Stomp = window.Stomp
 
@@ -9,7 +8,7 @@ class MessagingApp {
     this.stompClient = null
     this.currentUserId = null
     this.conversationId = null
-    this.receiverUserId = null
+    this.receiverUserId = null // optional for old flows
     this.seekerId = null
     this.employerId = null
     this.reconnectAttempts = 0
@@ -18,10 +17,10 @@ class MessagingApp {
 
   init(currentUserId, conversationId, receiverUserId, seekerId, employerId) {
     this.currentUserId = currentUserId
-    this.conversationId = conversationId
-    this.receiverUserId = receiverUserId
-    this.seekerId = seekerId
-    this.employerId = employerId
+    this.conversationId = conversationId || null
+    this.receiverUserId = receiverUserId || null
+    this.seekerId = seekerId || null
+    this.employerId = employerId || null
 
     this.connect()
     this.setupEventListeners()
@@ -31,32 +30,28 @@ class MessagingApp {
   connect() {
     const socket = new SockJS("/ws-messaging")
     this.stompClient = Stomp.over(socket)
-
     this.stompClient.connect(
       {},
       (frame) => {
-        console.log("[v0] Connected to WebSocket:", frame)
+        console.log("[v1] Connected:", frame)
         this.reconnectAttempts = 0
         this.subscribeToChannels()
       },
       (error) => {
-        console.error("[v0] WebSocket connection error:", error)
+        console.error("[v1] WS error:", error)
         this.handleConnectionError()
-      },
+      }
     )
   }
 
   subscribeToChannels() {
-    // Subscribe to personal message queue
     this.stompClient.subscribe(`/user/${this.currentUserId}/queue/messages`, (message) => {
       const msg = JSON.parse(message.body)
-      if (msg.conversationId === this.conversationId) {
+      if (!this.conversationId || msg.conversationId === this.conversationId) {
         this.appendMessage(msg)
-        this.playNotificationSound()
       }
     })
 
-    // Subscribe to recall notifications
     this.stompClient.subscribe(`/user/${this.currentUserId}/queue/recall`, (message) => {
       const data = JSON.parse(message.body)
       this.markMessageAsRecalled(data.messageId)
@@ -66,11 +61,9 @@ class MessagingApp {
   handleConnectionError() {
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.reconnectAttempts++
-      console.log(`[v0] Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`)
       setTimeout(() => this.connect(), 3000 * this.reconnectAttempts)
     } else {
-      console.error("[v0] Max reconnection attempts reached")
-      this.showError("Connection lost. Please refresh the page.")
+      alert("Mất kết nối realtime. Hãy F5 trang.")
     }
   }
 
@@ -88,219 +81,148 @@ class MessagingApp {
 
   sendMessage() {
     const input = document.getElementById("messageInput")
-    const content = input.value.trim()
-
+    const content = (input?.value || "").trim()
     if (!content) return
 
+    // ƯU TIÊN: nếu đang ở trang hội thoại -> gửi theo conversationId
+    if (this.conversationId) {
+      fetch("/messages/send-in-conversation", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          conversationId: this.conversationId,
+          content
+        })
+      })
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.success) {
+            this.appendMessage(data.message)
+            input.value = ""
+            if (this.stompClient?.connected) {
+              this.stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(data.message))
+            }
+          } else {
+            alert(data.error || "Gửi tin nhắn thất bại")
+          }
+        })
+        .catch((e) => {
+          console.error(e)
+          alert("Gửi tin nhắn thất bại")
+        })
+      return
+    }
+
+    // Flow cũ (nếu chưa có conversationId)
     fetch("/messages/send", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({
         receiverUserId: this.receiverUserId,
-        content: content,
+        content,
         messageType: "text",
         seekerId: this.seekerId,
-        employerId: this.employerId,
-      }),
+        employerId: this.employerId
+      })
     })
-      .then((response) => response.json())
+      .then((r) => r.json())
       .then((data) => {
         if (data.success) {
           this.appendMessage(data.message)
           input.value = ""
-
-          // Send via WebSocket for real-time delivery
-          if (this.stompClient && this.stompClient.connected) {
+          if (this.stompClient?.connected) {
             this.stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(data.message))
           }
         } else {
-          this.showError(data.error)
+          alert(data.error || "Gửi tin nhắn thất bại")
         }
       })
-      .catch((error) => {
-        console.error("[v0] Error sending message:", error)
-        this.showError("Failed to send message. Please try again.")
+      .catch((e) => {
+        console.error(e)
+        alert("Gửi tin nhắn thất bại")
       })
   }
 
-  sendAddress(address) {
-    if (!address) return
+  async blockInConversation() {
+    if (!this.conversationId) return
+    if (!confirm("Chặn người này?")) return
 
-    fetch("/messages/send", {
+    // Lấy otherUserId từ server
+    const resp = await fetch(`/messages/api/conversation/${this.conversationId}/other-user`)
+    const data = await resp.json()
+    if (!data.otherUserId) {
+      alert(data.error || "Không lấy được đối phương")
+      return
+    }
+
+    fetch("/messages/block", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: new URLSearchParams({
-        receiverUserId: this.receiverUserId,
-        content: address,
-        messageType: "address",
-        seekerId: this.seekerId,
-        employerId: this.employerId,
-      }),
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ blockedUserId: data.otherUserId })
     })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success) {
-          this.appendMessage(data.message)
-
-          if (this.stompClient && this.stompClient.connected) {
-            this.stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(data.message))
-          }
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.success) {
+          alert("Đã chặn người dùng")
+          location.href = "/messages"
         } else {
-          this.showError(data.error)
+          alert(d.error || "Chặn thất bại")
         }
       })
-      .catch((error) => {
-        console.error("[v0] Error sending address:", error)
-        this.showError("Failed to send address. Please try again.")
+      .catch((e) => {
+        console.error(e)
+        alert("Chặn thất bại")
       })
   }
 
   recallMessage(messageId) {
-    if (!confirm("Are you sure you want to recall this message?")) return
-
-    fetch(`/messages/recall/${messageId}`, {
-      method: "POST",
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success) {
-          this.markMessageAsRecalled(messageId)
-
-          if (this.stompClient && this.stompClient.connected) {
-            this.stompClient.send(
-              "/app/chat.recallMessage",
-              {},
-              JSON.stringify({
-                messageId: messageId,
-                receiverUserId: this.receiverUserId,
-              }),
-            )
-          }
-        } else {
-          this.showError(data.error)
-        }
+    fetch(`/messages/recall/${messageId}`, { method: "POST" })
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.success) this.markMessageAsRecalled(messageId)
+        else alert(d.error || "Thu hồi thất bại")
       })
-      .catch((error) => {
-        console.error("[v0] Error recalling message:", error)
-        this.showError("Failed to recall message. Please try again.")
-      })
-  }
-
-  blockUser(userId, reason) {
-    fetch("/messages/block", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: new URLSearchParams({
-        blockedUserId: userId,
-        reason: reason || "",
-      }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success) {
-          alert("User blocked successfully")
-          window.location.href = "/messages"
-        } else {
-          this.showError(data.error)
-        }
-      })
-      .catch((error) => {
-        console.error("[v0] Error blocking user:", error)
-        this.showError("Failed to block user. Please try again.")
+      .catch((e) => {
+        console.error(e)
+        alert("Thu hồi thất bại")
       })
   }
 
   appendMessage(msg) {
     const container = document.getElementById("messagesContainer")
-    const messageDiv = document.createElement("div")
-    messageDiv.className = msg.senderUserId === this.currentUserId ? "message sent" : "message received"
-    messageDiv.setAttribute("data-message-id", msg.messageId)
-
-    let content = ""
-
-    // Add avatar for received messages
-    if (msg.senderUserId !== this.currentUserId && msg.senderAvatar) {
-      content += `<img src="${msg.senderAvatar}" class="avatar-small" alt="Avatar">`
-    }
-
-    content += `<div class="message-bubble">`
-
-    if (msg.messageType === "address") {
-      content += `<div class="message-type-address">
-                <i class="fas fa-map-marker-alt"></i>
-                <strong>Address:</strong>
-                <div>${this.escapeHtml(msg.messageContent)}</div>
-            </div>`
-    } else {
-      content += `<div>${this.escapeHtml(msg.messageContent)}</div>`
-    }
+    if (!container) return
+    const div = document.createElement("div")
+    div.className = msg.senderUserId === this.currentUserId ? "message sent" : "message received"
+    div.dataset.messageId = msg.messageId
 
     const time = msg.sentAt
-      ? new Date(msg.sentAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })
-      : new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })
-    content += `<div class="message-time">${time}</div>`
-
-    if (msg.senderUserId === this.currentUserId) {
-      content += `<div class="message-actions">
-                <button class="btn btn-sm btn-danger" onclick="messagingApp.recallMessage(${msg.messageId})">
-                    <i class="fas fa-undo"></i>
-                </button>
-            </div>`
-    }
-
-    content += `</div>`
-
-    messageDiv.innerHTML = content
-    container.appendChild(messageDiv)
+      ? new Date(msg.sentAt).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })
+      : ""
+    div.innerHTML = `
+      <div class="message-bubble">
+        <div>${this.escapeHtml(msg.messageContent || "")}</div>
+        <div class="message-time">${time}</div>
+      </div>
+    `
+    container.appendChild(div)
     this.scrollToBottom()
   }
 
   markMessageAsRecalled(messageId) {
-    const messageDiv = document.querySelector(`[data-message-id="${messageId}"]`)
-    if (messageDiv) {
-      const bubble = messageDiv.querySelector(".message-bubble")
-      bubble.innerHTML = `<div class="message-recalled">
-                <i class="fas fa-undo"></i> Message recalled
-            </div>`
-    }
+    const node = document.querySelector(`[data-message-id="${messageId}"] .message-bubble`)
+    if (node) node.innerHTML = `<em>Tin nhắn đã được thu hồi</em>`
   }
 
   scrollToBottom() {
-    const container = document.getElementById("messagesContainer")
-    if (container) {
-      container.scrollTop = container.scrollHeight
-    }
+    const c = document.getElementById("messagesContainer")
+    if (c) c.scrollTop = c.scrollHeight
   }
 
-  escapeHtml(text) {
-    const div = document.createElement("div")
-    div.textContent = text
-    return div.innerHTML
-  }
-
-  playNotificationSound() {
-    // Optional: Add notification sound
-    // const audio = new Audio('/sounds/notification.mp3');
-    // audio.play().catch(e => console.log('Could not play sound:', e));
-  }
-
-  showError(message) {
-    alert(message)
-  }
-
-  disconnect() {
-    if (this.stompClient !== null) {
-      this.stompClient.disconnect()
-      console.log("[v0] Disconnected from WebSocket")
-    }
+  escapeHtml(s) {
+    const d = document.createElement("div")
+    d.textContent = s
+    return d.innerHTML
   }
 }
 
-// Global instance
 const messagingApp = new MessagingApp()
