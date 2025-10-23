@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thanh toán QR - JobLink</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .payment-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            max-width: 500px;
+            width: 100%;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .payment-header {
+            margin-bottom: 30px;
+        }
+
+        .payment-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: white;
+            font-size: 1.8rem;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+
+        .payment-info {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .info-value {
+            color: #1e293b;
+            font-weight: 600;
+        }
+
+        .amount {
+            font-size: 1.5rem;
+            color: #667eea;
+        }
+
+        .qr-container {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            margin-bottom: 30px;
+        }
+
+        .qr-code {
+            width: 280px;
+            height: 280px;
+            margin: 0 auto;
+            background: white;
+            padding: 10px;
+        }
+
+        .qr-code img {
+            width: 100%;
+            height: 100%;
+        }
+
+        .status-pending {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 15px;
+            background: #fef3c7;
+            border-radius: 10px;
+            color: #92400e;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid #fbbf24;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .instructions {
+            text-align: left;
+            background: #f1f5f9;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .instructions h3 {
+            color: #1e293b;
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+
+        .instructions ol {
+            padding-left: 20px;
+            color: #475569;
+        }
+
+        .instructions li {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-cancel {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .btn-cancel:hover {
+            background: #e2e8f0;
+        }
+
+        .btn-refresh {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-refresh:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .timer {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-top: 15px;
+        }
+
+        .success-message {
+            display: none;
+            background: #dcfce7;
+            color: #166534;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .success-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="payment-container">
+    <div class="payment-header">
+        <div class="payment-icon">
+            <i class="fas fa-qrcode"></i>
+        </div>
+        <h1>Quét mã QR để thanh toán</h1>
+        <p style="color: #64748b;">Sử dụng ứng dụng ngân hàng để quét mã</p>
+    </div>
+
+    <div class="payment-info">
+        <div class="info-row">
+            <span class="info-label">Gói dịch vụ:</span>
+            <span class="info-value" th:text="${packageName}">Premium Plus</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Mã đơn hàng:</span>
+            <span class="info-value" th:text="${orderId}">ORD1234567890</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Số tiền:</span>
+            <span class="info-value amount" th:text="${#numbers.formatDecimal(amount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">500,000 VNĐ</span>
+        </div>
+    </div>
+
+    <div class="status-pending" id="statusPending">
+        <div class="spinner"></div>
+        <span>Đang chờ thanh toán...</span>
+    </div>
+
+    <div class="success-message" id="successMessage">
+        <div class="success-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h3>Thanh toán thành công!</h3>
+        <p>Đang chuyển hướng...</p>
+    </div>
+
+    <div class="qr-container">
+        <div class="qr-code">
+            <img th:src="${qrCodeUrl}" alt="QR Code" id="qrImage">
+        </div>
+    </div>
+
+    <div class="instructions">
+        <h3><i class="fas fa-info-circle"></i> Hướng dẫn thanh toán:</h3>
+        <ol>
+            <li>Mở ứng dụng ngân hàng trên điện thoại</li>
+            <li>Chọn chức năng quét mã QR</li>
+            <li>Quét mã QR hiển thị trên màn hình</li>
+            <li>Xác nhận thông tin và hoàn tất thanh toán</li>
+            <li>Chờ hệ thống xác nhận (tự động)</li>
+        </ol>
+    </div>
+
+    <div class="timer">
+        <i class="fas fa-clock"></i> Mã QR có hiệu lực trong: <span id="countdown">15:00</span>
+    </div>
+
+    <div class="button-group">
+        <button class="btn btn-cancel" onclick="cancelPayment()">
+            <i class="fas fa-times"></i> Hủy
+        </button>
+        <button class="btn btn-refresh" onclick="location.reload()">
+            <i class="fas fa-sync-alt"></i> Làm mới
+        </button>
+    </div>
+</div>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const orderId = /*[[${orderId}]]*/ 'ORD1234567890';
+    const paymentId = /*[[${paymentId}]]*/ 1;
+    /*]]>*/
+
+    let checkInterval;
+    let countdownInterval;
+    let timeLeft = 900; // 15 phút
+
+    // Bắt đầu kiểm tra trạng thái thanh toán
+    function startPaymentCheck() {
+        checkInterval = setInterval(checkPaymentStatus, 3000); // Kiểm tra mỗi 3 giây
+    }
+
+    // Kiểm tra trạng thái thanh toán
+    async function checkPaymentStatus() {
+        try {
+            // ==========================================================
+            // LỖI 1: SỬA ĐƯỜNG DẪN URL (BỎ /jobseeker)
+            // ==========================================================
+            const response = await fetch(`/payment/check-status/${orderId}`);
+            const result = await response.json();
+
+            // ==========================================================
+            // LỖI 2: SỬA LOGIC CHECK (dùng result.status)
+            // ==========================================================
+            if (result.status === 'SUCCESS') {
+                clearInterval(checkInterval);
+                clearInterval(countdownInterval);
+
+                // Tự động chuyển hướng đến trang success
+                showSuccess();
+            }
+        } catch (error) {
+            console.error('Error checking payment:', error);
+        }
+    }
+
+    // Hiển thị thông báo thành công
+    function showSuccess() {
+        document.getElementById('statusPending').style.display = 'none';
+        document.getElementById('successMessage').classList.add('show');
+
+        // URL trang success
+        const successUrl = `/payment/success?orderId=${orderId}`;
+
+        // Redirect sau 2 giây
+        setTimeout(() => {
+            window.location.href = successUrl;
+        }, 2000);
+    }
+
+    // Đếm ngược thời gian
+    function startCountdown() {
+        countdownInterval = setInterval(() => {
+            timeLeft--;
+
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+
+            document.getElementById('countdown').textContent =
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+            if (timeLeft <= 0) {
+                clearInterval(countdownInterval);
+                clearInterval(checkInterval);
+                alert('Mã QR đã hết hạn. Vui lòng tạo lại thanh toán.');
+                window.location.href = '/payment/packages';
+            }
+        }, 1000);
+    }
+
+    // Hủy thanh toán
+    async function cancelPayment() {
+        if (!confirm('Bạn có chắc muốn hủy thanh toán?')) {
+            return;
+        }
+
+        try {
+            // Đường dẫn này đã đúng, không cần sửa
+            const response = await fetch(`/payment/cancel/${orderId}`, {
+                method: 'POST'
+            });
+
+            const result = await response.json();
+
+            // Sửa logic check (dùng result.status)
+            if (result.status === 'CANCELLED') {
+                clearInterval(checkInterval);
+                clearInterval(countdownInterval);
+                window.location.href = '/payment/packages';
+            } else {
+                alert('Không thể hủy thanh toán: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Có lỗi xảy ra khi hủy thanh toán');
+        }
+    }
+
+    // Khởi động khi trang load
+    window.addEventListener('DOMContentLoaded', () => {
+        startPaymentCheck();
+        startCountdown();
+
+        // Log để debug
+        console.log('Payment monitoring started for order:', orderId);
+    });
+
+    // Dọn dẹp khi rời trang
+    window.addEventListener('beforeunload', () => {
+        clearInterval(checkInterval);
+        clearInterval(countdownInterval);
+    });
+</script>
+</body>
+</html>

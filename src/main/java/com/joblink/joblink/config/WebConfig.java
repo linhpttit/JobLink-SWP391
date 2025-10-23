@@ -1,6 +1,8 @@
 package com.joblink.joblink.config;
 
 import com.joblink.joblink.auth.model.User;
+import com.joblink.joblink.dto.UserSessionDTO;
+import com.joblink.joblink.util.SessionHelper;
 import com.joblink.joblink.security.RememberMeService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -8,6 +10,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -15,20 +18,31 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebConfig implements WebMvcConfigurer {
 
     private final RememberMeService rememberMeService;
+    private final SessionHelper sessionHelper;
 
-    public WebConfig(RememberMeService rememberMeService) {
+    public WebConfig(RememberMeService rememberMeService, SessionHelper sessionHelper) {
         this.rememberMeService = rememberMeService;
+        this.sessionHelper = sessionHelper;
     }
 
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
-        registry.addRedirectViewController("/login", "/signin"); // điều hướng từ login sang signin
-//        registry.addRedirectViewController("/profile", "/jobseeker/profile"); // điều hướng từ click vào profile tới profile page djtme mệt vcl
+        registry.addRedirectViewController("/login", "/signin");
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/avatars/**")
+                .addResourceLocations("file:src/main/resources/static/uploads/avatars/");
+        registry.addResourceHandler("/certificates/**")
+                .addResourceLocations("file:src/main/resources/static/uploads/certificates/");
+        registry.addResourceHandler("/cvs/**")
+                .addResourceLocations("file:src/main/resources/static/uploads/cvs/");
     }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new HandlerInterceptor(){
+        registry.addInterceptor(new HandlerInterceptor() {
                     @Override
                     public boolean preHandle(HttpServletRequest req, HttpServletResponse res, Object handler) {
                         HttpSession session = req.getSession(false);
@@ -41,7 +55,8 @@ public class WebConfig implements WebMvcConfigurer {
                         // Thử auto-login bằng cookie REMEMBER
                         User u = rememberMeService.autoLogin(req, res);
                         if (u != null) {
-                            req.getSession(true).setAttribute("user", u);
+                            UserSessionDTO dto = sessionHelper.toSessionDTO(u);
+                            req.getSession(true).setAttribute("user", dto);
                             System.out.println("[WebConfig] ✅ Auto-login from cookie: " + u.getEmail());
                         } else {
                             System.out.println("[WebConfig] ⚠️ No valid REMEMBER cookie or expired session.");
@@ -62,6 +77,7 @@ public class WebConfig implements WebMvcConfigurer {
 
                         // Static resources
                         "/css/**", "/js/**", "/images/**", "/static/**", "/webjars/**",
+                        "/avatars/**", "/certificates/**", "/cvs/**", "/uploads/**",
 
                         // Error
                         "/error", "/404"

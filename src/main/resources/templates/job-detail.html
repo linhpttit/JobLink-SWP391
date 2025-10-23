@@ -3,16 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Senior UX Designer - JobLink</title>
+    <title th:text="${job != null ? job.title : 'Job Detail'} + ' - JobLink'">Job Detail - JobLink</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-    <link rel="stylesheet" th:href="@{/job-detail.css}">
+    <link rel="stylesheet" th:href="@{/CSS/job-detail.css}">
+    <link rel="stylesheet" th:href="@{/CSS/homepage.css}">
 </head>
-<body>
+
+<body th:data-is-logged-in="${isLoggedIn}">
 <div th:replace="~{header :: header}"></div>
 
 <main class="detail-main">
     <div class="breadcrumb">
-        <a href="/">Home</a> / <a href="/search">Find Job</a> / <span>Senior UX Designer</span>
+        <a href="/">Home</a> / <a href="/search">Find Job</a> / <span th:text="${job != null ? job.title : 'Job Detail'}">Job Detail</span>
     </div>
 
     <div class="detail-container">
@@ -20,18 +22,26 @@
         <div class="job-detail-left">
             <div class="job-header">
                 <div class="job-logo-large">
-                    <i class="fab fa-instagram"></i>
+                    <i class="fas fa-building"></i>
                 </div>
                 <div class="job-header-info">
                     <div class="job-info-left">
-                        <h1 class="job-title">Senior UX Designer</h1>
+                        <h1 class="job-title" th:text="${job != null ? job.title : 'Senior Software Engineer'}">Senior Software Engineer</h1>
                         <div class="job-company">
-                            <span><i class="fas fa-building"></i> Instagram</span>
-                            <span><i class="fas fa-map-marker-alt"></i> New York, USA</span>
+                            <span><i class="fas fa-building"></i> <span th:text="${job != null and job.employer != null ? job.employer.companyName : 'Tech Solutions Inc.'}">Tech Solutions Inc.</span></span>
+                            <span><i class="fas fa-map-marker-alt"></i>
+                                <span th:if="${job != null and job.province != null}">
+                                    <span th:if="${job.streetAddress != null and !job.streetAddress.isEmpty()}"
+                                          th:text="${job.streetAddress} + ', '"></span>
+                                    <span th:if="${job.district != null}" th:text="${job.district.districtName} + ', '"></span>
+                                    <span th:text="${job.province.provinceName}"></span>
+                                </span>
+                                <span th:unless="${job != null and job.province != null}">Ho Chi Minh City, Vietnam</span>
+                            </span>
                         </div>
                         <div class="job-badges">
                             <span class="badge badge-featured">Featured</span>
-                            <span class="badge badge-fulltime">Full Time</span>
+                            <span class="badge badge-fulltime" th:text="${job != null and job.workType != null ? job.workType : 'Full Time'}">Full Time</span>
                         </div>
                     </div>
                     <div class="job-actions-top">
@@ -49,10 +59,13 @@
             <div class="section">
                 <h2 class="section-title">Job Description</h2>
                 <div class="section-content">
-                    <p>Velstar is a Shopify Plus agency, and we partner with brands to help them grow, we also do the same with our people!</p>
-                    <p>Here at Velstar, we don't just make websites, we create exceptional digital experiences that consumers love. Our team of designers, developers, strategists, and creators work together to push brands to the next level. From Platform Migration, User Experience & User Interface Design, to Digital Marketing, we have a proven track record in delivering outstanding eCommerce solutions and driving sales for our clients.</p>
-                    <p>The role will involve translating project specifications into clean, test-driven, easily maintainable code. You will work with the Project and Development teams as well as with the Technical Director, adhering closely to project plans and delivering work that meets functional & non-functional requirements. You will have the opportunity to create new, innovative, secure and scalable features for our clients on the Shopify platform</p>
-                    <p>Want to work with us? You're in good company!</p>
+                    <div th:if="${job != null and job.jobDescription != null}" th:utext="${job.jobDescription}"></div>
+                    <div th:unless="${job != null and job.jobDescription != null}">
+                        <p>We are seeking a talented Senior Software Engineer to join our dynamic team. In this role, you will be responsible for designing, developing, and maintaining high-quality software solutions.</p>
+                        <p>Here at our company, we don't just make software, we create exceptional digital experiences that consumers love. Our team of designers, developers, strategists, and creators work together to push brands to the next level.</p>
+                        <p>The role will involve translating project specifications into clean, test-driven, easily maintainable code. You will work with the Project and Development teams as well as with the Technical Director, adhering closely to project plans and delivering work that meets functional & non-functional requirements.</p>
+                        <p>Want to work with us? You're in good company!</p>
+                    </div>
                 </div>
             </div>
 
@@ -72,22 +85,25 @@
             <!-- Requirements -->
             <div class="section">
                 <h2 class="section-title">Requirements</h2>
-                <ul class="responsibilities-list">
-                    <li>Great troubleshooting and analytical skills combined with the desire to tackle challenges head-on</li>
-                    <li>3+ years of experience in back-end development working either with multiple smaller projects simultaneously or large-scale applications</li>
-                    <li>Experience with HTML, CSS, JavaScript, and jQuery</li>
-                    <li>Working knowledge of Shopify's theming system and Liquid templating</li>
-                    <li>Previous experience working with 3rd party systems and APIs</li>
-                    <li>Proven ability to transform designs into pixel-perfect, cross-browser compatible code</li>
-                    <li>Working knowledge of version control systems like Git</li>
-                </ul>
+                <div class="section-content">
+                    <div th:if="${job != null and job.jobRequirements != null}" th:utext="${job.jobRequirements}"></div>
+                    <ul class="responsibilities-list" th:unless="${job != null and job.jobRequirements != null}">
+                        <li>Great troubleshooting and analytical skills combined with the desire to tackle challenges head-on</li>
+                        <li><span th:text="${job != null and job.yearExperience != null ? job.yearExperience : '3+ years'}">3+ years</span> of experience in back-end development working either with multiple smaller projects simultaneously or large-scale applications</li>
+                        <li>Experience with HTML, CSS, JavaScript, and modern frameworks</li>
+                        <li>Working knowledge of various technologies and systems</li>
+                        <li>Previous experience working with 3rd party systems and APIs</li>
+                        <li>Proven ability to transform designs into pixel-perfect, cross-browser compatible code</li>
+                        <li>Working knowledge of version control systems like Git</li>
+                    </ul>
+                </div>
             </div>
 
             <!-- Desirable -->
             <div class="section">
                 <h2 class="section-title">Desirable</h2>
                 <ul class="responsibilities-list">
-                    <li>Working knowledge of SCSS or LESS</li>
+                    <li>Working knowledge of advanced technologies and frameworks</li>
                     <li>Previous experience working in an agency environment</li>
                     <li>Degree in Computer Science or equivalent practical experience</li>
                     <li>Experience with performance optimization and web accessibility</li>
@@ -97,19 +113,22 @@
             <!-- Benefits -->
             <div class="section">
                 <h2 class="section-title">Benefits</h2>
-                <ul class="responsibilities-list">
-                    <li>Early finish on Fridays for our end of week catch up (4:30 finish, and drink of your choice from the bar)</li>
-                    <li>28 days holiday (including bank holidays) rising by 1 day per year PLUS a day off on your birthday</li>
-                    <li>Generous annual bonus.</li>
-                    <li>Healthcare package</li>
-                    <li>Paid community days to volunteer for a charity of your choice</li>
-                    <li>£100 contribution for your own personal development</li>
-                    <li>Free Breakfast every Monday and social activities every month</li>
-                    <li>Access to Perkbox with numerous discounts plus free points from the company to spend as you wish.</li>
-                    <li>Cycle 2 Work Scheme</li>
-                    <li>Brand new MacBook Pro</li>
-                    <li>Joining an agency on the cusp of exponential growth and being part of this exciting story.</li>
-                </ul>
+                <div class="section-content">
+                    <div th:if="${job != null and job.benefits != null}" th:utext="${job.benefits}"></div>
+                    <ul class="responsibilities-list" th:unless="${job != null and job.benefits != null}">
+                        <li>Early finish on Fridays for our end of week catch up (4:30 finish, and drink of your choice from the bar)</li>
+                        <li>28 days holiday (including bank holidays) rising by 1 day per year PLUS a day off on your birthday</li>
+                        <li>Generous annual bonus.</li>
+                        <li>Healthcare package</li>
+                        <li>Paid community days to volunteer for a charity of your choice</li>
+                        <li>$100 contribution for your own personal development</li>
+                        <li>Free Breakfast every Monday and social activities every month</li>
+                        <li>Access to Perkbox with numerous discounts plus free points from the company to spend as you wish.</li>
+                        <li>Cycle 2 Work Scheme</li>
+                        <li>Brand new MacBook Pro</li>
+                        <li>Joining an agency on the cusp of exponential growth and being part of this exciting story.</li>
+                    </ul>
+                </div>
             </div>
 
             <!-- Share -->
@@ -136,7 +155,9 @@
                     </div>
                     <div class="info-content">
                         <h4>Job Posted:</h4>
-                        <p>14 Jun, 2021</p>
+                        <p th:if="${job != null and job.postedAt != null}"
+                           th:text="${#temporals.format(job.postedAt, 'dd MMM, yyyy')}">15 Jan, 2025</p>
+                        <p th:unless="${job != null and job.postedAt != null}">15 Jan, 2025</p>
                     </div>
                 </div>
                 <div class="info-item">
@@ -145,7 +166,9 @@
                     </div>
                     <div class="info-content">
                         <h4>Job Expire In:</h4>
-                        <p>14 Aug, 2021</p>
+                        <p th:if="${job != null and job.submissionDeadline != null}"
+                           th:text="${#temporals.format(job.submissionDeadline, 'dd MMM, yyyy')}">15 Feb, 2025</p>
+                        <p th:unless="${job != null and job.submissionDeadline != null}">15 Feb, 2025</p>
                     </div>
                 </div>
                 <div class="info-item">
@@ -163,7 +186,7 @@
                     </div>
                     <div class="info-content">
                         <h4>Experience:</h4>
-                        <p>2-3 Year</p>
+                        <p th:text="${job != null and job.yearExperience != null ? job.yearExperience : '2-3 Year'}">2-3 Year</p>
                     </div>
                 </div>
                 <div class="info-item">
@@ -172,7 +195,13 @@
                     </div>
                     <div class="info-content">
                         <h4>Location:</h4>
-                        <p>New York, USA</p>
+                        <p th:if="${job != null and job.province != null}">
+                            <span th:if="${job.streetAddress != null and !job.streetAddress.isEmpty()}"
+                                  th:text="${job.streetAddress} + ', '"></span>
+                            <span th:if="${job.district != null}" th:text="${job.district.districtName} + ', '"></span>
+                            <span th:text="${job.province.provinceName}"></span>
+                        </p>
+                        <p th:unless="${job != null and job.province != null}">Ho Chi Minh City, Vietnam</p>
                     </div>
                 </div>
                 <div class="info-item">
@@ -181,7 +210,7 @@
                     </div>
                     <div class="info-content">
                         <h4>Job Type:</h4>
-                        <p>Full Time</p>
+                        <p th:text="${job != null and job.workType != null ? job.workType : 'Full Time'}">Full Time</p>
                     </div>
                 </div>
             </div>
@@ -189,10 +218,10 @@
             <!-- Company Info -->
             <div class="info-card company-card">
                 <div class="company-logo-large">
-                    <i class="fab fa-instagram"></i>
+                    <i class="fas fa-building"></i>
                 </div>
-                <h3>Instagram</h3>
-                <p style="color: #64748b; margin-bottom: 20px;">Digital Marketing Agency</p>
+                <h3 th:text="${job != null and job.employer != null ? job.employer.companyName : 'Tech Solutions Inc.'}">Tech Solutions Inc.</h3>
+                <p style="color: #64748b; margin-bottom: 20px;" th:text="${job != null and job.employer != null ? job.employer.industry : 'Information Technology'}">Information Technology</p>
 
                 <div class="company-info-list">
                     <div class="company-info-item">
@@ -207,20 +236,36 @@
                         <span class="company-info-label">Company size:</span>
                         <span class="company-info-value">100-500 Employees</span>
                     </div>
-                    <div class="company-info-item">
+                    <div class="company-info-item" th:if="${job != null and job.contactPhone != null}">
+                        <span class="company-info-label">Phone:</span>
+                        <span class="company-info-value" th:text="${job.contactPhone}">+84 123 456 789</span>
+                    </div>
+                    <div class="company-info-item" th:unless="${job != null and job.contactPhone != null}">
                         <span class="company-info-label">Phone:</span>
                         <span class="company-info-value">(406) 555-0120</span>
                     </div>
-                    <div class="company-info-item">
+                    <div class="company-info-item" th:if="${job != null and job.contactEmail != null}">
                         <span class="company-info-label">Email:</span>
                         <span class="company-info-value">
-                            <a href="mailto:career@instagram.com" class="company-link">career@instagram.com</a>
+                            <a th:href="'mailto:' + ${job.contactEmail}" class="company-link" th:text="${job.contactEmail}">career@company.com</a>
                         </span>
                     </div>
-                    <div class="company-info-item">
+                    <div class="company-info-item" th:unless="${job != null and job.contactEmail != null}">
+                        <span class="company-info-label">Email:</span>
+                        <span class="company-info-value">
+                            <a href="mailto:career@company.com" class="company-link">career@company.com</a>
+                        </span>
+                    </div>
+                    <div class="company-info-item" th:if="${job != null and job.employer != null }">
+<!--                        <span class="company-info-label">Website:</span>and job.employer.website != null-->
+<!--                        <span class="company-info-value">and job.employer.website != null-->
+<!--                            <a th:href="${job.employer.website}" target="_blank" class="company-link" th:text="${job.employer.website}">https://company.com</a>-->
+<!--                        </span>-->
+                    </div>
+                    <div class="company-info-item" th:unless="${job != null and job.employer != null }">
                         <span class="company-info-label">Website:</span>
                         <span class="company-info-value">
-                            <a href="https://instagram.com" target="_blank" class="company-link">https://instagram.com</a>
+                            <a href="https://company.com" target="_blank" class="company-link">https://company.com</a>
                         </span>
                     </div>
                 </div>
@@ -284,7 +329,7 @@
 <div class="modal-overlay" id="applyModal">
     <div class="modal-content">
         <div class="modal-header">
-            <h2 class="modal-title">Apply Job: Senior UX Designer</h2>
+<!--            <h2 class="modal-title">Apply Job: <span th:text="${job != null ? job.title : 'Senior Software Engineer'}">Senior Software Engineer</span></h2>-->
             <button class="modal-close" id="closeModal">
                 <i class="fas fa-times"></i>
             </button>
@@ -293,11 +338,13 @@
             <form id="applyForm">
                 <div class="form-group">
                     <label class="form-label">Choose Resume</label>
-                    <select class="form-select">
-                        <option>Select...</option>
-                        <option>Resume-UX-Designer.pdf</option>
-                        <option>John-Doe-CV-2024.pdf</option>
-                        <option>Portfolio-Resume.pdf</option>
+                    <select class="form-select" id="cvSelect">
+                        <option value="">Select...</option>
+                        <option th:each="cv : ${userCVs}"
+                                th:value="${cv.cvId}"
+                                th:text="${cv.cvFileName}">
+                            Resume-UX-Designer.pdf
+                        </option>
                     </select>
                 </div>
 
@@ -327,7 +374,6 @@
 <script th:src="@{/JS/job-detail.js}" defer></script>
 
 <div th:replace="~{footer :: footer}"></div>
-
 
 </body>
 </html>

@@ -1,0 +1,605 @@
+/* Reset và thiết lập cơ bản */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #F9FAFB;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* Container chính */
+.admin-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Header */
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #fff;
+    padding: 15px 30px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.admin-header h1 {
+    color: #5953F5;
+    font-size: 24px;
+}
+
+.admin-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.admin-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #5953F5;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+/* Layout nội dung */
+/* Layout nội dung */
+.admin-content {
+    display: flex;
+    flex: 1;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 240px;
+    background: #fff;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    height: calc(100vh - 70px);
+    position: sticky;
+    top: 70px;
+    overflow-y: auto;
+    transition: width 0.3s ease;
+}
+
+.sidebar.collapsed {
+    width: 60px;
+}
+
+.sidebar.collapsed .nav-text {
+    display: none;
+}
+
+/* Nội dung chính */
+.content-area {
+    flex: 1;                 /* tự động chiếm phần còn lại */
+    background-color: #f9f9f9;
+    overflow-y: auto;
+    transition: all 0.3s ease;
+}
+
+.sidebar-nav ul {
+    list-style: none;
+    padding: 0;
+}
+
+.nav-item {
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.nav-item a {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    text-decoration: none;
+    color: #555;
+    transition: all 0.3s ease;
+}
+
+.nav-item a:hover {
+    background-color: #f9f9f9;
+    color: #5953F5;
+}
+
+.nav-item.active a {
+    background-color: #5953F5;
+    color: white;
+}
+
+.nav-icon {
+    font-size: 18px;
+    margin-right: 10px;
+}
+
+.nav-text {
+    font-size: 14px;
+}
+
+/* Nội dung chính */
+.main-content {
+    flex: 1;
+    padding: 30px;
+    background-color: #f9f9f9;
+    overflow-y: auto;
+    transition: all 0.3s ease;
+}
+
+.content-section {
+    display: none;
+}
+
+.content-section.active {
+    display: block;
+}
+
+.content-section h2 {
+    color: #5953F5;
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+/* Thẻ thống kê trên Dashboard */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-icon {
+    font-size: 40px;
+    margin-right: 15px;
+}
+
+.stat-info h3 {
+    font-size: 14px;
+    color: #777;
+    margin-bottom: 5px;
+}
+
+.stat-number {
+    font-size: 24px;
+    font-weight: bold;
+    color: #5953F5;
+}
+
+/* Hoạt động gần đây */
+.recent-activity {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.recent-activity h3 {
+    margin-bottom: 15px;
+    color: #5953F5;
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-icon {
+    font-size: 20px;
+    margin-right: 15px;
+}
+
+.activity-content p {
+    margin-bottom: 5px;
+}
+
+.activity-time {
+    font-size: 12px;
+    color: #888;
+}
+
+/* Các phần tử UI chung */
+.content-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.btn {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary {
+    background-color: #5953F5;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #4A45D4;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+}
+
+.search-box input {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px 0 0 4px;
+    width: 250px;
+}
+
+.btn-search {
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    border-left: none;
+    border-radius: 0 4px 4px 0;
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+/* Bảng */
+.content-table {
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+th {
+    background-color: #f9f9f9;
+    font-weight: 600;
+    color: #555;
+}
+
+tr:hover {
+    background-color: #f9f9f9;
+}
+
+/* Trạng thái */
+.status {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status.active {
+    background-color: #e6f7ee;
+    color: #0d8a4c;
+}
+
+.status.locked {
+    background-color: #ffe6e6;
+    color: #d93025;
+}
+
+/* Nút hành động */
+.btn-action {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    margin-right: 5px;
+}
+
+.btn-edit {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+.btn-edit:hover {
+    background-color: #e0e0e0;
+}
+
+.btn-lock {
+    background-color: #ffe6e6;
+    color: #d93025;
+}
+
+.btn-lock:hover {
+    background-color: #ffcccc;
+}
+
+.btn-unlock {
+    background-color: #e6f7ee;
+    color: #0d8a4c;
+}
+
+.btn-unlock:hover {
+    background-color: #d4f2e3;
+}
+
+/* Header mới với đầy đủ tính năng */
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.menu-toggle {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.menu-toggle:hover {
+    background-color: #f0f0f0;
+}
+
+.header-center {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    max-width: 400px;
+}
+
+.search-container {
+    display: flex;
+    width: 100%;
+    max-width: 300px;
+}
+
+.search-input {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px 0 0 4px;
+    width: 100%;
+    outline: none;
+}
+
+.search-btn {
+    background-color: #5953F5;
+    color: white;
+    border: none;
+    border-radius: 0 4px 4px 0;
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 100px;
+}
+
+.notification-icon {
+    position: relative;
+}
+
+.notification-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.notification-btn:hover {
+    background-color: #f0f0f0;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: #ff4444;
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+span.notification-text {
+    font-size: 16px;
+    color: #333333;
+}
+
+.admin-profile {
+    position: relative;
+    cursor: pointer;
+}
+
+.admin-profile:hover .profile-dropdown {
+    display: block;
+}
+
+.profile-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: white;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    min-width: 150px;
+    z-index: 1000;
+}
+
+.dropdown-item {
+    display: block;
+    padding: 10px 15px;
+    text-decoration: none;
+    color: #333;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.3s;
+}
+
+.dropdown-item:hover {
+    background-color: #f5f5f5;
+    color: #5953F5;
+}
+
+.dropdown-item:last-child {
+    border-bottom: none;
+}
+.notification-icon {
+  position: relative;
+  display: inline-block;
+}
+
+.notification-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  position: relative;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: red;
+  color: white;
+  font-size: 10px;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notification-dropdown {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 120%;
+  width: 250px;
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  z-index: 1000;
+}
+
+.notification-item {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.notification-item:hover {
+  background: #f9f9f9;
+}
+
+.notification-footer {
+  text-align: center;
+  padding: 10px;
+}
+
+.notification-footer a {
+  text-decoration: none;
+  color: #007bff;
+  font-weight: bold;
+}
+
+.notification-dropdown.show {
+  display: block;
+}
+
+
+/* Responsive */
+@media (max-width: 768px) {
+    .header-center {
+        display: none;
+    }
+
+    .admin-info span {
+        display: none;
+    }
+
+    .admin-content {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: static;
+    }
+
+    .sidebar-nav ul {
+        display: flex;
+        overflow-x: auto;
+    }
+
+    .nav-item {
+        border-bottom: none;
+        border-right: 1px solid #f0f0f0;
+        flex-shrink: 0;
+    }
+
+    .nav-text {
+        white-space: nowrap;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .content-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .search-box input {
+        width: 100%;
+    }
+}
+

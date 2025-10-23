@@ -1,6 +1,8 @@
 package com.joblink.joblink.config;
 
 import com.joblink.joblink.auth.model.User;
+import com.joblink.joblink.dto.UserSessionDTO;
+import com.joblink.joblink.util.SessionHelper;
 import com.joblink.joblink.security.RememberMeService;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,9 +17,11 @@ import java.io.IOException;
 public class RememberMeFilter implements Filter {
 
     private final RememberMeService rememberMeService;
+    private final SessionHelper sessionHelper;
 
-    public RememberMeFilter(RememberMeService rememberMeService) {
+    public RememberMeFilter(RememberMeService rememberMeService, SessionHelper sessionHelper) {
         this.rememberMeService = rememberMeService;
+        this.sessionHelper = sessionHelper;
     }
 
     @Override
@@ -47,7 +51,8 @@ public class RememberMeFilter implements Filter {
             User u = rememberMeService.autoLogin(req, res);
 
             if (u != null) {
-                req.getSession(true).setAttribute("user", u);
+                UserSessionDTO dto = sessionHelper.toSessionDTO(u);
+                req.getSession(true).setAttribute("user", dto);
                 System.out.println("[RememberMeFilter] Auto login success: " + u.getEmail());
             } else {
                 System.out.println("[RememberMeFilter] Auto login failed or expired cookie.");

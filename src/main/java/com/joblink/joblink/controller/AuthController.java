@@ -4,8 +4,11 @@ import com.joblink.joblink.auth.model.User;
 import com.joblink.joblink.dao.UserDao;
 import com.joblink.joblink.dto.LoginRequest;
 import com.joblink.joblink.dto.RegisterRequest;
+import com.joblink.joblink.dto.UserSessionDTO;
+import com.joblink.joblink.model.JobSeekerProfile;
 import com.joblink.joblink.security.RememberMeService;
 import com.joblink.joblink.service.AuthService;
+import com.joblink.joblink.service.ProfileService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.dao.DataAccessException;
@@ -27,23 +30,27 @@ public class AuthController {
     private final UserDao userDao;
     private final RememberMeService rememberMeService;
     private final AuthService auth;
+    private final ProfileService profileService;
 
     public AuthController(UserDao userDao,
                           RememberMeService rememberMeService,
-                          AuthService auth) {
+                          AuthService auth,
+                          ProfileService profileService) {
         this.userDao = userDao;
         this.rememberMeService = rememberMeService;
         this.auth = auth;
+        this.profileService = profileService;
     }
 
     @GetMapping("/api/session-check")
     @ResponseBody
     public ResponseEntity<Map<String, Boolean>> checkSession(HttpSession session) {
-        User user = (User) session.getAttribute("user");
+        UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
         Map<String, Boolean> res = new HashMap<>();
         res.put("loggedIn", user != null);
         return ResponseEntity.ok(res);
     }
+
     @GetMapping("/login")
     public String redirectLogin() {
         return "redirect:/signin";
@@ -69,8 +76,9 @@ public class AuthController {
             return "signin";
         }
 
-        // ✅ Lưu user vào session
-        session.setAttribute("user", u);
+        // ✅ Tạo UserSessionDTO với thông tin đầy đủ
+        UserSessionDTO sessionUser = createSessionUser(u);
+        session.setAttribute("user", sessionUser);
 
         // ✅ Ghi / xoá cookie REMEMBER
         if ("on".equalsIgnoreCase(remember) || "true".equalsIgnoreCase(remember)) {
@@ -80,8 +88,9 @@ public class AuthController {
         }
 
         // ✅ Chuyển hướng đúng role
-        String redirectUrl = switch (u.getRole().toLowerCase()) {
-            case "admin" -> "redirect:/admin/home";
+        String role = u.getRole() == null ? "" : u.getRole().toLowerCase();
+        String redirectUrl = switch (role) {
+            case "admin" -> "redirect:/admin";
             case "employer" -> "redirect:/employer/home";
             case "seeker"   -> "redirect:/seeker/home";
             default -> "redirect:/";
@@ -106,9 +115,6 @@ public class AuthController {
         return "redirect:/signin";
     }
 
-    /* ======================================================
-       ✅ 3. Register + OTP
-       ====================================================== */
     @GetMapping("/signup")
     public String registerPage(Model model) {
         model.addAttribute("registerRequest", new RegisterRequest());
@@ -162,12 +168,16 @@ public class AuthController {
             User user = auth.authenticate(email, password);
 
             if (user != null) {
-                session.setAttribute("user", user);
+                // ✅ Tạo UserSessionDTO với thông tin đầy đủ
+                UserSessionDTO sessionUser = createSessionUser(user);
+                session.setAttribute("user", sessionUser);
+
                 clearOtpSession(session);
-                return switch (user.getRole().toLowerCase()) {
-                    case "admin" -> "redirect:/admin/home";
+                String role2 = user.getRole() == null ? "" : user.getRole().toLowerCase();
+                return switch (role2) {
+                    case "admin" -> "redirect:/admin";
                     case "employer" -> "redirect:/employer/home";
-                    case "seeker" -> "redirect:/jobseeker/profile";
+                    case "seeker" -> "redirect:/seeker/home";
                     default -> "redirect:/";
                 };
             }
@@ -207,10 +217,58 @@ public class AuthController {
             return ResponseEntity.badRequest().body(res);
         }
     }
+
     @GetMapping("/forgot")
     public String forgotPasswordPage() {
         return "forgot-email";
     }
+
+    // ========== HELPER METHODS ==========
+
+    /**
+     * Tạo UserSessionDTO với thông tin đầy đủ bao gồm avatar và fullName
+     */
+    // Trong file AuthController.java
+
+    // Trong file AuthController.java
+
+    private UserSessionDTO createSessionUser(User user) {
+        UserSessionDTO dto = new UserSessionDTO();
+        dto.setUserId(user.getUserId());
+        dto.setEmail(user.getEmail());
+        dto.setUsername(user.getUsername());
+        dto.setRole(user.getRole());
+
+        // ===> THÊM DÒNG NÀY VÀO <===
+        // Sao chép googleId từ User gốc sang DTO để session có thông tin này
+        dto.setGoogleID(user.getGoogleId());
+
+        // ✅ Load avatar và fullName từ profile nếu là seeker
+        if ("seeker".equalsIgnoreCase(user.getRole())) {
+            try {
+                JobSeekerProfile profile = profileService.getOrCreateProfile(user.getUserId());
+                if (profile != null) {
+                    dto.setFullName(profile.getFullname());
+                    dto.setAvatarUrl(profile.getAvatarUrl());
+                }
+            } catch (Exception e) {
+                System.err.println("[AuthController] ⚠️ Cannot load profile for user: " + user.getUserId());
+            }
+        }
+
+        // Nếu không có fullName, dùng username hoặc email
+        if (dto.getFullName() == null || dto.getFullName().trim().isEmpty()) {
+            dto.setFullName(user.getUsername() != null ? user.getUsername() : user.getEmail());
+        }
+
+        // Nếu không có avatar, để null (template sẽ dùng default)
+        if (dto.getAvatarUrl() == null || dto.getAvatarUrl().trim().isEmpty()) {
+            dto.setAvatarUrl(null);
+        }
+
+        return dto;
+    }
+
     private void validateRegisterForm(RegisterRequest form) {
         if (form.getFullName() == null || form.getFullName().trim().isEmpty())
             throw new IllegalArgumentException("Họ và tên là bắt buộc");
