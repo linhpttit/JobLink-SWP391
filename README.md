@@ -1,7 +1,11 @@
 🧠 README — Mô tả Prompt và Yêu Cầu cho Bộ Test JobPostingService
+
 📜 Giới thiệu
+
 Dưới đây là nội dung prompt gốc mà bạn đã cung cấp. Tài liệu này mô tả chi tiết các tài nguyên đầu vào, yêu cầu tiền kiểm thử, và các yêu cầu cụ thể khi thiết kế bộ test tự động cho lớp JobPostingService.
+
 📂 Tài nguyên đầu vào
+
 🗄️ Cơ sở dữ liệu (Database)
 Chứa toàn bộ cấu trúc bảng, quan hệ, khóa chính – khóa ngoại, cùng dữ liệu mẫu cần thiết để kiểm thử.
 📘 Tài liệu RDS (Requirements & Design Specification)
@@ -42,7 +46,6 @@ Mỗi test case phải bao gồm các thành phần sau:
 ⚖️ Lý do chọn loại test: mô tả vì sao test đó phù hợp.
 🚀 Cách chạy & kiểm chứng kết quả: hướng dẫn chạy test (mvn test hoặc IDE Run Config) và cách đối chiếu kết quả.
 Ngoài ra, cần phân tích chi tiết logic của từng test case:
-
 🧠 Dữ liệu đầu vào giả lập (mock data)
 📊 Kết quả mong đợi (expected result)
 🔗 Mối liên hệ giữa mock repository và service
@@ -60,3 +63,5 @@ Sử dụng đúng cách @InjectMocks và @Mock nhằm tránh lỗi NullPointerE
 
 Tài liệu này được dùng làm nguồn tham chiếu cho team QA/Dev trước khi viết test code. Sau khi review nội dung, có thể tiến hành generate file JobPostingServiceTest.java (JUnit 5 + Mockito) dựa trên service class thực tế và các repository/DTO/entity liên quan.
 🧩 Tài liệu giúp chuẩn hóa quy trình kiểm thử, đảm bảo tính nhất quán, và hỗ trợ tự động hóa test hiệu quả trong toàn bộ vòng đời phát triển phần mềm.
+
+
