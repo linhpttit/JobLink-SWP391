@@ -1,149 +1,174 @@
 package com.joblink.joblink.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import vn.payos.PayOS;
+import vn.payos.model.v2.paymentRequests.PaymentLinkItem;
+import vn.payos.model.v2.paymentRequests.CreatePaymentLinkRequest;
+import vn.payos.model.v2.paymentRequests.CreatePaymentLinkResponse;
+import vn.payos.model.v2.paymentRequests.PaymentLink;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
+
+import com.joblink.joblink.entity.PremiumPackages;
+import com.joblink.joblink.dto.UserSessionDTO;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.logging.Logger;
 
 @Service
-public class payosService {
+public class PayOSService {
 
-    private final RestTemplate restTemplate = new RestTemplate();
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private static final Logger logger = Logger.getLogger(PayOSService.class.getName());
 
-    @Value("${payos.base.url}")
-    private String payosBaseUrl;
+    @Autowired
+    private PayOS payOS;
 
-    @Value("${payos.client.id}")
-    private String payosClientId;
+    @Value("${server.port:8080}")
+    private String serverPort;
 
-    @Value("${payos.api.key}")
-    private String payosApiKey;
+    @Value("${application.base-url:http://localhost}")
+    private String baseUrl;
 
-    @Value("${payos.checksum.key}")
-    private String payosChecksumKey;
-
-    @Value("${payos.returnUrl}")
-    private String payosReturnUrl;
-
-    @Value("${payos.webhookUrl}")
-    private String payosWebhookUrl;
-
+    // Format for including internal ID in description
+    private static final String DESC_PREFIX = "INV"; // Keep it short
 
     /**
-     * Tạo liên kết thanh toán PayOS (Payment Link/QR)
-     * @param amount Số tiền (VNĐ)
-     * @param orderCode Mã đơn hàng nội bộ (txnRef)
-     * @param orderInfo Mô tả đơn hàng
-     * @return Map chứa link thanh toán và mã QR
+     * Creates a PayOS payment link.
+     * @param internalOrderId Your system's internal order ID (e.g., invoiceId as String)
+     * @param pkg The premium package being purchased.
+     * @param user The current user session.
+     * @return The response from the PayOS API.
      */
-    public Map<String, String> createPaymentLink(long amount, String orderCode, String orderInfo) throws Exception {
+    public CreatePaymentLinkResponse createPaymentLink(String internalOrderId, PremiumPackages pkg, UserSessionDTO user) throws Exception {
 
-        // Số đơn hàng được sinh ngẫu nhiên từ 10000 -> 99999
-        long payosOrderCode = System.currentTimeMillis() % 100000;
-        if (payosOrderCode < 10000) payosOrderCode += 10000;
+        if (pkg == null) throw new IllegalArgumentException("Package information invalid");
+        if (user == null || user.getUserId() == null) throw new IllegalArgumentException("User information invalid");
+        if (internalOrderId == null || internalOrderId.trim().isEmpty()) throw new IllegalArgumentException("Internal Order ID invalid");
 
-        // 1. Chuẩn bị Request Body
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("orderCode", payosOrderCode); // Mã đơn hàng PayOS
-        requestBody.put("amount", amount);
-        requestBody.put("description", orderInfo);
-        requestBody.put("items", new Object[]{}); // Items list, có thể bỏ trống
+        if (pkg.getPrice() == null || pkg.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Package price invalid: " + pkg.getPrice());
+        }
+        long amount = pkg.getPrice().longValue();
 
-        // Custom Data để PayOS trả về cùng với Webhook/Callback (Chứa TxnRef nội bộ)
-        requestBody.put("cancelUrl", payosReturnUrl);
-        requestBody.put("returnUrl", payosReturnUrl);
-        requestBody.put("buyerName", orderCode); // Dùng buyerName để mang txnRef nội bộ
+        long payosOrderCode = new Date().getTime() / 1000L + user.getUserId(); // Unique code for PayOS
+        logger.info("[PayOS] Generating PayOS Order Code: " + payosOrderCode);
 
-        // 2. Chuyển Body thành JSON String để tính Checksum
-        String jsonBody = objectMapper.writeValueAsString(requestBody);
+        String localBaseUrl = baseUrl + (serverPort.equals("80") || serverPort.equals("443") ? "" : ":" + serverPort);
+        String returnUrl = localBaseUrl + "/payment/success?method=payos&orderId=" + internalOrderId; // Use internal ID in callback
+        String cancelUrl = localBaseUrl + "/payment/packages";
+        logger.info("[PayOS] Return URL: " + returnUrl);
+        logger.info("[PayOS] Cancel URL: " + cancelUrl);
 
-        // 3. Tính Checksum
-        String signature = hmacSHA256(jsonBody, payosChecksumKey);
+        List<PaymentLinkItem> items = Collections.singletonList(
+                new PaymentLinkItem(pkg.getName(), 1, amount, null, null)
+        );
 
-        // 4. Chuẩn bị Headers
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.add("x-client-id", payosClientId);
-        headers.add("x-api-key", payosApiKey);
-        headers.add("signature", signature);
+        // *** IMPORTANT: Include internalOrderId in description ***
+        String description = DESC_PREFIX + internalOrderId + " " + pkg.getCode(); // e.g., "INV123 SEEKERPRO"
+        if (description.length() > 50) { // PayOS v2 limit
+            description = description.substring(0, 50);
+        }
+        logger.info("[PayOS] Description: " + description);
 
-        // 5. Gọi API PayOS
-        String url = payosBaseUrl;
+        CreatePaymentLinkRequest paymentData = CreatePaymentLinkRequest.builder()
+                .orderCode(payosOrderCode)
+                .amount(amount)
+                .description(description) // Description now contains internal ID
+                .returnUrl(returnUrl)
+                .cancelUrl(cancelUrl)
+                .items(items)
+                .expiredAt(System.currentTimeMillis() / 1000L + 900) // 15 mins expiry
+                .build();
 
-        HttpEntity<String> entity = new HttpEntity<>(jsonBody, headers);
+        try {
+            logger.info("[PayOS] Sending create request for PayOS Code: " + payosOrderCode + " (Internal ID: " + internalOrderId + ")");
+            CreatePaymentLinkResponse result = payOS.paymentRequests().create(paymentData);
 
-        ResponseEntity<JsonNode> responseEntity = restTemplate.exchange(
-                url,
-                HttpMethod.POST,
-                entity,
-                JsonNode.class);
+            if (result == null) throw new Exception("PayOS API returned null response");
+            if (result.getOrderCode() == null || !result.getOrderCode().equals(payosOrderCode)) {
+                logger.severe("[PayOS] ✗ Critical Error: PayOS order code mismatch. Expected: " + payosOrderCode + ", Got: " + result.getOrderCode());
+                throw new Exception("PayOS order code mismatch.");
+            }
+            if ((result.getQrCode() == null || result.getQrCode().trim().isEmpty()) && (result.getCheckoutUrl() == null || result.getCheckoutUrl().trim().isEmpty()) ) {
+                logger.warning("[PayOS] No QR code or Checkout URL returned.");
+            }
 
-        JsonNode responseNode = responseEntity.getBody();
-
-        if (responseNode != null && responseNode.path("code").asText().equals("00")) {
-            JsonNode data = responseNode.path("data");
-
-            Map<String, String> result = new HashMap<>();
-            result.put("status", "SUCCESS");
-            result.put("paymentUrl", data.path("checkoutUrl").asText()); // Link thanh toán
-            result.put("qrCode", data.path("qrCode").asText()); // Base64 QR code
-            result.put("payosOrderCode", String.valueOf(payosOrderCode));
-            result.put("txnRef", orderCode); // Mã nội bộ của mình
-
+            logger.info("[PayOS] ✓ Create successful for PayOS Code: " + result.getOrderCode());
             return result;
-        } else {
-            String errorMessage = responseNode != null ? responseNode.path("desc").asText() : "Lỗi không xác định PayOS";
-            throw new RuntimeException("Lỗi PayOS: " + errorMessage);
+
+        } catch (Exception e) {
+            logger.severe("[PayOS] ✗ Error creating link for PayOS Code " + payosOrderCode + ": " + e.getMessage());
+            if (e instanceof vn.payos.exception.PayOSException pe) logger.severe("[PayOS] API Error: " + pe.getCause() + " - " + pe.getMessage());
+            throw new Exception("Error creating PayOS payment link: " + e.getMessage(), e);
         }
     }
 
-
     /**
-     * Xác minh chữ ký (Checksum) từ PayOS Callback/Webhook
-     * PayOS dùng HMAC SHA256.
-     * @param data JSON body hoặc Query String Map (Callback)
-     * @param receivedSignature Chữ ký nhận được từ PayOS
-     * @return True nếu hợp lệ
+     * Gets PayOS payment status using the PayOS orderCode.
      */
-    public boolean verifySignature(Map<String, String> data, String receivedSignature) throws Exception {
-
-        // 1. Sắp xếp params theo thứ tự alphabet
-        String queryString = data.entrySet().stream()
-                .filter(e -> !e.getKey().equals("signature"))
-                .sorted(Map.Entry.comparingByKey())
-                .map(e -> e.getKey() + "=" + e.getValue())
-                .collect(Collectors.joining("&"));
-
-        // 2. Tính lại chữ ký
-        String calculatedSignature = hmacSHA256(queryString, payosChecksumKey);
-
-        // 3. So sánh
-        return calculatedSignature.equals(receivedSignature);
+    public PaymentLink getPaymentStatus(Long payosOrderCode) throws Exception {
+        if (payosOrderCode == null || payosOrderCode <= 0) throw new IllegalArgumentException("Invalid PayOS Order Code");
+        try {
+            logger.info("[PayOS] Checking status for PayOS Code: " + payosOrderCode);
+            PaymentLink result = payOS.paymentRequests().get(payosOrderCode);
+            logger.info("[PayOS] Status result for " + payosOrderCode + ": " + (result != null ? result.getStatus().name() : "null"));
+            return result; // Can be null if not found by PayOS API
+        } catch (Exception e) {
+            logger.severe("[PayOS] ✗ Error checking status for PayOS Code " + payosOrderCode + ": " + e.getMessage());
+            if (e instanceof vn.payos.exception.PayOSException pe && "NOT_FOUND".equals(pe.getCause())) return null; // Treat API NOT_FOUND as null
+            throw new Exception("Error checking PayOS status: " + e.getMessage(), e);
+        }
     }
 
-    // Helper method: Tính HMAC SHA256
-    private String hmacSHA256(String data, String key) throws NoSuchAlgorithmException, InvalidKeyException {
-        Mac mac = Mac.getInstance("HmacSHA256");
-        SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
-        mac.init(secretKeySpec);
-        byte[] hash = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
-        return Base64.getEncoder().encodeToString(hash);
+    /**
+     * Cancels PayOS payment link using the PayOS orderCode.
+     */
+    public PaymentLink cancelPayment(Long payosOrderCode) throws Exception {
+        if (payosOrderCode == null || payosOrderCode <= 0) throw new IllegalArgumentException("Invalid PayOS Order Code");
+        String reason = "User cancelled";
+        try {
+            logger.info("[PayOS] Sending cancel for PayOS Code: " + payosOrderCode + " Reason: " + reason);
+            PaymentLink result = payOS.paymentRequests().cancel(payosOrderCode, reason);
+            if (result == null) throw new Exception("PayOS API returned null on cancel");
+            logger.info("[PayOS] ✓ Cancel successful for PayOS Code " + payosOrderCode + ", new status: " + result.getStatus().name());
+            return result;
+        } catch (Exception e) {
+            logger.severe("[PayOS] ✗ Error cancelling PayOS Code " + payosOrderCode + ": " + e.getMessage());
+            if (e instanceof vn.payos.exception.PayOSException pe) {
+                logger.severe("[PayOS] Cancel API Error: " + pe.getCause() + " - " + pe.getMessage());
+                if ("NOT_FOUND".equals(pe.getCause())) throw new NoSuchElementException("PayOS Order Code " + payosOrderCode + " not found for cancellation.");
+                else throw new Exception("PayOS API error (" + pe.getCause() + "): " + pe.getMessage(), e);
+            }
+            throw new Exception("System error during PayOS cancellation: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Helper to extract Internal Order ID from Description.
+     * Assumes format "PREFIX<InternalID> ..." e.g., "INV123 ..."
+     * @param description The description string from WebhookData or PaymentLink.
+     * @return The extracted Internal Order ID or null if not found/invalid.
+     */
+    public static String extractInternalOrderId(String description) {
+        if (description == null || !description.startsWith(DESC_PREFIX)) {
+            return null;
+        }
+        try {
+            String potentiallyIdPart = description.substring(DESC_PREFIX.length());
+            // Find the first space after the prefix
+            int spaceIndex = potentiallyIdPart.indexOf(' ');
+            String idPart = (spaceIndex == -1) ? potentiallyIdPart : potentiallyIdPart.substring(0, spaceIndex);
+            // Optional: Add validation if your internal ID always follows a pattern (e.g., only digits)
+            // if (!idPart.matches("\\d+")) return null;
+            return idPart.trim();
+        } catch (Exception e) {
+            logger.warning("Error parsing internal order ID from description '" + description + "': " + e.getMessage());
+            return null;
+        }
     }
 }
