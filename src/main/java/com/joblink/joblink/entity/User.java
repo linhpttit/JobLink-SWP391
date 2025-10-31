@@ -37,4 +37,8 @@ public class User {
 
     @Column(name = "google_id", length = 255)
     private String googleId;
+
+    @ManyToOne(fetch = FetchType.LAZY) // LAZY là mặc định, EAGER nếu muốn luôn tải User cùng Invoice
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id", insertable = false, updatable = false) // Map vào cột user_id, không cho insert/update qua đây
+    private User user;
 }

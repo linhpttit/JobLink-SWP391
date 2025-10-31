@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thanh toán QR - JobLink</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .payment-container { background: white; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); max-width: 500px; width: 100%; padding: 40px; text-align: center; }
+        .payment-header { margin-bottom: 30px; }
+        .payment-icon { width: 60px; height: 60px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; font-size: 1.8rem; }
+        h1 { font-size: 1.8rem; color: #1e293b; margin-bottom: 10px; }
+        .payment-info { background: #f8fafc; border-radius: 12px; padding: 20px; margin-bottom: 30px; }
+        .info-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #e2e8f0; }
+        .info-row:last-child { border-bottom: none; }
+        .info-label { color: #64748b; font-weight: 500; }
+        .info-value { color: #1e293b; font-weight: 600; }
+        .amount { font-size: 1.5rem; color: #667eea; }
+        .qr-container { background: white; padding: 20px; border-radius: 12px; border: 2px solid #e2e8f0; margin-bottom: 30px; }
+        /* Style cho thẻ img QR */
+        .qr-code { width: 280px; height: 280px; margin: 0 auto; background: #eee; padding: 10px; display: flex; justify-content: center; align-items: center; }
+        #qrImage { display: block; max-width: 100%; height: auto; border: 1px solid #ccc; /* Thêm viền nhẹ */ }
+        .checkout-link-container { margin-top: 15px; font-size: 0.9rem; }
+        .checkout-link-container a { color: #667eea; text-decoration: none; font-weight: 500; }
+        .checkout-link-container a:hover { text-decoration: underline; }
+        .status-pending { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 15px; background: #fef3c7; border-radius: 10px; color: #92400e; font-weight: 600; margin-bottom: 20px; }
+        .spinner { width: 20px; height: 20px; border: 3px solid #fbbf24; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .instructions { text-align: left; background: #f1f5f9; padding: 20px; border-radius: 12px; margin-bottom: 20px; }
+        .instructions h3 { color: #1e293b; font-size: 1rem; margin-bottom: 15px; }
+        .instructions ol { padding-left: 20px; color: #475569; }
+        .instructions li { margin-bottom: 10px; line-height: 1.6; }
+        .button-group { display: flex; gap: 15px; margin-top: 30px; }
+        .btn { flex: 1; padding: 14px; border: none; border-radius: 10px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s; text-decoration: none; display: inline-flex; justify-content: center; align-items: center; }
+        .btn-cancel { background: #f1f5f9; color: #64748b; }
+        .btn-cancel:hover { background: #e2e8f0; }
+        .btn-refresh { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-refresh:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
+        .timer { color: #64748b; font-size: 0.9rem; margin-top: 15px; }
+        .success-message { display: none; background: #dcfce7; color: #166534; padding: 20px; border-radius: 12px; margin-bottom: 20px; }
+        .success-message.show { display: block; }
+        .success-icon { font-size: 3rem; margin-bottom: 10px; }
+        .error-message { display: none; background: #fee2e2; color: #991b1b; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: left; }
+        .error-message.show { display: block; }
+    </style>
+</head>
+<body>
+<div class="payment-container">
+    <div class="payment-header">
+        <div class="payment-icon"> <i class="fas fa-qrcode"></i> </div>
+        <h1>Quét mã QR hoặc dùng link</h1>
+        <p style="color: #64748b;">Sử dụng ứng dụng ngân hàng hoặc link bên dưới</p>
+    </div>
+
+    <div class="payment-info">
+        <div class="info-row">
+            <span class="info-label">Gói dịch vụ:</span>
+            <span class="info-value" th:text="${packageName}">Gói Premium</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Mã đơn hàng:</span>
+            <span class="info-value" th:text="${orderId}">LOADING...</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Số tiền:</span>
+            <span class="info-value amount" th:text="${#numbers.formatDecimal(amount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</span>
+        </div>
+    </div>
+
+    <div class="error-message" id="errorMessage">
+        <i class="fas fa-exclamation-circle"></i>
+        <span id="errorText"></span>
+    </div>
+
+    <div class="status-pending" id="statusPending">
+        <div class="spinner"></div>
+        <span>Đang chờ thanh toán...</span>
+    </div>
+
+    <div class="success-message" id="successMessage">
+        <div class="success-icon"><i class="fas fa-check-circle"></i></div>
+        <h3>Thanh toán thành công!</h3>
+        <p>Đang chuyển hướng...</p>
+    </div>
+
+    <div class="qr-container" id="qrBlock">
+        <div class="qr-code">
+            <div id="qrcode-container" style="display: inline-block;"></div>
+        </div>
+        <div class="checkout-link-container" th:if="${checkoutUrl != null and !checkoutUrl.isEmpty()}">
+            <p>Hoặc nhấn vào <a th:href="${checkoutUrl}" target="_blank">link thanh toán này <i class="fas fa-external-link-alt fa-xs"></i></a>.</p>
+        </div>
+    </div>
+
+    <div class="instructions">
+        <h3><i class="fas fa-info-circle"></i> Hướng dẫn thanh toán:</h3>
+        <ol>
+            <li>Mở ứng dụng ngân hàng hoặc ví điện tử.</li>
+            <li>Chọn chức năng quét mã QR (VietQR).</li>
+            <li>Quét mã QR hiển thị trên màn hình.</li>
+            <li>Kiểm tra thông tin (số tiền, nội dung) và xác nhận.</li>
+            <li>Chờ hệ thống xác nhận (tự động).</li>
+        </ol>
+    </div>
+
+    <div class="timer">
+        <i class="fas fa-clock"></i> Thanh toán sẽ hết hạn sau: <span id="countdown">15:00</span>
+    </div>
+
+    <div class="button-group">
+        <button class="btn btn-cancel" onclick="cancelPayment()">
+            <i class="fas fa-times"></i> Hủy giao dịch
+        </button>
+        <a th:href="@{/payment/packages}" class="btn btn-refresh">
+            <i class="fas fa-arrow-left"></i> Chọn gói khác
+        </a>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const orderId = /*[[${orderId}]]*/ null;
+    const paymentMethod = /*[[${paymentMethod}]]*/ 'payos'; // Giữ lại để gọi API check status
+    const qrCodeUrl = /*[[${qrCodeUrl}]]*/ null; // URL ảnh QR (VietQR) hoặc null (nếu là PayOS base64)
+    const checkoutUrl = /*[[${checkoutUrl}]]*/ null; // Link thanh toán PayOS
+
+    let checkInterval;
+    let countdownInterval;
+    let timeLeft = 900; // 15 minutes
+
+    const statusPendingDiv = document.getElementById('statusPending');
+    const successMessageDiv = document.getElementById('successMessage');
+    const errorMessageDiv = document.getElementById('errorMessage');
+    const errorTextSpan = document.getElementById('errorText');
+    const qrBlockDiv = document.getElementById('qrBlock');
+    const countdownElement = document.getElementById('countdown');
+    const qrImage = document.getElementById('qrImage'); // Tham chiếu đến thẻ img
+window.addEventListener('DOMContentLoaded', () => {
+    console.log('--- Payment Page Initializing ---');
+    console.log('[Payment Init] Order ID:', orderId);
+    console.log('[Payment Init] Payment Method:', paymentMethod);
+    // Sửa tên biến khi log
+    console.log('[Payment Init] QR Code/Data URL:', qrCodeUrl ? qrCodeUrl.substring(0, 30) + '...' : 'null');
+    console.log('[Payment Init] Checkout URL:', checkoutUrl);
+
+    if (!orderId) { showError('Thiếu thông tin mã đơn hàng.'); return; }
+
+    let qrGenerated = false;
+    const qrCodeContainer = document.getElementById('qrcode-container');
+
+    // *** SỬA TÊN BIẾN Ở ĐÂY: qrCodeUrl ***
+    if (qrCodeUrl && qrCodeContainer) {
+        try {
+            new QRCode(qrCodeContainer, {
+                text: qrCodeUrl, // <-- SỬA Ở ĐÂY
+                width: 250,
+                height: 250,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.M
+            });
+            console.log('[QR Render] QR Code generated successfully from data.');
+            qrGenerated = true;
+        } catch (err) {
+             console.error('[QR Render] Error generating QR Code:', err);
+             showError('Lỗi hiển thị mã QR: ' + err.message);
+             if (qrCodeContainer) qrCodeContainer.innerHTML = '<p style="color:red; font-size: small;">Lỗi QR</p>';
+        }
+    }
+    // *** SỬA TÊN BIẾN Ở ĐÂY (Trong điều kiện kiểm tra) ***
+     else if (!checkoutUrl) { // Kiểm tra nếu không có checkoutUrl VÀ không tạo được QR
+        console.error('[Init Error] No QR data/URL and no checkoutUrl');
+        showError('Không có thông tin QR code hoặc link thanh toán.');
+        if (qrBlockDiv) qrBlockDiv.style.display = 'none';
+    } else {
+        // Không có QR data/URL nhưng có checkoutUrl
+         console.log('[Payment Init] No QR data/URL, relying on checkout URL.');
+         // Có thể ẩn container QR nếu chỉ muốn dùng link
+         // if (qrCodeContainer && qrCodeContainer.parentNode) qrCodeContainer.parentNode.parentNode.style.display = 'none';
+    }
+
+    // Chỉ bắt đầu kiểm tra và đếm ngược nếu có gì đó để thanh toán
+    // *** SỬA TÊN BIẾN Ở ĐÂY ***
+    if (qrCodeUrl || checkoutUrl) {
+       startPaymentCheck();
+       startCountdown();
+    } else {
+        // Nếu không có gì để thanh toán, ẩn luôn phần chờ và timer
+        if (statusPendingDiv) statusPendingDiv.style.display = 'none';
+        const timerDiv = document.querySelector('.timer');
+        if (timerDiv) timerDiv.style.display = 'none';
+    }
+});
+    function showError(message) {
+        if (errorMessageDiv && errorTextSpan) {
+             errorTextSpan.textContent = message;
+             errorMessageDiv.classList.add('show');
+        }
+        console.error('[Payment Error]', message);
+    }
+
+    function hideError() {
+         if (errorMessageDiv) errorMessageDiv.classList.remove('show');
+    }
+
+    function startPaymentCheck() {
+         console.log('[Payment Check] Starting interval...');
+         checkPaymentStatus();
+        checkInterval = setInterval(checkPaymentStatus, 5000);
+    }
+
+    async function checkPaymentStatus() {
+        if (!orderId) {
+             console.warn('[Payment Check] No orderId, stopping.');
+             clearInterval(checkInterval);
+             return;
+        }
+        try {
+            // URL gọi API check status (đã đúng)
+            const url = `/payment/qr-status/${orderId}?method=${paymentMethod}`;
+            console.log('[Payment Check] Calling:', url);
+            const response = await fetch(url);
+            console.log('[Payment Check] Status Code:', response.status);
+            if (!response.ok) throw new Error(`Server error (${response.status})`);
+            const result = await response.json();
+            console.log('[Payment Check] Response Body:', result);
+            if (!result || !result.status) throw new Error('Invalid response');
+            hideError();
+             // Logic kiểm tra status (đã đúng)
+             switch(result.status) {
+                case 'PAID':
+                case 'SUCCESS': // Thêm SUCCESS nếu VietQR trả về
+                    console.log('[Payment Check] Status: PAID/SUCCESS');
+                    clearInterval(checkInterval);
+                    clearInterval(countdownInterval);
+                    showSuccess();
+                    break;
+                case 'PENDING': console.log('[Payment Check] Status: PENDING'); break;
+                case 'CANCELLED':
+                    console.log('[Payment Check] Status: CANCELLED');
+                    clearInterval(checkInterval); clearInterval(countdownInterval);
+                    showError('Giao dịch đã bị hủy.');
+                    if (qrBlockDiv) qrBlockDiv.style.display = 'none';
+                    break;
+                 case 'EXPIRED':
+                     console.log('[Payment Check] Status: EXPIRED');
+                    clearInterval(checkInterval); clearInterval(countdownInterval);
+                    showError('Giao dịch đã hết hạn.');
+                     if (qrBlockDiv) qrBlockDiv.style.display = 'none';
+                    break;
+                case 'ERROR':
+                     console.log('[Payment Check] Status: ERROR');
+                     showError('Lỗi cổng thanh toán: ' + (result.message || 'Unknown'));
+                     break;
+                 case 'NOT_FOUND':
+                      console.log('[Payment Check] Status: NOT_FOUND');
+                      showError('Không tìm thấy thông tin đơn hàng.');
+                      clearInterval(checkInterval); clearInterval(countdownInterval);
+                      if (qrBlockDiv) qrBlockDiv.style.display = 'none';
+                      break;
+                default: console.warn('[Payment Check] Unknown Status:', result.status);
+             }
+        } catch (error) {
+            console.error('[Payment Check Error]', error);
+            showError('Lỗi kết nối kiểm tra trạng thái: ' + error.message);
+        }
+    }
+
+    function showSuccess() {
+        if (statusPendingDiv) statusPendingDiv.style.display = 'none';
+        if (successMessageDiv) successMessageDiv.classList.add('show');
+        if (qrBlockDiv) qrBlockDiv.style.display = 'none';
+        const successRedirectUrl = '/jobseeker/dashboard';
+        setTimeout(() => { window.location.href = successRedirectUrl; }, 3000);
+    }
+
+    function startCountdown() {
+         if (!countdownElement) { console.error("Countdown element not found!"); return; }
+        countdownInterval = setInterval(() => {
+            if (timeLeft <= 0) {
+                clearInterval(countdownInterval);
+                if (checkInterval) clearInterval(checkInterval);
+                showError('Mã QR/Link thanh toán đã hết hạn. Vui lòng tạo lại.');
+                 if (qrBlockDiv) qrBlockDiv.style.display = 'none';
+                return;
+            }
+            timeLeft--;
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            countdownElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }, 1000);
+    }
+
+    async function cancelPayment() {
+        console.log("cancelPayment called");
+        if (!confirm('Bạn có chắc chắn muốn hủy giao dịch này không?')) return;
+        if (!orderId) { showError('Không có mã đơn hàng để hủy.'); return; }
+        try {
+            // URL gọi API hủy (đã đúng)
+            const url = `/payment/cancel/${orderId}?method=${paymentMethod}`;
+            console.log('[Cancel Payment] Calling:', url);
+            const response = await fetch(url, { method: 'POST' });
+            console.log('[Cancel Payment] Response Status:', response.status);
+            const result = await response.json();
+            console.log('[Cancel Payment] Response Body:', result);
+            if (!response.ok) throw new Error(result.message || `Server error (${response.status})`);
+            // Logic xử lý kết quả hủy (đã đúng)
+            if (result.status === 'CANCELLED') {
+                clearInterval(checkInterval); clearInterval(countdownInterval); hideError();
+                 if (statusPendingDiv) {
+                     statusPendingDiv.innerHTML = '<i class="fas fa-ban"></i> Đã hủy giao dịch.';
+                     statusPendingDiv.style.background = '#fee2e2'; statusPendingDiv.style.color = '#991b1b';
+                 }
+                console.log('[Cancel Payment] Success, redirecting...');
+                setTimeout(() => window.location.href = '/payment/packages', 2000);
+            } else {
+                 showError('Không thể hủy: ' + (result.message || 'Status: ' + result.status));
+            }
+        } catch (error) {
+            console.error('[Cancel Error]', error);
+            showError('Lỗi khi hủy giao dịch: ' + error.message);
+        }
+    }
+
+    // --- Khởi động khi trang load ---
+    window.addEventListener('DOMContentLoaded', () => {
+        console.log('--- Payment Page Initializing ---');
+        console.log('[Payment Init] Order ID:', orderId);
+        console.log('[Payment Init] Payment Method:', paymentMethod);
+        console.log('[Payment Init] QR Image URL:', qrCodeUrl); // Log URL ảnh
+        console.log('[Payment Init] Checkout URL:', checkoutUrl);
+
+        if (!orderId) { showError('Thiếu thông tin mã đơn hàng.'); return; }
+
+        // Kiểm tra xem có URL ảnh QR hoặc Link Checkout không
+        let hasPaymentInfo = false;
+        if (qrCodeUrl && qrImage) {
+             console.log('[QR Render] Setting image src:', qrCodeUrl);
+             qrImage.src = qrCodeUrl; // Gán trực tiếp URL vào thẻ img
+             qrImage.onerror = () => { // Xử lý nếu ảnh không tải được
+                 console.error('[QR Render] Failed to load QR image from:', qrCodeUrl);
+                 showError('Lỗi tải ảnh QR code.');
+                 if (qrImage.parentNode) qrImage.parentNode.innerHTML = '<p style="color:red; font-size: small;">Lỗi tải ảnh QR</p>';
+             };
+             hasPaymentInfo = true;
+        } else if (checkoutUrl) {
+             console.log('[Payment Init] No QR image URL, relying on checkout URL.');
+             // Có thể ẩn vùng QR nếu chỉ dùng link
+             // if (qrBlockDiv) qrBlockDiv.style.display = 'none';
+             hasPaymentInfo = true;
+        }
+
+        // Nếu không có cả hai thì báo lỗi
+        if (!hasPaymentInfo) {
+            console.error('[Init Error] No QR image URL and no checkoutUrl');
+            showError('Không có thông tin QR code hoặc link thanh toán.');
+            if (qrBlockDiv) qrBlockDiv.style.display = 'none';
+        } else {
+           // Chỉ bắt đầu kiểm tra và đếm ngược nếu có thông tin thanh toán
+           startPaymentCheck();
+           startCountdown();
+        }
+    });
+
+    // --- Dọn dẹp khi rời trang ---
+    window.addEventListener('beforeunload', () => {
+        if(checkInterval) clearInterval(checkInterval);
+        if(countdownInterval) clearInterval(countdownInterval);
+    });
+    /*]]>*/
+</script>
+</body>
+</html>
