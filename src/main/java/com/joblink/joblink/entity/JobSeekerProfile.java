@@ -24,8 +24,7 @@ public class JobSeekerProfile {
     private Integer seekerId;
 
     // Khóa ngoại trỏ đến bảng Users
-    @Column(name = "user_id", nullable = false, unique = true)
-    private Integer userId;
+    @Column(name = "user_id", nullable = false, unique = true) private Integer userId;
 
     // ✅ Sửa: [fullname] trong DB
     @Column(name = "fullname", columnDefinition = "NVARCHAR(255)")
@@ -87,4 +86,8 @@ public class JobSeekerProfile {
 
     @Column(name = "receive_invitations")
     private Boolean receiveInvitations;
+
+    @Column(name = "is_locked")
+    private Boolean isLocked = false; // false = hoạt động, true = bị khóa
+
 }
