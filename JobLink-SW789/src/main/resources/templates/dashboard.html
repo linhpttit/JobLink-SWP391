@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - JobLink2025</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="admin-container">
+
+
+    <div class="admin-content">
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Content -->
+            <section id="dashboard" class="content-section active">
+                <div class="dashboard-header">
+                    <h2><i class="fas fa-tachometer-alt"></i> Tổng quan hệ thống</h2>
+                    <div class="date-filter">
+                        <select id="timeRange">
+                            <option value="7">7 ngày qua</option>
+                            <option value="30" selected>30 ngày qua</option>
+                            <option value="90">3 tháng qua</option>
+                            <option value="365">1 năm qua</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Statistics Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon user-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Tổng người dùng</h3>
+                            <p class="stat-number">0</p>
+                            <span class="stat-change positive">
+                                    <i class="fas fa-arrow-up"></i> 0%
+                                </span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon jobseeker-icon">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Người tìm việc</h3>
+                            <p class="stat-number">0</p>
+                            <span class="stat-change positive">
+                                    <i class="fas fa-arrow-up"></i> 0%
+                                </span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon employer-icon">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Nhà tuyển dụng</h3>
+                            <p class="stat-number">0</p>
+                            <span class="stat-change positive">
+                                    <i class="fas fa-arrow-up"></i> 0%
+                                </span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon job-icon">
+                            <i class="fas fa-briefcase"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Tin tuyển dụng</h3>
+                            <p class="stat-number">0</p>
+                            <span class="stat-change positive">
+                                    <i class="fas fa-arrow-up"></i> 0%
+                                </span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon application-icon">
+                            <i class="fas fa-file-signature"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Đơn ứng tuyển</h3>
+                            <p class="stat-number">0</p>
+                            <span class="stat-change positive">
+                                    <i class="fas fa-arrow-up"></i> 0%
+                                </span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon revenue-icon">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Doanh thu</h3>
+                            <p class="stat-number">0 VNĐ</p>
+                            <span class="stat-change positive">
+                                    <i class="fas fa-arrow-up"></i> 0%
+                                </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="charts-container">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3><i class="fas fa-chart-line"></i> Thống kê ứng tuyển</h3>
+                            <div class="chart-legend">
+                                    <span class="legend-item">
+                                        <i class="fas fa-square" style="color: #5953F5"></i> Ứng tuyển
+                                    </span>
+                                <span class="legend-item">
+                                        <i class="fas fa-square" style="color: #FF6B6B"></i> Được chấp nhận
+                                    </span>
+                            </div>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="applicationsChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3><i class="fas fa-chart-pie"></i> Phân loại người dùng</h3>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="usersChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity & Top Companies -->
+                <!-- <div class="content-grid">
+                    <div class="activity-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-clock"></i> Hoạt động gần đây</h3>
+                            <button class="view-all-btn">Xem tất cả</button>
+                        </div>
+                        <div class="activity-list">
+                            <div class="activity-item">
+                                <div class="activity-icon success">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <p>Đã duyệt tin tuyển dụng</p>
+                                    <span class="activity-time">10 phút trước</span>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon warning">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <p>Tài khoản nhà tuyển dụng bị khóa</p>
+                                    <span class="activity-time">2 giờ trước</span>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon info">
+                                    <i class="fas fa-info-circle"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <p>Đã thêm gói dịch vụ Premium mới</p>
+                                    <span class="activity-time">5 giờ trước</span>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon primary">
+                                    <i class="fas fa-plus-circle"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <p>50 người dùng mới đăng ký trong ngày</p>
+                                    <span class="activity-time">Hôm nay</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="companies-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-crown"></i> Top công ty tích cực</h3>
+                        </div>
+                        <div class="companies-list">
+                            <div class="company-item">
+                                <div class="company-rank">1</div>
+                                <div class="company-info">
+                                    <h4>TechCorp Vietnam</h4>
+                                    <p>15 tin đăng • 245 ứng tuyển</p>
+                                </div>
+                                <div class="company-rating">
+                                    <i class="fas fa-star"></i> 4.8
+                                </div>
+                            </div>
+                            <div class="company-item">
+                                <div class="company-rank">2</div>
+                                <div class="company-info">
+                                    <h4>SoftTech Solutions</h4>
+                                    <p>12 tin đăng • 189 ứng tuyển</p>
+                                </div>
+                                <div class="company-rating">
+                                    <i class="fas fa-star"></i> 4.7
+                                </div>
+                            </div>
+                            <div class="company-item">
+                                <div class="company-rank">3</div>
+                                <div class="company-info">
+                                    <h4>Digital Innovation</h4>
+                                    <p>10 tin đăng • 156 ứng tuyển</p>
+                                </div>
+                                <div class="company-rating">
+                                    <i class="fas fa-star"></i> 4.6
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div> -->
+            </section>
+        </main>
+    </div>
+</div>
+
+<script src="/dashboard.js"></script>
+</body>
+</html>

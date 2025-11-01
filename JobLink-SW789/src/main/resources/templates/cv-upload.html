@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload CV - JobLink</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/CSS/header.css}">
+    <link rel="stylesheet" th:href="@{/CSS/homepage.css}">
+    <link rel="stylesheet" th:href="@{/CSS/cv-upload.css}">
+</head>
+<body>
+<!-- Header fragment -->
+<div th:replace="header :: header"></div>
+
+<div class="cv-upload-container">
+    <div class="cv-upload-header">
+        <h1><i class="fas fa-file-upload"></i> Upload Your CV</h1>
+        <p>Complete the form below to upload your CV and apply for jobs</p>
+    </div>
+
+    <!-- Success/Error Messages -->
+    <div th:if="${success}" class="alert alert-success">
+        <i class="fas fa-check-circle"></i>
+        <span th:text="${success}"></span>
+    </div>
+    <div th:if="${error}" class="alert alert-error">
+        <i class="fas fa-exclamation-circle"></i>
+        <span th:text="${error}"></span>
+    </div>
+
+    <form id="cvUploadForm" th:action="@{/jobseeker/cv/upload}" method="post" enctype="multipart/form-data">
+
+        <!-- File Upload Section -->
+        <div class="form-section">
+            <h2><i class="fas fa-file-pdf"></i> CV File Upload</h2>
+            <div class="file-upload-area" id="fileUploadArea">
+                <input type="file" id="cvFile" name="cvFile" accept=".pdf,.doc,.docx" required>
+                <div class="file-upload-content">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Click to upload or drag and drop</p>
+                    <span class="file-info">Supported formats: PDF, DOC, DOCX (Max 5MB)</span>
+                </div>
+                <div class="file-preview" id="filePreview" style="display: none;">
+                    <i class="fas fa-file-pdf"></i>
+                    <span id="fileName"></span>
+                    <button type="button" class="remove-file" id="removeFile">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="warning-message">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>Please do not upload password-protected files</span>
+            </div>
+        </div>
+
+        <!-- Basic Information Section -->
+        <div class="form-section">
+            <h2><i class="fas fa-user"></i> Basic Information</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="fullName">Full Name <span class="required">*</span></label>
+                    <input type="text" id="fullName" name="fullName"
+                           th:value="${profile.fullname}" required>
+                </div>
+                <div class="form-group">
+                    <label for="phoneNumber">Phone Number <span class="required">*</span></label>
+                    <input type="tel" id="phoneNumber" name="phoneNumber"
+                           th:value="${profile.phoneNumber}" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email <span class="required">*</span></label>
+                    <input type="email" id="email" name="email"
+                           th:value="${profile.email}" required>
+                </div>
+                <div class="form-group">
+                    <label for="preferredLocation">Preferred Working Location <span class="required">*</span></label>
+                    <select id="preferredLocation" name="preferredLocation" required>
+                        <option value="">Select a city</option>
+                        <option th:each="city : ${vietnameseCities}"
+                                th:value="${city}"
+                                th:text="${city}"
+                                th:selected="${city == profile.location}"></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- General Information Section -->
+        <div class="form-section">
+            <h2><i class="fas fa-briefcase"></i> General Information</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="yearsOfExperience">Total Years of Work Experience <span class="required">*</span></label>
+                    <input type="number" id="yearsOfExperience" name="yearsOfExperience"
+                           min="0" max="99" th:value="${profile.experienceYears}" required>
+                    <small>Enter a number between 0 and 99</small>
+                </div>
+                <div class="form-group">
+                    <label for="currentJobLevel">Current Job Level <span class="required">*</span></label>
+                    <select id="currentJobLevel" name="currentJobLevel" required>
+                        <option value="">Select job level</option>
+                        <option th:each="level : ${jobLevels}"
+                                th:value="${level}"
+                                th:text="${level}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="workMode">Work Mode <span class="required">*</span></label>
+                    <select id="workMode" name="workMode" required>
+                        <option value="">Select work mode</option>
+                        <option th:each="mode : ${workModes}"
+                                th:value="${mode}"
+                                th:text="${mode}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="expectedSalary">Expected Salary <span class="required">*</span></label>
+                    <select id="expectedSalary" name="expectedSalary" required>
+                        <option value="">Select salary range</option>
+                        <option th:each="range : ${salaryRanges}"
+                                th:value="${range}"
+                                th:text="${range}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="currentSalary">Current Salary (Optional)</label>
+                    <input type="text" id="currentSalary" name="currentSalary"
+                           placeholder="e.g., 15 million VND">
+                </div>
+            </div>
+        </div>
+
+        <!-- Cover Letter Section -->
+        <div class="form-section">
+            <h2><i class="fas fa-envelope"></i> Cover Letter</h2>
+            <div class="form-group">
+                <label for="coverLetter">Write your cover letter (Optional)</label>
+                <textarea id="coverLetter" name="coverLetter" rows="10"
+                          placeholder="Dear Hiring Manager,&#10;&#10;I am writing to express my interest in..."></textarea>
+                <small>Write between 100 and 200 lines to introduce yourself to potential employers</small>
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">
+                <i class="fas fa-save"></i> Save CV
+            </button>
+            <a href="/seeker/home" class="btn-secondary">
+                <i class="fas fa-times"></i> Cancel
+            </a>
+        </div>
+    </form>
+
+    <!-- CV Upload History Section -->
+    <div class="cv-history-section" th:if="${!recentCVs.isEmpty()}">
+        <h2><i class="fas fa-history"></i> Recent CV Uploads</h2>
+        <div class="cv-history-list">
+            <div class="cv-history-item" th:each="cv : ${recentCVs}">
+                <div class="cv-history-icon">
+                    <i class="fas fa-file-pdf"></i>
+                </div>
+                <div class="cv-history-info">
+                    <h3 th:text="${cv.cvFileName}">CV_Document.pdf</h3>
+                    <p class="cv-history-date">
+                        <i class="fas fa-calendar"></i>
+                        Uploaded: <span th:text="${#temporals.format(cv.uploadedAt, 'dd/MM/yyyy HH:mm')}"></span>
+                    </p>
+                    <p class="cv-history-details">
+                        <span><i class="fas fa-briefcase"></i> <span th:text="${cv.currentJobLevel}"></span></span>
+                        <span><i class="fas fa-map-marker-alt"></i> <span th:text="${cv.preferredLocation}"></span></span>
+                    </p>
+                </div>
+                <div class="cv-history-actions">
+                    <a th:href="@{${cv.cvFileUrl}}" target="_blank" class="btn-view">
+                        <i class="fas fa-eye"></i> View
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer fragment -->
+<div th:replace="footer :: footer"></div>
+
+<script th:src="@{/JS/cv-upload.js}"></script>
+</body>
+</html>

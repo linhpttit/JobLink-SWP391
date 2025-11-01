@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages - JobLink</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .conversation-list {
+            height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
+        .conversation-item {
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .conversation-item:hover {
+            background-color: #f5f5f5;
+        }
+        .conversation-item.active {
+            background-color: #e3f2fd;
+        }
+        .unread-badge {
+            background-color: #dc3545;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 8px;
+            font-size: 12px;
+        }
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .last-message {
+            color: #666;
+            font-size: 14px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-comments"></i> Conversations
+                        <span th:if="${unreadCount > 0}" class="unread-badge float-end" th:text="${unreadCount}"></span>
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="conversation-list">
+                        <div th:if="${conversations.isEmpty()}" class="text-center p-4 text-muted">
+                            <i class="fas fa-inbox fa-3x mb-3"></i>
+                            <p>No conversations yet</p>
+                        </div>
+                        <div th:each="conv : ${conversations}"
+                             class="conversation-item p-3"
+                             th:onclick="'window.location.href=\'/messages/conversation/' + ${conv.conversationId} + '\''">
+                            <div class="d-flex align-items-center">
+                                <img th:src="${conv.otherUserAvatar}" class="avatar me-3 site-avatar" alt="Avatar">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <h6 class="mb-1" th:text="${conv.otherUserName}">User Name</h6>
+                                        <small class="text-muted" th:text="${#temporals.format(conv.lastMessageAt, 'HH:mm')}">12:30</small>
+                                    </div>
+                                    <p class="last-message mb-0" th:text="${conv.lastMessageContent}">Last message...</p>
+                                    <div class="mt-1">
+                                            <span th:if="${conv.unreadCount > 0}"
+                                                  class="unread-badge"
+                                                  th:text="${conv.unreadCount}">3</span>
+                                        <span th:if="${conv.isBlocked}"
+                                              class="badge bg-danger ms-2">
+                                                <i class="fas fa-ban"></i> Blocked
+                                            </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body text-center text-muted p-5">
+                    <i class="fas fa-comments fa-4x mb-3"></i>
+                    <h4>Select a conversation to start messaging</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

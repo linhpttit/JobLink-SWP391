@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{employer/employer-layout}">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Danh sách việc làm</title>
+    <link rel="stylesheet" th:href="@{/job-list-view.css}"/>
+</head>
+<body class="bg-soft">
+<main class="wrap" layout:fragment="content">
+    <section class="list">
+
+        <!-- lặp qua danh sách -->
+        <article class="job-card"
+                 th:each="j : ${jobs}">
+            <!-- Logo -->
+            <a class="logo" th:href="@{/jobs/{id}(id=${j.jobId})}">
+                <img th:src="@{'https://upload.wikimedia.org/wikipedia/commons/a/ab/Logo_TV_2015.png'}" alt="logo"/>
+            </a>
+
+            <!-- Nội dung chính -->
+            <div class="main">
+                <!-- tiêu đề + lương (mobile) -->
+                <div class="row1">
+                    <a class="title" th:href="@{/jobPosting/detail/{id}(id=${j.jobId})}" th:text="${j.title}"></a>
+                    <div class="salary xs" th:text="${j.salaryMax}"></div>
+                </div>
+                <!-- tags -->
+                <div class="tags">
+                    <span class="tag" th:text="${j.province.provinceName}"></span>
+                    <span class="tag" th:text="${j.yearExperience}"></span>
+                </div>
+
+                <!-- dòng ngành / chức danh -->
+                <div class="meta-line">
+                     <span th:text="${j.position}"></span>
+                </div>
+            </div>
+
+            <!-- Cột phải -->
+            <div class="aside">
+                <div class="salary">
+                    <span th:text="${j.salaryMax}"></span>
+                </div>
+                <div class="time" th:text="${j.postedAt}"></div>
+                <button class="wish" type="button"
+                        th:attr="data-id=${j.jobId}">
+                    ❤
+                </button>
+            </div>
+        </article>
+
+    </section>
+</main>
+</body>
+</html>
