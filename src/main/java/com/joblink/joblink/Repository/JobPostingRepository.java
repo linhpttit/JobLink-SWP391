@@ -1,5 +1,5 @@
 // File: com/joblink/joblink/repository/JobPostingRepository.java (ĐÃ SỬA LỖI HOÀN CHỈNH)
-package com.joblink.joblink.repository;
+package com.joblink.joblink.Repository;
 
 import com.joblink.joblink.entity.JobPosting;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,5 +23,7 @@ public interface JobPostingRepository extends JpaRepository<JobPosting, Long> {
             "ORDER BY j.postedAt DESC")
     List<JobPosting> findBySkillSkillIdAndJobIdNot(@Param("skillId") Long skillId,
                                                    @Param("excludeJobId") Long excludeJobId);
+
+    long count();
 
 }

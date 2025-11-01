@@ -1,7 +1,7 @@
 package com.joblink.joblink.config;
 
-import com.joblink.joblink.auth.model.User;
 import com.joblink.joblink.dto.UserSessionDTO;
+import com.joblink.joblink.auth.model.User;
 import com.joblink.joblink.util.SessionHelper;
 import com.joblink.joblink.security.RememberMeService;
 import jakarta.servlet.http.HttpServletRequest;
