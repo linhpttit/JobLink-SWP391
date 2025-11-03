@@ -38,4 +38,6 @@ public interface EmployerRepository extends JpaRepository<Employer, Long> {
     @Query("SELECT CASE WHEN COUNT(e) > 0 THEN true ELSE false END " +
             "FROM Employer e WHERE e.phoneNumber = :phoneNumber AND e.id <> :employerId")
     boolean existsByPhoneNumberAndIdNot(@Param("phoneNumber") String phoneNumber, @Param("employerId") Long employerId);
+
+	Optional<Employer> findFirstByUserEmailIgnoreCase(String email);
 }

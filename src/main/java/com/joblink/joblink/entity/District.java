@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "Districts", schema = "dbo")
+@Table(name = "Districts", schema = "public")
 public class District {
     public District(Long districtId, String districtName, Long provinceId) {
         this.districtId = districtId;

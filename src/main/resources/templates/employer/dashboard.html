@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{employer/employer-layout}">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tổng quan nhà tuyển dụng</title>
+<link rel="stylesheet" th:href="@{/job-post.css}" />
+<style>
+.filters {
+	display: flex;
+	gap: 12px;
+	flex-wrap: wrap;
+	align-items: center;
+	margin: 8px 0 16px
+}
+
+.filters .ipt {
+	min-width: 180px
+}
+
+.kpis .stat-card {
+	display: flex;
+	align-items: center;
+	justify-content: space-between
+}
+
+.kpi-value {
+	font-size: 26px;
+	font-weight: 700
+}
+
+.kpi-label {
+	color: var(--muted);
+	font-size: 12px;
+	margin-top: 4px
+}
+
+.spark {
+	height: 36px;
+	width: 120px;
+	opacity: .8
+}
+
+.card-table {
+	overflow: hidden;
+	border: 1px solid var(--line);
+	border-radius: 12px;
+	background: #fff
+}
+
+.card-hd {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 12px 14px;
+	border-bottom: 1px solid var(--line)
+}
+
+.table {
+	width: 100%;
+	border-collapse: collapse
+}
+
+.table th, .table td {
+	padding: 10px 12px;
+	border-bottom: 1px solid var(--line);
+	text-align: left;
+	font-size: 13px
+}
+
+.badge {
+	padding: 4px 8px;
+	border-radius: 999px;
+	font-size: 12px;
+	background: #eef2ff;
+	color: #1d4ed8;
+	border: 1px solid #e5e7eb
+}
+
+@media ( max-width :720px) {
+	.spark {
+		display: none
+	}
+}
+</style>
+</head>
+
+<body>
+	<main class="wrap" layout:fragment="content">
+		<!-- Filters -->
+		<form class="card" th:action="@{/employer/dashboard}" method="get">
+			<div class="filters">
+				<select class="ipt" name="range" th:value="${range}">
+					<option value="7d" th:selected="${range=='7d'}">7 ngày qua</option>
+					<option value="30d" th:selected="${range=='30d'}">30 ngày
+						qua</option>
+					<option value="90d" th:selected="${range=='90d'}">90 ngày
+						qua</option>
+					<option value="custom" th:selected="${range=='custom'}">Tùy
+						chỉnh</option>
+				</select> <input class="ipt" type="date" name="from" th:value="${from}" /> <input
+					class="ipt" type="date" name="to" th:value="${to}" /> <select
+					class="ipt" name="jobId" th:value="${jobId}">
+					<option value="" th:selected="${jobId==null}">Tất cả tin
+						tuyển dụng</option>
+					<option th:each="j: ${jobs}" th:value="${j.jobId}"
+						th:text="${j.title}"></option>
+				</select>
+
+				<button class="btn primary" type="submit">Lọc</button>
+			</div>
+		</form>
+
+		<!-- KPI Cards -->
+		<section class="kpis stats-grid" style="margin-top: 12px">
+			<div class="stat-card">
+				<div>
+					<div class="kpi-value" th:text="${kpi.liveJobs}">12</div>
+					<div class="kpi-label">Tin đang hiển thị</div>
+				</div>
+				<canvas id="sparkLive" class="spark"></canvas>
+			</div>
+
+			<div class="stat-card">
+				<div>
+					<div class="kpi-value" th:text="${kpi.totalApps}">320</div>
+					<div class="kpi-label">Tổng hồ sơ (khoảng thời gian)</div>
+				</div>
+				<canvas id="sparkApps" class="spark"></canvas>
+			</div>
+
+			<div class="stat-card">
+				<div>
+					<div class="kpi-value">
+						<span th:text="${kpi.newApps}">58</span> <small class="badge"
+							th:text="${kpi.appsGrowthText}">+12% WoW</small>
+					</div>
+					<div class="kpi-label">Hồ sơ mới</div>
+				</div>
+				<canvas id="sparkNew" class="spark"></canvas>
+			</div>
+
+			<div class="stat-card">
+				<div>
+					<div class="kpi-value" th:text="${kpi.avgTimeToFill}">21</div>
+					<div class="kpi-label">Thời gian tuyển trung bình (ngày)</div>
+				</div>
+				<canvas id="sparkTime" class="spark"></canvas>
+			</div>
+		</section>
+
+		<!-- Charts -->
+		<section class="grid grid-3" style="margin-top: 10px">
+			<div class="card">
+				<div class="section-ttl">Xu hướng hồ sơ theo ngày</div>
+				<canvas id="lineApps"></canvas>
+			</div>
+
+			<div class="card">
+				<div class="section-ttl">Trạng thái hồ sơ theo tin tuyển dụng</div>
+				<canvas id="barStatus"></canvas>
+			</div>
+
+			<div class="card">
+				<div class="section-ttl">Nguồn ứng viên</div>
+				<canvas id="donutSources"></canvas>
+			</div>
+		</section>
+
+		<!-- Tables -->
+		<section class="grid grid-2" style="margin-top: 10px">
+			<div class="card-table">
+				<div class="card-hd">
+					<strong>Top tin tuyển dụng</strong> <a class="small"
+						th:href="@{/employer/job-posting}">Quản lý</a>
+				</div>
+				<table class="table">
+					<thead>
+						<tr>
+							<th>Tin</th>
+							<th>Lượt xem</th>
+							<th>Ứng tuyển</th>
+							<th>CVR</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="t: ${topJobs}">
+							<td th:text="${t.title}">Backend Engineer</td>
+							<td th:text="${t.views}">1,234</td>
+							<td th:text="${t.applies}">120</td>
+							<td th:text="${t.conversionRate}">9.7%</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<div class="card-table">
+				<div class="card-hd">
+					<strong>Hạn nộp sắp đến</strong> <a class="small"
+						th:href="@{/employer/job-posting}">Xem tất cả</a>
+				</div>
+				<table class="table">
+					<thead>
+						<tr>
+							<th>Tin</th>
+							<th>Hạn nộp</th>
+							<th>Còn lại</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="d: ${deadlines}">
+							<td th:text="${d.title}">QA Lead</td>
+							<td th:text="${#temporals.format(d.deadline, 'dd/MM/yyyy')}">12/11/2025</td>
+							<td th:text="${d.daysLeft + ' ngày'}">5 ngày</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</section>
+
+		<!-- Recent applicants -->
+		<section class="card" style="margin-top: 10px">
+			<div class="section-ttl">Ứng viên gần đây</div>
+			<div class="grid grid-3">
+				<div th:each="a: ${recentApplicants}">
+					<div>
+						<strong th:text="${a.candidateName}">Nguyễn Văn A</strong> · <span
+							class="muted" th:text="${a.jobTitle}">Frontend Dev</span>
+					</div>
+					<div class="small muted"
+						th:text="${#temporals.format(a.appliedAt,'dd/MM/yyyy HH:mm')}">01/11
+						09:20</div>
+					<div>
+						<span class="badge" th:text="${a.status}">Applied</span>
+					</div>
+				</div>
+			</div>
+		</section>
+	</main>
+
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<script th:inline="javascript">
+/*<![CDATA[*/
+const lineLabels = /*[[${chart.appsOverTime.labels}]]*/ ["T2","T3","T4","T5","T6","T7","CN"];
+const lineData   = /*[[${chart.appsOverTime.values}]]*/ [12,19,7,13,22,18,9];
+
+const statusLabels = /*[[${chart.statusByJob.labels}]]*/ ["Backend","Frontend","QA","HR"];
+const statusData   = /*[[${chart.statusByJob.series}]]*/ [[20,10,5,3],[12,7,3,2],[5,2,1,0],[2,1,0,0],[1,0,0,0]];
+const sourceLabels = /*[[${chart.sources.labels}]]*/ ["Direct","Referral","Job Board","Social"];
+const sourceData   = /*[[${chart.sources.values}]]*/ [42,18,27,13];
+
+function mkLine(id, labels, data){
+  new Chart(document.getElementById(id), {
+    type:'line',
+    data:{ labels, datasets:[{ data, tension:.35, fill:false, borderWidth:2, pointRadius:2 }]},
+    options:{ plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}} }
+  });
+}
+
+function mkStackedBar(id, labels, stacks){
+  const statuses = ["Viewed","Applied","Interview","Offer","Hired"];
+  const colors = ['#c7d2fe','#93c5fd','#86efac','#fde68a','#fca5a5'];
+  new Chart(document.getElementById(id), {
+    type:'bar',
+    data:{ labels,
+      datasets: statuses.map((s,i)=>({label:s, data: stacks[i]||[], backgroundColor:colors[i]}))
+    },
+    options:{ responsive:true, plugins:{legend:{position:'bottom'}},
+      scales:{ x:{stacked:true}, y:{stacked:true, beginAtZero:true}}
+    }
+  });
+}
+
+function mkDonut(id, labels, data){
+  new Chart(document.getElementById(id), {
+    type:'doughnut',
+    data:{ labels, datasets:[{ data }]},
+    options:{ plugins:{legend:{position:'bottom'}} }
+  });
+}
+
+function mkSpark(id, data){
+  new Chart(document.getElementById(id), {
+    type:'line',
+    data:{ labels: data.map((_,i)=>i), datasets:[{ data, borderWidth:2, pointRadius:0, fill:false }]},
+    options:{ plugins:{legend:{display:false}}, scales:{x:{display:false},y:{display:false}}, elements:{line:{tension:.35}} }
+  });
+}
+
+mkLine('lineApps', lineLabels, lineData);
+mkStackedBar('barStatus', statusLabels, statusData);
+mkDonut('donutSources', sourceLabels, sourceData);
+
+mkSpark('sparkLive', /*[[${chart.sparks.live}]]*/ [3,4,4,5,6,7,7]);
+mkSpark('sparkApps', /*[[${chart.sparks.apps}]]*/ [10,9,11,12,14,13,15]);
+mkSpark('sparkNew',  /*[[${chart.sparks.newApps}]]*/ [2,4,3,5,6,7,6]);
+mkSpark('sparkTime', /*[[${chart.sparks.time}]]*/ [25,24,23,22,20,22,21]);
+/*]]>*/
+</script>
+</body>
+</html>

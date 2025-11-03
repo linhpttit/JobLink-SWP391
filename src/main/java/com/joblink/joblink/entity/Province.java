@@ -12,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "Provinces", schema = "dbo")
+@Table(name = "Provinces", schema = "public")
 public class Province {
     public Province(Long provinceId, String provinceName, String provinceCode){
         this.provinceId = provinceId;

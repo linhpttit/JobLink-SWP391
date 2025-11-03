@@ -36,7 +36,7 @@ public class Employer {
     @Column(name = "phone_number", length = 20)
     private String phoneNumber;
 
-    @Column(name = "description", columnDefinition = "NVARCHAR(MAX)")
+    @Column(name = "description")
     private String description;
 
     // Lombok @Data tự động generate getters, setters, toString, equals, hashCode
