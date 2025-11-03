@@ -16,10 +16,10 @@ import jakarta.servlet.http.HttpSession;
 public class EmployerProfileController {
     private final IEmployerService employerService;
 
-    @GetMapping
-    public String getProfile(){
-        return "employer/employer-layout";
-    }
+//    @GetMapping
+//    public String getProfile(){
+//        return "employer/employer-layout";
+//    }
 
     @GetMapping("/password")
     public String viewPasswordPage(){

@@ -1,102 +1,84 @@
 <!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{employer/employer-layout}">
 <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title>Lịch sử mua hàng</title>
-    <link rel="stylesheet" th:href="@{/payment-history.css}"/>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Lịch sử thanh toán</title>
+  <link rel="stylesheet" th:href="@{/payment-history.css}"/>
 </head>
 <body layout:fragment="content">
 <main class="wrap">
-    <h1 class="page-title">Lịch sử mua hàng</h1>
+  <header class="page-hd">
+    <h1 class="page-title">Lịch sử thanh toán</h1>
+    <p class="page-sub">Các giao dịch gắn với gói dịch vụ của bạn.</p>
+  </header>
 
-    <!-- KPI -->
-    <section class="kpis">
-        <div class="kpi mint">
-            <div class="kpi-ttl">Số lần mua dịch vụ</div>
-<!--            <div class="kpi-num" th:text="${stats.totalOrders} ?: 8">8</div>-->
-        </div>
-        <div class="kpi purple">
-            <div class="kpi-ttl">Tổng gói đã mua</div>
-<!--            <div class="kpi-num" th:text="${stats.totalPackages} ?: 36">36</div>-->
-        </div>
-        <div class="kpi gray">
-            <div class="kpi-ttl">Số gói chưa kích hoạt</div>
-<!--            <div class="kpi-num" th:text="${stats.notActivated} ?: 23">23</div>-->
-        </div>
-    </section>
-
-    <!-- Banner cảnh báo -->
-    <div class="notice">
-        ⚠ Quý khách đang sử dụng loại tài khoản VIP, tài khoản sẽ hết hạn dịch vụ vào
-<!--        <b th:text="${#temporals.format(stats.expireAt,'dd/MM/yyyy')} ?: 'dd/mm/yyyy'">dd/mm/yyyy</b>-->
+  <section class="card">
+    <div class="table-wrap" role="region" aria-label="Bảng lịch sử thanh toán">
+      <table class="table">
+        <thead>
+        <tr>
+          <th>Thời gian</th>
+          <th>Giao dịch</th>
+          <th>Gói</th>
+          <th>Nhà cung cấp</th>
+          <th>Phương thức</th>
+          <th class="right">Số tiền</th>
+          <th>Trạng thái</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="r : ${rows}">
+          <td th:text="${#temporals.format(r.paidAt, 'dd/MM/yyyy HH:mm')}">01/01/2025 12:00</td>
+          <td>
+            <div class="mono">
+              <span th:text="'INV-' + ${r.invoiceId}">INV-1001</span>
+              <span class="muted" th:text="${r.txRef}">TXREF123</span>
+            </div>
+          </td>
+          <td>
+            <div>
+              <div class="bold" th:text="${r.packageName}">Tin cơ bản</div>
+              <div class="muted" th:text="${r.packageCode} + ' • ' + (${r.durationDays} / 7) + ' tuần'">EMP_BASIC • 4 tuần</div>
+            </div>
+          </td>
+          <td th:text="${r.provider}">VNPAY</td>
+          <td th:text="${r.paymentMethod}">Card</td>
+          <td class="right"
+              th:text="${#numbers.formatDecimal(r.amount,0,'COMMA',2,'POINT')} + 'đ'">1,000,000đ</td>
+          <td>
+            <span class="badge"
+                  th:classappend="${r.payStatus}=='SUCCESS' ? ' badge--ok' :
+                                  (${r.payStatus}=='PENDING' ? ' badge--warn' :
+                                  (${r.payStatus}=='FAILED'  ? ' badge--err' : ''))"
+                  th:text="${r.payStatus}">SUCCESS</span>
+          </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(rows)}">
+          <td colspan="7" class="empty">Chưa có giao dịch nào.</td>
+        </tr>
+        </tbody>
+      </table>
     </div>
 
-    <!-- Thanh công cụ -->
-    <div class="toolbar">
-        <div class="left">
-            <div class="search">
-                <span>🔍</span>
-<!--                <input type="text" class="ipt" th:value="${filters.keyword}"-->
-                       name="q" placeholder="Nhập mã dịch vụ e.g MP - 2000065845"/>
-            </div>
+    <!-- Paging -->
+    <nav class="paging" th:if="${page.totalPages > 1}" aria-label="Phân trang">
+      <a class="page" th:classappend="${page.first} ? ' is-disabled' : ''"
+         th:href="@{/employer/billing/payments(page=${page.number - 1},size=${page.size})}">«</a>
 
-<!--            <select class="ipt" name="type" th:value="${filters.type}">-->
-                <option value="">Tất cả dịch vụ</option>
-                <option th:each="t : ${types}" th:value="${t.code}" th:text="${t.name}"></option>
-            </select>
+      <a class="page"
+         th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}"
+         th:classappend="${i == page.number} ? ' is-active' : ''"
+         th:text="${i + 1}"
+         th:href="@{/employer/billing/payments(page=${i},size=${page.size})}">1</a>
 
-<!--            <select class="ipt" name="status" th:value="${filters.status}">-->
-                <option value="">Tất cả trạng thái</option>
-<!--                <option th:each="s : ${statuses}" th:value="${s.code}" th:text="${s.name}"></option>-->
-            </select>
-
-            <button class="btn ghost" th:href="@{/services/new}" type="button">Đăng ký dịch vụ</button>
-        </div>
-
-        <div class="right">
-<!--            <a class="btn outline" th:href="@{/services/history/export}">📤 Xuất excel</a>-->
-        </div>
-    </div>
-
-    <!-- Danh sách dịch vụ -->
-    <section class="cards">
-        <article class="order" th:each="o : ${orders}">
-            <header class="order-hd">
-                <a class="code" th:text="${o.code}">MP - 2000065845</a>
-                <button class="btn small primary"
-                        th:href="@{/services/{code}/activations(code=${o.code})}" type="button">
-                    Chi tiết kích hoạt →
-                </button>
-            </header>
-
-            <div class="order-sub">
-                Ngày ghi nhận:
-                <b th:text="${#temporals.format(o.receivedAt,'dd/MM/yyyy')}">07/10/2021</b> ·
-                Hạn sử dụng:
-                <b th:text="${#temporals.format(o.expiredAt,'dd/MM/yyyy')}">06/10/2022</b>
-                (<span th:text="${o.remainingDays} + ' ngày'">361 ngày</span>)
-            </div>
-
-            <div class="table">
-                <div class="thead">
-                    <div>Tên dịch vụ</div><div>Số lượng</div><div>Thời gian</div>
-                    <div>Đã kích hoạt</div><div>Chưa kích hoạt</div>
-                </div>
-                <div class="tbody">
-                    <div class="row" th:each="i : ${o.items}">
-                        <div class="name" th:text="${i.name}">Đăng tin cơ bản</div>
-                        <div th:text="${i.quantity} + ' Tin'">10 Tin</div>
-                        <div th:text="${i.duration} + ' Tuần'">4 Tuần</div>
-                        <div class="ok" th:text="${i.activated} + ' Tin'">2 Tin</div>
-                        <div class="pending" th:text="${i.remaining} + ' Tin'">8 Tin</div>
-                    </div>
-                </div>
-            </div>
-        </article>
-    </section>
+      <a class="page" th:classappend="${page.last} ? ' is-disabled' : ''"
+         th:href="@{/employer/billing/payments(page=${page.number + 1},size=${page.size})}">»</a>
+    </nav>
+  </section>
 </main>
 </body>
 </html>

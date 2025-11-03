@@ -1,142 +1,178 @@
 <!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Website Tìm kiếm việc làm</title>
-    <!-- CSS -->
-      <link rel="stylesheet" th:href="@{/employer.css}">
-    <!-- Nếu trang con có css riêng -->
-    <th:block th:if="${pageCss != null}">
-        <link rel="stylesheet" th:href="${pageCss}">
-    </th:block>
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#ffffff" />
+  <title>Employer | JobLink</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" th:href="@{/employer.css}">
+  <th:block th:if="${pageCss != null}">
+    <link rel="stylesheet" th:href="${pageCss}">
+  </th:block>
+
+  <!-- Icons & Bootstrap -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 </head>
-<body>
-<div class="admin-container">
-    <!-- Header -->
-    <header class="admin-header">
-        <div class="header-left">
-            <button class="menu-toggle" id="menuToggle"><i class="fa fa-bars"></i></button>
-            <h1>JobLink</h1>
-        </div>
-        <div class="header-center">
-            <div class="search-container">
-                <input type="text" placeholder="Tìm kiếm..." class="search-input">
-                <button class="search-btn"><i class="fa fa-search"></i></button>
-            </div>
-        </div>
-        <div class="header-right">
-            <!-- Notifications -->
-            <div class="notification-icon">
-                <button class="notification-btn" onclick="toggleNotifications()">
-                    <i class="fa fa-bell"></i>
-                    <span class="notification-text">Thông báo</span>
-                    <i class="fa fa-caret-down caret-icon"></i>
-                </button>
-                <div class="notification-dropdown" id="notificationDropdown">
-                    <div class="notification-item">
-                        <p><strong>Profile updated</strong></p>
-                        <small>5 minutes ago</small>
-                    </div>
-                    <div class="notification-item">
-                        <p><strong>New user added</strong></p>
-                        <small>10 minutes ago</small>
-                    </div>
-                    <div class="notification-item">
-                        <p><strong>Password changed</strong></p>
-                        <small>20 minutes ago</small>
-                    </div>
-                    <div class="notification-footer">
-                        <a href="#">See all notifications</a>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Profile -->
-            <div class="admin-profile">
-                <div class="admin-info">
-                    <span th:text="${adminName}">John Doe</span>
-                    <div class="admin-avatar" th:text="${adminInitial}">J</div>
-                    <i class="fa fa-caret-down caret-icon"></i>
-                </div>
-                <div class="profile-dropdown">
-                    <a th:href="@{/employer/profile}" class="dropdown-item"><i class="fa fa-user"></i> Hồ sơ </a>
-                    <a th:href="@{/employer/password}" class="dropdown-item"><i class="fa fa-cog"></i> Cài đặt</a>
-                    <a th:if="${session.user != null}" th:href="@{/logout}" class="dropdown-item"><i class="fa fa-sign-out-alt"></i> Đăng xuất</a>
-                </div>
-            </div>
+<body class="bg-body-tertiary">
+  <!-- Header -->
+  <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top" role="navigation" aria-label="Thanh điều hướng">
+    <div class="container-fluid">
+      <!-- Sidebar toggle on mobile -->
+      <button class="btn btn-outline-secondary d-lg-none" type="button"
+              data-bs-toggle="offcanvas" data-bs-target="#employerSidebar"
+              aria-controls="employerSidebar" aria-label="Mở menu">
+        <i class="fa fa-bars"></i>
+      </button>
+
+      <a class="navbar-brand fw-bold ms-2" th:href="@{/employer}">JobLink</a>
+
+      <!-- Search -->
+      <form class="d-none d-md-flex ms-3 flex-grow-1" role="search" aria-label="Tìm kiếm">
+        <div class="input-group">
+          <input class="form-control" type="search" placeholder="Tìm kiếm..." aria-label="Tìm kiếm">
+          <button class="btn btn-outline-secondary" type="submit">
+            <i class="fa fa-search"></i>
+          </button>
         </div>
-    </header>
+      </form>
 
-    <!-- Sidebar -->
-    <div class="admin-content">
-        <aside class="sidebar">
-            <nav class="sidebar-nav">
-                <ul>
+      <ul class="navbar-nav ms-auto align-items-center gap-2">
+        <!-- Notifications -->
+        <li class="nav-item dropdown">
+          <button class="btn btn-link nav-link position-relative dropdown-toggle" id="notifDropdown"
+                  data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fa fa-bell"></i>
+            <span class="d-none d-sm-inline ms-1">Thông báo</span>
+          </button>
+          <div class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="notifDropdown" style="min-width: 320px;">
+            <div class="px-3 py-2">
+              <div class="small fw-semibold">Mới</div>
+            </div>
+            <button type="button" class="dropdown-item text-wrap">
+              <strong>Profile updated</strong><br><small class="text-muted">5 phút trước</small>
+            </button>
+            <button type="button" class="dropdown-item text-wrap">
+              <strong>New user added</strong><br><small class="text-muted">10 phút trước</small>
+            </button>
+            <button type="button" class="dropdown-item text-wrap">
+              <strong>Password changed</strong><br><small class="text-muted">20 phút trước</small>
+            </button>
+            <div><hr class="dropdown-divider"></div>
+            <a href="#" class="dropdown-item text-center">Xem tất cả</a>
+          </div>
+        </li>
 
-                    <li class="nav-item">
-                        <a th:href="@{/employer-dashboard}">
-                            <span class="nav-icon"><i class="fa fa-chart-bar"></i></span>
-                            <span class="nav-text">Tổng quan</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a th:href="@{/jobPosting}">
-                            <span class="nav-icon"><i class="fa fa-clipboard-list"></i></span>
-                            <span class="nav-text">Tin tuyển dụng</span>
-                        </a>
-                    </li>
-                    <li class="nav-item" onclick="loadContent('applications.html')">
-                        <a href="javascript:void(0)">
-                            <span class="nav-icon"><i class="fa fa-file-alt"></i></span>
-                            <span class="nav-text">Hồ sơ ứng tuyển</span>
-                        </a>
-                    </li>
-                    <li class="nav-item" onclick="loadContent('companies.html')">
-                         <a href="javascript:void(0)">
-                            <span class="nav-icon"><i class="fa fa-industry"></i></span>
-                            <span class="nav-text">Danh sách việc làm</span>
-                        </a>
-                    </li>
-                    <li class="nav-item" onclick="loadContent('blog.html')">
-                        <a href="javascript:void(0)">
-                            <span class="nav-icon"><i class="fa fa-pen-to-square"></i></span>
-                            <span class="nav-text">Ứng viên đã lưu</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a th:href="@{/employer-response}">
-                            <span class="nav-icon"><i class="fa fa-comments"></i></span>
-                            <span class="nav-text">Phản hồi/khiếu nại</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a th:href="@{/service-packages}">
-                            <span class="nav-icon"><i class="fa fa-gem"></i></span>
-                            <span class="nav-text">Gói dịch vụ</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a th:href="@{/payment-history}">
-                            <span class="nav-icon"><i class="fa fa-money-bill-wave"></i></span>
-                            <span class="nav-text">Lịch sử thanh toán</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-        </aside>
-        <main class="content-area" layout:fragment="content">
-            <!-- Nội dung trang con sẽ được nhúng tại đây -->
-        </main>
+        <!-- Profile -->
+        <li class="nav-item dropdown">
+          <button class="btn btn-link nav-link dropdown-toggle d-flex align-items-center gap-2" id="profileDropdown"
+                  data-bs-toggle="dropdown" aria-expanded="false">
+            <span th:text="${adminName}">John Doe</span>
+            <div class="admin-avatar" th:text="${adminInitial}" aria-hidden="true">J</div>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="profileDropdown">
+            <li><a th:href="@{/employer/profile}" class="dropdown-item">
+              <i class="fa fa-user me-2"></i>Hồ sơ</a>
+            </li>
+            <li><a th:href="@{/employer/password}" class="dropdown-item">
+              <i class="fa fa-cog me-2"></i>Cài đặt</a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a th:if="${session.user != null}" th:href="@{/logout}" class="dropdown-item">
+              <i class="fa fa-sign-out-alt me-2"></i>Đăng xuất</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
     </div>
-</div>
+  </nav>
 
-<!-- JS -->
-<!--<script th:src="@{/js/employer.js}"></script>-->
+  <!-- Layout -->
+  <div class="container-fluid">
+    <div class="row flex-nowrap">
+      <!-- Sidebar -->
+      <aside class="col-auto p-0">
+        <div class="offcanvas offcanvas-start offcanvas-static-lg sidebar" tabindex="-1" id="employerSidebar"
+             aria-labelledby="employerSidebarLabel">
+          <!-- Header visible on all sizes; close button hidden on lg+ -->
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="employerSidebarLabel">Menu</h5>
+            <button type="button" class="btn-close d-lg-none" data-bs-dismiss="offcanvas" aria-label="Đóng"></button>
+          </div>
+
+          <div class="offcanvas-body p-0">
+            <nav class="nav nav-pills flex-column sidebar-nav">
+              <a class="nav-link d-flex align-items-center" th:href="@{/employer/dashboard}"
+                 th:classappend="${active == 'overview'} ? ' active'">
+                <i class="fa fa-chart-bar me-2"></i><span class="nav-text">Tổng quan</span>
+              </a>
+
+              <a class="nav-link d-flex align-items-center" th:href="@{/employer/job-postings}"
+                 th:classappend="${active == 'postings'} ? ' active'">
+                <i class="fa fa-clipboard-list me-2"></i><span class="nav-text">Tin tuyển dụng</span>
+              </a>
+
+              <a class="nav-link d-flex align-items-center" th:href="@{/employer/applications}"
+                 th:classappend="${active == 'applications'} ? ' active'">
+                <i class="fa fa-file-alt me-2"></i><span class="nav-text">Hồ sơ ứng tuyển</span>
+              </a>
+
+              <a class="nav-link d-flex align-items-center" th:href="@{/employer/jobs}"
+                 th:classappend="${active == 'jobs'} ? ' active'">
+                <i class="fa fa-industry me-2"></i><span class="nav-text">Danh sách việc làm</span>
+              </a>
+
+              <!-- <a class="nav-link d-flex align-items-center" th:href="@{/saved-candidates}"
+                 th:classappend="${active == 'saved'} ? ' active'">
+                <i class="fa fa-pen-to-square me-2"></i><span class="nav-text">Ứng viên đã lưu</span>
+              </a> -->
+
+              <!-- <a class="nav-link d-flex align-items-center" th:href="@{/feedbacks}"
+                 th:classappend="${active == 'feedbacks'} ? ' active'">
+                <i class="fa fa-comments me-2"></i><span class="nav-text">Phản hồi/khiếu nại</span>
+              </a> -->
+
+              <a class="nav-link d-flex align-items-center" th:href="@{/employer/service-packages}"
+                 th:classappend="${active == 'plans'} ? ' active'">
+                <i class="fa fa-gem me-2"></i><span class="nav-text">Gói dịch vụ</span>
+              </a>
+
+              <a class="nav-link d-flex align-items-center" th:href="@{/employer/payment-history}"
+                 th:classappend="${active == 'payments'} ? ' active'">
+                <i class="fa fa-money-bill-wave me-2"></i><span class="nav-text">Lịch sử thanh toán</span>
+              </a>
+            </nav>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Content -->
+      <main class="col py-4 content-area" layout:fragment="content" role="main" aria-live="polite">
+        <!-- Nội dung trang con -->
+      </main>
+    </div>
+  </div>
+
+  <!-- JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Auto-close sidebar after click on mobile
+    (function () {
+      const sidebarEl = document.getElementById('employerSidebar');
+      if (!sidebarEl) return;
+      const offcanvas = bootstrap.Offcanvas.getOrCreateInstance(sidebarEl);
+      sidebarEl.querySelectorAll('.nav-link').forEach(a => {
+        a.addEventListener('click', () => {
+          if (window.innerWidth < 992) offcanvas.hide();
+        });
+      });
+    })();
+  </script>
 </body>
 </html>

@@ -1,15 +1,13 @@
+// Employer.java
 package com.joblink.joblink.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
-/**
- * Entity Employer - Map với bảng EmployerProfile trong DB
- */
 @Entity
-@Table(name = "EmployerProfile")
+@Table(name = "employerprofile")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,7 +18,7 @@ public class Employer {
     @Column(name = "employer_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
@@ -36,8 +34,6 @@ public class Employer {
     @Column(name = "phone_number", length = 20)
     private String phoneNumber;
 
-    @Column(name = "description", columnDefinition = "NVARCHAR(MAX)")
+    @Column(name = "description", length = 255)
     private String description;
-
-    // Lombok @Data tự động generate getters, setters, toString, equals, hashCode
 }

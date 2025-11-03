@@ -1,24 +1,34 @@
 package com.joblink.joblink.service;
 
+import java.util.Locale;
+import java.util.Optional;
+import java.util.Random;
+
+import org.springframework.dao.DataAccessException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import com.joblink.joblink.auth.model.User;
 import com.joblink.joblink.auth.util.PasswordPolicy;
 import com.joblink.joblink.dao.UserDao;
-import jakarta.servlet.http.HttpSession;
-import org.springframework.dao.DataAccessException;
-import org.springframework.stereotype.Service;
+import com.joblink.joblink.repository.UserRepository;
 
-import java.util.Locale;
-import java.util.Random;
+import jakarta.servlet.http.HttpSession;
 
 @Service
 public class AuthService {
 
     private final UserDao userDao;
     private final EmailService emailService;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public AuthService(UserDao userDao, EmailService emailService) {
+    public AuthService(UserDao userDao, EmailService emailService,UserRepository userRepository,
+    		PasswordEncoder passwordEncoder) {
         this.userDao = userDao;
         this.emailService = emailService;
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /* =========================================================
@@ -136,18 +146,18 @@ public class AuthService {
         }
     }
 
-    public User authenticate(String email, String password) {
+    public com.joblink.joblink.entity.User authenticate(String email, String password) {
         if (email == null || password == null) return null;
         try {
             final String normEmail = normalizeEmail(email);
-            User u = userDao.login(normEmail, password.trim());
+//            User u = userDao.login(normEmail, password.trim());
+            com.joblink.joblink.entity.User u = userRepository.findByEmail(normEmail).get();
             if (u == null) {
                 System.out.println("[AuthService] Login failed for: " + normEmail);
-            } else {
-                // đảm bảo có đủ fullName/role/email
-                if (u.getEmail() == null) u.setEmail(normEmail);
-                System.out.println("[AuthService] Login OK for: " + u.getEmail() + " role=" + u.getRole());
-            }
+            } else if(!passwordEncoder.matches(password, u.getPasswordHash())) {
+            	System.out.println("[AuthService] Login failed for: " + normEmail);
+            	u = null;
+            } 
             return u;
         } catch (Exception e) {
             System.out.println("[AuthService] Login error: " + e.getMessage());

@@ -69,15 +69,18 @@ public class AuthController {
                           HttpServletResponse resp,
                           Model model) {
 
-        User u = auth.authenticate(form.getEmail(), form.getPassword());
+        com.joblink.joblink.entity.User u = auth.authenticate(form.getEmail(), form.getPassword());
         if (u == null) {
             model.addAttribute("error", "Email hoặc mật khẩu không đúng");
             model.addAttribute("loginRequest", form);
             return "signin";
         }
-
+        User user = new User();
+        user.setEmail(u.getEmail());
+        user.setRole(u.getRole());
+        user.setPasswordHash(u.getPasswordHash());
         // ✅ Tạo UserSessionDTO với thông tin đầy đủ
-        UserSessionDTO sessionUser = createSessionUser(u);
+        UserSessionDTO sessionUser = createSessionUser(user);
         session.setAttribute("user", sessionUser);
 
         // ✅ Ghi / xoá cookie REMEMBER
@@ -91,7 +94,7 @@ public class AuthController {
         String role = u.getRole() == null ? "" : u.getRole().toLowerCase();
         String redirectUrl = switch (role) {
             case "admin" -> "redirect:/admin";
-            case "employer" -> "redirect:/employer/home";
+            case "employer" -> "redirect:/employer";
             case "seeker"   -> "redirect:/seeker/home";
             default -> "redirect:/";
         };
@@ -165,18 +168,21 @@ public class AuthController {
 
             String email = (String) session.getAttribute("pendingEmail");
             String password = (String) session.getAttribute("pendingPassword");
-            User user = auth.authenticate(email, password);
-
+            com.joblink.joblink.entity.User user = auth.authenticate(email, password);
+            User u = new User();
+            u.setEmail(user.getEmail());
+            u.setRole(user.getRole());
+            u.setPasswordHash(user.getPasswordHash());
             if (user != null) {
                 // ✅ Tạo UserSessionDTO với thông tin đầy đủ
-                UserSessionDTO sessionUser = createSessionUser(user);
+                UserSessionDTO sessionUser = createSessionUser(u);
                 session.setAttribute("user", sessionUser);
 
                 clearOtpSession(session);
                 String role2 = user.getRole() == null ? "" : user.getRole().toLowerCase();
                 return switch (role2) {
                     case "admin" -> "redirect:/admin";
-                    case "employer" -> "redirect:/employer/home";
+                    case "employer" -> "redirect:/employer";
                     case "seeker" -> "redirect:/seeker/home";
                     default -> "redirect:/";
                 };

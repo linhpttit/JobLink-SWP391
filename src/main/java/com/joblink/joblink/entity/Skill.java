@@ -9,7 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "Skills", schema = "dbo")
+@Table(name = "Skills", schema = "public")
 public class Skill {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,148 +1,219 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{employer/employer-layout}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý CV</title>
-    <link rel="stylesheet" href="/src/main/resources/static/applications.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Quản lý CV</title>
+  <link rel="stylesheet" th:href="@{/applications.css}"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 </head>
+
 <body>
-<div class="applications-management">
+<main class="wrap" layout:fragment="content">
+  <div class="applications-management">
     <!-- Header -->
     <div class="applications-header">
-        <h2 class="applications-title"><i class="fa-solid fa-file"></i>Quản lý CV / Ứng viên</h2>
-        <div class="applications-actions">
-            <button class="btn btn-primary">
-                <i class="fas fa-download"></i> Xuất Excel
-            </button>
-        </div>
+      <h2 class="applications-title">
+        <i class="fa-solid fa-file"></i> Quản lý CV / Ứng viên
+      </h2>
+      <div class="applications-actions">
+        <a class="btn btn-primary"
+           th:href="@{/employer/applications/export(q=${q},status=${status},jobId=${jobId},date=${date},page=${page},size=${size})}">
+          <i class="fas fa-download"></i> Xuất Excel
+        </a>
+      </div>
     </div>
 
     <!-- Filters -->
-    <div class="applications-filters">
-        <div class="filter-row">
-            <div class="filter-group">
-                <label for="searchCV">Tìm kiếm</label>
-                <div class="search-box">
-                    <input type="text" id="searchCV" placeholder="Tìm theo tên, email, công việc...">
-                    <i class="fas fa-search"></i>
-                </div>
-            </div>
-            <div class="filter-group">
-                <label for="statusFilter">Trạng thái</label>
-                <select id="statusFilter">
-                    <option value="">Tất cả</option>
-                    <option value="submitted">Đã nộp</option>
-                    <option value="reviewing">Đang xem xét</option>
-                    <option value="accepted">Chấp nhận</option>
-                    <option value="denied">Từ chối</option>
-                    <option value="withdrawn">Rút hồ sơ</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label for="jobFilter">Công việc</label>
-                <select id="jobFilter">
-                    <option value="">Tất cả</option>
-                    <!-- Options từ backend -->
-                </select>
-            </div>
-            <div class="filter-group">
-                <label for="dateFilter">Ngày nộp</label>
-                <select id="dateFilter">
-                    <option value="">Tất cả</option>
-                    <option value="today">Hôm nay</option>
-                    <option value="week">Tuần này</option>
-                    <option value="month">Tháng này</option>
-                </select>
-            </div>
+    <form class="applications-filters" method="get" th:action="@{/applications}">
+      <div class="filter-row">
+        <div class="filter-group">
+          <label for="searchCV">Tìm kiếm</label>
+          <div class="search-box">
+            <input type="text" id="searchCV" name="q" th:value="${q}" placeholder="Tìm theo tên, email, công việc...">
+            <i class="fas fa-search"></i>
+          </div>
         </div>
-    </div>
 
-    <!-- Statistics -->
+        <div class="filter-group">
+          <label for="statusFilter">Trạng thái</label>
+          <select id="statusFilter" name="status" th:value="${status}">
+            <option value="">Tất cả</option>
+            <option value="submitted" th:selected="${status=='submitted'}">Đã nộp</option>
+            <option value="reviewing" th:selected="${status=='reviewing'}">Đang xem xét</option>
+            <option value="accepted"  th:selected="${status=='accepted'}">Chấp nhận</option>
+            <option value="denied"    th:selected="${status=='denied'}">Từ chối</option>
+            <option value="withdrawn" th:selected="${status=='withdrawn'}">Rút hồ sơ</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="jobFilter">Công việc</label>
+          <select id="jobFilter" name="jobId" th:value="${jobId}">
+            <option value="">Tất cả</option>
+            <option th:each="j : ${jobs}" th:value="${j.jobId}" th:text="${j.title}"></option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="dateFilter">Ngày nộp</label>
+          <select id="dateFilter" name="date" th:value="${date}">
+            <option value="">Tất cả</option>
+            <option value="today" th:selected="${date=='today'}">Hôm nay</option>
+            <option value="week"  th:selected="${date=='week'}">Tuần này</option>
+            <option value="month" th:selected="${date=='month'}">Tháng này</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>&nbsp;</label>
+          <button class="btn btn-primary" type="submit">
+            <i class="fa fa-filter"></i> Lọc
+          </button>
+        </div>
+      </div>
+    </form>
+
+    <!-- Stats -->
     <div class="applications-stats">
-        <div class="stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-clipboard-list"></i>
-            </div>
-            <div class="stat-info">
-                <h3>245</h3>
-                <p>Tổng số CV</p>
-            </div>
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-clipboard-list"></i></div>
+        <div class="stat-info">
+          <h3 th:text="${stats.total}">0</h3>
+          <p>Tổng số CV</p>
         </div>
-        <div class="stat-card">
-            <div class="stat-icon reviewing">
-                <i class="fas fa-clock"></i>
-            </div>
-            <div class="stat-info">
-                <h3>120</h3>
-                <p>Đang xem xét</p>
-            </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon reviewing"><i class="fas fa-clock"></i></div>
+        <div class="stat-info">
+          <h3 th:text="${stats.reviewing}">0</h3>
+          <p>Đang xem xét</p>
         </div>
-        <div class="stat-card">
-            <div class="stat-icon accepted">
-                <i class="fas fa-check-circle"></i>
-            </div>
-            <div class="stat-info">
-                <h3>75</h3>
-                <p>Đã chấp nhận</p>
-            </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon accepted"><i class="fas fa-check-circle"></i></div>
+        <div class="stat-info">
+          <h3 th:text="${stats.accepted}">0</h3>
+          <p>Đã chấp nhận</p>
         </div>
-        <div class="stat-card">
-            <div class="stat-icon denied">
-                <i class="fas fa-times-circle"></i>
-            </div>
-            <div class="stat-info">
-                <h3>50</h3>
-                <p>Đã từ chối</p>
-            </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon denied"><i class="fas fa-times-circle"></i></div>
+        <div class="stat-info">
+          <h3 th:text="${stats.denied}">0</h3>
+          <p>Đã từ chối</p>
         </div>
+      </div>
     </div>
 
-    <!-- Applications Table -->
+    <!-- Table -->
     <div class="applications-table-container">
+      <div class="table-scroll">
         <table class="applications-table">
-            <thead>
-                <tr>
-                    <th>Ứng viên</th>
-                    <th>Email</th>
-                    <th>Công việc</th>
-                    <th>Ngày nộp</th>
-                    <th>Trạng thái</th>
-                    <th>CV / Tài liệu</th>
-                    <th>Ghi chú</th>
-                    <th>Thao tác</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="no-data">
-                    <td colspan="8" style="text-align:center; padding: 20px; color: #888;">
-                        Không có dữ liệu
-                    </td>
-                </tr>
-            </tbody>
+          <thead>
+          <tr>
+            <th><input type="checkbox" id="chkAll"></th>
+            <th>Ứng viên</th>
+            <th>Email</th>
+            <th>Công việc</th>
+            <th>Ngày nộp</th>
+            <th>Trạng thái</th>
+            <th>CV / Tài liệu</th>
+            <th>Ghi chú</th>
+            <th class="ta-right">Thao tác</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:if="${#lists.isEmpty(items)}" class="no-data">
+            <td colspan="9" style="text-align:center; padding:20px; color:#888;">Không có dữ liệu</td>
+          </tr>
+
+          <tr th:each="a : ${items}">
+            <td><input type="checkbox" name="selectedIds" th:value="${a.id}"></td>
+            <td>
+              <div class="candidate-info">
+                <div class="candidate-name" th:text="${a.candidateName}">Tên ứng viên</div>
+                <div class="candidate-phone" th:text="${a.phone}">0900000000</div>
+              </div>
+            </td>
+            <td th:text="${a.email}">email@domain.com</td>
+            <td>
+              <div class="job-info">
+                <div class="job-title" th:text="${a.jobTitle}">Vị trí</div>
+                <div class="job-company" th:text="${a.company}">Công ty</div>
+              </div>
+            </td>
+            <td th:text="${#temporals.format(a.appliedAt,'dd/MM/yyyy HH:mm')}">01/11/2025 09:20</td>
+            <td>
+              <span th:class="'status-badge status-' + ${a.status}" th:text="${a.statusLabel}">Đã nộp</span>
+            </td>
+            <td>
+              <div class="cv-document" th:if="${a.cvName != null}">
+                <div class="cv-icon"><i class="fa-regular fa-file-lines"></i></div>
+                <div class="cv-info">
+                  <a th:href="${a.cvUrl}" th:text="${a.cvName}" download>CV.pdf</a>
+                  <span class="cv-size" th:text="${a.cvSize}">220 KB</span>
+                </div>
+              </div>
+              <span class="muted small" th:if="${a.cvName == null}">—</span>
+            </td>
+            <td class="notes">
+              <div class="notes-text" th:text="${a.notes}">—</div>
+            </td>
+            <td class="ta-right">
+              <div class="action-buttons">
+                <a th:href="@{|/employer/applications/${a.id}|}" class="btn-icon view" title="Xem"><i class="fa-regular fa-eye"></i></a>
+                <a th:href="@{|/employer/applications/${a.id}/download|}" class="btn-icon download" title="Tải CV"><i class="fa-solid fa-download"></i></a>
+                <a th:href="@{|/employer/applications/${a.id}/edit|}" class="btn-icon edit" title="Sửa"><i class="fa-regular fa-pen-to-square"></i></a>
+                <a th:href="@{|/employer/applications/${a.id}/delete|}" class="btn-icon delete" title="Xóa"><i class="fa-regular fa-trash-can"></i></a>
+              </div>
+            </td>
+          </tr>
+          </tbody>
         </table>
+      </div>
     </div>
 
     <!-- Pagination -->
-    <div class="pagination">
-        <div class="pagination-info">
-            Hiển thị 1-10 của 245 kết quả
-        </div>
-        <div class="pagination-controls">
-            <button class="pagination-btn" disabled>
-                <i class="fas fa-chevron-left"></i>
-            </button>
-            <button class="pagination-btn active">1</button>
-            <button class="pagination-btn">2</button>
-            <button class="pagination-btn">3</button>
-            <button class="pagination-btn">...</button>
-            <button class="pagination-btn">10</button>
-            <button class="pagination-btn">
-                <i class="fas fa-chevron-right"></i>
-            </button>
-        </div>
+    <div class="pagination" th:if="${meta.totalPages > 1}">
+      <div class="pagination-info">
+        Hiển thị
+        <span th:text="${meta.from}">1</span>-<span th:text="${meta.to}">10</span>
+        của <span th:text="${meta.total}">0</span> kết quả
+      </div>
+      <div class="pagination-controls">
+        <a class="pagination-btn" th:classappend="${meta.page==0} ? ' disabled'"
+           th:href="@{/employer/applications(q=${q},status=${status},jobId=${jobId},date=${date},page=${meta.page-1},size=${size})}">
+          <i class="fas fa-chevron-left"></i>
+        </a>
+
+        <a th:each="p : ${#numbers.sequence(0, meta.totalPages-1)}"
+           class="pagination-btn"
+           th:classappend="${p==meta.page} ? ' active'"
+           th:text="${p+1}"
+           th:href="@{/employer/applications(q=${q},status=${status},jobId=${jobId},date=${date},page=${p},size=${size})}"></a>
+
+        <a class="pagination-btn" th:classappend="${meta.page==meta.totalPages-1} ? ' disabled'"
+           th:href="@{/employer/applications(q=${q},status=${status},jobId=${jobId},date=${date},page=${meta.page+1},size=${size})}">
+          <i class="fas fa-chevron-right"></i>
+        </a>
+      </div>
     </div>
-</div>
+  </div>
+</main>
+
+<script>
+  // simple "select all"
+  document.addEventListener('DOMContentLoaded', () => {
+    const chkAll = document.getElementById('chkAll');
+    if (!chkAll) return;
+    chkAll.addEventListener('change', () => {
+      document.querySelectorAll('input[name="selectedIds"]').forEach(c => c.checked = chkAll.checked);
+    });
+  });
+</script>
 </body>
 </html>
