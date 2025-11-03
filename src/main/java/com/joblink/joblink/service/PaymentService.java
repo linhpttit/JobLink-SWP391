@@ -4,7 +4,8 @@ import com.joblink.joblink.dto.GoogleScriptResponse;
 import com.joblink.joblink.dto.PaymentResponse;
 import com.joblink.joblink.dto.TransactionData;
 import com.joblink.joblink.entity.*;
-import com.joblink.joblink.Repository.*;
+import com.joblink.joblink.repository.*;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

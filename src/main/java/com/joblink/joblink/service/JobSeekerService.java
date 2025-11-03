@@ -3,7 +3,8 @@ package com.joblink.joblink.service;
 
 
 import com.joblink.joblink.entity.JobSeekerProfile;
-import com.joblink.joblink.Repository.JobSeekerProfileRepository;
+import com.joblink.joblink.repository.JobSeekerProfileRepository;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
