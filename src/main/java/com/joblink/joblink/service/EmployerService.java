@@ -6,8 +6,9 @@ import com.joblink.joblink.dao.EmployerProfileDao;
 import com.joblink.joblink.dto.EmployerProfileDto;
 import com.joblink.joblink.entity.Employer;
 import com.joblink.joblink.entity.User; // ← SỬ DỤNG Entity User
-import com.joblink.joblink.Repository.EmployerRepository;
-import com.joblink.joblink.Repository.UserRepository;
+import com.joblink.joblink.repository.EmployerRepository;
+import com.joblink.joblink.repository.UserRepository;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;

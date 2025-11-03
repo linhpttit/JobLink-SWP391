@@ -1,5 +1,5 @@
 
-package com.joblink.joblink.Repository;
+package com.joblink.joblink.repository;
 
 import com.joblink.joblink.entity.Payment;
 import org.springframework.data.jpa.repository.JpaRepository;

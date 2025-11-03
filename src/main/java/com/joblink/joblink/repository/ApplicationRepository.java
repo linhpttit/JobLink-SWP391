@@ -1,4 +1,4 @@
-package com.joblink.joblink.Repository;
+package com.joblink.joblink.repository;
 
 import java.time.LocalDateTime;
 import java.util.Collection;

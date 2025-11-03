@@ -3,7 +3,8 @@ package com.joblink.joblink.service;
 
 import com.joblink.joblink.dto.JobPostingDto;
 import com.joblink.joblink.entity.*;
-import com.joblink.joblink.Repository.*; // Gộp các import repository
+import com.joblink.joblink.repository.*;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,9 +17,9 @@ import java.util.Optional;
 public class JobPostingService implements IJobPostingService {
 
     private final JobPostingRepository jobPostingRepository;
-    private final com.joblink.joblink.Repository.SkillRepository skillRepository;
-    private final com.joblink.joblink.Repository.ProvinceRepository provinceRepository;
-    private final com.joblink.joblink.Repository.DistrictRepository districtRepository;
+    private final com.joblink.joblink.repository.SkillRepository skillRepository;
+    private final com.joblink.joblink.repository.ProvinceRepository provinceRepository;
+    private final com.joblink.joblink.repository.DistrictRepository districtRepository;
     private final EmployerRepository employerRepository;
 
     @Override

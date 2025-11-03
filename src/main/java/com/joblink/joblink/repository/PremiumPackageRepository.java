@@ -1,4 +1,4 @@
-package com.joblink.joblink.Repository;
+package com.joblink.joblink.repository;
 
 // SỬA LỖI: Import đúng tên entity
 import com.joblink.joblink.entity.PremiumPackages;
