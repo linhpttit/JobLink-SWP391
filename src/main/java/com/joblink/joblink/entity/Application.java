@@ -35,6 +35,6 @@ public class Application {
     @Column(name = "note", length = 500)
     private String note;
 
-    @Column(name = "status_log", columnDefinition = "NVARCHAR(MAX)")
+    @Column(name = "status_log")
     private String statusLog;
 }

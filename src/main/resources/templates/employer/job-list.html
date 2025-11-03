@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{employer/employer-layout}">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Danh sách việc làm</title>
+    <link rel="stylesheet" th:href="@{/css/job-list.css}"/>
+</head>
+<body class="bg-soft">
+<main class="wrap" layout:fragment="content">
+
+    <!-- Toolbar (filters/sort) -->
+    <section class="toolbar">
+        <form class="filters" method="get" th:action="@{/employer/jobs}">
+            <input class="input" type="text" name="q" th:value="${q}" placeholder="Tìm tiêu đề, vị trí, kỹ năng…"/>
+
+            <select class="select" name="provinceId">
+                <option th:value="" th:selected="${provinceId == null}">Tất cả địa điểm</option>
+                <option th:each="p : ${provinces}"
+                        th:value="${p.provinceId}"
+                        th:text="${p.provinceName}"
+                        th:selected="${provinceId != null and p.provinceId == provinceId}">Hà Nội</option>
+            </select>
+
+            <select class="select" name="workType">
+                <option th:value="" th:selected="${workType == null}">Loại hình làm việc</option>
+                <option th:value="Full-time" th:selected="${workType == 'Full-time'}">Full-time</option>
+                <option th:value="Part-time" th:selected="${workType == 'Part-time'}">Part-time</option>
+                <option th:value="Hybrid" th:selected="${workType == 'Hybrid'}">Hybrid</option>
+                <option th:value="Remote" th:selected="${workType == 'Remote'}">Remote</option>
+            </select>
+
+            <input class="input" type="number" min="0" name="minSalary" th:value="${minSalary}"
+                   placeholder="Lương tối thiểu (VND)"/>
+
+            <select class="select" name="sort">
+                <option th:value="postedAt,DESC" th:selected="${sort == 'postedAt,DESC'}">Mới nhất</option>
+                <option th:value="salaryMax,DESC" th:selected="${sort == 'salaryMax,DESC'}">Lương cao</option>
+                <option th:value="salaryMax,ASC"  th:selected="${sort == 'salaryMax,ASC'}">Lương thấp</option>
+                <option th:value="submissionDeadline,ASC" th:selected="${sort == 'submissionDeadline,ASC'}">Hạn nộp gần</option>
+                <option th:value="title,ASC" th:selected="${sort == 'title,ASC'}">A → Z</option>
+            </select>
+
+            <button class="btn" type="submit">Lọc</button>
+        </form>
+
+        <div class="result-meta">
+            <span th:text="'Tìm thấy ' + ${jobs.totalElements} + ' công việc'">Tìm thấy 0 công việc</span>
+        </div>
+    </section>
+
+    <!-- Danh sách -->
+    <section class="list" aria-live="polite">
+        <article class="job-card" th:each="j : ${jobs.content}">
+            <!-- Logo (fallback) -->
+            <a class="logo" th:href="@{/jobPosting/detail/{id}(id=${j.jobId})}">
+                <img th:src="@{/img/company-fallback.png}" alt="logo"/>
+            </a>
+
+            <!-- Nội dung chính -->
+            <div class="main">
+                <div class="row1">
+                    <a class="title"
+                       th:href="@{/jobPosting/detail/{id}(id=${j.jobId})}"
+                       th:text="${j.title}">Tiêu đề</a>
+                    <div class="salary xs" th:text="${j.salaryText}">Thỏa thuận</div>
+                </div>
+
+                <div class="tags">
+                    <span class="tag" th:text="${j.provinceName}">Địa điểm</span>
+                    <span class="tag" th:if="${j.workType != null}" th:text="${j.workType}">Full-time</span>
+                    <span class="tag" th:text="${j.yearExperience}">Kinh nghiệm</span>
+                </div>
+
+                <div class="meta-line">
+                    <span th:text="${j.position}">Vị trí</span>
+                    <span class="plus">•</span>
+                    <span class="time" th:text="${j.postedAtText}">Đăng 3 ngày trước</span>
+                    <span class="plus" th:if="${j.submissionDeadlineText != null}">•</span>
+                    <span class="time" th:text="${j.submissionDeadlineText}" th:if="${j.submissionDeadlineText != null}">Hạn nộp</span>
+                </div>
+            </div>
+
+            <!-- Cột phải -->
+            <div class="aside">
+                <div class="salary">
+                    <span th:text="${j.salaryText}">Thỏa thuận</span>
+                </div>
+                <div class="time" th:text="${j.applicationsCount + ' ứng tuyển'}">0 ứng tuyển</div>
+            </div>
+        </article>
+
+        <div class="empty" th:if="${jobs.totalElements == 0}">
+            Không có công việc nào phù hợp. Hãy điều chỉnh bộ lọc và thử lại.
+        </div>
+    </section>
+
+    <!-- Phân trang -->
+    <nav class="paging" th:if="${jobs.totalPages > 1}" aria-label="Phân trang">
+        <a class="page"
+           th:classappend="${jobs.first} ? ' disabled' : ''"
+           th:href="@{/employer/jobs(q=${q},provinceId=${provinceId},workType=${workType},minSalary=${minSalary},sort=${sort},page=${jobs.number - 1},size=${jobs.size})}">«</a>
+
+        <a class="page"
+           th:each="i : ${#numbers.sequence(0, jobs.totalPages - 1)}"
+           th:text="${i + 1}"
+           th:classappend="${i == jobs.number} ? ' active' : ''"
+           th:href="@{/employer/jobs(q=${q},provinceId=${provinceId},workType=${workType},minSalary=${minSalary},sort=${sort},page=${i},size=${jobs.size})}">1</a>
+
+        <a class="page"
+           th:classappend="${jobs.last} ? ' disabled' : ''"
+           th:href="@{/employer/jobs(q=${q},provinceId=${provinceId},workType=${workType},minSalary=${minSalary},sort=${sort},page=${jobs.number + 1},size=${jobs.size})}">»</a>
+    </nav>
+
+</main>
+</body>
+</html>
