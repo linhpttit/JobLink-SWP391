@@ -17,6 +17,4 @@ public class User {
     private LocalDateTime createdAt;
     private String googleId;
     private String passwordHash;
-
-
 }
