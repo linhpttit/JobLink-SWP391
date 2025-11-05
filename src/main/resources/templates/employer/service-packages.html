@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{employer/employer-layout}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bảng giá dịch vụ</title>
+    <link rel="stylesheet" th:href="@{/service-packages.css}">
+</head>
+<body layout:fragment="content">
+<main class="wrap">
+    <h1 class="page-title">Dịch vụ đăng tin</h1>
+
+    <!-- Lặp các gói -->
+    <section class="pkg"
+             th:each="p : ${packages}">
+        <!-- Minh hoạ bên trái -->
+        <div class="art">
+            <img th:src="${p.bannerUrl} ?: @{/img/sample-card.png}" alt="">
+        </div>
+
+        <!-- Nội dung bên phải -->
+        <div class="body">
+            <header class="hd">
+                <div class="title">
+                    <span class="icon" th:if="${p.flash}">⚡</span>
+                    <h2 th:text="${p.name}">Tin cơ bản</h2>
+                    <a class="help" th:if="${p.helpUrl}" th:href="${p.helpUrl}" target="_blank">Tìm hiểu thêm</a>
+                </div>
+
+                <!-- badge MỚI -->
+                <span class="badge new" th:if="${p.isNew}">MỚI</span>
+            </header>
+
+            <p class="desc" th:text="${p.description}">
+                Tin của bạn được đăng trong 4 tuần, chưa bao gồm dịch vụ nâng cấp/hiệu ứng.
+            </p>
+
+            <!-- Phạm vi áp dụng -->
+            <dl class="scope" th:if="${p.scope != null}">
+                <div><dt>Địa điểm</dt><dd th:text="${p.scope.locations}">Hà Nội, TP.HCM, Bình Dương</dd></div>
+                <div><dt>Cấp bậc</dt><dd th:text="${p.scope.levels}">Nhân viên, Cộng tác viên</dd></div>
+                <div><dt>Ngành nghề</dt><dd>
+                    <span th:text="${p.scope.industries}">An ninh - Bảo vệ, Khách sạn - Nhà hàng…</span>
+                    <a class="more" th:if="${p.scopeDetailUrl}" th:href="${p.scopeDetailUrl}">Chi tiết</a>
+                </dd></div>
+            </dl>
+
+            <!-- Bảng thông tin + giá -->
+            <div class="grid">
+                <div>
+                    <div class="label">Số lượng</div>
+                    <div class="stepper">
+                        <button type="button" class="btn-step" th:attr="data-id=${p.id}" data-act="-">−</button>
+                        <input class="qty" type="number" min="1" th:value="${p.quantity}" th:name="'qty_'+${p.id}">
+                        <button type="button" class="btn-step" th:attr="data-id=${p.id}" data-act="+">＋</button>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="label">Thời lượng</div>
+                    <div class="value" th:text="${p.duration} + ' tuần'">4 tuần</div>
+                </div>
+
+                <div class="price-col">
+                    <div class="label">Giá bán</div>
+                    <div class="price">
+            <span class="strike" th:if="${p.originalPrice != null}"
+                  th:text="${#numbers.formatDecimal(p.originalPrice,0,'COMMA',0,'POINT')} + 'đ'">3,690,000đ</span>
+                        <span class="sale" th:text="${#numbers.formatDecimal(p.price,0,'COMMA',0,'POINT')} + 'đ'">1,720,000đ</span>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button class="btn-add" th:attr="data-id=${p.id}">
+                        🛒 Thêm vào giỏ
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- /pkg -->
+
+</main>
+
+<script>
+    // tăng/giảm số lượng (demo phía client)
+    document.addEventListener('click', e=>{
+      const btn = e.target.closest('.btn-step'); if(!btn) return;
+      const card = btn.closest('.pkg'); const qty = card.querySelector('.qty');
+      const sign = btn.dataset.act === '+' ? 1 : -1;
+      const v = Math.max(1, (parseInt(qty.value||'1',10) + sign));
+      qty.value = v;
+    });
+</script>
+</body>
+</html>

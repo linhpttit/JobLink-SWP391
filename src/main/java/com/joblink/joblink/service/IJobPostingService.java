@@ -29,4 +29,6 @@ public interface IJobPostingService {
 
     // ✅ BỔ SUNG PHƯƠNG THỨC CÒN THIẾU
     List<JobPosting> getRelatedJobs(Integer categoryId, Long excludeJobId);
+
+    long countOpenJobPosting();
 }

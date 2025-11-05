@@ -10,6 +10,7 @@ import java.util.List;
 
 public interface JobPostingRepository extends JpaRepository<JobPosting, Long> {
 
+    long countByStatus(String status);
     // Tìm các tin đăng theo ID của nhà tuyển dụng
     List<JobPosting> findByEmployerId(Long employerId);
 

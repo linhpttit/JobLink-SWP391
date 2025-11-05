@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{employer/employer-layout}">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Jobs Dashboard</title>
+    <link rel="stylesheet" th:href="@{/employer-dashboard.css}"/>
+</head>
+<body layout:fragment="content">
+<main class="wrap">
+    <header class="hello">
+        <h1>Hello, <span th:text="${accountName} ?: 'Instagram'"></span></h1>
+        <p>Here is your daily activities and applications</p>
+    </header>
+
+    <!-- KPI Cards -->
+    <section class="kpis">
+        <div class="kpi kpi-blue">
+            <div class="kpi-num" th:text="${openJobsCount} ?: 589"></div>
+            <div class="kpi-sub">Open Jobs</div>
+            <div class="kpi-icon">📦</div>
+        </div>
+
+        <div class="kpi kpi-amber">
+            <div class="kpi-num" th:text="${savedCandidatesCount} ?: 2517"></div>
+            <div class="kpi-sub">Saved Candidates</div>
+            <div class="kpi-icon">🧾</div>
+        </div>
+    </section>
+
+    <!-- Recently Posted Jobs -->
+    <section class="panel">
+        <div class="panel-hd">
+            <h3>Recently Posted Jobs</h3>
+            <a class="view-all" th:href="@{/jobPosting}">View all →</a>
+        </div>
+
+        <div class="table">
+            <div class="thead">
+                <div class="th col-job">JOBS</div>
+                <div class="th col-status">STATUS</div>
+                <div class="th col-apps">APPLICATIONS</div>
+                <div class="th col-actions">ACTIONS</div>
+            </div>
+
+            <!-- Row -->
+            <div class="row"
+                 th:each="j,idx : ${jobs}"
+                 th:classappend="${idx.index==2} ? ' row-focus'">
+                <!-- Job cell -->
+                <div class="td col-job">
+                    <div class="job-title" th:text="${j.title}"></div>
+                    <div class="job-sub">
+                        <span th:text="${j.workType}"></span>
+                        <span>•</span>
+                        <span th:text="${j.submissionDeadline}"></span>
+                    </div>
+                </div>
+
+                <!-- Status -->
+                <div class="td col-status">
+          <span class="status"
+                th:classappend="${j.status}=='Active' ? ' ok' : ' exp'">
+            <span class="dot"></span>
+            <span th:text="${j.status}"></span>
+          </span>
+                </div>
+
+                <!-- Applications -->
+                <div class="td col-apps">
+                    <span class="apps-ico">👥</span>
+<!--                    <span th:text="${j.applications} + ' Applications'">798 Applications</span>-->
+                </div>
+
+                <!-- Actions -->
+<!--                <div class="td col-actions">-->
+<!--                    <a class="btn btn-primary"-->
+<!--                       th:href="@{/jobs/{id}/applications(id=${j.id})}">View Applications</a>-->
+
+<!--                    <div class="menu">-->
+<!--                        <button class="btn-more" type="button" aria-haspopup="true" aria-expanded="false">⋮</button>-->
+<!--                        <div class="dropdown">-->
+<!--                            <a th:href="@{/jobs/{id}/promote(id=${j.id})}">➕ Promote Job</a>-->
+<!--                            <a th:href="@{/jobs/{id}(id=${j.id})}">ⓘ View Detail</a>-->
+<!--                            <a th:href="@{/jobs/{id}/expire(id=${j.id})}">✖ Mark as expired</a>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+            </div>
+            <!-- /Row -->
+        </div>
+    </section>
+</main>
+
+<script>
+    // Toggle dropdowns
+    document.addEventListener('click', e => {
+      const isBtn = e.target.closest('.btn-more');
+      document.querySelectorAll('.menu').forEach(m => m.classList.remove('open'));
+      if (isBtn) isBtn.closest('.menu').classList.add('open');
+    });
+</script>
+</body>
+</html>

@@ -150,5 +150,10 @@ public class JobPostingService implements IJobPostingService {
         return List.of();
     }
 
+    @Override
+    public long countOpenJobPosting() {
+        return jobPostingRepository.countByStatus("ACTIVE");
+    }
+
     // Bạn cần thêm phương thức getRelatedJobs vào đây để implement interface
 }
