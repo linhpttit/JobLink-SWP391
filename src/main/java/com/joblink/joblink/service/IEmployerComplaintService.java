@@ -11,4 +11,6 @@ public interface IEmployerComplaintService {
     EmployerComplaint respondToComplaint(Long complaintId, String response);
     void updateStatus(Long id, String status);
     List<EmployerComplaint> searchComplaintsByEmployer(Long employerId, String status, String keyword);
+    void respondAndUpdateStatus(Long id, String response, String status);
+    EmployerComplaint getComplaintById(Long id);
 }

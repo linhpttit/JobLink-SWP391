@@ -16,32 +16,66 @@
         </div>
 
         <div class="filters">
-            <input type="text" placeholder="Tìm theo user, công ty, nội dung...">
-            <select>
-                <option value="">Tất cả trạng thái</option>
-                <option value="pending">Chưa xử lý</option>
-                <option value="resolved">Đã đồng ý / ẩn bài</option>
-            </select>
+            <form id="filterForm" th:action="@{/employer-response/filters}" method="get">
+                <input type="text" name="keyword" id="searchInput"
+                       th:value="${keyword}" placeholder="Tìm theo người gửi hoặc nội dung">
+                <select name="status" id="statusFilter">
+                    <option value="" th:selected="${selectedStatus == null}">Tất cả trạng thái</option>
+                    <option value="PENDING" th:selected="${selectedStatus == 'PENDING'}">Chưa xử lý</option>
+                    <option value="IN_PROGRESS" th:selected="${selectedStatus == 'IN_PROGRESS'}">Đang xử lý</option>
+                    <option value="RESOLVED" th:selected="${selectedStatus == 'RESOLVED'}">Đã xử lý</option>
+                    <option value="REJECTED" th:selected="${selectedStatus == 'REJECTED'}">Từ chối</option>
+                </select>
+            </form>
         </div>
 
+
         <div class="table-container">
-            <table class="feedbacks-table">
-                <thead>
-                <tr>
-                    <th>Người gửi</th>
-                    <th>Công ty / Ứng viên</th>
-                    <th>Nội dung</th>
-                    <th>Ngày gửi</th>
-                    <th>Trạng thái</th>
-                    <th>Hành động</th>
-                </tr>
-                </thead>
-                <tr class="no-data">
-                    <td colspan="8" style="text-align:center; padding: 20px; color: #888;">
-                        Không có dữ liệu
-                    </td>
-                </tr>
-            </table>
+            <div class="table-container">
+                <table class="feedbacks-table">
+                    <thead>
+                    <tr>
+                        <th>Người gửi</th>
+                        <th>Công ty / Ứng viên</th>
+                        <th>Nội dung</th>
+                        <th>Ngày gửi</th>
+                        <th>Trạng thái</th>
+                        <th>Hành động</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr th:each="c : ${complaints}">
+                        <td th:text="${c.jobSeeker.fullName}">Nguyễn Văn A</td>
+                        <td th:text="${c.employer.companyName}">Công ty ABC</td>
+                        <td th:text="${c.subject} + ' - ' + ${c.content}">Ứng viên không chuyên nghiệp</td>
+                        <td th:text="${#temporals.format(c.createdAt, 'dd/MM/yyyy')}">07/10/2025</td>
+                        <td>
+                            <select class="status-select"
+                                    th:value="${c.status}"
+                                    th:data-id="${c.id}">
+                                <option value="PENDING" th:selected="${c.status == 'PENDING'}">Chưa xử lý</option>
+                                <option value="IN_PROGRESS" th:selected="${c.status == 'IN_PROGRESS'}">Đang xử lý</option>
+                                <option value="RESOLVED" th:selected="${c.status == 'RESOLVED'}">Đã xử lý</option>
+                                <option value="REJECTED" th:selected="${c.status == 'REJECTED'}">Từ chối</option>
+                            </select>
+                        </td>
+                        <td>
+                            <a th:href="@{'/employer-response/respond/' + ${c.id}}"
+                               class="btn btn-primary btn-sm">Xử lý</a>
+                        </td>
+                    </tr>
+
+                    <!-- Nếu không có complaint nào -->
+                    <tr th:if="${#lists.isEmpty(complaints)}">
+                        <td colspan="8" style="text-align:center; padding: 20px; color: #888;">
+                            Không có dữ liệu
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
         </div>
         <!-- Pagination -->
         <div class="pagination">
@@ -71,6 +105,41 @@
       const menuBtn = e.target.closest('.more');
       document.querySelectorAll('.menu').forEach(m => m.classList.remove('open'));
       if (menuBtn) menuBtn.parentElement.classList.add('open');
+    });
+</script>
+<script>
+    document.querySelectorAll('.status-select').forEach(select => {
+      select.addEventListener('change', async (e) => {
+        const id = e.target.dataset.id;   // lấy complaint id
+        const status = e.target.value;    // lấy status mới
+
+        try {
+          const response = await fetch(`/employer-response/update-status/${id}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status })
+          });
+
+          if (response.ok) {
+            alert('✅ Cập nhật trạng thái thành công!');
+          } else {
+            alert('❌ Có lỗi xảy ra khi cập nhật.');
+          }
+        } catch (error) {
+          console.error(error);
+          alert('⚠️ Không thể kết nối đến server.');
+        }
+      });
+    });
+</script>
+<script>
+    const form = document.getElementById('filterForm');
+    const statusFilter = document.getElementById('statusFilter');
+    const searchInput = document.getElementById('searchInput');
+
+    statusFilter.addEventListener('change', () => form.submit());
+    searchInput.addEventListener('keypress', e => {
+      if (e.key === 'Enter') form.submit();
     });
 </script>
 </body>

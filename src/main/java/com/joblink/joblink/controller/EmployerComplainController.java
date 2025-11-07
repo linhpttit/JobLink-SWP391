@@ -92,4 +92,19 @@ public class EmployerComplainController {
 
         return "employer/employer-response";
     }
+    @GetMapping("/respond/{id}")
+    public String viewComplaintDetailPage(@PathVariable Long id, Model model) {
+        EmployerComplaint complaint = complaintService.getComplaintById(id);
+        model.addAttribute("complaint", complaint);
+        return "employer/complaint-detail";
+    }
+    @PostMapping("/respond/{id}")
+    public String handleComplaintResponse(@PathVariable Long id,
+                                          @RequestParam String response,
+                                          @RequestParam String status,
+                                          RedirectAttributes ra) {
+        complaintService.respondAndUpdateStatus(id, response, status);
+        ra.addFlashAttribute("success", "Cập nhật khiếu nại thành công!");
+        return "redirect:/employer-response";
+    }
 }

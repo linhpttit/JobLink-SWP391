@@ -9,7 +9,10 @@ import com.joblink.joblink.entity.JobSeekerProfile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -65,6 +68,23 @@ public class EmployerComplaintService implements IEmployerComplaintService {
         if (status != null && status.isBlank()) status = null;
         if (keyword != null && keyword.isBlank()) keyword = null;
         return complaintRepository.searchByEmployer(employerId, status, keyword);
+    }
+    @Override
+    public void respondAndUpdateStatus(Long id, String response, String status) {
+        EmployerComplaint complaint = complaintRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Complaint not found"));
+
+        complaint.setResponse(response);
+        complaint.setStatus(status);
+        complaint.setUpdatedAt(LocalDate.now());
+
+        complaintRepository.save(complaint);
+    }
+    @Override
+    public EmployerComplaint getComplaintById(Long id){
+        EmployerComplaint complaint = complaintRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy khiếu nại!"));
+        return complaint;
     }
 
 }

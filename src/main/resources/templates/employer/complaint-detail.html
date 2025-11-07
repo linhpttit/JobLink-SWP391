@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{employer/employer-layout}">>
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Response</title>
+    <link rel="stylesheet" th:href="@{/complaint-detail.css}"/>
+</head>
+<body layout:fragment="content">
+<main class="container">
+    <h2>Xử lý khiếu nại #<span th:text="${complaint.id}"></span></h2>
+
+    <div class="info">
+        <p><b>Người gửi:</b> <span th:text="${complaint.jobSeeker.fullName}"></span></p>
+        <p><b>Chủ đề:</b> <span th:text="${complaint.subject}"></span></p>
+        <p><b>Nội dung:</b></p>
+        <p th:text="${complaint.content}"></p>
+        <p><b>Ngày gửi:</b> <span th:text="${#temporals.format(complaint.createdAt, 'dd/MM/yyyy')}"></span></p>
+    </div>
+
+    <form th:action="@{'/employer/complaints/respond/' + ${complaint.id}}" method="post">
+        <label for="response">Phản hồi tới admin:</label>
+        <textarea id="response" name="response" rows="4" th:text="${complaint.response}"></textarea>
+
+        <label for="status">Trạng thái:</label>
+        <select id="status" name="status" th:value="${complaint.status}">
+            <option value="PENDING">Chưa xử lý</option>
+            <option value="IN_PROGRESS">Đang xử lý</option>
+            <option value="RESOLVED">Đã xử lý</option>
+            <option value="REJECTED">Từ chối</option>
+        </select>
+
+        <div class="actions">
+            <button type="submit" class="btn btn-primary">Gửi</button>
+            <a th:href="@{/employer-response}" class="btn btn-secondary">Quay lại</a>
+        </div>
+    </form>
+</main>
+</body>
+</html>

@@ -5,10 +5,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import javax.swing.text.html.Option;
 import java.util.List;
+import java.util.Optional;
 
 public interface EmployerComplaintRepository extends JpaRepository<EmployerComplaint, Long> {
     List<EmployerComplaint> findByEmployerId(Long employerId);
+    Optional<EmployerComplaint> findById(Long id);
     List<EmployerComplaint> findByJobSeekerSeekerId(int jobSeekerId);
     @Query("SELECT c FROM EmployerComplaint c " +
             "WHERE c.employer.id = :employerId " +  // chỉ lấy complaint của employer hiện tại
