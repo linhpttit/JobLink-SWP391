@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Ứng Viên Hiện Đại</title>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="..CSS/application.css">
+</head>
+
+<body>
+<div id="dashboard-content" class="candidate-dashboard">
+    <!-- Thanh tìm kiếm + bộ lọc -->
+    <div class="header-bar">
+        <div class="search-box">
+            <input type="text" placeholder="Tìm kiếm ứng viên, vị trí..." class="search-input">
+            <i class="fas fa-search search-icon search-modal-trigger"></i>
+        </div>
+
+        <div class="filter-group">
+            <label for="status-filter" class="filter-label">Trạng thái:</label>
+            <select id="status-filter" class="filter-select">
+                <option value="">Tất cả</option>
+                <option value="Chấp nhận">Chấp nhận</option>
+                <option value="Từ chối">Từ chối</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Bảng danh sách ứng viên -->
+    <table class="candidate-table">
+        <thead>
+        <tr>
+            <th>Ứng viên</th>
+            <th>Vị trí</th>
+            <th>Ngày nộp</th>
+            <th>Trạng thái</th>
+            <th class="column-save">Lưu</th>
+            <th>Hành động</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Hàng dữ liệu sẽ được thêm bằng JavaScript -->
+        </tbody>
+    </table>
+</div>
+
+<!-- ✅ Modal hiển thị nội dung động -->
+<div id="modal-overlay" class="modal-hidden">
+    <div class="modal-background"></div>
+    <div id="modal-content"></div>
+</div>
+
+<!-- JS -->
+<script src="..JS/application.js"></script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý gói Premium</title>
+    <link rel="stylesheet" href="/CSS/premium.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="packages-management">
+    <div class="header">
+        <h2><i class="fa-solid fa-dollar-sign"></i>Quản lý gói dịch vụ Premium</h2>
+        <button class="btn btn-primary"><i class="fas fa-plus"></i> Tạo gói mới</button>
+    </div>
+
+    <div class="filters">
+        <input type="text" placeholder="Tìm theo tên, code...">
+        <select>
+            <option value="">Tất cả trạng thái</option>
+            <option value="active">Đang hoạt động</option>
+            <option value="inactive">Không hoạt động</option>
+        </select>
+    </div>
+
+    <div class="table-container">
+        <table class="packages-table">
+            <thead>
+            <tr>
+                <th>Mã gói</th>
+                <th>Tên gói</th>
+                <th>Giá</th>
+                <th>Thời gian (ngày)</th>
+                <th>Hạn mức job</th>
+                <th>Nâng cao nổi bật</th>
+                <th>Hành động</th>
+            </tr>
+            </thead>
+            <tr class="no-data">
+                <td colspan="8" style="text-align:center; padding: 20px; color: #888;">
+                    Không có dữ liệu
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+        <div class="pagination-info">
+            Hiển thị 1-10 của 245 kết quả
+        </div>
+        <div class="pagination-controls">
+            <button class="pagination-btn" disabled>
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="pagination-btn active">1</button>
+            <button class="pagination-btn">2</button>
+            <button class="pagination-btn">3</button>
+            <button class="pagination-btn">...</button>
+            <button class="pagination-btn">10</button>
+            <button class="pagination-btn">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+</div>
+</body>
+</html>

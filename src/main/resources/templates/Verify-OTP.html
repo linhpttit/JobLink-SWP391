@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Verify OTP – JobLink</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Outfit:wght@600;800&display=swap" rel="stylesheet">
+    <script th:src="@{/JS/translate.js}"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .wrap {
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .icon-wrapper {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            box-shadow: 0 8px 24px rgba(72, 187, 120, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: #2d3748;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            font-size: 14px;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        .email-display {
+            background: #f7fafc;
+            padding: 12px 16px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 24px;
+            border: 2px dashed #cbd5e0;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .alert.error {
+            background: #fed7d7;
+            color: #c53030;
+            border-left: 4px solid #e53e3e;
+        }
+
+        .alert.success {
+            background: #c6f6d5;
+            color: #22543d;
+            border-left: 4px solid #38a169;
+        }
+
+        .otp-inputs {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 30px 0;
+        }
+
+        .otp-input {
+            width: 55px;
+            height: 60px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 700;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+        }
+
+        .otp-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+            transform: scale(1.05);
+        }
+
+        .timer {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 14px;
+            color: #718096;
+        }
+
+        .timer.warning {
+            color: #e53e3e;
+            font-weight: 600;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn.main {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(72, 187, 120, 0.4);
+            margin-bottom: 12px;
+        }
+
+        .btn.main:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(72, 187, 120, 0.6);
+        }
+
+        .btn.main:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn.secondary {
+            background: #f7fafc;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn.secondary:hover:not(:disabled) {
+            background: #667eea;
+            color: white;
+        }
+
+        .link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .link:hover {
+            color: #764ba2;
+        }
+
+        .center {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #resendBtn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+<main class="wrap">
+    <section class="card">
+        <div class="icon-wrapper">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+                <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+        </div>
+
+        <h2 data-i18n="verify_otp_code">Verify OTP Code</h2>
+        <p class="subtitle" data-i18n="otp_sent_message">We've sent a 6-digit verification code to your email. Please enter it below.</p>
+
+        <div class="email-display" th:if="${email}">
+            <span th:text="${email}">your.email@example.com</span>
+        </div>
+
+        <form id="otpForm" th:action="@{/verify-otp}" method="post">
+            <input type="hidden" name="email" th:value="${email}">
+
+            <div class="alert error" th:if="${error}" th:text="${error}"></div>
+            <div class="alert success" th:if="${msg}" th:text="${msg}"></div>
+
+            <div class="otp-inputs">
+                <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" required>
+                <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" required>
+                <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" required>
+                <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" required>
+                <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" required>
+                <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" required>
+            </div>
+
+            <input type="hidden" name="otpCode" id="otpCodeInput">
+
+            <div class="timer" id="timer">
+                <span data-i18n="code_expires_in">Code expires in:</span> <strong id="countdown">5:00</strong>
+            </div>
+
+            <button class="btn main" type="submit" id="verifyBtn" data-i18n="verify_otp_btn">Verify OTP</button>
+        </form>
+
+        <button class="btn secondary" type="button" id="resendBtn">
+            <span data-i18n="resend_code">Resend Code</span> (<span id="resendTimer">60</span>s)
+        </button>
+
+        <div class="center">
+            <a th:href="@{/signup}" href="/signup" class="link">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                <span data-i18n="back_to_signup">Back to Sign Up</span>
+            </a>
+        </div>
+    </section>
+</main>
+
+<script>
+    const otpInputs = document.querySelectorAll('.otp-input');
+    const otpCodeInput = document.getElementById('otpCodeInput');
+    const otpForm = document.getElementById('otpForm');
+
+    otpInputs.forEach((input, index) => {
+        input.addEventListener('input', (e) => {
+            const value = e.target.value;
+            if (value && index < otpInputs.length - 1) {
+                otpInputs[index + 1].focus();
+            }
+            updateOTPCode();
+        });
+
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                otpInputs[index - 1].focus();
+            }
+        });
+
+        input.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const pastedData = e.clipboardData.getData('text').slice(0, 6);
+            pastedData.split('').forEach((char, i) => {
+                if (i < otpInputs.length && /[0-9]/.test(char)) {
+                    otpInputs[i].value = char;
+                }
+            });
+            updateOTPCode();
+            otpInputs[Math.min(pastedData.length, otpInputs.length - 1)].focus();
+        });
+    });
+
+    function updateOTPCode() {
+        const code = Array.from(otpInputs).map(input => input.value).join('');
+        otpCodeInput.value = code;
+    }
+
+    otpForm.addEventListener('input', () => {
+        const allFilled = Array.from(otpInputs).every(input => input.value);
+        if (allFilled) {
+            setTimeout(() => otpForm.submit(), 300);
+        }
+    });
+
+    let timeLeft = 300;
+    const countdownEl = document.getElementById('countdown');
+    const timerEl = document.getElementById('timer');
+
+    const countdown = setInterval(() => {
+        timeLeft--;
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        countdownEl.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+        if (timeLeft <= 60) {
+            timerEl.classList.add('warning');
+        }
+
+        if (timeLeft <= 0) {
+            clearInterval(countdown);
+            countdownEl.textContent = 'EXPIRED';
+            document.getElementById('verifyBtn').disabled = true;
+        }
+    }, 1000);
+
+    let resendTimeLeft = 60;
+    const resendBtn = document.getElementById('resendBtn');
+    const resendTimerEl = document.getElementById('resendTimer');
+    resendBtn.disabled = true;
+
+    const resendCountdown = setInterval(() => {
+        resendTimeLeft--;
+        resendTimerEl.textContent = resendTimeLeft;
+
+        if (resendTimeLeft <= 0) {
+            clearInterval(resendCountdown);
+            resendBtn.disabled = false;
+            resendBtn.textContent = 'Resend Code';
+        }
+    }, 1000);
+
+    resendBtn.addEventListener('click', async () => {
+        try {
+            resendBtn.disabled = true;
+            resendBtn.textContent = 'Sending...';
+
+            const response = await fetch('/resend-otp', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                }
+            });
+
+            if (response.ok) {
+                alert('New OTP code has been sent to your email!');
+                timeLeft = 300;
+                resendTimeLeft = 60;
+                timerEl.classList.remove('warning');
+                document.getElementById('verifyBtn').disabled = false;
+                otpInputs.forEach(input => input.value = '');
+                otpInputs[0].focus();
+
+                resendBtn.innerHTML = `Resend Code (<span id="resendTimer">60</span>s)`;
+            } else {
+                alert('Failed to resend OTP. Please try again.');
+                resendBtn.disabled = false;
+                resendBtn.textContent = 'Resend Code';
+            }
+        } catch (error) {
+            alert('An error occurred. Please try again.');
+            resendBtn.disabled = false;
+            resendBtn.textContent = 'Resend Code';
+        }
+    });
+
+    window.addEventListener('load', () => {
+        otpInputs[0].focus();
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,232 @@
+{
+  "sql_examples": [
+    {
+      "question": "Có bao nhiêu job đang tuyển?",
+      "sql": "SELECT COUNT(*) as total FROM JobsPosting WHERE status = 'ACTIVE'",
+      "description": "Count total active jobs",
+      "category": "count"
+    },
+    {
+      "question": "Có bao nhiêu job đăng hôm nay?",
+      "sql": "SELECT COUNT(*) as total FROM JobsPosting WHERE status = 'ACTIVE' AND CAST(posted_at AS DATE) = CAST(GETDATE() AS DATE)",
+      "description": "Count jobs posted today",
+      "category": "count"
+    },
+    {
+      "question": "Có bao nhiêu job ở Hà Nội?",
+      "sql": "SELECT COUNT(*) as total FROM JobsPosting jp LEFT JOIN Provinces p ON jp.province_id = p.province_id WHERE jp.status = 'ACTIVE' AND p.province_name = N'Hà Nội'",
+      "description": "Count jobs in Hanoi",
+      "category": "count"
+    },
+    {
+      "question": "Có bao nhiêu job ở Đà Nẵng?",
+      "sql": "SELECT COUNT(*) as total FROM JobsPosting jp LEFT JOIN Provinces p ON jp.province_id = p.province_id WHERE jp.status = 'ACTIVE' AND p.province_name = N'Đà Nẵng'",
+      "description": "Count jobs in Da Nang",
+      "category": "count"
+    },
+    {
+      "question": "Có bao nhiêu job remote?",
+      "sql": "SELECT COUNT(*) as total FROM JobsPosting WHERE status = 'ACTIVE' AND work_type = N'Remote'",
+      "description": "Count remote jobs",
+      "category": "count"
+    },
+    {
+      "question": "Có bao nhiêu job fulltime?",
+      "sql": "SELECT COUNT(*) as total FROM JobsPosting WHERE status = 'ACTIVE' AND work_type = N'Full-time'",
+      "description": "Count fulltime jobs",
+      "category": "count"
+    },
+    {
+      "question": "Danh sách việc làm ở Hà Nội",
+      "sql": "SELECT TOP 10 jp.job_id, jp.position, jp.title, jp.salary_min, jp.salary_max, p.province_name as location, jp.work_type, jp.posted_at FROM JobsPosting jp LEFT JOIN Provinces p ON jp.province_id = p.province_id WHERE jp.status = 'ACTIVE' AND p.province_name = N'Hà Nội' ORDER BY jp.posted_at DESC",
+      "description": "List jobs in Hanoi",
+      "category": "list"
+    },
+    {
+      "question": "Danh sách việc làm ở Hồ Chí Minh",
+      "sql": "SELECT TOP 10 jp.job_id, jp.position, jp.title, jp.salary_min, jp.salary_max, p.province_name as location, jp.work_type, jp.posted_at FROM JobsPosting jp LEFT JOIN Provinces p ON jp.province_id = p.province_id WHERE jp.status = 'ACTIVE' AND p.province_name = N'Hồ Chí Minh' ORDER BY jp.posted_at DESC",
+      "description": "List jobs in Ho Chi Minh",
+      "category": "list"
+    },
+    {
+      "question": "Danh sách việc làm ở Đà Nẵng",
+      "sql": "SELECT TOP 10 jp.job_id, jp.position, jp.title, jp.salary_min, jp.salary_max, p.province_name as location, jp.work_type, jp.posted_at FROM JobsPosting jp LEFT JOIN Provinces p ON jp.province_id = p.province_id WHERE jp.status = 'ACTIVE' AND p.province_name = N'Đà Nẵng' ORDER BY jp.posted_at DESC",
+      "description": "List jobs in Da Nang",
+      "category": "list"
+    },
+    {
+      "question": "Danh sách việc làm developer",
+      "sql": "SELECT TOP 10 jp.job_id, jp.position, jp.title, jp.salary_min, jp.salary_max, p.province_name as location, jp.work_type, jp.posted_at FROM JobsPosting jp LEFT JOIN Provinces p ON jp.province_id = p.province_id WHERE jp.status = 'ACTIVE' AND jp.position LIKE N'%developer%' ORDER BY jp.posted_at DESC",
+      "description": "List developer jobs",
+      "category": "list"
+    },
+    {
+      "question": "Danh sách việc làm frontend developer",
+      "sql": "SELECT TOP 10 jp.job_id, jp.position, jp.title, jp.salary_min, jp.salary_max, p.province_name as location, jp.work_type, jp.posted_at FROM JobsPosting jp LEFT JOIN Provinces p ON jp.province_id = p.province_id WHERE jp.status = 'ACTIVE' AND jp.position LIKE N'%frontend%' ORDER BY jp.posted_at DESC",
+      "description": "List frontend developer jobs",
+      "category": "list"
+    },
+    {
+      "question": "Danh sách việc làm backend developer",
+      "sql": "SELECT TOP 10 jp.job_id, jp.position, jp.title, jp.salary_min, jp.salary_max, p.province_name as location, jp.work_type FROM JobsPosting jp LEFT JOIN Provinces p ON jp.province_id = p.province_id WHERE jp.status = 'ACTIVE' AND jp.position LIKE N'%backend%' ORDER BY jp.posted_at DESC",
+      "description": "List backend developer jobs",
+      "category": "list"
+    },
+    {
+      "question": "Danh sách việc làm fullstack developer",
+      "sql": "SELECT TOP 10 jp.job_id, jp.position, jp.title, jp.salary_min, jp.salary_max, p.province_name as location, jp.work_type FROM JobsPosting jp LEFT JOIN Provinces p ON jp.province_id = p.province_id WHERE jp.status = 'ACTIVE' AND jp.position LIKE N'%fullstack%' ORDER BY jp.posted_at DESC",
+      "description": "List fullstack developer jobs",
+      "category": "list"
+    },
+    {
+      "question": "Danh sách việc làm remote",
+      "sql": "SELECT TOP 10 jp.job_id, jp.position, jp.title, jp.salary_min, jp.salary_max, p.province_name as location, jp.work_type FROM JobsPosting jp LEFT JOIN Provinces p ON jp.province_id = p.province_id WHERE jp.status = 'ACTIVE' AND jp.work_type = N'Remote' ORDER BY jp.posted_at DESC",
+      "description": "List remote jobs",
+      "category": "list"
+    },
+    {
+      "question": "Danh sách việc làm part-time",
+      "sql": "SELECT TOP 10 jp.job_id, jp.position, jp.title, jp.salary_min, jp.salary_max, p.province_name as location, jp.work_type FROM JobsPosting jp LEFT JOIN Provinces p ON jp.province_id = p.province_id WHERE jp.status = 'ACTIVE' AND jp.work_type = N'Part-time' ORDER BY jp.posted_at DESC",
+      "description": "List part-time jobs",
+      "category": "list"
+    },
+    {
+      "question": "Danh sách việc làm designer",
+      "sql": "SELECT TOP 10 jp.job_id, jp.position, jp.title, jp.salary_min, jp.salary_max, p.province_name as location, jp.work_type FROM JobsPosting jp LEFT JOIN Provinces p ON jp.province_id = p.province_id WHERE jp.status = 'ACTIVE' AND jp.position LIKE N'%designer%' ORDER BY jp.posted_at DESC",
+      "description": "List designer jobs",
+      "category": "list"
+    },
+    {
+      "question": "Danh sách việc làm marketing",
+      "sql": "SELECT TOP 10 jp.job_id, jp.position, jp.title, jp.salary_min, jp.salary_max, p.province_name as location, jp.work_type FROM JobsPosting jp LEFT JOIN Provinces p ON jp.province_id = p.province_id WHERE jp.status = 'ACTIVE' AND jp.position LIKE N'%marketing%' ORDER BY jp.posted_at DESC",
+      "description": "List marketing jobs",
+      "category": "list"
+    },
+    {
+      "question": "Top 5 job lương cao nhất",
+      "sql": "SELECT TOP 5 jp.job_id, jp.position, jp.title, jp.salary_max, p.province_name as location FROM JobsPosting jp LEFT JOIN Provinces p ON jp.province_id = p.province_id WHERE jp.status = 'ACTIVE' AND jp.salary_max IS NOT NULL ORDER BY jp.salary_max DESC",
+      "description": "Top 5 highest salary jobs",
+      "category": "top"
+    },
+    {
+      "question": "Top 10 job mới nhất",
+      "sql": "SELECT TOP 10 jp.job_id, jp.position, jp.title, jp.salary_min, jp.salary_max, p.province_name as location, jp.posted_at FROM JobsPosting jp LEFT JOIN Provinces p ON jp.province_id = p.province_id WHERE jp.status = 'ACTIVE' ORDER BY jp.posted_at DESC",
+      "description": "Top 10 newest jobs",
+      "category": "top"
+    },
+    {
+      "question": "Thống kê job theo địa điểm",
+      "sql": "SELECT p.province_name as location, COUNT(*) as job_count FROM JobsPosting jp LEFT JOIN Provinces p ON jp.province_id = p.province_id WHERE jp.status = 'ACTIVE' GROUP BY p.province_name ORDER BY job_count DESC",
+      "description": "Statistics by location",
+      "category": "statistics"
+    },
+    {
+      "question": "Thống kê job theo vị trí",
+      "sql": "SELECT jp.position, COUNT(*) as job_count FROM JobsPosting jp WHERE jp.status = 'ACTIVE' GROUP BY jp.position ORDER BY job_count DESC",
+      "description": "Statistics by position",
+      "category": "statistics"
+    },
+    {
+      "question": "Thống kê job theo danh mục",
+      "sql": "SELECT c.name, COUNT(*) as job_count FROM JobsPosting jp LEFT JOIN Categories c ON jp.category_id = c.category_id WHERE jp.status = 'ACTIVE' GROUP BY c.name ORDER BY job_count DESC",
+      "description": "Statistics by category",
+      "category": "statistics"
+    },
+    {
+      "question": "Top 5 vị trí có nhiều job nhất",
+      "sql": "SELECT TOP 5 jp.position, COUNT(*) as job_count FROM JobsPosting jp WHERE jp.status = 'ACTIVE' GROUP BY jp.position ORDER BY job_count DESC",
+      "description": "Top 5 positions with most jobs",
+      "category": "statistics"
+    },
+    {
+      "question": "Thống kê job theo loại công việc",
+      "sql": "SELECT jp.work_type, COUNT(*) as job_count FROM JobsPosting jp WHERE jp.status = 'ACTIVE' GROUP BY jp.work_type ORDER BY job_count DESC",
+      "description": "Statistics by work type",
+      "category": "statistics"
+    },
+    {
+      "question": "Thống kê mức lương trung bình theo địa điểm",
+      "sql": "SELECT p.province_name as location, AVG(jp.salary_max) as avg_salary, COUNT(*) as job_count FROM JobsPosting jp LEFT JOIN Provinces p ON jp.province_id = p.province_id WHERE jp.status = 'ACTIVE' AND jp.salary_max IS NOT NULL GROUP BY p.province_name ORDER BY avg_salary DESC",
+      "description": "Average salary by location",
+      "category": "statistics"
+    },
+    {
+      "question": "Top 10 địa điểm có nhiều job nhất",
+      "sql": "SELECT TOP 10 p.province_name as location, COUNT(*) as job_count FROM JobsPosting jp LEFT JOIN Provinces p ON jp.province_id = p.province_id WHERE jp.status = 'ACTIVE' GROUP BY p.province_name ORDER BY job_count DESC",
+      "description": "Top 10 locations with most jobs",
+      "category": "statistics"
+    },
+    {
+      "question": "Việc làm developer lương trên 20 triệu",
+      "sql": "SELECT TOP 10 jp.job_id, jp.position, jp.title, jp.salary_min, jp.salary_max, p.province_name as location FROM JobsPosting jp LEFT JOIN Provinces p ON jp.province_id = p.province_id WHERE jp.status = 'ACTIVE' AND jp.position LIKE N'%developer%' AND jp.salary_max >= 20000000 ORDER BY jp.posted_at DESC",
+      "description": "Developer jobs with salary > 20M",
+      "category": "filter"
+    },
+    {
+      "question": "Việc làm lương từ 15 triệu trở lên",
+      "sql": "SELECT TOP 10 jp.job_id, jp.position, jp.title, jp.salary_min, jp.salary_max, p.province_name as location FROM JobsPosting jp LEFT JOIN Provinces p ON jp.province_id = p.province_id WHERE jp.status = 'ACTIVE' AND jp.salary_max >= 15000000 ORDER BY jp.posted_at DESC",
+      "description": "Jobs with salary >= 15M",
+      "category": "filter"
+    },
+    {
+      "question": "Việc làm lương trên 30 triệu",
+      "sql": "SELECT TOP 10 jp.job_id, jp.position, jp.title, jp.salary_min, jp.salary_max, p.province_name as location FROM JobsPosting jp LEFT JOIN Provinces p ON jp.province_id = p.province_id WHERE jp.status = 'ACTIVE' AND jp.salary_max >= 30000000 ORDER BY jp.salary_max DESC",
+      "description": "Jobs with salary > 30M",
+      "category": "filter"
+    },
+    {
+      "question": "Việc làm lương từ 10 đến 20 triệu",
+      "sql": "SELECT TOP 10 jp.job_id, jp.position, jp.title, jp.salary_min, jp.salary_max, p.province_name as location FROM JobsPosting jp LEFT JOIN Provinces p ON jp.province_id = p.province_id WHERE jp.status = 'ACTIVE' AND jp.salary_min >= 10000000 AND jp.salary_max <= 20000000 ORDER BY jp.posted_at DESC",
+      "description": "Jobs with salary 10M-20M",
+      "category": "filter"
+    },
+    {
+      "question": "Việc làm remote lương cao",
+      "sql": "SELECT TOP 10 jp.job_id, jp.position, jp.title, jp.salary_min, jp.salary_max, p.province_name as location FROM JobsPosting jp LEFT JOIN Provinces p ON jp.province_id = p.province_id WHERE jp.status = 'ACTIVE' AND jp.work_type = N'Remote' AND jp.salary_max >= 20000000 ORDER BY jp.salary_max DESC",
+      "description": "Remote jobs with high salary",
+      "category": "filter"
+    },
+    {
+      "question": "Danh sách việc làm developer ở Hà Nội lương trên 20 triệu",
+      "sql": "SELECT TOP 10 jp.job_id, jp.position, jp.title, jp.salary_min, jp.salary_max, p.province_name as location FROM JobsPosting jp LEFT JOIN Provinces p ON jp.province_id = p.province_id WHERE jp.status = 'ACTIVE' AND jp.position LIKE N'%developer%' AND p.province_name = N'Hà Nội' AND jp.salary_max >= 20000000 ORDER BY jp.posted_at DESC",
+      "description": "Developer jobs in Hanoi with salary > 20M",
+      "category": "combined"
+    },
+    {
+      "question": "Việc làm backend developer ở Hồ Chí Minh",
+      "sql": "SELECT TOP 10 jp.job_id, jp.position, jp.title, jp.salary_min, jp.salary_max, p.province_name as location, jp.work_type FROM JobsPosting jp LEFT JOIN Provinces p ON jp.province_id = p.province_id WHERE jp.status = 'ACTIVE' AND jp.position LIKE N'%backend%' AND p.province_name = N'Hồ Chí Minh' ORDER BY jp.posted_at DESC",
+      "description": "Backend developer jobs in Ho Chi Minh",
+      "category": "combined"
+    },
+    {
+      "question": "Việc làm fullstack developer lương từ 25 triệu",
+      "sql": "SELECT TOP 10 jp.job_id, jp.position, jp.title, jp.salary_min, jp.salary_max, p.province_name as location FROM JobsPosting jp LEFT JOIN Provinces p ON jp.province_id = p.province_id WHERE jp.status = 'ACTIVE' AND jp.position LIKE N'%fullstack%' AND jp.salary_max >= 25000000 ORDER BY jp.salary_max DESC",
+      "description": "Fullstack developer jobs with salary >= 25M",
+      "category": "combined"
+    },
+    {
+      "question": "Việc làm frontend ở Hà Nội lương 15-25 triệu",
+      "sql": "SELECT TOP 10 jp.job_id, jp.position, jp.title, jp.salary_min, jp.salary_max, p.province_name as location FROM JobsPosting jp LEFT JOIN Provinces p ON jp.province_id = p.province_id WHERE jp.status = 'ACTIVE' AND jp.position LIKE N'%frontend%' AND p.province_name = N'Hà Nội' AND jp.salary_min >= 15000000 AND jp.salary_max <= 25000000 ORDER BY jp.posted_at DESC",
+      "description": "Frontend jobs in Hanoi with salary 15M-25M",
+      "category": "combined"
+    },
+    {
+      "question": "Việc làm remote developer lương cao",
+      "sql": "SELECT TOP 10 jp.job_id, jp.position, jp.title, jp.salary_min, jp.salary_max, jp.work_type FROM JobsPosting jp WHERE jp.status = 'ACTIVE' AND jp.work_type = N'Remote' AND jp.position LIKE N'%developer%' AND jp.salary_max >= 25000000 ORDER BY jp.salary_max DESC",
+      "description": "Remote developer jobs with high salary",
+      "category": "combined"
+    },
+    {
+      "question": "Việc làm designer ở Hồ Chí Minh lương trên 15 triệu",
+      "sql": "SELECT TOP 10 jp.job_id, jp.position, jp.title, jp.salary_min, jp.salary_max, p.province_name as location FROM JobsPosting jp LEFT JOIN Provinces p ON jp.province_id = p.province_id WHERE jp.status = 'ACTIVE' AND jp.position LIKE N'%designer%' AND p.province_name = N'Hồ Chí Minh' AND jp.salary_max >= 15000000 ORDER BY jp.posted_at DESC",
+      "description": "Designer jobs in Ho Chi Minh with salary > 15M",
+      "category": "combined"
+    },
+    {
+      "question": "Việc làm marketing ở Đà Nẵng",
+      "sql": "SELECT TOP 10 jp.job_id, jp.position, jp.title, jp.salary_min, jp.salary_max, p.province_name as location FROM JobsPosting jp LEFT JOIN Provinces p ON jp.province_id = p.province_id WHERE jp.status = 'ACTIVE' AND jp.position LIKE N'%marketing%' AND p.province_name = N'Đà Nẵng' ORDER BY jp.posted_at DESC",
+      "description": "Marketing jobs in Da Nang",
+      "category": "combined"
+    }
+  ]
+}
