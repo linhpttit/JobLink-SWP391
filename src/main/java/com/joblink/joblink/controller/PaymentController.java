@@ -215,6 +215,18 @@ public class PaymentController {
         model.addAttribute("subscriptionExpiresAt", tierInfo.get("subscriptionExpiresAt"));
         model.addAttribute("isSubscriptionActive", tierInfo.get("isSubscriptionActive"));
 
+        // Tính toán thống kê
+        long successCount = transactions.stream()
+                .filter(t -> "SUCCESS".equals(t.getPaymentStatus()))
+                .count();
+        long totalSpent = transactions.stream()
+                .filter(t -> "SUCCESS".equals(t.getPaymentStatus()))
+                .mapToLong(PaymentTransaction::getAmount)
+                .sum();
+        
+        model.addAttribute("successCount", successCount);
+        model.addAttribute("totalSpent", totalSpent);
+
         return "payment/history";
     }
 

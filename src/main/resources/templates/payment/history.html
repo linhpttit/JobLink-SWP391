@@ -147,14 +147,14 @@
                 <i class="fas fa-check-circle"></i>
                 <div class="summary-info">
                     <span class="summary-label">Thành công</span>
-                    <span class="summary-value" th:text="${transactions.stream().filter(t -> t.paymentStatus == 'SUCCESS').count()}">3</span>
+                    <span class="summary-value" th:text="${successCount}">3</span>
                 </div>
             </div>
             <div class="summary-card">
                 <i class="fas fa-coins"></i>
                 <div class="summary-info">
                     <span class="summary-label">Tổng chi tiêu</span>
-                    <span class="summary-value" th:text="${#numbers.formatDecimal(transactions.stream().filter(t -> t.paymentStatus == 'SUCCESS').mapToLong(t -> t.amount).sum(), 0, 'COMMA', 0, 'POINT') + ' đ'}">1,497,000 đ</span>
+                    <span class="summary-value" th:text="${#numbers.formatDecimal(totalSpent, 0, 'COMMA', 0, 'POINT') + ' đ'}">1,497,000 đ</span>
                 </div>
             </div>
         </div>
