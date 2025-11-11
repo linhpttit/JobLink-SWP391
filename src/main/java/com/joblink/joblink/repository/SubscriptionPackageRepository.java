@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface SubscriptionPackageRepository extends JpaRepository<SubscriptionPackage, Long> {
@@ -12,4 +13,6 @@ public interface SubscriptionPackageRepository extends JpaRepository<Subscriptio
     List<SubscriptionPackage> findByIsActiveTrueOrderByTierLevelAsc();
     
     List<SubscriptionPackage> findByIsActiveOrderByTierLevelAsc(Boolean isActive);
+    
+    Optional<SubscriptionPackage> findByTierLevel(Integer tierLevel);
 }

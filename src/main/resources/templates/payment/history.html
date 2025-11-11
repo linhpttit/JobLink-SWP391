@@ -30,9 +30,9 @@
                 <div class="status-body">
                     <div class="status-item">
                         <span class="label">Tier hiện tại:</span>
-                        <span class="value tier-badge" th:classappend="${currentTier == 1 ? 'basic' : (currentTier == 2 ? 'premium' : 'enterprise')}">
+                        <span class="value tier-badge" th:classappend="${currentTier == 0 ? 'free' : (currentTier == 1 ? 'basic' : (currentTier == 2 ? 'premium' : 'enterprise'))}">
                             <i class="fas fa-medal"></i>
-                            <strong th:text="${currentTier == 1 ? 'Basic' : (currentTier == 2 ? 'Premium' : 'Enterprise')}">Premium</strong>
+                            <strong th:text="${currentTier == 0 ? 'Free' : (currentTier == 1 ? 'Basic' : (currentTier == 2 ? 'Premium' : 'Enterprise'))}">Premium</strong>
                         </span>
                     </div>
                     <div class="status-item" th:if="${subscriptionExpiresAt != null}">
@@ -103,9 +103,9 @@
                             </td>
                             <td>
                                 <span th:if="${transaction.tierUpgradedTo != null}">
-                                    <span class="tier-level" th:classappend="${transaction.tierUpgradedTo == 1 ? 'basic' : (transaction.tierUpgradedTo == 2 ? 'premium' : 'enterprise')}">
+                                    <span class="tier-level" th:classappend="${transaction.tierUpgradedTo == 0 ? 'free' : (transaction.tierUpgradedTo == 1 ? 'basic' : (transaction.tierUpgradedTo == 2 ? 'premium' : 'enterprise'))}">
                                         <i class="fas fa-arrow-up"></i>
-                                        Tier <span th:text="${transaction.tierUpgradedTo}">2</span>
+                                        <span th:text="${transaction.tierUpgradedTo == 0 ? 'Free' : (transaction.tierUpgradedTo == 1 ? 'Basic' : (transaction.tierUpgradedTo == 2 ? 'Premium' : 'Enterprise'))}">Premium</span>
                                     </span>
                                 </span>
                                 <span th:unless="${transaction.tierUpgradedTo != null}">-</span>

@@ -110,6 +110,11 @@ body {
     font-size: 1rem;
 }
 
+.tier-badge.free {
+    background: linear-gradient(135deg, #27ae60, #229954);
+    color: white;
+}
+
 .tier-badge.basic {
     background: #ecf0f1;
     color: #7f8c8d;
@@ -293,6 +298,11 @@ body {
     border-radius: 15px;
     font-size: 0.85rem;
     font-weight: 600;
+}
+
+.tier-level.free {
+    background: #d5f4e6;
+    color: #27ae60;
 }
 
 .tier-level.basic {

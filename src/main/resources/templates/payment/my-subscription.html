@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gói của tôi - JobLink</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .page-header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .subscription-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+        }
+
+        .current-plan {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #ecf0f1;
+            margin-bottom: 30px;
+        }
+
+        .plan-info {
+            flex: 1;
+        }
+
+        .plan-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .plan-badge.free {
+            background: linear-gradient(135deg, #27ae60, #229954);
+            color: white;
+        }
+
+        .plan-badge.basic {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+            color: white;
+        }
+
+        .plan-badge.premium {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+        }
+
+        .plan-badge.enterprise {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        .plan-info h2 {
+            font-size: 2rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .plan-info p {
+            color: #7f8c8d;
+            font-size: 1rem;
+        }
+
+        .plan-status {
+            text-align: right;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 10px 25px;
+            border-radius: 50px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .status-badge.active {
+            background: #27ae60;
+            color: white;
+        }
+
+        .status-badge.expired {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .expiry-date {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        .plan-features {
+            margin-bottom: 30px;
+        }
+
+        .plan-features h3 {
+            font-size: 1.3rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .feature-item i {
+            color: #27ae60;
+            font-size: 1.2rem;
+        }
+
+        .feature-item span {
+            color: #555;
+            font-size: 0.95rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            padding-top: 20px;
+            border-top: 2px solid #ecf0f1;
+        }
+
+        .btn {
+            padding: 14px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .transactions-section {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .transactions-section h3 {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .transaction-item {
+            padding: 20px;
+            border: 1px solid #ecf0f1;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .transaction-item:hover {
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            transform: translateX(5px);
+        }
+
+        .transaction-info h4 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .transaction-info p {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        .transaction-amount {
+            text-align: right;
+        }
+
+        .amount {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #27ae60;
+        }
+
+        .transaction-date {
+            color: #95a5a6;
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+
+        .no-transactions {
+            text-align: center;
+            padding: 40px;
+            color: #95a5a6;
+        }
+
+        .no-transactions i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <!-- Include Header -->
+    <div th:replace="~{header :: header}"></div>
+
+    <div class="container">
+        <div class="page-header">
+            <h1><i class="fas fa-id-card"></i> Gói Subscription Của Tôi</h1>
+            <p>Quản lý thông tin gói và lịch sử thanh toán</p>
+        </div>
+
+        <!-- Current Subscription Card -->
+        <div class="subscription-card">
+            <div class="current-plan">
+                <div class="plan-info">
+                    <span class="plan-badge" 
+                          th:classappend="${currentTier == 0 ? 'free' : (currentTier == 1 ? 'basic' : (currentTier == 2 ? 'premium' : 'enterprise'))}">
+                        <i class="fas" th:classappend="${currentTier == 0 ? 'fa-gift' : (currentTier == 1 ? 'fa-briefcase' : (currentTier == 2 ? 'fa-gem' : 'fa-trophy'))}"></i>
+                        <span th:text="${currentTier == 0 ? 'FREE' : (currentTier == 1 ? 'BASIC' : (currentTier == 2 ? 'PREMIUM' : 'ENTERPRISE'))}">PREMIUM</span>
+                    </span>
+                    <h2 th:text="${currentPackage != null ? currentPackage.packageName : 'Chưa có gói'}">Premium Plan</h2>
+                    <p th:text="${currentPackage != null ? currentPackage.description : 'Vui lòng nâng cấp tài khoản'}">Dành cho doanh nghiệp vừa</p>
+                </div>
+                <div class="plan-status">
+                    <span class="status-badge" th:classappend="${isSubscriptionActive ? 'active' : 'expired'}">
+                        <i class="fas" th:classappend="${isSubscriptionActive ? 'fa-check-circle' : 'fa-times-circle'}"></i>
+                        <span th:text="${isSubscriptionActive ? 'Đang hoạt động' : 'Đã hết hạn'}">Đang hoạt động</span>
+                    </span>
+                    <div class="expiry-date" th:if="${subscriptionExpiresAt != null}">
+                        <i class="far fa-calendar-alt"></i>
+                        <span th:if="${isSubscriptionActive}">
+                            Hết hạn: <strong th:text="${#temporals.format(subscriptionExpiresAt, 'dd/MM/yyyy')}">01/01/2025</strong>
+                        </span>
+                        <span th:unless="${isSubscriptionActive}">
+                            Đã hết hạn: <strong th:text="${#temporals.format(subscriptionExpiresAt, 'dd/MM/yyyy')}">01/01/2025</strong>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Plan Features -->
+            <div class="plan-features" th:if="${currentPackage != null}">
+                <h3><i class="fas fa-star"></i> Tính năng của gói</h3>
+                <div class="features-grid">
+                    <div class="feature-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>
+                            Đăng tối đa 
+                            <strong th:text="${currentTier == 0 ? '10' : (currentTier == 1 ? '100' : (currentTier == 2 ? '1,000' : '10,000'))}">1,000</strong> 
+                            tin tuyển dụng
+                        </span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Xem hồ sơ ứng viên</span>
+                    </div>
+                    <div class="feature-item" th:if="${currentTier >= 2}">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Tin nổi bật trên trang chủ</span>
+                    </div>
+                    <div class="feature-item" th:if="${currentTier >= 2}">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Ưu tiên hiển thị</span>
+                    </div>
+                    <div class="feature-item" th:if="${currentTier >= 2}">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Thống kê chi tiết</span>
+                    </div>
+                    <div class="feature-item" th:if="${currentTier >= 3}">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Hỗ trợ VIP 24/7</span>
+                    </div>
+                    <div class="feature-item" th:if="${currentTier >= 3}">
+                        <i class="fas fa-check-circle"></i>
+                        <span>AI tìm kiếm ứng viên</span>
+                    </div>
+                    <div class="feature-item" th:if="${currentTier >= 3}">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Quản lý đa chi nhánh</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <a th:href="@{/payment/upgrade}" class="btn btn-primary">
+                    <i class="fas fa-arrow-up"></i> Nâng cấp gói
+                </a>
+                <a th:href="@{/payment/history}" class="btn btn-secondary">
+                    <i class="fas fa-history"></i> Lịch sử thanh toán đầy đủ
+                </a>
+            </div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="transactions-section">
+            <h3><i class="fas fa-receipt"></i> Giao dịch gần đây</h3>
+            
+            <div th:if="${recentTransactions != null && !recentTransactions.isEmpty()}">
+                <div class="transaction-item" th:each="transaction : ${recentTransactions}">
+                    <div class="transaction-info">
+                        <h4 th:text="${transaction.subscriptionPackage.packageName}">Premium Package</h4>
+                        <p>
+                            <span th:text="${transaction.paymentMethod}">VNPAY</span> •
+                            <span th:text="${transaction.paymentStatus}">SUCCESS</span>
+                        </p>
+                    </div>
+                    <div class="transaction-amount">
+                        <div class="amount" th:text="${#numbers.formatDecimal(transaction.amount, 0, 'COMMA', 0, 'POINT')} + 'đ'">499,000đ</div>
+                        <div class="transaction-date" th:text="${#temporals.format(transaction.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:30</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="no-transactions" th:if="${recentTransactions == null || recentTransactions.isEmpty()}">
+                <i class="fas fa-inbox"></i>
+                <p>Chưa có giao dịch nào</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Footer -->
+    <div th:replace="~{footer :: footer}"></div>
+</body>
+</html>

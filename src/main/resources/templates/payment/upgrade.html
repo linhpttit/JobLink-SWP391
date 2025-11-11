@@ -18,10 +18,10 @@
             
             <!-- Current Tier Info -->
             <div class="current-tier-info" th:if="${currentTier != null}">
-                <div class="tier-badge" th:classappend="${currentTier == 1 ? 'basic' : (currentTier == 2 ? 'premium' : 'enterprise')}">
+                <div class="tier-badge" th:classappend="${currentTier == 0 ? 'free' : (currentTier == 1 ? 'basic' : (currentTier == 2 ? 'premium' : 'enterprise'))}">
                     <i class="fas fa-medal"></i>
                     <span>Tier hiện tại: 
-                        <strong th:text="${currentTier == 1 ? 'Basic' : (currentTier == 2 ? 'Premium' : 'Enterprise')}">Basic</strong>
+                        <strong th:text="${currentTier == 0 ? 'Free' : (currentTier == 1 ? 'Basic' : (currentTier == 2 ? 'Premium' : 'Enterprise'))}">Free</strong>
                     </span>
                 </div>
                 <div class="expiry-info" th:if="${subscriptionExpiresAt != null}">
@@ -50,26 +50,30 @@
                 </div>
 
                 <div class="package-header">
-                    <div class="tier-icon" th:classappend="${package.tierLevel == 1 ? 'basic' : (package.tierLevel == 2 ? 'premium' : 'enterprise')}">
-                        <i class="fas" th:classappend="${package.tierLevel == 1 ? 'fa-briefcase' : (package.tierLevel == 2 ? 'fa-gem' : 'fa-trophy')}"></i>
+                    <div class="tier-icon" th:classappend="${package.tierLevel == 0 ? 'free' : (package.tierLevel == 1 ? 'basic' : (package.tierLevel == 2 ? 'premium' : 'enterprise'))}">
+                        <i class="fas" th:classappend="${package.tierLevel == 0 ? 'fa-gift' : (package.tierLevel == 1 ? 'fa-briefcase' : (package.tierLevel == 2 ? 'fa-gem' : 'fa-trophy'))}"></i>
                     </div>
                     <h2 th:text="${package.packageName}">Premium</h2>
                     <p class="package-description" th:text="${package.description}">Dành cho doanh nghiệp vừa</p>
                 </div>
 
                 <div class="package-price">
-                    <span class="price-amount" th:text="${#numbers.formatDecimal(package.price, 0, 'COMMA', 0, 'POINT')}">499,000</span>
-                    <span class="price-currency">đ</span>
+                    <!-- Hiển thị MIỄN PHÍ cho gói Free -->
+                    <span th:if="${package.price == 0}" class="price-amount" style="font-size: 2rem;">MIỄN PHÍ</span>
+                    <span th:if="${package.price > 0}">
+                        <span class="price-amount" th:text="${#numbers.formatDecimal(package.price, 0, 'COMMA', 0, 'POINT')}">499,000</span>
+                        <span class="price-currency">đ</span>
+                    </span>
                     <span class="price-period" th:text="'/' + ${package.durationDays} + ' ngày'">/ 30 ngày</span>
                 </div>
 
                 <div class="package-features">
                     <h3>Tính năng nổi bật:</h3>
                     <ul>
-                        <li th:if="${package.tierLevel >= 1}">
-                            <i class="fas fa-check"></i> Đăng tối đa <strong th:text="${package.tierLevel == 1 ? '5' : (package.tierLevel == 2 ? '20' : '100')}">20</strong> tin tuyển dụng
+                        <li>
+                            <i class="fas fa-check"></i> Đăng tối đa <strong th:text="${package.tierLevel == 0 ? '10' : (package.tierLevel == 1 ? '100' : (package.tierLevel == 2 ? '1,000' : '10,000'))}">1,000</strong> tin tuyển dụng
                         </li>
-                        <li th:if="${package.tierLevel >= 1}">
+                        <li>
                             <i class="fas fa-check"></i> Xem hồ sơ ứng viên
                         </li>
                         <li th:if="${package.tierLevel >= 2}">
@@ -93,19 +97,35 @@
                     </ul>
                 </div>
 
-                <form th:action="@{/payment/create}" method="post" class="upgrade-form">
-                    <input type="hidden" name="packageId" th:value="${package.packageId}">
-                    <button type="submit" class="btn-upgrade" 
-                            th:classappend="${package.tierLevel == 2 ? 'featured' : ''}"
-                            th:disabled="${currentTier >= package.tierLevel && isSubscriptionActive}">
-                        <span th:if="${currentTier < package.tierLevel || !isSubscriptionActive}">
-                            <i class="fas fa-rocket"></i> Nâng cấp ngay
-                        </span>
-                        <span th:if="${currentTier >= package.tierLevel && isSubscriptionActive}">
-                            <i class="fas fa-check-circle"></i> Đang sử dụng
-                        </span>
+                <div class="upgrade-form">
+                    <!-- Nút cho gói hiện tại -->
+                    <a th:if="${currentTier == package.tierLevel && isSubscriptionActive}" 
+                       th:href="@{/payment/my-subscription}"
+                       class="btn-upgrade btn-current">
+                        <i class="fas fa-info-circle"></i> Xem gói của tôi
+                    </a>
+                    
+                    <!-- Nút disabled cho gói thấp hơn tier hiện tại -->
+                    <button th:if="${isSubscriptionActive && package.tierLevel < currentTier}" 
+                            type="button"
+                            class="btn-upgrade"
+                            disabled
+                            style="opacity: 0.5; cursor: not-allowed;">
+                        <i class="fas fa-lock"></i> Không thể hạ cấp
                     </button>
-                </form>
+                    
+                    <!-- Form upgrade cho gói cao hơn hoặc khi hết hạn -->
+                    <form th:if="${(!isSubscriptionActive || package.tierLevel > currentTier) && currentTier != package.tierLevel}" 
+                          th:action="@{/payment/create}" 
+                          method="post"
+                          style="margin: 0;">
+                        <input type="hidden" name="packageId" th:value="${package.packageId}">
+                        <button type="submit" class="btn-upgrade" 
+                                th:classappend="${package.tierLevel == 2 ? 'featured' : ''}">
+                            <i class="fas fa-rocket"></i> Nâng cấp ngay
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
 

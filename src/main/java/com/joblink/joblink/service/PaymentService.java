@@ -9,8 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -128,7 +126,6 @@ public class PaymentService {
             // Lấy thông tin transaction
             String txnRef = vnpParams.get("vnp_TxnRef");
             String responseCode = vnpParams.get("vnp_ResponseCode");
-            String transactionNo = vnpParams.get("vnp_TransactionNo");
             String bankCode = vnpParams.get("vnp_BankCode");
             String paymentMethod = vnpParams.get("vnp_CardType");
 
@@ -224,7 +221,8 @@ public class PaymentService {
         Optional<Employer> employerOpt = employerRepository.findByUserId(userId);
         if (employerOpt.isPresent()) {
             Employer employer = employerOpt.get();
-            info.put("tierLevel", employer.getTierLevel() != null ? employer.getTierLevel() : 1);
+            // Default tier 0 (Free) cho employer mới
+            info.put("tierLevel", employer.getTierLevel() != null ? employer.getTierLevel() : 0);
             info.put("subscriptionExpiresAt", employer.getSubscriptionExpiresAt());
             
             // Kiểm tra xem subscription có còn hạn không
@@ -232,11 +230,86 @@ public class PaymentService {
                              employer.getSubscriptionExpiresAt().isAfter(LocalDateTime.now());
             info.put("isSubscriptionActive", isActive);
         } else {
-            info.put("tierLevel", 1);
+            // Nếu không tìm thấy employer profile, default là Free tier
+            info.put("tierLevel", 0);
             info.put("subscriptionExpiresAt", null);
             info.put("isSubscriptionActive", false);
         }
         
         return info;
+    }
+
+    /**
+     * Lấy thông tin package theo ID
+     */
+    public SubscriptionPackage getPackageById(Long packageId) {
+        return packageRepository.findById(packageId).orElse(null);
+    }
+
+    /**
+     * Lấy package theo tier level
+     */
+    public SubscriptionPackage getPackageByTierLevel(Integer tierLevel) {
+        return packageRepository.findByTierLevel(tierLevel).orElse(null);
+    }
+
+    /**
+     * Lấy lịch sử thanh toán gần đây
+     */
+    public List<PaymentTransaction> getRecentPaymentHistory(Integer userId, int limit) {
+        List<PaymentTransaction> allTransactions = transactionRepository.findByUserUserIdOrderByCreatedAtDesc(userId);
+        return allTransactions.stream()
+                .limit(limit)
+                .toList();
+    }
+
+    /**
+     * Kích hoạt gói Free (price = 0) trực tiếp không cần thanh toán
+     */
+    @Transactional
+    public boolean activateFreePackage(Integer userId, Long packageId) {
+        try {
+            // Lấy thông tin user và package
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            
+            SubscriptionPackage subscriptionPackage = packageRepository.findById(packageId)
+                    .orElseThrow(() -> new RuntimeException("Package not found"));
+
+            // Kiểm tra package có phải Free (price = 0) không
+            if (subscriptionPackage.getPrice() != 0) {
+                throw new RuntimeException("This package is not free");
+            }
+
+            // Lấy employer profile
+            Employer employer = employerRepository.findByUserId(userId)
+                    .orElseThrow(() -> new RuntimeException("Employer profile not found"));
+
+            // Cập nhật tier và subscription expiry
+            employer.setTierLevel(subscriptionPackage.getTierLevel());
+            LocalDateTime expiresAt = LocalDateTime.now().plusDays(subscriptionPackage.getDurationDays());
+            employer.setSubscriptionExpiresAt(expiresAt);
+            employerRepository.save(employer);
+
+            // Tạo payment transaction cho tracking (không cần VNPay)
+            PaymentTransaction transaction = new PaymentTransaction();
+            transaction.setUser(user);
+            transaction.setSubscriptionPackage(subscriptionPackage);
+            transaction.setVnpayTxnRef("FREE" + System.currentTimeMillis());
+            transaction.setAmount(0L);
+            transaction.setPaymentStatus("SUCCESS");
+            transaction.setVnpayResponseCode("00");
+            transaction.setPaymentMethod("FREE");
+            transaction.setTransactionInfo("Free tier activation");
+            transaction.setCreatedAt(LocalDateTime.now());
+            transaction.setPaidAt(LocalDateTime.now());
+            transaction.setTierUpgradedTo(subscriptionPackage.getTierLevel());
+            transactionRepository.save(transaction);
+
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }

@@ -108,7 +108,7 @@ BEGIN
      199000, 
      30, 
      1, 
-     N'{"max_jobs": 5, "basic_support": true, "view_candidates": true}',
+     N'{"max_jobs": 100, "basic_support": true, "view_candidates": true}',
      1,
      GETDATE());
     PRINT 'Basic package inserted.';
@@ -125,7 +125,7 @@ BEGIN
      499000, 
      30, 
      2, 
-     N'{"max_jobs": 20, "featured_jobs": true, "priority_search": true, "analytics": true, "basic_support": true}',
+     N'{"max_jobs": 1000, "featured_jobs": true, "priority_search": true, "analytics": true, "basic_support": true}',
      1,
      GETDATE());
     PRINT 'Premium package inserted.';
@@ -142,7 +142,7 @@ BEGIN
      999000, 
      30, 
      3, 
-     N'{"max_jobs": 100, "featured_jobs": true, "priority_search": true, "ai_matching": true, "multi_branch": true, "vip_support": true, "analytics": true}',
+     N'{"max_jobs": 10000, "featured_jobs": true, "priority_search": true, "ai_matching": true, "multi_branch": true, "vip_support": true, "analytics": true}',
      1,
      GETDATE());
     PRINT 'Enterprise package inserted.';
