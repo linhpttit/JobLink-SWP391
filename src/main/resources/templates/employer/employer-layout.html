@@ -136,8 +136,8 @@
     </div>
 </div>
 
-<!-- AI Chatbot Widget -->
-<div id="chatbot-widget">
+<!-- AI Chatbot Widget - Chỉ hiển thị cho Enterprise (tier >= 3) -->
+<div id="chatbot-widget" th:if="${currentTier != null and currentTier >= 3}">
     <!-- Chat Button -->
     <button id="chatbot-toggle" class="chatbot-toggle">
         <i class="fas fa-comments"></i>

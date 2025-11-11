@@ -177,30 +177,42 @@ public class PaymentService {
         }
 
         Optional<Employer> employerOpt = employerRepository.findByUserId(user.getUserId());
+        Employer employer;
+        
         if (employerOpt.isPresent()) {
-            Employer employer = employerOpt.get();
-            SubscriptionPackage pkg = transaction.getSubscriptionPackage();
-
-            // Cập nhật tier level
-            employer.setTierLevel(pkg.getTierLevel());
-
-            // Tính ngày hết hạn subscription
-            LocalDateTime expiresAt;
-            if (employer.getSubscriptionExpiresAt() != null && 
-                employer.getSubscriptionExpiresAt().isAfter(LocalDateTime.now())) {
-                // Nếu subscription hiện tại còn hạn, cộng thêm vào
-                expiresAt = employer.getSubscriptionExpiresAt().plusDays(pkg.getDurationDays());
-            } else {
-                // Nếu hết hạn hoặc chưa có, tính từ bây giờ
-                expiresAt = LocalDateTime.now().plusDays(pkg.getDurationDays());
-            }
-            employer.setSubscriptionExpiresAt(expiresAt);
-
-            employerRepository.save(employer);
-
-            // Lưu tier đã nâng cấp vào transaction
-            transaction.setTierUpgradedTo(pkg.getTierLevel());
+            employer = employerOpt.get();
+        } else {
+            // Tạo EmployerProfile mới nếu chưa có
+            employer = new Employer();
+            employer.setUser(user);
+            employer.setCompanyName("Chưa cập nhật");
+            employer.setIndustry("Chưa cập nhật");
+            employer.setLocation("Chưa cập nhật");
+            employer.setPhoneNumber("Chưa cập nhật");
+            employer.setDescription("Chưa cập nhật");
         }
+        
+        SubscriptionPackage pkg = transaction.getSubscriptionPackage();
+
+        // Cập nhật tier level
+        employer.setTierLevel(pkg.getTierLevel());
+
+        // Tính ngày hết hạn subscription
+        LocalDateTime expiresAt;
+        if (employer.getSubscriptionExpiresAt() != null && 
+            employer.getSubscriptionExpiresAt().isAfter(LocalDateTime.now())) {
+            // Nếu subscription hiện tại còn hạn, cộng thêm vào
+            expiresAt = employer.getSubscriptionExpiresAt().plusDays(pkg.getDurationDays());
+        } else {
+            // Nếu hết hạn hoặc chưa có, tính từ bây giờ
+            expiresAt = LocalDateTime.now().plusDays(pkg.getDurationDays());
+        }
+        employer.setSubscriptionExpiresAt(expiresAt);
+
+        employerRepository.save(employer);
+
+        // Lưu tier đã nâng cấp vào transaction
+        transaction.setTierUpgradedTo(pkg.getTierLevel());
     }
 
     /**
@@ -281,9 +293,22 @@ public class PaymentService {
                 throw new RuntimeException("This package is not free");
             }
 
-            // Lấy employer profile
-            Employer employer = employerRepository.findByUserId(userId)
-                    .orElseThrow(() -> new RuntimeException("Employer profile not found"));
+            // Lấy hoặc tạo employer profile
+            Optional<Employer> employerOpt = employerRepository.findByUserId(userId);
+            Employer employer;
+            
+            if (employerOpt.isPresent()) {
+                employer = employerOpt.get();
+            } else {
+                // Tạo EmployerProfile mới nếu chưa có
+                employer = new Employer();
+                employer.setUser(user);
+                employer.setCompanyName("Chưa cập nhật");
+                employer.setIndustry("Chưa cập nhật");
+                employer.setLocation("Chưa cập nhật");
+                employer.setPhoneNumber("Chưa cập nhật");
+                employer.setDescription("Chưa cập nhật");
+            }
 
             // Cập nhật tier và subscription expiry
             employer.setTierLevel(subscriptionPackage.getTierLevel());

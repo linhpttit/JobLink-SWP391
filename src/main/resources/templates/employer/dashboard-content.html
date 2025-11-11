@@ -798,12 +798,19 @@
         <div class="premium-banner">
             <div class="premium-content">
                 <h3>
-                    <i class="fas fa-crown"></i>
-                    Gói PREMIUM
+                    <i class="fas" th:classappend="${currentTier == 0 ? 'fa-gift' : (currentTier == 1 ? 'fa-briefcase' : (currentTier == 2 ? 'fa-gem' : 'fa-trophy'))}"></i>
+                    Gói <span th:text="${currentTier == 0 ? 'FREE' : (currentTier == 1 ? 'BASIC' : (currentTier == 2 ? 'PREMIUM' : 'ENTERPRISE'))}">PREMIUM</span>
                 </h3>
-                <p>Gói cần sử dụng để đăng tất cả các gói tin tuyển dụng cao cấp</p>
+                <p th:text="${currentTier == 0 ? 'Nâng cấp để sử dụng đầy đủ tính năng' : 
+                             (currentTier == 1 ? 'Nâng cấp lên Premium để có thêm tính năng cao cấp' : 
+                             (currentTier == 2 ? 'Bạn đang sử dụng gói Premium với đầy đủ tính năng' : 
+                             'Bạn đang sử dụng gói cao cấp nhất với AI Chat Bot'))}">
+                    Gói cần sử dụng để đăng tất cả các gói tin tuyển dụng cao cấp
+                </p>
             </div>
-            <button class="premium-btn">Quản lý gói</button>
+            <a th:href="@{/payment/upgrade}" style="text-decoration: none;">
+                <button class="premium-btn">Quản lý gói</button>
+            </a>
         </div>
 
         <!-- Stats Grid Header with Filter -->
@@ -925,12 +932,16 @@
             </div>
 
             <!-- Top Candidates -->
-            <div class="content-card">
+            <!-- Gợi ý ứng viên - Chỉ hiển thị cho Premium (tier >= 2) -->
+            <div class="content-card" th:if="${currentTier != null and currentTier >= 2}">
                 <h4>
                     <div class="icon" style="background: #d4edda; color: #2ecc71;">
                         <i class="fas fa-star"></i>
                     </div>
                     Gợi ý ứng viên
+                    <span style="font-size: 0.75rem; color: #f39c12; margin-left: 8px;">
+                        <i class="fas fa-crown"></i> Premium
+                    </span>
                 </h4>
                 
                 <!-- Hiển thị danh sách ứng viên từ backend -->
@@ -1077,10 +1088,15 @@
         </div>
 
         <!-- Charts Section -->
-        <div class="charts-grid">
+        <!-- Biểu đồ thống kê - Chỉ hiển thị cho Premium (tier >= 2) -->
+        <div class="charts-grid" th:if="${currentTier != null and currentTier >= 2}">
             <div class="chart-card">
                 <div class="chart-header">
-                    <h4>Ứng viên theo vị trí</h4>
+                    <h4>Ứng viên theo vị trí
+                        <span style="font-size: 0.75rem; color: #f39c12; margin-left: 8px;">
+                            <i class="fas fa-crown"></i> Premium
+                        </span>
+                    </h4>
                     <select id="positionPeriodFilter" style="padding: 5px 10px; border: 1px solid #e0e6ed; border-radius: 6px;">
                         <option value="7days" selected>7 ngày gần nhất</option>
                         <option value="1month">1 tháng gần nhất</option>
@@ -1096,7 +1112,11 @@
 
             <div class="chart-card">
                 <div class="chart-header">
-                    <h4>Xu hướng ứng viên</h4>
+                    <h4>Xu hướng ứng viên
+                        <span style="font-size: 0.75rem; color: #f39c12; margin-left: 8px;">
+                            <i class="fas fa-crown"></i> Premium
+                        </span>
+                    </h4>
                     <select id="trendPeriodFilter" style="padding: 5px 10px; border: 1px solid #e0e6ed; border-radius: 6px;">
                         <option value="7days" selected>7 ngày gần nhất</option>
                         <option value="1month">1 tháng gần nhất</option>
@@ -1112,7 +1132,11 @@
 
             <div class="chart-card">
                 <div class="chart-header">
-                    <h4>Trạng thái ứng viên</h4>
+                    <h4>Trạng thái ứng viên
+                        <span style="font-size: 0.75rem; color: #f39c12; margin-left: 8px;">
+                            <i class="fas fa-crown"></i> Premium
+                        </span>
+                    </h4>
                     <select id="statusPeriodFilter" style="padding: 5px 10px; border: 1px solid #e0e6ed; border-radius: 6px;">
                         <option value="7days" selected>7 ngày gần nhất</option>
                         <option value="1month">1 tháng gần nhất</option>
