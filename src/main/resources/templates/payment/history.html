@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch sử thanh toán - JobLink</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/CSS/payment-history.css}">
+</head>
+<body>
+    <!-- Include Header -->
+    <div th:replace="~{header :: header}"></div>
+
+    <div class="history-container">
+        <div class="history-header">
+            <h1><i class="fas fa-history"></i> Lịch sử thanh toán</h1>
+            <div class="header-actions">
+                <a th:href="@{/payment/upgrade}" class="btn-upgrade-new">
+                    <i class="fas fa-plus-circle"></i> Nâng cấp tài khoản
+                </a>
+            </div>
+        </div>
+
+        <!-- Current Subscription Info -->
+        <div class="subscription-status">
+            <div class="status-card">
+                <div class="status-header">
+                    <i class="fas fa-info-circle"></i> Thông tin gói hiện tại
+                </div>
+                <div class="status-body">
+                    <div class="status-item">
+                        <span class="label">Tier hiện tại:</span>
+                        <span class="value tier-badge" th:classappend="${currentTier == 1 ? 'basic' : (currentTier == 2 ? 'premium' : 'enterprise')}">
+                            <i class="fas fa-medal"></i>
+                            <strong th:text="${currentTier == 1 ? 'Basic' : (currentTier == 2 ? 'Premium' : 'Enterprise')}">Premium</strong>
+                        </span>
+                    </div>
+                    <div class="status-item" th:if="${subscriptionExpiresAt != null}">
+                        <span class="label">Trạng thái:</span>
+                        <span class="value">
+                            <span th:if="${isSubscriptionActive}" class="badge-active">
+                                <i class="fas fa-check-circle"></i> Đang hoạt động
+                            </span>
+                            <span th:unless="${isSubscriptionActive}" class="badge-expired">
+                                <i class="fas fa-times-circle"></i> Đã hết hạn
+                            </span>
+                        </span>
+                    </div>
+                    <div class="status-item" th:if="${subscriptionExpiresAt != null}">
+                        <span class="label">Ngày hết hạn:</span>
+                        <span class="value" th:text="${#temporals.format(subscriptionExpiresAt, 'dd/MM/yyyy HH:mm')}">01/01/2025 00:00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transaction History Table -->
+        <div class="transactions-section">
+            <h2><i class="fas fa-receipt"></i> Lịch sử giao dịch</h2>
+            
+            <div th:if="${transactions == null || transactions.isEmpty()}" class="no-transactions">
+                <i class="fas fa-inbox"></i>
+                <p>Chưa có giao dịch nào</p>
+                <a th:href="@{/payment/upgrade}" class="btn-start">
+                    <i class="fas fa-rocket"></i> Bắt đầu nâng cấp
+                </a>
+            </div>
+
+            <div th:if="${transactions != null && !transactions.isEmpty()}" class="table-responsive">
+                <table class="transactions-table">
+                    <thead>
+                        <tr>
+                            <th>Mã GD</th>
+                            <th>Gói dịch vụ</th>
+                            <th>Số tiền</th>
+                            <th>Trạng thái</th>
+                            <th>Tier nâng lên</th>
+                            <th>Phương thức</th>
+                            <th>Ngày tạo</th>
+                            <th>Ngày thanh toán</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="transaction : ${transactions}">
+                            <td>
+                                <span class="transaction-id" th:text="${transaction.vnpayTxnRef}">TXN123456</span>
+                            </td>
+                            <td>
+                                <div class="package-info">
+                                    <strong th:text="${transaction.subscriptionPackage.packageName}">Premium</strong>
+                                    <small th:text="${transaction.subscriptionPackage.durationDays + ' ngày'}">30 ngày</small>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="amount" th:text="${#numbers.formatDecimal(transaction.amount, 0, 'COMMA', 0, 'POINT') + ' đ'}">499,000 đ</span>
+                            </td>
+                            <td>
+                                <span class="status-badge" 
+                                      th:classappend="${transaction.paymentStatus == 'SUCCESS' ? 'success' : (transaction.paymentStatus == 'PENDING' ? 'pending' : 'failed')}">
+                                    <i class="fas" th:classappend="${transaction.paymentStatus == 'SUCCESS' ? 'fa-check-circle' : (transaction.paymentStatus == 'PENDING' ? 'fa-clock' : 'fa-times-circle')}"></i>
+                                    <span th:text="${transaction.paymentStatus == 'SUCCESS' ? 'Thành công' : (transaction.paymentStatus == 'PENDING' ? 'Chờ xử lý' : 'Thất bại')}">Thành công</span>
+                                </span>
+                            </td>
+                            <td>
+                                <span th:if="${transaction.tierUpgradedTo != null}">
+                                    <span class="tier-level" th:classappend="${transaction.tierUpgradedTo == 1 ? 'basic' : (transaction.tierUpgradedTo == 2 ? 'premium' : 'enterprise')}">
+                                        <i class="fas fa-arrow-up"></i>
+                                        Tier <span th:text="${transaction.tierUpgradedTo}">2</span>
+                                    </span>
+                                </span>
+                                <span th:unless="${transaction.tierUpgradedTo != null}">-</span>
+                            </td>
+                            <td>
+                                <span th:if="${transaction.paymentMethod != null}">
+                                    <i class="fas fa-credit-card"></i>
+                                    <span th:text="${transaction.paymentMethod}">ATM</span>
+                                </span>
+                                <span th:unless="${transaction.paymentMethod != null}">-</span>
+                            </td>
+                            <td>
+                                <span th:text="${#temporals.format(transaction.createdAt, 'dd/MM/yyyy')}">01/01/2025</span>
+                                <small th:text="${#temporals.format(transaction.createdAt, 'HH:mm')}">10:30</small>
+                            </td>
+                            <td>
+                                <span th:if="${transaction.paidAt != null}">
+                                    <span th:text="${#temporals.format(transaction.paidAt, 'dd/MM/yyyy')}">01/01/2025</span>
+                                    <small th:text="${#temporals.format(transaction.paidAt, 'HH:mm')}">10:35</small>
+                                </span>
+                                <span th:unless="${transaction.paidAt != null}">-</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Summary Statistics -->
+        <div class="summary-section" th:if="${transactions != null && !transactions.isEmpty()}">
+            <div class="summary-card">
+                <i class="fas fa-shopping-cart"></i>
+                <div class="summary-info">
+                    <span class="summary-label">Tổng giao dịch</span>
+                    <span class="summary-value" th:text="${transactions.size()}">5</span>
+                </div>
+            </div>
+            <div class="summary-card">
+                <i class="fas fa-check-circle"></i>
+                <div class="summary-info">
+                    <span class="summary-label">Thành công</span>
+                    <span class="summary-value" th:text="${transactions.stream().filter(t -> t.paymentStatus == 'SUCCESS').count()}">3</span>
+                </div>
+            </div>
+            <div class="summary-card">
+                <i class="fas fa-coins"></i>
+                <div class="summary-info">
+                    <span class="summary-label">Tổng chi tiêu</span>
+                    <span class="summary-value" th:text="${#numbers.formatDecimal(transactions.stream().filter(t -> t.paymentStatus == 'SUCCESS').mapToLong(t -> t.amount).sum(), 0, 'COMMA', 0, 'POINT') + ' đ'}">1,497,000 đ</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Footer -->
+    <div th:replace="~{footer :: footer}"></div>
+</body>
+</html>

@@ -1,0 +1,404 @@
+/* Payment Upgrade Page Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+}
+
+.upgrade-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+/* Header Section */
+.upgrade-header {
+    text-align: center;
+    color: white;
+    margin-bottom: 50px;
+}
+
+.upgrade-header h1 {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    font-weight: 700;
+}
+
+.upgrade-header h1 i {
+    color: #ffd700;
+    margin-right: 15px;
+}
+
+.upgrade-header p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+/* Current Tier Info */
+.current-tier-info {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+}
+
+.tier-badge {
+    padding: 15px 30px;
+    border-radius: 50px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.1rem;
+}
+
+.tier-badge.basic {
+    border: 2px solid #95a5a6;
+}
+
+.tier-badge.premium {
+    border: 2px solid #f39c12;
+    background: rgba(243, 156, 18, 0.2);
+}
+
+.tier-badge.enterprise {
+    border: 2px solid #e74c3c;
+    background: rgba(231, 76, 60, 0.2);
+}
+
+.expiry-info {
+    padding: 15px 25px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 30px;
+    font-size: 1rem;
+}
+
+/* Alerts */
+.alert {
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.alert-danger {
+    background: #e74c3c;
+    color: white;
+}
+
+.alert-success {
+    background: #27ae60;
+    color: white;
+}
+
+/* Packages Grid */
+.packages-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 30px;
+    margin-bottom: 50px;
+}
+
+.package-card {
+    background: white;
+    border-radius: 20px;
+    padding: 40px 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.package-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+}
+
+.package-card.featured {
+    border: 3px solid #f39c12;
+    transform: scale(1.05);
+}
+
+.package-card.featured:hover {
+    transform: scale(1.08) translateY(-10px);
+}
+
+/* Popular Badge */
+.popular-badge {
+    position: absolute;
+    top: 20px;
+    right: -35px;
+    background: linear-gradient(45deg, #f39c12, #e67e22);
+    color: white;
+    padding: 8px 50px;
+    transform: rotate(45deg);
+    font-weight: bold;
+    font-size: 0.8rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Package Header */
+.package-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.tier-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+}
+
+.tier-icon.basic {
+    background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+    color: white;
+}
+
+.tier-icon.premium {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    color: white;
+}
+
+.tier-icon.enterprise {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+}
+
+.package-header h2 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    color: #2c3e50;
+}
+
+.package-description {
+    color: #7f8c8d;
+    font-size: 1rem;
+}
+
+/* Package Price */
+.package-price {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 20px 0;
+    border-top: 2px solid #ecf0f1;
+    border-bottom: 2px solid #ecf0f1;
+}
+
+.price-amount {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+.price-currency {
+    font-size: 1.5rem;
+    color: #7f8c8d;
+}
+
+.price-period {
+    display: block;
+    color: #95a5a6;
+    font-size: 1rem;
+    margin-top: 5px;
+}
+
+/* Package Features */
+.package-features h3 {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    color: #34495e;
+}
+
+.package-features ul {
+    list-style: none;
+}
+
+.package-features li {
+    padding: 12px 0;
+    color: #555;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.package-features li i {
+    color: #27ae60;
+    margin-top: 3px;
+    font-size: 1.1rem;
+}
+
+.package-features li strong {
+    color: #2c3e50;
+}
+
+/* Upgrade Button */
+.upgrade-form {
+    margin-top: 30px;
+}
+
+.btn-upgrade {
+    width: 100%;
+    padding: 18px;
+    border: none;
+    border-radius: 50px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btn-upgrade:hover:not(:disabled) {
+    background: linear-gradient(135deg, #764ba2, #667eea);
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-upgrade.featured {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+}
+
+.btn-upgrade.featured:hover:not(:disabled) {
+    background: linear-gradient(135deg, #e67e22, #f39c12);
+}
+
+.btn-upgrade:disabled {
+    background: #95a5a6;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* Payment Methods */
+.payment-methods {
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    margin-bottom: 50px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.payment-methods h3 {
+    text-align: center;
+    font-size: 1.8rem;
+    margin-bottom: 30px;
+    color: #2c3e50;
+}
+
+.methods-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+}
+
+.method-item {
+    text-align: center;
+    padding: 20px;
+    border: 2px solid #ecf0f1;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+}
+
+.method-item:hover {
+    border-color: #667eea;
+    transform: translateY(-5px);
+}
+
+.method-item img {
+    max-width: 100px;
+    height: auto;
+    margin-bottom: 10px;
+}
+
+.method-item i {
+    font-size: 2.5rem;
+    color: #667eea;
+    margin-bottom: 10px;
+}
+
+.method-item span {
+    display: block;
+    font-size: 0.9rem;
+    color: #7f8c8d;
+    font-weight: 500;
+}
+
+/* FAQ Section */
+.faq-section {
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.faq-section h3 {
+    text-align: center;
+    font-size: 1.8rem;
+    margin-bottom: 30px;
+    color: #2c3e50;
+}
+
+.faq-item {
+    padding: 20px;
+    margin-bottom: 15px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border-left: 4px solid #667eea;
+}
+
+.faq-item strong {
+    display: block;
+    margin-bottom: 10px;
+    color: #2c3e50;
+    font-size: 1.1rem;
+}
+
+.faq-item p {
+    color: #555;
+    line-height: 1.6;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .upgrade-header h1 {
+        font-size: 2rem;
+    }
+
+    .packages-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .package-card.featured {
+        transform: scale(1);
+    }
+
+    .current-tier-info {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .methods-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
