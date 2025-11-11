@@ -116,6 +116,7 @@ body {
     max-width: 1400px;
     margin-left: auto;
     margin-right: auto;
+    align-items: stretch; /* Đảm bảo tất cả items có chiều cao bằng nhau */
 }
 
 .package-card {
@@ -126,7 +127,7 @@ body {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     position: relative;
     overflow: hidden;
-    min-height: 480px;
+    height: 100%; /* Chiều cao 100% của grid cell */
     display: flex;
     flex-direction: column;
 }
@@ -148,8 +149,8 @@ body {
 /* Popular Badge */
 .popular-badge {
     position: absolute;
-    top: 12px;
-    right: -30px;
+    top: 39px;
+    right: -32px;
     background: linear-gradient(45deg, #f39c12, #e67e22);
     color: white;
     padding: 4px 38px;
@@ -237,7 +238,9 @@ body {
 
 /* Package Features */
 .package-features {
-    flex: 1;
+    flex: 1; /* Chiếm toàn bộ không gian còn lại */
+    display: flex;
+    flex-direction: column;
 }
 
 .package-features h3 {
@@ -274,7 +277,8 @@ body {
 
 /* Upgrade Button */
 .upgrade-form {
-    margin-top: 15px;
+    margin-top: auto; /* Đẩy button xuống dưới cùng */
+    padding-top: 15px;
 }
 
 .btn-upgrade {

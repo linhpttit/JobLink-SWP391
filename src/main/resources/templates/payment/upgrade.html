@@ -64,7 +64,7 @@
                         <span class="price-amount" th:text="${#numbers.formatDecimal(package.price, 0, 'COMMA', 0, 'POINT')}">499,000</span>
                         <span class="price-currency">đ</span>
                     </span>
-                    <span class="price-period" th:text="'/' + ${package.durationDays} + ' ngày'">/ 30 ngày</span>
+                    <span class="price-period" th:text="${package.durationDays} + ' ngày'">30 ngày</span>
                 </div>
 
                 <div class="package-features">
@@ -77,22 +77,13 @@
                             <i class="fas fa-check"></i> Xem hồ sơ ứng viên
                         </li>
                         <li th:if="${package.tierLevel >= 2}">
-                            <i class="fas fa-check"></i> <strong>Tin nổi bật</strong> trên trang chủ
-                        </li>
-                        <li th:if="${package.tierLevel >= 2}">
-                            <i class="fas fa-check"></i> <strong>Ưu tiên hiển thị</strong> trong kết quả tìm kiếm
+                            <i class="fas fa-check"></i> Gọi ý ứng viên
                         </li>
                         <li th:if="${package.tierLevel >= 2}">
                             <i class="fas fa-check"></i> Thống kê chi tiết
                         </li>
                         <li th:if="${package.tierLevel >= 3}">
-                            <i class="fas fa-check"></i> <strong>Hỗ trợ VIP 24/7</strong>
-                        </li>
-                        <li th:if="${package.tierLevel >= 3}">
-                            <i class="fas fa-check"></i> <strong>AI tìm kiếm ứng viên</strong> phù hợp
-                        </li>
-                        <li th:if="${package.tierLevel >= 3}">
-                            <i class="fas fa-check"></i> Quản lý đa chi nhánh
+                            <i class="fas fa-check"></i> <strong>AI Chat Bot</strong> hỗ trợ tuyển dụng
                         </li>
                     </ul>
                 </div>
