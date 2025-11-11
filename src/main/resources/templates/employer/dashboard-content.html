@@ -901,7 +901,7 @@
                 <h3>AI Talent Suite</h3>
                 <p>Khả năng AI có thể tích hợp trường và tìm ứng viên phù hợp</p>
             </div>
-            <button class="ai-btn">
+            <button class="ai-btn" onclick="openChatbot()">
                 <i class="fas fa-robot"></i>
                 Khởi chạy AI
             </button>
@@ -2308,6 +2308,29 @@
                     <p>Chưa có dữ liệu phân tích cho vị trí này</p>
                 </div>
             `;
+        }
+        
+        // Function để mở chatbot
+        function openChatbot() {
+            const chatbotToggle = document.getElementById('chatbot-toggle');
+            const chatbotBox = document.getElementById('chatbot-box');
+            
+            if (chatbotToggle && chatbotBox) {
+                // Hiển thị chatbot box
+                chatbotBox.style.display = 'flex';
+                chatbotToggle.style.display = 'none';
+                
+                // Focus vào input field
+                setTimeout(() => {
+                    const inputField = document.getElementById('chatbot-input-field');
+                    if (inputField) {
+                        inputField.focus();
+                    }
+                }, 100);
+            } else {
+                // Nếu không tìm thấy chatbot (tier < 3), hiển thị thông báo
+                alert('Tính năng AI Chat Bot chỉ dành cho gói Enterprise. Vui lòng nâng cấp tài khoản!');
+            }
         }
         </script>
     </div>
