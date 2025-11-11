@@ -7,6 +7,8 @@ import com.joblink.joblink.util.VNPayUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
@@ -30,6 +32,9 @@ public class PaymentService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private JobPostingRepository jobPostingRepository;
 
     /**
      * Lấy tất cả gói subscription đang hoạt động
@@ -234,21 +239,70 @@ public class PaymentService {
         if (employerOpt.isPresent()) {
             Employer employer = employerOpt.get();
             // Default tier 0 (Free) cho employer mới
-            info.put("tierLevel", employer.getTierLevel() != null ? employer.getTierLevel() : 0);
+            Integer tierLevel = employer.getTierLevel() != null ? employer.getTierLevel() : 0;
+            info.put("tierLevel", tierLevel);
             info.put("subscriptionExpiresAt", employer.getSubscriptionExpiresAt());
             
             // Kiểm tra xem subscription có còn hạn không
             boolean isActive = employer.getSubscriptionExpiresAt() != null && 
                              employer.getSubscriptionExpiresAt().isAfter(LocalDateTime.now());
             info.put("isSubscriptionActive", isActive);
+            
+            // Đếm số bài đăng hiện tại của employer
+            Long employerId = employer.getId();
+            int currentJobPosts = jobPostingRepository.findByEmployerId(employerId).size();
+            info.put("currentJobPosts", currentJobPosts);
+            
+            // Lấy giới hạn bài đăng theo tier
+            int maxJobPosts = getMaxJobPostsByTier(tierLevel);
+            info.put("maxJobPosts", maxJobPosts);
+            
         } else {
             // Nếu không tìm thấy employer profile, default là Free tier
             info.put("tierLevel", 0);
             info.put("subscriptionExpiresAt", null);
             info.put("isSubscriptionActive", false);
+            info.put("currentJobPosts", 0);
+            info.put("maxJobPosts", getMaxJobPostsByTier(0));
         }
         
         return info;
+    }
+    
+    /**
+     * Lấy giới hạn số bài đăng theo tier từ database
+     */
+    private int getMaxJobPostsByTier(Integer tierLevel) {
+        try {
+            // Lấy package từ database theo tier level
+            Optional<SubscriptionPackage> packageOpt = packageRepository.findByTierLevel(tierLevel);
+            
+            if (packageOpt.isPresent()) {
+                SubscriptionPackage pkg = packageOpt.get();
+                String features = pkg.getFeatures();
+                
+                if (features != null && !features.isEmpty()) {
+                    // Parse JSON để lấy max_jobs
+                    ObjectMapper mapper = new ObjectMapper();
+                    JsonNode jsonNode = mapper.readTree(features);
+                    
+                    if (jsonNode.has("max_jobs")) {
+                        return jsonNode.get("max_jobs").asInt();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error parsing features JSON: " + e.getMessage());
+        }
+        
+        // Fallback: Nếu không parse được, dùng giá trị mặc định
+        return switch (tierLevel) {
+            case 0 -> 3;      // Free: 3 bài
+            case 1 -> 10;     // Basic: 10 bài
+            case 2 -> 50;     // Premium: 50 bài
+            case 3 -> 999999; // Enterprise: Không giới hạn
+            default -> 3;
+        };
     }
 
     /**

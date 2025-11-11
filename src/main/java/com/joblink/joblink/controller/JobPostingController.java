@@ -5,22 +5,61 @@ import com.joblink.joblink.entity.District;
 import com.joblink.joblink.entity.Province;
 import com.joblink.joblink.entity.Skill;
 import com.joblink.joblink.service.IJobPostingService;
+import com.joblink.joblink.service.PaymentService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.ui.Model;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/jobPosting")
 @RequiredArgsConstructor
 public class JobPostingController {
     private final IJobPostingService jobPostingService;
+    private final PaymentService paymentService;
 
     @GetMapping
-    public String showCreateForm(Model model){
+    public String showCreateForm(Model model, HttpSession session, RedirectAttributes ra){
+        // Kiểm tra login
+        Object userObj = session.getAttribute("user");
+        if (userObj == null) {
+            return "redirect:/signin";
+        }
+        
+        com.joblink.joblink.dto.UserSessionDTO user = 
+            (com.joblink.joblink.dto.UserSessionDTO) userObj;
+        
+        // Kiểm tra tier và số lượng bài đăng
+        try {
+            Map<String, Object> tierInfo = paymentService.getEmployerTierInfo(user.getUserId());
+            Integer currentTier = (Integer) tierInfo.get("tierLevel");
+            Integer currentPosts = (Integer) tierInfo.get("currentJobPosts");
+            Integer maxPosts = (Integer) tierInfo.get("maxJobPosts");
+            
+            // Kiểm tra đã đạt giới hạn chưa
+            if (currentPosts >= maxPosts) {
+                ra.addFlashAttribute("error", 
+                    "Bạn đã đạt giới hạn " + maxPosts + " bài đăng của gói " + getTierName(currentTier) + 
+                    ". Vui lòng nâng cấp gói để đăng thêm bài!");
+                ra.addFlashAttribute("upgradeLink", "/payment/upgrade");
+                return "redirect:/jobPosting/viewList";
+            }
+            
+            // Thêm thông tin tier vào model
+            model.addAttribute("currentTier", currentTier);
+            model.addAttribute("currentPosts", currentPosts);
+            model.addAttribute("maxPosts", maxPosts);
+            model.addAttribute("remainingPosts", maxPosts - currentPosts);
+            
+        } catch (Exception e) {
+            System.err.println("Error checking tier: " + e.getMessage());
+        }
         model.addAttribute("jobForm", new JobPostingDto());
         // ✅ Dữ liệu giả để test (sau này lấy từ DB)
         List<Skill> skills = List.of(
@@ -51,7 +90,32 @@ public class JobPostingController {
     public String createJobPosting(
             @ModelAttribute("jobForm") JobPostingDto dto, Long employerId,
             BindingResult result,
-            Model model){
+            Model model,
+            HttpSession session,
+            RedirectAttributes ra){
+        // Kiểm tra login
+        Object userObj = session.getAttribute("user");
+        if (userObj == null) {
+            return "redirect:/signin";
+        }
+        
+        com.joblink.joblink.dto.UserSessionDTO user = 
+            (com.joblink.joblink.dto.UserSessionDTO) userObj;
+        
+        // Kiểm tra tier và số lượng bài đăng trước khi tạo
+        try {
+            Map<String, Object> tierInfo = paymentService.getEmployerTierInfo(user.getUserId());
+            Integer currentPosts = (Integer) tierInfo.get("currentJobPosts");
+            Integer maxPosts = (Integer) tierInfo.get("maxJobPosts");
+            
+            if (currentPosts >= maxPosts) {
+                ra.addFlashAttribute("error", 
+                    "Bạn đã đạt giới hạn " + maxPosts + " bài đăng. Vui lòng nâng cấp gói!");
+                return "redirect:/jobPosting/viewList";
+            }
+        } catch (Exception e) {
+            System.err.println("Error checking tier: " + e.getMessage());
+        }
         if (result.hasErrors()) {
             // CÓ LỖI:
             // Phải tải lại toàn bộ dữ liệu cần thiết cho các dropdown list của form
@@ -106,6 +170,16 @@ public class JobPostingController {
     public String deleteJobPosting(@PathVariable("id") Long id){
         jobPostingService.deleteJobPostingById(id);
         return "redirect:/jobPosting/viewList";
+    }
+    
+    private String getTierName(Integer tierLevel) {
+        return switch (tierLevel) {
+            case 0 -> "Free";
+            case 1 -> "Basic";
+            case 2 -> "Premium";
+            case 3 -> "Enterprise";
+            default -> "Unknown";
+        };
     }
 
 }
