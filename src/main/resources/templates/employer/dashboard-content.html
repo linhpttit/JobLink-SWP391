@@ -799,7 +799,7 @@
             <div class="premium-content">
                 <h3>
                     <i class="fas" th:classappend="${currentTier == 0 ? 'fa-gift' : (currentTier == 1 ? 'fa-briefcase' : (currentTier == 2 ? 'fa-gem' : 'fa-trophy'))}"></i>
-                    Gói <span th:text="${currentTier == 0 ? 'FREE' : (currentTier == 1 ? 'BASIC' : (currentTier == 2 ? 'PREMIUM' : 'ENTERPRISE'))}">PREMIUM</span>
+                    Gói <span th:text="${currentTier == 0 ? 'FREE' : (currentTier == 1 ? 'Standard' : (currentTier == 2 ? 'Pro' : 'Premium'))}">PREMIUM</span>
                 </h3>
                 <p th:text="${currentTier == 0 ? 'Nâng cấp để sử dụng đầy đủ tính năng' : 
                              (currentTier == 1 ? 'Nâng cấp lên Premium để có thêm tính năng cao cấp' : 
@@ -910,13 +910,16 @@
         <!-- Content Grid -->
         <div class="content-grid">
             <!-- Market Analysis -->
-            <div class="content-card">
+            <div class="content-card" th:if="${currentTier != null and currentTier >= 2}">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                     <h4 style="margin: 0;">
                         <div class="icon" style="background: #e3f2fd; color: #3498db;">
                             <i class="fas fa-clipboard-list"></i>
                         </div>
                         Phân tích thị trường
+                        <span style="font-size: 0.75rem; color: #f39c12; margin-left: 8px;">
+                            <i class="fas fa-crown"></i> Premium
+                        </span>
                     </h4>
                     <select id="marketPositionFilter" style="padding: 6px 12px; border: 1px solid #e0e6ed; border-radius: 6px; font-size: 13px; cursor: pointer;">
                         <!-- Options will be loaded dynamically -->
@@ -2329,7 +2332,7 @@
                 }, 100);
             } else {
                 // Nếu không tìm thấy chatbot (tier < 3), hiển thị thông báo
-                alert('Tính năng AI Chat Bot chỉ dành cho gói Enterprise. Vui lòng nâng cấp tài khoản!');
+                alert('Tính năng AI Chat Bot chỉ dành cho gói Premium. Vui lòng nâng cấp tài khoản!');
             }
         }
         </script>

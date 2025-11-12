@@ -196,6 +196,7 @@
 
 /* Toggle Button */
 .chatbot-toggle {
+    display: block;
     width: 60px;
     height: 60px;
     border-radius: 50%;
@@ -579,6 +580,7 @@ chatbotToggle.addEventListener('click', () => {
 
 chatbotClose.addEventListener('click', () => {
     chatbotBox.style.display = 'none';
+    chatbotToggle.style.display = ''; // Hiển thị lại nút toggle (về giá trị mặc định)
 });
 
 // New session
