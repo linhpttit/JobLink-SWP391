@@ -802,8 +802,8 @@
                     Gói <span th:text="${currentTier == 0 ? 'FREE' : (currentTier == 1 ? 'Standard' : (currentTier == 2 ? 'Pro' : 'Premium'))}">PREMIUM</span>
                 </h3>
                 <p th:text="${currentTier == 0 ? 'Nâng cấp để sử dụng đầy đủ tính năng' : 
-                             (currentTier == 1 ? 'Nâng cấp lên Premium để có thêm tính năng cao cấp' : 
-                             (currentTier == 2 ? 'Bạn đang sử dụng gói Premium với đầy đủ tính năng' : 
+                             (currentTier == 1 ? 'Nâng cấp lên Pro để có thêm tính năng cao cấp' : 
+                             (currentTier == 2 ? 'Bạn đang sử dụng gói Pro với đầy đủ tính năng' : 
                              'Bạn đang sử dụng gói cao cấp nhất với AI Chat Bot'))}">
                     Gói cần sử dụng để đăng tất cả các gói tin tuyển dụng cao cấp
                 </p>
@@ -814,7 +814,7 @@
         </div>
 
         <!-- Stats Grid Header with Filter -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;" th:if="${currentTier != null and currentTier >= 1}">
             <h3 style="margin: 0; color: #2c3e50;">Thống kê tổng quan</h3>
             <select id="statsFilterPeriod" style="padding: 8px 15px; border: 1px solid #e0e6ed; border-radius: 6px; font-size: 14px; cursor: pointer;">
                 <option value="1day" selected>1 ngày gần nhất</option>
@@ -827,7 +827,7 @@
         </div>
 
         <!-- Stats Grid -->
-        <div class="stats-grid">
+        <div class="stats-grid" th:if="${currentTier != null and currentTier >= 1}">
             <div class="stat-card" style="--accent-color: #3498db;">
                 <div class="stat-header">
                     <div class="stat-icon" style="background: #e3f2fd; color: #3498db;">
@@ -917,7 +917,10 @@
                             <i class="fas fa-clipboard-list"></i>
                         </div>
                         Phân tích thị trường
-                        <span style="font-size: 0.75rem; color: #f39c12; margin-left: 8px;">
+                        <span th:if="${currentTier == 2}" style="font-size: 0.75rem; color: #2563eb; margin-left: 8px;">
+                            <i class="fas fa-gem"></i> Pro
+                        </span>
+                        <span th:if="${currentTier >= 3}" style="font-size: 0.75rem; color: #7c3aed; margin-left: 8px;">
                             <i class="fas fa-crown"></i> Premium
                         </span>
                     </h4>
@@ -942,7 +945,10 @@
                         <i class="fas fa-star"></i>
                     </div>
                     Gợi ý ứng viên
-                    <span style="font-size: 0.75rem; color: #f39c12; margin-left: 8px;">
+                    <span th:if="${currentTier == 2}" style="font-size: 0.75rem; color: #2563eb; margin-left: 8px;">
+                        <i class="fas fa-gem"></i> Pro
+                    </span>
+                    <span th:if="${currentTier >= 3}" style="font-size: 0.75rem; color: #7c3aed; margin-left: 8px;">
                         <i class="fas fa-crown"></i> Premium
                     </span>
                 </h4>
@@ -1096,7 +1102,10 @@
             <div class="chart-card">
                 <div class="chart-header">
                     <h4>Ứng viên theo vị trí
-                        <span style="font-size: 0.75rem; color: #f39c12; margin-left: 8px;">
+                        <span th:if="${currentTier == 2}" style="font-size: 0.75rem; color: #2563eb; margin-left: 8px;">
+                            <i class="fas fa-gem"></i> Pro
+                        </span>
+                        <span th:if="${currentTier >= 3}" style="font-size: 0.75rem; color: #7c3aed; margin-left: 8px;">
                             <i class="fas fa-crown"></i> Premium
                         </span>
                     </h4>
@@ -1116,7 +1125,10 @@
             <div class="chart-card">
                 <div class="chart-header">
                     <h4>Xu hướng ứng viên
-                        <span style="font-size: 0.75rem; color: #f39c12; margin-left: 8px;">
+                        <span th:if="${currentTier == 2}" style="font-size: 0.75rem; color: #2563eb; margin-left: 8px;">
+                            <i class="fas fa-gem"></i> Pro
+                        </span>
+                        <span th:if="${currentTier >= 3}" style="font-size: 0.75rem; color: #7c3aed; margin-left: 8px;">
                             <i class="fas fa-crown"></i> Premium
                         </span>
                     </h4>
@@ -1136,7 +1148,10 @@
             <div class="chart-card">
                 <div class="chart-header">
                     <h4>Trạng thái ứng viên
-                        <span style="font-size: 0.75rem; color: #f39c12; margin-left: 8px;">
+                        <span th:if="${currentTier == 2}" style="font-size: 0.75rem; color: #2563eb; margin-left: 8px;">
+                            <i class="fas fa-gem"></i> Pro
+                        </span>
+                        <span th:if="${currentTier >= 3}" style="font-size: 0.75rem; color: #7c3aed; margin-left: 8px;">
                             <i class="fas fa-crown"></i> Premium
                         </span>
                     </h4>
