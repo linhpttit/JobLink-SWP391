@@ -22,7 +22,7 @@
         </div>
 
         <!-- Current Subscription Info -->
-        <div class="subscription-status">
+        <div class="subscription-status" th:if="${currentTier != null}">
             <div class="status-card">
                 <div class="status-header">
                     <i class="fas fa-info-circle"></i> Thông tin gói hiện tại
@@ -30,25 +30,31 @@
                 <div class="status-body">
                     <div class="status-item">
                         <span class="label">Tier hiện tại:</span>
-                        <span class="value tier-badge" th:classappend="${currentTier == 0 ? 'free' : (currentTier == 1 ? 'basic' : (currentTier == 2 ? 'premium' : 'enterprise'))}">
-                            <i class="fas fa-medal"></i>
-                            <strong th:text="${currentTier == 0 ? 'Free' : (currentTier == 1 ? 'Basic' : (currentTier == 2 ? 'Premium' : 'Enterprise'))}">Premium</strong>
+                        <span class="value">
+                            <span class="tier-badge-new" th:classappend="${currentTier == 0 ? 'tier-free' : (currentTier == 1 ? 'tier-standard' : (currentTier == 2 ? 'tier-pro' : 'tier-premium'))}">
+                                <i class="fas fa-crown"></i>
+                                <strong th:text="${currentTier == 0 ? 'Free' : (currentTier == 1 ? 'Standard' : (currentTier == 2 ? 'Pro' : 'Premium'))}">Premium</strong>
+                            </span>
                         </span>
                     </div>
-                    <div class="status-item" th:if="${subscriptionExpiresAt != null}">
+                    <div class="status-item" th:if="${currentTier != null && currentTier > 0}">
+                        <span class="label">Gói hiện tại:</span>
+                        <span class="value package-name" th:text="${currentTier == 1 ? 'STANDARD' : (currentTier == 2 ? 'PRO' : 'PREMIUM (AI Talent Suite)')}">PRO</span>
+                    </div>
+                    <div class="status-item">
                         <span class="label">Trạng thái:</span>
                         <span class="value">
-                            <span th:if="${isSubscriptionActive}" class="badge-active">
+                            <span th:if="${isSubscriptionActive}" class="badge-active-new">
                                 <i class="fas fa-check-circle"></i> Đang hoạt động
                             </span>
-                            <span th:unless="${isSubscriptionActive}" class="badge-expired">
+                            <span th:unless="${isSubscriptionActive}" class="badge-expired-new">
                                 <i class="fas fa-times-circle"></i> Đã hết hạn
                             </span>
                         </span>
                     </div>
                     <div class="status-item" th:if="${subscriptionExpiresAt != null}">
                         <span class="label">Ngày hết hạn:</span>
-                        <span class="value" th:text="${#temporals.format(subscriptionExpiresAt, 'dd/MM/yyyy HH:mm')}">01/01/2025 00:00</span>
+                        <span class="value" th:text="${#temporals.format(subscriptionExpiresAt, 'dd/MM/yyyy HH:mm')}">10/01/2026 23:57</span>
                     </div>
                 </div>
             </div>
@@ -70,63 +76,69 @@
                 <table class="transactions-table">
                     <thead>
                         <tr>
-                            <th>Mã GD</th>
-                            <th>Gói dịch vụ</th>
-                            <th>Số tiền</th>
-                            <th>Trạng thái</th>
-                            <th>Tier nâng lên</th>
-                            <th>Phương thức</th>
-                            <th>Ngày tạo</th>
-                            <th>Ngày thanh toán</th>
+                            <th>MÃ GD</th>
+                            <th>GÓI DỊCH VỤ</th>
+                            <th>NGÀY ĐĂNG KÝ</th>
+                            <th>SỐ TIỀN</th>
+                            <th>TRẠNG THÁI</th>
+                            <th>HẠN SỬ DỤNG</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr th:each="transaction : ${transactions}">
                             <td>
-                                <span class="transaction-id" th:text="${transaction.vnpayTxnRef}">TXN123456</span>
+                                <span class="transaction-id" th:text="${transaction.vnpayTxnRef}">#20251109A</span>
                             </td>
                             <td>
-                                <div class="package-info">
-                                    <strong th:text="${transaction.subscriptionPackage.packageName}">Premium</strong>
-                                    <small th:text="${transaction.subscriptionPackage.durationDays + ' ngày'}">30 ngày</small>
+                                <span class="package-badge" 
+                                      th:classappend="${transaction.tierUpgradedTo == 1 ? 'badge-standard' : (transaction.tierUpgradedTo == 2 ? 'badge-pro' : 'badge-premium')}"
+                                      th:text="${transaction.tierUpgradedTo == 1 ? 'STANDARD' : (transaction.tierUpgradedTo == 2 ? 'PRO' : 'PREMIUM')}">
+                                    PREMIUM
+                                </span>
+                            </td>
+                            <td>
+                                <span th:text="${#temporals.format(transaction.createdAt, 'dd/MM/yyyy')}">09/11/2025</span>
+                            </td>
+                            <td>
+                                <span class="amount" th:text="${#numbers.formatDecimal(transaction.amount, 0, 'COMMA', 0, 'POINT') + ' đ'}">1,300,000 đ</span>
+                            </td>
+                            <td>
+                                <div class="status-wrapper">
+                                    <span class="status-label" 
+                                          th:classappend="${transaction.paymentStatus == 'SUCCESS' ? 'status-success' : (transaction.paymentStatus == 'PENDING' ? 'status-pending' : (transaction.paymentStatus == 'CANCELLED' ? 'status-cancelled' : 'status-failed'))}">
+                                        <span th:text="${transaction.paymentStatus == 'SUCCESS' ? 'Thành công' : (transaction.paymentStatus == 'PENDING' ? 'Chờ xử lý' : (transaction.paymentStatus == 'CANCELLED' ? 'Giao dịch Đã Hủy' : 'Thẻ không hợp lệ'))}">Thành công</span>
+                                    </span>
+                                    <small class="status-code" th:text="'Code: ' + ${transaction.vnpayResponseCode != null ? transaction.vnpayResponseCode : '00'}">Code: 00</small>
                                 </div>
                             </td>
                             <td>
-                                <span class="amount" th:text="${#numbers.formatDecimal(transaction.amount, 0, 'COMMA', 0, 'POINT') + ' đ'}">499,000 đ</span>
-                            </td>
-                            <td>
-                                <span class="status-badge" 
-                                      th:classappend="${transaction.paymentStatus == 'SUCCESS' ? 'success' : (transaction.paymentStatus == 'PENDING' ? 'pending' : 'failed')}">
-                                    <i class="fas" th:classappend="${transaction.paymentStatus == 'SUCCESS' ? 'fa-check-circle' : (transaction.paymentStatus == 'PENDING' ? 'fa-clock' : 'fa-times-circle')}"></i>
-                                    <span th:text="${transaction.paymentStatus == 'SUCCESS' ? 'Thành công' : (transaction.paymentStatus == 'PENDING' ? 'Chờ xử lý' : 'Thất bại')}">Thành công</span>
-                                </span>
-                            </td>
-                            <td>
-                                <span th:if="${transaction.tierUpgradedTo != null}">
-                                    <span class="tier-level" th:classappend="${transaction.tierUpgradedTo == 0 ? 'free' : (transaction.tierUpgradedTo == 1 ? 'basic' : (transaction.tierUpgradedTo == 2 ? 'premium' : 'enterprise'))}">
-                                        <i class="fas fa-arrow-up"></i>
-                                        <span th:text="${transaction.tierUpgradedTo == 0 ? 'Free' : (transaction.tierUpgradedTo == 1 ? 'Basic' : (transaction.tierUpgradedTo == 2 ? 'Premium' : 'Enterprise'))}">Premium</span>
-                                    </span>
-                                </span>
-                                <span th:unless="${transaction.tierUpgradedTo != null}">-</span>
-                            </td>
-                            <td>
-                                <span th:if="${transaction.paymentMethod != null}">
-                                    <i class="fas fa-credit-card"></i>
-                                    <span th:text="${transaction.paymentMethod}">ATM</span>
-                                </span>
-                                <span th:unless="${transaction.paymentMethod != null}">-</span>
-                            </td>
-                            <td>
-                                <span th:text="${#temporals.format(transaction.createdAt, 'dd/MM/yyyy')}">01/01/2025</span>
-                                <small th:text="${#temporals.format(transaction.createdAt, 'HH:mm')}">10:30</small>
-                            </td>
-                            <td>
-                                <span th:if="${transaction.paidAt != null}">
-                                    <span th:text="${#temporals.format(transaction.paidAt, 'dd/MM/yyyy')}">01/01/2025</span>
-                                    <small th:text="${#temporals.format(transaction.paidAt, 'HH:mm')}">10:35</small>
-                                </span>
-                                <span th:unless="${transaction.paidAt != null}">-</span>
+                                <!-- SUCCESS: Tính ngày hết hạn = paidAt + durationDays -->
+                                <div class="expiry-wrapper" th:if="${transaction.paymentStatus == 'SUCCESS' && transaction.paidAt != null}">
+                                    <span class="expiry-date" 
+                                          th:with="expiryDate=${transaction.paidAt.plusDays(transaction.subscriptionPackage.durationDays)}"
+                                          th:text="${#temporals.format(expiryDate, 'dd/MM/yyyy')}">12/11/2025</span>
+                                    <small class="expiry-status" 
+                                           th:with="expiryDate=${transaction.paidAt.plusDays(transaction.subscriptionPackage.durationDays)},daysLeft=${T(java.time.temporal.ChronoUnit).DAYS.between(T(java.time.LocalDateTime).now(), expiryDate)}"
+                                           th:classappend="${daysLeft > 0 ? 'expiry-active' : 'expiry-expired'}"
+                                           th:text="${daysLeft > 0 ? 'Còn ' + daysLeft + ' ngày để gia hạn.' : 'Đã hết hạn'}">
+                                        Còn 1 ngày để gia hạn.
+                                    </small>
+                                </div>
+                                <!-- CANCELLED -->
+                                <div class="expiry-wrapper" th:if="${transaction.paymentStatus == 'CANCELLED'}">
+                                    <span class="expiry-date" th:text="${#temporals.format(transaction.createdAt, 'dd/MM/yyyy')}">09/11/2025</span>
+                                    <small class="expiry-status expiry-expired">Đã hết hạn</small>
+                                </div>
+                                <!-- FAILED -->
+                                <div class="expiry-wrapper" th:if="${transaction.paymentStatus == 'FAILED'}">
+                                    <span class="expiry-date" th:text="${#temporals.format(transaction.createdAt, 'dd/MM/yyyy')}">28/11/2025</span>
+                                    <small class="expiry-status expiry-failed">-</small>
+                                </div>
+                                <!-- PENDING -->
+                                <div class="expiry-wrapper" th:if="${transaction.paymentStatus == 'PENDING'}">
+                                    <span class="expiry-date" th:text="${#temporals.format(transaction.createdAt, 'dd/MM/yyyy')}">10/10/2025</span>
+                                    <small class="expiry-status expiry-expired">Đã hết hạn</small>
+                                </div>
                             </td>
                         </tr>
                     </tbody>

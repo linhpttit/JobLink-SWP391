@@ -101,6 +101,12 @@ body {
     color: #2c3e50;
 }
 
+.status-item .package-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #667eea;
+}
+
 .tier-badge {
     display: inline-flex;
     align-items: center;
@@ -138,6 +144,56 @@ body {
 .badge-expired {
     color: #e74c3c;
     font-weight: 600;
+}
+
+/* New Tier Badge Styles */
+.tier-badge-new {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 24px;
+    border-radius: 25px;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.tier-free {
+    background: linear-gradient(135deg, #27ae60, #229954);
+    color: white;
+}
+
+.tier-standard {
+    background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+    color: white;
+}
+
+.tier-pro {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+}
+
+.tier-premium {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    color: white;
+}
+
+/* New Status Badge Styles */
+.badge-active-new {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #27ae60;
+    font-weight: 600;
+    font-size: 1.05rem;
+}
+
+.badge-expired-new {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #e74c3c;
+    font-weight: 600;
+    font-size: 1.05rem;
 }
 
 /* Transactions Section */
@@ -287,6 +343,104 @@ body {
 .status-badge.failed {
     background: #f8d7da;
     color: #721c24;
+}
+
+/* Package Badge Styles */
+.package-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.badge-standard {
+    background: #e5e7eb;
+    color: #4b5563;
+}
+
+.badge-pro {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.badge-premium {
+    background: #f3e8ff;
+    color: #7c3aed;
+}
+
+/* Status Wrapper Styles */
+.status-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.status-label {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    width: fit-content;
+}
+
+.status-success {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-cancelled {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.status-failed {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.status-code {
+    color: #6b7280;
+    font-size: 0.75rem;
+    margin-left: 2px;
+}
+
+/* Expiry Wrapper Styles */
+.expiry-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.expiry-date {
+    font-weight: 600;
+    color: #1f2937;
+    font-size: 0.875rem;
+}
+
+.expiry-status {
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.expiry-active {
+    color: #f59e0b;
+}
+
+.expiry-expired {
+    color: #dc2626;
+}
+
+.expiry-failed {
+    color: #6b7280;
 }
 
 /* Tier Level Badge */
