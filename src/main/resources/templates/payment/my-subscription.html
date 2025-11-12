@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gói của tôi - JobLink</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -13,38 +14,41 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fc;
+            color: #333;
             min-height: 100vh;
-            padding: 40px 20px;
+            padding: 20px;
+            line-height: 1.6;
         }
 
         .container {
             max-width: 1000px;
-            margin: 0 auto;
+            margin: 20px auto;
         }
 
         .page-header {
             text-align: center;
-            color: white;
-            margin-bottom: 40px;
+            color: #000;
+            margin-bottom: 50px;
         }
 
         .page-header h1 {
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             margin-bottom: 10px;
+            font-weight: 700;
         }
 
         .page-header p {
             font-size: 1.1rem;
-            opacity: 0.9;
+            color: #666;
         }
 
         .subscription-card {
             background: white;
-            border-radius: 20px;
+            border-radius: 12px;
             padding: 40px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
             margin-bottom: 30px;
         }
 
@@ -71,22 +75,22 @@
         }
 
         .plan-badge.free {
-            background: linear-gradient(135deg, #27ae60, #229954);
+            background: #10b981;
             color: white;
         }
 
         .plan-badge.basic {
-            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+            background: #6b7280;
             color: white;
         }
 
         .plan-badge.premium {
-            background: linear-gradient(135deg, #f39c12, #e67e22);
+            background: #2563eb;
             color: white;
         }
 
         .plan-badge.enterprise {
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            background: #7c3aed;
             color: white;
         }
 
@@ -141,30 +145,36 @@
             gap: 10px;
         }
 
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
+        .features-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
         .feature-item {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 12px;
-            padding: 15px;
+            padding: 12px 15px;
             background: #f8f9fa;
-            border-radius: 10px;
-            border-left: 4px solid #667eea;
+            border-radius: 8px;
+            border-left: 3px solid #2563eb;
         }
 
-        .feature-item i {
-            color: #27ae60;
+        .feature-item.limitation {
+            border-left-color: #e74c3c;
+            background: #fee;
+        }
+
+        .feature-item .icon {
             font-size: 1.2rem;
+            flex-shrink: 0;
         }
 
         .feature-item span {
             color: #555;
             font-size: 0.95rem;
+            line-height: 1.6;
         }
 
         .action-buttons {
@@ -212,9 +222,9 @@
 
         .transactions-section {
             background: white;
-            border-radius: 20px;
+            border-radius: 12px;
             padding: 40px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
 
         .transactions-section h3 {
@@ -322,31 +332,118 @@
 
             <!-- Plan Features -->
             <div class="plan-features" th:if="${currentPackage != null}">
-                <h3><i class="fas fa-star"></i> Tính năng của gói</h3>
-                <div class="features-grid">
-                    <div class="feature-item">
-                        <i class="fas fa-check-circle"></i>
-                        <span>
-                            Đăng tối đa 
-                            <strong th:text="${currentTier == 0 ? '10' : (currentTier == 1 ? '100' : (currentTier == 2 ? '1,000' : '10,000'))}">1,000</strong> 
-                            tin tuyển dụng
-                        </span>
+                <h3><i class="fas fa-star"></i> Tính năng bao gồm:</h3>
+                <div class="features-list">
+                    <!-- Tier 1: Standard/Basic -->
+                    <div class="feature-item" th:if="${currentTier == 1}">
+                        <span class="icon">✅</span> 
+                        <span>Số lượt đăng bài: <strong>10 bài</strong> / tháng</span>
                     </div>
-                    <div class="feature-item">
-                        <i class="fas fa-check-circle"></i>
-                        <span>Xem hồ sơ ứng viên</span>
+                    <div class="feature-item" th:if="${currentTier == 1}">
+                        <span class="icon">💾</span> 
+                        <span>Số lượt lưu ứng viên: <strong>20 hồ sơ</strong></span>
                     </div>
-                    <div class="feature-item" th:if="${currentTier >= 2}">
-                        <i class="fas fa-check-circle"></i>
-                        <span>Gọi ý ứng viên</span>
+                    <div class="feature-item" th:if="${currentTier == 1}">
+                        <span class="icon">📧</span> 
+                        <span>Gửi mail hàng loạt: Cơ bản<br>+ Gửi 100 Mail/tháng</span>
                     </div>
-                    <div class="feature-item" th:if="${currentTier >= 2}">
-                        <i class="fas fa-check-circle"></i>
-                        <span>Thống kê chi tiết</span>
+                    <div class="feature-item" th:if="${currentTier == 1}">
+                        <span class="icon">📊</span> 
+                        <span>Thống kê tổng quan:<br>+ Biểu đồ chi tiết(Tổng lượt xem, ứng tuyển)</span>
+                    </div>
+                    
+                    <!-- Tier 2: PRO -->
+                    <div class="feature-item" th:if="${currentTier == 2}">
+                        <span class="icon">🚀</span> 
+                        <span>Số lượt đăng bài: <strong>30 bài</strong> / tháng</span>
+                    </div>
+                    <div class="feature-item" th:if="${currentTier == 2}">
+                        <span class="icon">⭐</span> 
+                        <span>Số lượt lưu ứng viên: <strong>100 hồ sơ</strong></span>
+                    </div>
+                    <div class="feature-item" th:if="${currentTier == 2}">
+                        <span class="icon">📧</span> 
+                        <span>Gửi mail hàng loạt: Không giới hạn</span>
+                    </div>
+                    <div class="feature-item" th:if="${currentTier == 2}">
+                        <span class="icon">📈</span> 
+                        <span>Thống kê tổng quan:<br>+ Biểu đồ chi tiết</span>
+                    </div>
+                    <div class="feature-item" th:if="${currentTier == 2}">
+                        <span class="icon">🗺️</span> 
+                        <span>Phân tích thị trường:<br>+ Xu hướng ngành, mức lương</span>
+                    </div>
+                    <div class="feature-item" th:if="${currentTier == 2}">
+                        <span class="icon">✅</span> 
+                        <span>Dashboard nâng cao & KPI: Cơ bản<br>+ Báo cáo dạng biểu đồ</span>
+                    </div>
+                    
+                    <!-- Tier 3+: PREMIUM -->
+                    <div class="feature-item" th:if="${currentTier >= 3}">
+                        <span class="icon">👑</span> 
+                        <span>Số lượt đăng bài: <strong>Không giới hạn</strong></span>
                     </div>
                     <div class="feature-item" th:if="${currentTier >= 3}">
-                        <i class="fas fa-check-circle"></i>
-                        <span><strong>AI Chat Bot</strong> hỗ trợ tuyển dụng</span>
+                        <span class="icon">♾️</span> 
+                        <span>Số lượt lưu ứng viên: <strong>Không giới hạn</strong></span>
+                    </div>
+                    <div class="feature-item" th:if="${currentTier >= 3}">
+                        <span class="icon">📧</span> 
+                        <span>Gửi mail hàng loạt: <strong>Không giới hạn</strong></span>
+                    </div>
+                    <div class="feature-item" th:if="${currentTier >= 3}">
+                        <span class="icon">🧠</span> 
+                        <span>Thống kê tổng quan: Có<br>+ AI phân tích hiệu quả</span>
+                    </div>
+                    <div class="feature-item" th:if="${currentTier >= 3}">
+                        <span class="icon">📊</span> 
+                        <span>Phân tích thị trường: Có<br>+ Xu hướng ngành, mức lương</span>
+                    </div>
+                    <div class="feature-item" th:if="${currentTier >= 3}">
+                        <span class="icon">📍</span> 
+                        <span>Gợi ý ngành nghề: Có<br>+ AI cập nhật tự động</span>
+                    </div>
+                    <div class="feature-item" th:if="${currentTier >= 3}">
+                        <span class="icon">💡</span> 
+                        <span>AI gợi ý ứng viên: Có<br>+ AI cập nhật tự động</span>
+                    </div>
+                    <div class="feature-item" th:if="${currentTier >= 3}">
+                        <span class="icon">🛠️</span> 
+                        <span>Dashboard nâng cao & KPI:<br>+ Báo cáo dạng biểu đồ, lọc nâng cao</span>
+                    </div>
+                </div>
+                
+                <!-- Limitations -->
+                <div th:if="${currentTier < 3}" style="margin-top: 30px;">
+                    <h3 style="color: #e74c3c;"><i class="fas fa-times-circle"></i> Giới hạn/Không có:</h3>
+                    <div class="features-list">
+                        <!-- Tier 1: Standard limitations -->
+                        <div class="feature-item limitation" th:if="${currentTier == 1}">
+                            <span class="icon">❌</span> 
+                            <span>Phân tích thị trường tuyển dụng</span>
+                        </div>
+                        <div class="feature-item limitation" th:if="${currentTier == 1}">
+                            <span class="icon">❌</span> 
+                            <span>Gợi ý ngành nghề theo địa bàn</span>
+                        </div>
+                        <div class="feature-item limitation" th:if="${currentTier == 1}">
+                            <span class="icon">❌</span> 
+                            <span>AI gợi ý ứng viên phù hợp</span>
+                        </div>
+                        <div class="feature-item limitation" th:if="${currentTier == 1}">
+                            <span class="icon">❌</span> 
+                            <span>Dashboard nâng cao & KPI tùy chỉnh</span>
+                        </div>
+                        
+                        <!-- Tier 2: PRO limitations -->
+                        <div class="feature-item limitation" th:if="${currentTier == 2}">
+                            <span class="icon">❌</span> 
+                            <span>Gợi ý ngành nghề theo địa bàn</span>
+                        </div>
+                        <div class="feature-item limitation" th:if="${currentTier == 2}">
+                            <span class="icon">❌</span> 
+                            <span>AI gợi ý ứng viên phù hợp</span>
+                        </div>
                     </div>
                 </div>
             </div>

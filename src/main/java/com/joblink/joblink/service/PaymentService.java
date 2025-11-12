@@ -296,11 +296,15 @@ public class PaymentService {
         }
         
         // Fallback: Nếu không parse được, dùng giá trị mặc định
+        // Tier >= 3: Không giới hạn
+        if (tierLevel >= 3) {
+            return Integer.MAX_VALUE; // Không giới hạn
+        }
+        
         return switch (tierLevel) {
             case 0 -> 3;      // Free: 3 bài
-            case 1 -> 10;     // Basic: 10 bài
-            case 2 -> 50;     // Premium: 50 bài
-            case 3 -> 999999; // Enterprise: Không giới hạn
+            case 1 -> 10;     // Standard: 10 bài
+            case 2 -> 30;     // Pro: 30 bài
             default -> 3;
         };
     }

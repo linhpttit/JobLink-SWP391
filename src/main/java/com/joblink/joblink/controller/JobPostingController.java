@@ -42,8 +42,8 @@ public class JobPostingController {
             Integer currentPosts = (Integer) tierInfo.get("currentJobPosts");
             Integer maxPosts = (Integer) tierInfo.get("maxJobPosts");
             
-            // Kiểm tra đã đạt giới hạn chưa
-            if (currentPosts >= maxPosts) {
+            // Kiểm tra đã đạt giới hạn chưa (chỉ áp dụng cho tier < 3)
+            if (currentTier < 3 && currentPosts >= maxPosts) {
                 ra.addFlashAttribute("error", 
                     "Bạn đã đạt giới hạn " + maxPosts + " bài đăng của gói " + getTierName(currentTier) + 
                     ". Vui lòng nâng cấp gói để đăng thêm bài!");
@@ -55,7 +55,10 @@ public class JobPostingController {
             model.addAttribute("currentTier", currentTier);
             model.addAttribute("currentPosts", currentPosts);
             model.addAttribute("maxPosts", maxPosts);
+            model.addAttribute("isUnlimited", currentTier >= 3);
+            model.addAttribute("maxPostsDisplay", currentTier >= 3 ? "Không giới hạn" : maxPosts);
             model.addAttribute("remainingPosts", maxPosts - currentPosts);
+            model.addAttribute("remainingPostsDisplay", currentTier >= 3 ? "Không giới hạn" : (maxPosts - currentPosts));
             
         } catch (Exception e) {
             System.err.println("Error checking tier: " + e.getMessage());
@@ -105,10 +108,12 @@ public class JobPostingController {
         // Kiểm tra tier và số lượng bài đăng trước khi tạo
         try {
             Map<String, Object> tierInfo = paymentService.getEmployerTierInfo(user.getUserId());
+            Integer currentTier = (Integer) tierInfo.get("tierLevel");
             Integer currentPosts = (Integer) tierInfo.get("currentJobPosts");
             Integer maxPosts = (Integer) tierInfo.get("maxJobPosts");
             
-            if (currentPosts >= maxPosts) {
+            // Chỉ kiểm tra giới hạn cho tier < 3
+            if (currentTier < 3 && currentPosts >= maxPosts) {
                 ra.addFlashAttribute("error", 
                     "Bạn đã đạt giới hạn " + maxPosts + " bài đăng. Vui lòng nâng cấp gói!");
                 return "redirect:/jobPosting/viewList";
