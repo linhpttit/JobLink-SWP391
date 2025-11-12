@@ -1,26 +1,24 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{employer/employer-layout}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nâng cấp tài khoản - JobLink</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     
     <style>
-        /* Thiết lập cơ bản */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f7f9fc;
-            color: #333;
-            padding: 20px;
-            margin: 0;
-            line-height: 1.6;
+        /* Override content-area to use full width */
+        .content-area {
+            width: 100% !important;
+            max-width: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
         }
 
+        /* Thiết lập cơ bản */
         .pricing-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px 0;
+            width: 100%;
+            margin: 0;
+            padding: 40px 20px;
         }
 
         /* Header */
@@ -54,7 +52,7 @@
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
             padding: 30px;
-            width: 330px;
+            width: 360px;
             transition: transform 0.3s, box-shadow 0.3s;
             display: flex;
             flex-direction: column;
@@ -159,6 +157,7 @@
         .card-body li {
             display: flex;
             align-items: flex-start;
+            gap: 5px;
             font-size: 0.95rem;
             padding: 8px 0;
             color: #444;
@@ -236,8 +235,8 @@
 
         /* --- FAQ Section Styles --- */
         .faq-section {
-            max-width: 800px;
-            margin: 80px auto 40px auto;
+            width: 100%;
+            margin: 80px 0 40px 0;
             padding: 20px;
             border-top: 2px solid #ddd;
         }
@@ -328,10 +327,8 @@
         }
     </style>
 </head>
-<body>
-    <!-- Include Header -->
-    <div th:replace="~{header :: header}"></div>
 
+<div layout:fragment="content">
     <div class="pricing-container">
         
         <header class="pricing-header">
@@ -465,12 +462,13 @@
                 </div>
                 
                 <!-- Nút cho gói hiện tại -->
-                <a th:if="${currentTier == package.tierLevel && isSubscriptionActive}" 
-                   th:href="@{/payment/my-subscription}"
-                   class="cta-button"
-                   style="background-color: #10b981; color: white;">
-                    Xem gói của tôi
-                </a>
+                <button th:if="${currentTier == package.tierLevel && isSubscriptionActive}" 
+                        type="button"
+                        class="cta-button"
+                        disabled
+                        style="background-color: #10b981; color: white; opacity: 0.8; cursor: default;">
+                    Gói đang sử dụng
+                </button>
                 
                 <!-- Nút disabled cho gói thấp hơn tier hiện tại -->
                 <button th:if="${isSubscriptionActive && package.tierLevel < currentTier}" 
@@ -541,9 +539,6 @@
         </div>
     </div>
 
-    <!-- Include Footer -->
-    <div th:replace="~{footer :: footer}"></div>
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const pricingCards = document.querySelectorAll('.pricing-card');
@@ -594,5 +589,4 @@
             });
         });
     </script>
-</body>
-</html>
+</div>
