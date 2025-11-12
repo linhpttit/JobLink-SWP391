@@ -246,12 +246,42 @@ public class PaymentService {
             Employer employer = employerOpt.get();
             // Default tier 0 (Free) cho employer mới
             Integer tierLevel = employer.getTierLevel() != null ? employer.getTierLevel() : 0;
-            info.put("tierLevel", tierLevel);
-            info.put("subscriptionExpiresAt", employer.getSubscriptionExpiresAt());
             
             // Kiểm tra xem subscription có còn hạn không
             boolean isActive = employer.getSubscriptionExpiresAt() != null && 
                              employer.getSubscriptionExpiresAt().isAfter(LocalDateTime.now());
+            
+            // Nếu subscription hết hạn và không phải tier Free, tìm gói còn hạn cao nhất để reset
+            if (!isActive && tierLevel > 0) {
+                Map<String, Object> validSubscription = findHighestValidSubscription(userId);
+                
+                if ((Boolean) validSubscription.get("found")) {
+                    // Có gói còn hạn, reset về gói đó
+                    Integer newTierLevel = (Integer) validSubscription.get("tierLevel");
+                    LocalDateTime newExpiryDate = (LocalDateTime) validSubscription.get("expiryDate");
+                    
+                    employer.setTierLevel(newTierLevel);
+                    employer.setSubscriptionExpiresAt(newExpiryDate);
+                    
+                    tierLevel = newTierLevel;
+                    isActive = true; // Cập nhật lại trạng thái active
+                    
+                    System.out.println("Auto-reset expired subscription for userId: " + userId + 
+                                     " to tier " + newTierLevel + " (expires: " + newExpiryDate + ")");
+                } else {
+                    // Không có gói nào còn hạn, reset về Free tier
+                    tierLevel = 0;
+                    employer.setTierLevel(0);
+                    employer.setSubscriptionExpiresAt(null);
+                    
+                    System.out.println("Auto-reset expired subscription for userId: " + userId + " to Free tier");
+                }
+                
+                employerRepository.save(employer);
+            }
+            
+            info.put("tierLevel", tierLevel);
+            info.put("subscriptionExpiresAt", employer.getSubscriptionExpiresAt());
             info.put("isSubscriptionActive", isActive);
             
             // Đếm số bài đăng hiện tại của employer
@@ -259,7 +289,7 @@ public class PaymentService {
             int currentJobPosts = jobPostingRepository.findByEmployerId(employerId).size();
             info.put("currentJobPosts", currentJobPosts);
             
-            // Lấy giới hạn bài đăng theo tier
+            // Lấy giới hạn bài đăng theo tier (sử dụng tierLevel đã được reset nếu cần)
             int maxJobPosts = getMaxJobPostsByTier(tierLevel);
             info.put("maxJobPosts", maxJobPosts);
             
@@ -273,6 +303,65 @@ public class PaymentService {
         }
         
         return info;
+    }
+
+    /**
+     * Tìm gói subscription còn hạn với tier cao nhất từ PaymentTransaction
+     */
+    public Map<String, Object> findHighestValidSubscription(Integer userId) {
+        Map<String, Object> result = new HashMap<>();
+        
+        try {
+            // Lấy tất cả transaction SUCCESS của user
+            List<PaymentTransaction> successTransactions = transactionRepository
+                    .findByUserUserIdAndPaymentStatusOrderByCreatedAtDesc(userId, "SUCCESS");
+            
+            LocalDateTime now = LocalDateTime.now();
+            PaymentTransaction bestTransaction = null;
+            Integer highestTier = 0;
+            LocalDateTime latestExpiry = null;
+            
+            for (PaymentTransaction transaction : successTransactions) {
+                if (transaction.getPaidAt() != null && transaction.getSubscriptionPackage() != null) {
+                    // Tính ngày hết hạn của transaction này
+                    LocalDateTime expiryDate = transaction.getPaidAt()
+                            .plusDays(transaction.getSubscriptionPackage().getDurationDays());
+                    
+                    // Kiểm tra xem còn hạn không
+                    if (expiryDate.isAfter(now)) {
+                        Integer tierLevel = transaction.getSubscriptionPackage().getTierLevel();
+                        
+                        // Tìm tier cao nhất, nếu tier bằng nhau thì lấy cái hết hạn muộn nhất
+                        if (tierLevel > highestTier || 
+                            (tierLevel.equals(highestTier) && (latestExpiry == null || expiryDate.isAfter(latestExpiry)))) {
+                            highestTier = tierLevel;
+                            latestExpiry = expiryDate;
+                            bestTransaction = transaction;
+                        }
+                    }
+                }
+            }
+            
+            if (bestTransaction != null) {
+                result.put("found", true);
+                result.put("tierLevel", highestTier);
+                result.put("expiryDate", latestExpiry);
+                result.put("packageName", bestTransaction.getSubscriptionPackage().getPackageName());
+                result.put("transaction", bestTransaction);
+            } else {
+                result.put("found", false);
+                result.put("tierLevel", 0); // Default to Free
+                result.put("expiryDate", null);
+            }
+            
+        } catch (Exception e) {
+            System.err.println("Error in findHighestValidSubscription: " + e.getMessage());
+            result.put("found", false);
+            result.put("tierLevel", 0);
+            result.put("expiryDate", null);
+        }
+        
+        return result;
     }
     
     /**
