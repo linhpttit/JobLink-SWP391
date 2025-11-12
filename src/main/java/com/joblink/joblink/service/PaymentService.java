@@ -75,7 +75,13 @@ public class PaymentService {
         vnpParams.put("vnp_Amount", String.valueOf(subscriptionPackage.getPrice() * 100)); // VNPay tính bằng đồng, nhân 100
         vnpParams.put("vnp_CurrCode", "VND");
         vnpParams.put("vnp_TxnRef", txnRef);
-        vnpParams.put("vnp_OrderInfo", "Thanh toan goi " + subscriptionPackage.getPackageName());
+        
+        // Chuẩn hóa OrderInfo: loại bỏ ký tự đặc biệt, chỉ giữ chữ cái, số, dấu cách
+        String packageName = subscriptionPackage.getPackageName()
+                .replaceAll("[^a-zA-Z0-9\\s]", "") // Loại bỏ ký tự đặc biệt
+                .replaceAll("\\s+", " ")            // Chuẩn hóa khoảng trắng
+                .trim();
+        vnpParams.put("vnp_OrderInfo", "Thanh toan goi " + packageName);
         vnpParams.put("vnp_OrderType", vnPayConfig.getOrderType());
         vnpParams.put("vnp_Locale", "vn");
         vnpParams.put("vnp_ReturnUrl", vnPayConfig.getReturnUrl());
