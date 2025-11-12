@@ -25,5 +25,44 @@ public interface JobPostingRepository extends JpaRepository<JobPosting, Long> {
                                                    @Param("excludeJobId") Long excludeJobId);
 
     long count();
+    List<JobPosting> findTop10ByStatusOrderByPostedAtDesc(String status);
 
+    @Query("SELECT DISTINCT j FROM JobPosting j " +
+            "LEFT JOIN FETCH j.employer e " +
+            "LEFT JOIN FETCH j.province p " +
+            "LEFT JOIN FETCH j.district d " +
+            "LEFT JOIN FETCH j.skill s " +
+            "WHERE (LOWER(p.provinceName) LIKE LOWER(CONCAT('%', :location, '%')) " +
+            "   OR LOWER(e.location) LIKE LOWER(CONCAT('%', :location, '%'))) " +
+            "AND j.status = 'ACTIVE' " +
+            "ORDER BY j.postedAt DESC")
+    List<JobPosting> findByLocationContaining(@Param("location") String location);
+
+    // Tìm job theo skill name (vì JobPosting có trường skill trực tiếp)
+    @Query("SELECT DISTINCT j FROM JobPosting j " +
+            "LEFT JOIN FETCH j.employer e " +
+            "LEFT JOIN FETCH j.province p " +
+            "LEFT JOIN FETCH j.skill s " +
+            "WHERE LOWER(s.name) IN :skillNames " +
+            "AND j.status = 'ACTIVE' " +
+            "ORDER BY j.postedAt DESC")
+    List<JobPosting> findBySkillNames(@Param("skillNames") List<String> skillNames);
+
+    // Tìm job theo skill ID
+    @Query("SELECT j FROM JobPosting j " +
+            "LEFT JOIN FETCH j.employer e " +
+            "LEFT JOIN FETCH j.province p " +
+            "WHERE j.skill.skillId = :skillId " +
+            "AND j.status = 'ACTIVE' " +
+            "ORDER BY j.postedAt DESC")
+    List<JobPosting> findBySkillId(@Param("skillId") Long skillId);
+
+    // Tìm job theo mức lương tối thiểu
+    @Query("SELECT j FROM JobPosting j " +
+            "LEFT JOIN FETCH j.employer e " +
+            "LEFT JOIN FETCH j.province p " +
+            "WHERE j.status = 'ACTIVE' " +
+            "AND j.salaryMin >= :minSalary " +
+            "ORDER BY j.salaryMin DESC")
+    List<JobPosting> findByMinSalaryGreaterThanEqual(@Param("minSalary") java.math.BigDecimal minSalary);
 }

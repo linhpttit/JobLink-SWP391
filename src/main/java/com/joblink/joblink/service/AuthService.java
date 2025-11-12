@@ -96,7 +96,6 @@ public class AuthService {
         clearOtpSession(session);
         System.out.println("[AuthService] Register success for: " + email);
     }
-
     public void sendOtpForPasswordReset(String email, HttpSession session) {
         final String normEmail = normalizeEmail(email);
 
@@ -111,6 +110,10 @@ public class AuthService {
 
         String otp = generateOtp();
         emailService.sendOtp(normEmail, otp);
+
+        // ===> THÊM DÒNG NÀY <===
+        // Lưu lại email đang chờ reset vào session
+        session.setAttribute("resetEmail", normEmail);
 
         session.setAttribute("otp", otp);
         session.setAttribute("otpCreatedAt", System.currentTimeMillis());
@@ -127,14 +130,28 @@ public class AuthService {
         }
 
         if (System.currentTimeMillis() - otpCreatedAt > 5 * 60 * 1000) {
-            clearOtpSession(session);
+            // clearOtpSession(session); // <--- XOÁ DÒNG NÀY
+
+            // Chỉ xoá OTP, không xoá resetEmail
+            session.removeAttribute("otp"); // <--- THAY BẰNG 2 DÒNG NÀY
+            session.removeAttribute("otpCreatedAt");
+
             throw new IllegalStateException("Mã OTP đã hết hạn. Vui lòng yêu cầu gửi lại.");
         }
 
         if (!storedOtp.equals(inputOtp == null ? "" : inputOtp.trim())) {
             throw new IllegalArgumentException("Mã OTP không đúng. Vui lòng thử lại.");
         }
+
+        // ===> THÊM DÒNG NÀY <===
+        // Đánh dấu là đã xác minh, sẵn sàng cho bước reset
+        session.setAttribute("verifiedForReset", true);
+
+        // Xoá OTP sau khi đã dùng
+        session.removeAttribute("otp");
+        session.removeAttribute("otpCreatedAt");
     }
+
 
     public User authenticate(String email, String password) {
         if (email == null || password == null) return null;
@@ -178,5 +195,38 @@ public class AuthService {
         session.removeAttribute("pendingEmail");
         session.removeAttribute("pendingPassword");
         session.removeAttribute("pendingRole");
+    }
+    public void resetPassword(String email, String newPassword, HttpSession session) {
+        final String normEmail = normalizeEmail(email);
+        if (normEmail == null || normEmail.isBlank()) {
+            throw new IllegalArgumentException("Email không hợp lệ hoặc phiên đã hết hạn");
+        }
+
+        // Validate policy mật khẩu
+        if (!PasswordPolicy.isValid(newPassword)) {
+            throw new IllegalArgumentException("Mật khẩu phải ≥8 ký tự, chứa ít nhất 1 chữ hoa, 1 số và 1 ký tự đặc biệt");
+        }
+
+        try {
+            // !! QUAN TRỌNG:
+            // Bạn cần thêm phương thức `updatePassword` vào UserDao.
+            // Phương thức này PHẢI HASH mật khẩu trước khi lưu,
+            // tương tự như cách bạn làm trong `userDao.register`.
+            userDao.resetPassword(normEmail, newPassword);
+
+            System.out.println("[AuthService] Password reset success for: " + normEmail);
+
+            // Xoá session sau khi hoàn tất
+            clearResetSession(session);
+
+        } catch (DataAccessException ex) {
+            throw new IllegalStateException("Không thể cập nhật mật khẩu: " + ex.getMostSpecificCause().getMessage());
+        }
+    }
+    private void clearResetSession(HttpSession session) {
+        session.removeAttribute("otp");
+        session.removeAttribute("otpCreatedAt");
+        session.removeAttribute("resetEmail");
+        session.removeAttribute("verifiedForReset");
     }
 }

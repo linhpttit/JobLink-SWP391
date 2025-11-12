@@ -91,7 +91,7 @@ public class AdminController {
         long acceptedApplications = applicationRepository.countByStatus("accepted");
 
         // Đảm bảo không trùng lặp
-        long jobSeekersCount = userRepository.countByRole("jobseeker");
+        long jobSeekersCount = userRepository.countByRole("seeker");
         long employersCount = userRepository.countByRole("employer");
         long adminsCount = userRepository.countByRole("admin");
 

@@ -18,8 +18,5 @@ public class AppConfig {
 
         return new PayOS(clientId, apiKey, checksumKey);
     }
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
-    }
+
 }

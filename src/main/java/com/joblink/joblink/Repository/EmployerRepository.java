@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -154,15 +155,43 @@ public interface EmployerRepository extends JpaRepository<Employer, Long> {
      */
     @Query(value = """
         SELECT COUNT(DISTINCT e.employer_id)
-        FROM EmployerProfile e
+        FROM Employer e
         INNER JOIN Users u ON e.user_id = u.user_id
         WHERE LOWER(u.role) = 'employer'
         """, nativeQuery = true)
     long countAllEmployerIds();
-
+    List<Employer> findTop10ByOrderByCompanyNameAsc();
     /**
      * Lấy employers theo list IDs với user information
      */
     @Query("SELECT e FROM Employer e JOIN FETCH e.user WHERE e.id IN :ids ORDER BY e.id ASC")
     java.util.List<Employer> findByIdsWithUser(@Param("ids") java.util.List<Long> ids);
+
+    @Query("SELECT e FROM Employer e " +
+            "WHERE LOWER(e.location) LIKE LOWER(CONCAT('%', :location, '%')) " +
+            "ORDER BY e.companyName ASC")
+    List<Employer> findByLocationContaining(@Param("location") String location);
+
+    // Tìm employer theo tên công ty
+    @Query("SELECT e FROM Employer e " +
+            "WHERE LOWER(e.companyName) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            "ORDER BY e.companyName ASC")
+    List<Employer> findByCompanyNameContaining(@Param("keyword") String keyword);
+
+    // Tìm employer theo ngành nghề
+    @Query("SELECT e FROM Employer e " +
+            "WHERE LOWER(e.industry) LIKE LOWER(CONCAT('%', :industry, '%')) " +
+            "ORDER BY e.companyName ASC")
+    List<Employer> findByIndustryContaining(@Param("industry") String industry);
+
+    // Lấy các employer có nhiều job đang active nhất
+    @Query("SELECT e, COUNT(j.jobId) as jobCount FROM Employer e " +
+            "LEFT JOIN JobPosting j ON j.employer.id = e.id AND j.status = 'ACTIVE' " +
+            "GROUP BY e.id, e.companyName, e.industry, e.location, e.phoneNumber, e.description " +
+            "ORDER BY jobCount DESC")
+    List<Employer> findTopEmployersWithActiveJobs();
+
+    // Đếm số job active của một employer
+    @Query("SELECT COUNT(j) FROM JobPosting j WHERE j.employer.id = :employerId AND j.status = 'ACTIVE'")
+    Long countActiveJobsByEmployerId(@Param("employerId") Long employerId);
 }

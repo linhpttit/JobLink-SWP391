@@ -177,14 +177,59 @@
                     <a th:href="@{${cv.cvFileUrl}}" target="_blank" class="btn-view">
                         <i class="fas fa-eye"></i> View
                     </a>
+                    <button type="button" class="btn-primary btn-evaluate" th:attr="data-cv-id=${cv.cvId}">
+                        <i class="fas fa-magic"></i> Chấm điểm
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Modal: CV Evaluation -->
+<div id="cv-eval-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+    <div style="background:#fff; width:90%; max-width:900px; max-height:85vh; overflow:auto; border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.2)">
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:16px 20px; border-bottom:1px solid #eee;">
+            <h2 style="margin:0; font-size:20px;"><i class="fas fa-chart-line"></i> Kết quả chấm điểm CV</h2>
+            <button id="cv-eval-close" style="border:none; background:transparent; font-size:20px; cursor:pointer;"><i class="fas fa-times"></i></button>
+        </div>
+        <div style="padding:16px 20px;">
+            <div id="cv-eval-loading" style="display:none; margin:10px 0;">
+                <i class="fas fa-spinner fa-spin"></i> Đang đánh giá...
+            </div>
+            <div id="cv-eval-error" style="display:none; color:#d93025; margin:10px 0;"></div>
+            <div id="cv-eval-content" style="display:none;">
+                <div style="margin-bottom:14px;">
+                    <strong>Điểm tổng:</strong> <span id="cv-eval-score">-</span>/100
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                    <div>
+                        <h3 style="margin:8px 0;">Điểm mạnh</h3>
+                        <ul id="cv-eval-strengths"></ul>
+                    </div>
+                    <div>
+                        <h3 style="margin:8px 0;">Điểm yếu</h3>
+                        <ul id="cv-eval-weaknesses"></ul>
+                    </div>
+                </div>
+                <div>
+                    <h3 style="margin:12px 0;">Lời khuyên cải thiện</h3>
+                    <ul id="cv-eval-advice"></ul>
+                </div>
+                <div>
+                    <h3 style="margin:12px 0;">Kỹ năng rút trích</h3>
+                    <div id="cv-eval-skills" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
+                </div>
+                <div>
+                    <h3 style="margin:12px 0;">Việc làm gợi ý</h3>
+                    <div id="cv-eval-jobs" style="display:grid; grid-template-columns:1fr 1fr; gap:12px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 <!-- Footer fragment -->
-<div th:replace="footer :: footer"></div>
+
 
 <script th:src="@{/JS/cv-upload.js}"></script>
 </body>

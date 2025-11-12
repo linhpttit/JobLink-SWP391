@@ -6,6 +6,11 @@ import com.joblink.joblink.model.JobSeekerProfile;
 import com.joblink.joblink.service.CVUploadService;
 import com.joblink.joblink.service.FileUploadService;
 import com.joblink.joblink.service.ProfileService;
+import com.joblink.joblink.service.JobRecommendationService;
+import com.joblink.joblink.service.ai.CVEvaluationService;
+import com.joblink.joblink.dto.CVEvaluationResult;
+import com.joblink.joblink.entity.JobPosting;
+import com.joblink.joblink.dto.JobRecommendationDto;
 import com.joblink.joblink.util.Constants;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
@@ -23,13 +28,19 @@ public class CVController {
     private final CVUploadService cvUploadService;
     private final FileUploadService fileUploadService;
     private final ProfileService profileService;
+    private final CVEvaluationService cvEvaluationService;
+    private final JobRecommendationService jobRecommendationService;
 
     public CVController(CVUploadService cvUploadService,
                         FileUploadService fileUploadService,
-                        ProfileService profileService) {
+                        ProfileService profileService,
+                        CVEvaluationService cvEvaluationService,
+                        JobRecommendationService jobRecommendationService) {
         this.cvUploadService = cvUploadService;
         this.fileUploadService = fileUploadService;
         this.profileService = profileService;
+        this.cvEvaluationService = cvEvaluationService;
+        this.jobRecommendationService = jobRecommendationService;
     }
 
     @GetMapping("/cv")
@@ -116,6 +127,58 @@ public class CVController {
         } catch (Exception e) {
             ra.addFlashAttribute("error", "Error uploading CV: " + e.getMessage());
             return "redirect:/jobseeker/cv";
+        }
+    }
+
+    // ===== API: Chấm điểm CV + Lời khuyên + Gợi ý việc làm =====
+    @GetMapping("/cv/{cvId}/evaluate")
+    @ResponseBody
+    public Object evaluateCV(@PathVariable int cvId, HttpSession session) {
+        try {
+            UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
+            if (user == null) {
+                return java.util.Map.of("error", "Unauthorized");
+            }
+            CVUpload cv = cvUploadService.getCVById(cvId);
+            if (cv == null) {
+                return java.util.Map.of("error", "CV not found");
+            }
+            CVEvaluationResult eval = cvEvaluationService.evaluate(cv);
+            List<JobPosting> jobs = jobRecommendationService.recommendJobs(eval, 10);
+            List<JobRecommendationDto> jobDtos = jobs.stream().map(j -> JobRecommendationDto.builder()
+                    .jobId(j.getJobId())
+                    .title(j.getTitle())
+                    .companyName(safeCompanyName(j))
+                    .provinceName(safeProvinceName(j))
+                    .postedAt(j.getPostedAt())
+                    .build()
+            ).toList();
+            return java.util.Map.of(
+                "evaluation", eval,
+                "recommendedJobs", jobDtos
+            );
+        } catch (Exception ex) {
+            String msg = ex.getMessage();
+            if (msg == null || msg.isBlank()) {
+                msg = ex.getClass().getSimpleName();
+            }
+            return java.util.Map.of("error", "Internal server error: " + msg);
+        }
+    }
+
+    private String safeCompanyName(JobPosting j) {
+        try {
+            return j.getEmployer() != null ? j.getEmployer().getCompanyName() : null;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private String safeProvinceName(JobPosting j) {
+        try {
+            return j.getProvince() != null ? j.getProvince().getProvinceName() : null;
+        } catch (Exception e) {
+            return null;
         }
     }
 }

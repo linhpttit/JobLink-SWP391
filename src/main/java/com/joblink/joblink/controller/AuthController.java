@@ -295,4 +295,170 @@ public class AuthController {
         session.removeAttribute("otp");
         session.removeAttribute("otpCreatedAt");
     }
+    // Trong file AuthController.java
+// ... (các phương thức hiện có) ...
+
+    // ===========================================
+    // === LUỒNG QUÊN MẬT KHẨU (FORGOT PASSWORD) ===
+    // ===========================================
+
+    /**
+     * Step 1 (POST): Gửi email chứa OTP
+     * Map với form trong file: forgot-email.html
+     */
+    @PostMapping("/forgot/send-otp")
+    public String sendResetOtp(@RequestParam("email") String email,
+                               HttpSession session,
+                               RedirectAttributes ra) {
+        try {
+            auth.sendOtpForPasswordReset(email, session);
+
+            // Lưu email để hiển thị ở trang tiếp theo
+            ra.addFlashAttribute("email", email);
+            ra.addFlashAttribute("msg", "Mã OTP đã được gửi đến email của bạn.");
+            return "redirect:/forgot/verify-otp";
+
+        } catch (IllegalArgumentException ex) {
+            ra.addFlashAttribute("error", ex.getMessage());
+            return "redirect:/forgot";
+        } catch (Exception ex) {
+            ra.addFlashAttribute("error", "Đã xảy ra lỗi. Vui lòng thử lại.");
+            return "redirect:/forgot";
+        }
+    }
+
+    /**
+     * Step 2 (GET): Hiển thị trang nhập OTP
+     * Map với file: forgot-verify-otp.html
+     */
+    @GetMapping("/forgot/verify-otp")
+    public String forgotVerifyOtpPage(HttpSession session, Model model) {
+        String email = (String) session.getAttribute("resetEmail");
+
+        // Nếu chưa có email trong session, bắt quay lại từ đầu
+        if (email == null) {
+            return "redirect:/forgot";
+        }
+
+        // Lấy email từ FlashAttribute (nếu có) hoặc từ session
+        if (!model.containsAttribute("email")) {
+            model.addAttribute("email", email);
+        }
+
+        return "forgot-verify-otp";
+    }
+
+    /**
+     * Step 2 (POST): Xử lý OTP
+     * Map với form trong file: forgot-verify-otp.html
+     */
+    @PostMapping("/forgot/verify-otp")
+    public String doForgotVerifyOtp(@RequestParam("otpCode") String otpCode,
+                                    HttpSession session,
+                                    RedirectAttributes ra) {
+
+        // Kiểm tra xem có email trong session không
+        String email = (String) session.getAttribute("resetEmail");
+        if (email == null) {
+            ra.addFlashAttribute("error", "Phiên đã hết hạn. Vui lòng thử lại.");
+            return "redirect:/forgot";
+        }
+
+        try {
+            auth.verifyOtpForPasswordReset(otpCode, session);
+            // Xác minh thành công, chuyển đến trang đổi mật khẩu
+            return "redirect:/forgot/reset-password";
+
+        } catch (IllegalArgumentException | IllegalStateException ex) {
+            // Gửi lại email để hiển thị trên trang
+            ra.addFlashAttribute("email", email);
+            ra.addFlashAttribute("error", ex.getMessage());
+            return "redirect:/forgot/verify-otp";
+        }
+    }
+
+    /**
+     * Step 2.5 (POST): Gửi lại OTP (AJAX)
+     * Map với nút "Resend Code" trong file: forgot-verify-otp.html
+     */
+    @PostMapping("/forgot/resend-otp")
+    @ResponseBody
+    public ResponseEntity<Map<String, String>> resendForgotOtp(HttpSession session) {
+        Map<String, String> res = new HashMap<>();
+        try {
+            String email = (String) session.getAttribute("resetEmail");
+            if (email == null) {
+                res.put("error", "Phiên đã hết hạn. Vui lòng quay lại.");
+                return ResponseEntity.badRequest().body(res);
+            }
+
+            // Gọi lại service để gửi OTP
+            auth.sendOtpForPasswordReset(email, session);
+
+            res.put("message", "Mã OTP mới đã được gửi đến email của bạn.");
+            return ResponseEntity.ok(res);
+
+        } catch (Exception e) {
+            res.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(res);
+        }
+    }
+
+
+    /**
+     * Step 3 (GET): Hiển thị trang nhập mật khẩu mới
+     * Map với file: forgot-reset-password.html
+     */
+    @GetMapping("/forgot/reset-password")
+    public String resetPasswordPage(HttpSession session, RedirectAttributes ra) {
+        String email = (String) session.getAttribute("resetEmail");
+        Boolean verified = (Boolean) session.getAttribute("verifiedForReset");
+
+        // Phải có email VÀ đã xác minh OTP
+        if (email == null || verified == null || !verified) {
+            ra.addFlashAttribute("error", "Phiên không hợp lệ. Vui lòng bắt đầu lại.");
+            return "redirect:/forgot";
+        }
+
+        return "forgot-reset-password";
+    }
+
+    /**
+     * Step 3 (POST): Xử lý đổi mật khẩu
+     * Map với form trong file: forgot-reset-password.html
+     */
+    @PostMapping("/forgot/reset-password")
+    public String doResetPassword(@RequestParam("newPassword") String newPassword,
+                                  @RequestParam("confirmPassword") String confirmPassword,
+                                  HttpSession session,
+                                  RedirectAttributes ra,
+                                  Model model) {
+
+        String email = (String) session.getAttribute("resetEmail");
+        Boolean verified = (Boolean) session.getAttribute("verifiedForReset");
+
+        // Kiểm tra bảo mật: Phải có email VÀ đã xác minh
+        if (email == null || verified == null || !verified) {
+            ra.addFlashAttribute("error", "Phiên không hợp lệ. Vui lòng bắt đầu lại.");
+            return "redirect:/forgot";
+        }
+
+        try {
+            // Validate mật khẩu
+            if (newPassword == null || !newPassword.equals(confirmPassword)) {
+                throw new IllegalArgumentException("Mật khẩu xác nhận không khớp.");
+            }
+
+            // Gọi service để đổi mật khẩu (service sẽ validate policy)
+            auth.resetPassword(email, newPassword, session);
+
+            ra.addFlashAttribute("msg", "Đổi mật khẩu thành công. Vui lòng đăng nhập.");
+            return "redirect:/signin";
+
+        } catch (IllegalArgumentException | IllegalStateException ex) {
+            // Nếu lỗi, ở lại trang và hiển thị lỗi
+            model.addAttribute("error", ex.getMessage());
+            return "forgot-reset-password";
+        }
+    }
 }

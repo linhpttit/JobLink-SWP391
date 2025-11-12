@@ -46,7 +46,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     @Query("SELECT COALESCE(SUM(p.amount), 0) FROM Payment p")
     double getTotalRevenue();
 
-    @Query("SELECT COUNT(u) FROM User u WHERE u.role = 'jobseeker'")
+    @Query("SELECT COUNT(u) FROM User u WHERE u.role = 'seeker'")
     long countJobSeekers();
 
     @Query("SELECT COUNT(u) FROM User u WHERE u.role = 'employer'")
@@ -54,7 +54,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     long countByRole(String role);
 
-    @Query("SELECT u FROM User u WHERE u.role = 'jobseeker'")
+    @Query("SELECT u FROM User u WHERE u.role = 'seeker'")
     List<User> findAllJobSeekers();
 
     // Đếm job seekers đang hoạt động: isLocked = false/null và receiveInvitations = true
@@ -62,7 +62,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
         SELECT COUNT(j.seeker_id)
         FROM JobSeekerProfile j
         INNER JOIN Users u ON j.user_id = u.user_id
-        WHERE LOWER(u.role) = 'jobseeker'
+        WHERE LOWER(u.role) = 'seeker'
           AND (j.is_locked IS NULL OR j.is_locked = 0)
           AND (j.receive_invitations IS NULL OR j.receive_invitations = 1)
         """, nativeQuery = true)
@@ -73,7 +73,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
         SELECT COUNT(j.seeker_id)
         FROM JobSeekerProfile j
         INNER JOIN Users u ON j.user_id = u.user_id
-        WHERE LOWER(u.role) = 'jobseeker'
+        WHERE LOWER(u.role) = 'seeker'
           AND (j.is_locked = 1 OR j.receive_invitations = 0)
         """, nativeQuery = true)
     long countLockedJobSeekers();

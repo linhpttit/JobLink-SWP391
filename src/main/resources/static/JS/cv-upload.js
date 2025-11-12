@@ -104,4 +104,147 @@ document.addEventListener("DOMContentLoaded", () => {
       setTimeout(() => alert.remove(), 300)
     }, 5000)
   })
+
+  // ===== CV Evaluation Modal & AJAX =====
+  const modal = document.getElementById("cv-eval-modal")
+  const btnClose = document.getElementById("cv-eval-close")
+  const loadingEl = document.getElementById("cv-eval-loading")
+  const errorEl = document.getElementById("cv-eval-error")
+  const contentEl = document.getElementById("cv-eval-content")
+  const scoreEl = document.getElementById("cv-eval-score")
+  const strengthsEl = document.getElementById("cv-eval-strengths")
+  const weaknessesEl = document.getElementById("cv-eval-weaknesses")
+  const adviceEl = document.getElementById("cv-eval-advice")
+  const skillsEl = document.getElementById("cv-eval-skills")
+  const jobsEl = document.getElementById("cv-eval-jobs")
+
+  function openModal() {
+    if (!modal) return
+    modal.style.display = "flex"
+  }
+  function closeModal() {
+    if (!modal) return
+    modal.style.display = "none"
+  }
+  if (btnClose) {
+    btnClose.addEventListener("click", closeModal)
+  }
+  if (modal) {
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) closeModal()
+    })
+  }
+
+  function setLoading(on) {
+    if (!loadingEl || !contentEl || !errorEl) return
+    loadingEl.style.display = on ? "block" : "none"
+    contentEl.style.display = on ? "none" : "block"
+    if (on) errorEl.style.display = "none"
+  }
+
+  function renderList(container, items) {
+    container.innerHTML = ""
+    if (!items || items.length === 0) {
+      container.innerHTML = "<li>Không có dữ liệu</li>"
+      return
+    }
+    items.forEach((text) => {
+      const li = document.createElement("li")
+      li.textContent = text
+      container.appendChild(li)
+    })
+  }
+  function renderChips(container, items) {
+    container.innerHTML = ""
+    if (!items || items.length === 0) {
+      container.innerHTML = "<span>Không có dữ liệu</span>"
+      return
+    }
+    items.forEach((text) => {
+      const span = document.createElement("span")
+      span.textContent = text
+      span.style.border = "1px solid #ddd"
+      span.style.borderRadius = "16px"
+      span.style.padding = "6px 10px"
+      span.style.fontSize = "12px"
+      container.appendChild(span)
+    })
+  }
+  function renderJobs(container, jobs) {
+    container.innerHTML = ""
+    if (!jobs || jobs.length === 0) {
+      container.innerHTML = "<div>Chưa có gợi ý việc làm</div>"
+      return
+    }
+    jobs.forEach((job) => {
+      const a = document.createElement("a")
+      a.href = `/job-detail/${job.jobId}`
+      a.style.textDecoration = "none"
+      a.style.color = "inherit"
+
+      const card = document.createElement("div")
+      card.style.border = "1px solid #eee"
+      card.style.borderRadius = "8px"
+      card.style.padding = "10px 12px"
+      card.style.background = "#fafafa"
+      card.style.cursor = "pointer"
+      card.innerHTML = `
+        <div style="font-weight:600; margin-bottom:6px;">${job.title || "Job"}</div>
+        <div style="color:#555; font-size:13px; margin-bottom:4px;">${job.companyName || ""}</div>
+        <div style="color:#777; font-size:12px;">${job.provinceName || ""}</div>
+      `
+      a.appendChild(card)
+      container.appendChild(a)
+    })
+  }
+
+  async function evaluateCV(cvId) {
+    try {
+      openModal()
+      setLoading(true)
+      const res = await fetch(`/jobseeker/cv/${cvId}/evaluate`, {
+        method: "GET",
+        headers: {
+          "Accept": "application/json"
+        },
+        credentials: "include"
+      })
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`)
+      }
+      const data = await res.json()
+      if (data.error) {
+        throw new Error(data.error)
+      }
+      const evalData = data.evaluation || {}
+      const jobs = data.recommendedJobs || []
+
+      scoreEl.textContent = (evalData.overallScore ?? "-")
+      renderList(strengthsEl, evalData.strengths || [])
+      renderList(weaknessesEl, evalData.weaknesses || [])
+      renderList(adviceEl, evalData.improvementAdvice || [])
+      renderChips(skillsEl, evalData.extractedSkills || [])
+      renderJobs(jobsEl, jobs)
+      setLoading(false)
+    } catch (err) {
+      if (errorEl) {
+        errorEl.textContent = `Lỗi: ${err.message}`
+        errorEl.style.display = "block"
+      }
+      if (contentEl) {
+        contentEl.style.display = "none"
+      }
+      if (loadingEl) {
+        loadingEl.style.display = "none"
+      }
+    }
+  }
+
+  document.querySelectorAll(".btn-evaluate").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const cvId = btn.getAttribute("data-cv-id")
+      if (!cvId) return
+      evaluateCV(cvId)
+    })
+  })
 })

@@ -16,7 +16,7 @@ public interface JobSeekerProfileRepository extends JpaRepository<JobSeekerProfi
     SELECT j.*
     FROM JobSeekerProfile j
     INNER JOIN Users u ON j.user_id = u.user_id
-    WHERE LOWER(u.role) = 'jobseeker'
+    WHERE LOWER(u.role) = 'seeker'
       AND (
         :keyword IS NULL 
         OR :keyword = '' 
@@ -50,7 +50,7 @@ public interface JobSeekerProfileRepository extends JpaRepository<JobSeekerProfi
     SELECT COUNT(*)
     FROM JobSeekerProfile j
     INNER JOIN Users u ON j.user_id = u.user_id
-    WHERE LOWER(u.role) = 'jobseeker'
+    WHERE LOWER(u.role) = 'seeker'
       AND (
         :keyword IS NULL 
         OR :keyword = '' 
@@ -84,7 +84,7 @@ public interface JobSeekerProfileRepository extends JpaRepository<JobSeekerProfi
     SELECT COUNT(*)
     FROM JobSeekerProfile j
     JOIN Users u ON j.user_id = u.user_id
-    WHERE LOWER(u.role) = 'jobseeker'
+    WHERE LOWER(u.role) = 'seeker'
     """, nativeQuery = true)
     long countJobSeekers();
 
@@ -93,7 +93,7 @@ public interface JobSeekerProfileRepository extends JpaRepository<JobSeekerProfi
     SELECT j.*
     FROM JobSeekerProfile j
     INNER JOIN Users u ON j.user_id = u.user_id
-    WHERE LOWER(u.role) = 'jobseeker'
+    WHERE LOWER(u.role) = 'seeker'
       AND (
         :keyword IS NULL 
         OR :keyword = '' 
