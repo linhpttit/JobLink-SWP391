@@ -1,8 +1,10 @@
-package com.joblink.joblink.Repository;
+package com.joblink.joblink.repository;
 
 // SỬA LỖI: Import đúng tên entity
 import com.joblink.joblink.entity.PremiumPackages;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -17,4 +19,10 @@ public interface PremiumPackageRepository extends JpaRepository<PremiumPackages,
 
     // SỬA LỖI: Kiểu trả về là PremiumPackages
     Optional<PremiumPackages> findByCodeAndIsActiveTrue(String code);
+    
+    // Tìm kiếm theo tên hoặc code (không phân biệt hoa thường)
+    @Query("SELECT p FROM PremiumPackages p WHERE " +
+           "LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           "LOWER(p.code) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    List<PremiumPackages> findByNameOrCodeContainingIgnoreCase(@Param("keyword") String keyword);
 }

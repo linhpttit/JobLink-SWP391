@@ -2,13 +2,12 @@ package com.joblink.joblink.service;
 
 
 
-import com.joblink.joblink.Repository.UserRepository;
+import com.joblink.joblink.repository.UserRepository;
 import com.joblink.joblink.entity.JobSeekerProfile;
-import com.joblink.joblink.Repository.JobSeekerProfileRepository;
-import com.joblink.joblink.entity.User;
+import com.joblink.joblink.repository.JobSeekerProfileRepository;
+import com.joblink.joblink.service.CVUploadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -21,6 +20,8 @@ public class JobSeekerService implements IJobSeekerService {
     private JobSeekerProfileRepository jobSeekerRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private CVUploadService cvUploadService;
     @Override
     public JobSeekerProfile getByUserId(Integer userId) {
         return jobSeekerRepository.findByUserId(userId)
@@ -84,8 +85,7 @@ public class JobSeekerService implements IJobSeekerService {
     }
 
     public long countCV() {
-        // Giả lập — sau này bạn có thể thay bằng truy vấn bảng CV thực tế
-        return (long) (jobSeekerRepository.count() * 0.8);
+        return cvUploadService.countAllCVs();
     }
 
     // Xóa mềm - chuyển từ đang hoạt động sang đã khóa

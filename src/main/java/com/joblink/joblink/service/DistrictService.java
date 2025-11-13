@@ -1,7 +1,7 @@
 package com.joblink.joblink.service;
 
 import com.joblink.joblink.entity.District;
-import com.joblink.joblink.Repository.DistrictRepository;
+import com.joblink.joblink.repository.DistrictRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 

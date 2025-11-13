@@ -341,18 +341,6 @@
     text-overflow: ellipsis;
 }
 
-/* Status badges */
-.status-badge {
-    padding: 6px 12px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 500;
-    text-transform: uppercase;
-    display: inline-block;
-    min-width: 100px;
-    text-align: center;
-}
-
 .status-submitted {
     background-color: #E3F2FD;
     color: #1976d2;

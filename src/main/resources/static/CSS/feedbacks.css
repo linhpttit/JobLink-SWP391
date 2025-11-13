@@ -53,6 +53,19 @@ body {
     gap: 8px;
 }
 
+.btn-action{
+    padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+}
+
 .btn-primary {
     background-color: #5953F5;
     color: white;

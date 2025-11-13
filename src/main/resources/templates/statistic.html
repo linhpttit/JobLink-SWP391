@@ -1,12 +1,11 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Thống kê hệ thống</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/CSS/statistic.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 <div class="system-stats">
@@ -16,48 +15,300 @@
     <section>
         <h2><i class="fas fa-chart-pie"></i>Tổng quan</h2>
         <ul>
-            <li>Tổng số người dùng: <span>[số lượng Users]</span></li>
-            <li>Tổng số công ty: <span>[số lượng EmployerProfile]</span></li>
-            <li>Tổng số CV / hồ sơ: <span>[số lượng JobSeekerProfile]</span></li>
-            <li>Tổng số công việc: <span>[số lượng Jobs]</span></li>
-            <li>Tổng số đơn ứng tuyển: <span>[số lượng Applications]</span></li>
-            <li>Tổng số gói Premium: <span>[số lượng PremiumPackages]</span></li>
-            <li>Tổng số hóa đơn: <span>[số lượng Invoice]</span></li>
-            <li>Tổng doanh thu: <span>[SUM]</span></li>
+            <li>Tổng số người dùng: <span th:text="${totalUsers}">0</span></li>
+            <li>Tổng số công ty: <span th:text="${totalCompanies}">0</span></li>
+            <li>Tổng số CV / hồ sơ: <span th:text="${totalCVs}">0</span></li>
+            <li>Tổng số công việc: <span th:text="${totalJobs}">0</span></li>
+            <li>Tổng số đơn ứng tuyển: <span th:text="${totalApplications}">0</span></li>
+            <li>Tổng số gói Premium: <span th:text="${totalPremiumPackages}">0</span></li>
+            <li>Tổng số hóa đơn: <span th:text="${totalInvoices}">0</span></li>
+            <li>Tổng doanh thu: <span th:text="${totalRevenue}">0</span></li>
         </ul>
     </section>
 
     <!-- Biểu đồ -->
-    <section>
-        <h2><i class="fas fa-chart-line"></i>Biểu đồ thống kê</h2>
+    <section class="dashboard-section">
+        <div class="chart-grid">
+                <h2><i class="fas fa-chart-line"></i> Biểu đồ thống kê</h2>
 
-        <article>
-            <h3><i class="fas fa-chart-column"></i>Người dùng theo tháng</h3>
-            <!-- Chỗ biểu đồ cột -->
-            <div class="chart-placeholder">
-                <i class="fas fa-chart-bar"></i>
-                <span>Biểu đồ cột</span>
-            </div>
-        </article>
+            <article class="chart-box">
+                <h3><i class="fas fa-chart-column"></i> Biểu đồ 1: Người dùng theo tháng</h3>
+                <div class="chart-container">
+                    <canvas id="usersChart"></canvas>
+                </div>
+            </article>
 
-        <article>
-            <h3><i class="fas fa-chart-pie"></i>Ứng tuyển theo ngành nghề</h3>
-            <!-- Chỗ biểu đồ tròn -->
-            <div class="chart-placeholder">
-                <i class="fas fa-chart-pie"></i>
-                <span>Biểu đồ tròn</span>
-            </div>
-        </article>
+            <article class="chart-box">
+                <h3><i class="fas fa-chart-pie"></i> Biểu đồ 2: Ứng tuyển theo ngành</h3>
+                <div class="chart-container">
+                    <canvas id="applicationsByIndustryChart"></canvas>
+                </div>
+            </article>
 
-        <article>
-            <h3><i class="fas fa-chart-line"></i>Doanh thu theo tháng</h3>
-            <!-- Chỗ biểu đồ đường -->
-            <div class="chart-placeholder">
-                <i class="fas fa-chart-line"></i>
-                <span>Biểu đồ đường</span>
-            </div>
-        </article>
+            <article class="chart-box">
+                <h3><i class="fas fa-chart-line"></i> Biểu đồ 3: Doanh thu theo tháng</h3>
+                <div class="chart-container">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </article>
+        </div>
     </section>
 </div>
+
+<script>
+    // Hàm lấy dữ liệu người dùng theo tháng
+    async function fetchUsersByMonth() {
+        try {
+            const response = await fetch('/admin/api/statistics/users-by-month');
+            if (!response.ok) throw new Error('Failed to fetch users data');
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching users by month:', error);
+            return null;
+        }
+    }
+
+    // Hàm lấy dữ liệu doanh thu theo tháng
+    async function fetchRevenueByMonth() {
+        try {
+            const response = await fetch('/admin/api/statistics/revenue-by-month');
+            if (!response.ok) throw new Error('Failed to fetch revenue data');
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching revenue by month:', error);
+            return null;
+        }
+    }
+
+    // Hàm lấy dữ liệu ứng tuyển theo ngành
+    async function fetchApplicationsByIndustry() {
+        try {
+            const response = await fetch('/admin/api/statistics/applications-by-industry');
+            if (!response.ok) throw new Error('Failed to fetch applications data');
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching applications by industry:', error);
+            return null;
+        }
+    }
+
+    // Khởi tạo biểu đồ người dùng theo tháng
+    async function initUsersChart() {
+        const data = await fetchUsersByMonth();
+        const ctx = document.getElementById('usersChart');
+        
+        if (!ctx) return;
+        
+        const months = data?.months || ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'];
+        const counts = data?.counts || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: months,
+                datasets: [{
+                    label: 'Số người dùng',
+                    data: counts,
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                }
+            }
+        });
+    }
+
+    // Khởi tạo biểu đồ ứng tuyển theo ngành
+    async function initApplicationsByIndustryChart() {
+        const data = await fetchApplicationsByIndustry();
+        const ctx = document.getElementById('applicationsByIndustryChart');
+        
+        if (!ctx) return;
+        
+        const labels = data?.labels || ['Ngành 1', 'Ngành 2', 'Ngành 3'];
+        const counts = data?.counts || [0, 0, 0];
+        
+        const colors = [
+            'rgba(255, 99, 132, 0.6)',
+            'rgba(54, 162, 235, 0.6)',
+            'rgba(255, 206, 86, 0.6)',
+            'rgba(75, 192, 192, 0.6)',
+            'rgba(153, 102, 255, 0.6)',
+            'rgba(255, 159, 64, 0.6)',
+            'rgba(199, 199, 199, 0.6)',
+            'rgba(83, 102, 255, 0.6)',
+            'rgba(255, 99, 255, 0.6)',
+            'rgba(99, 255, 132, 0.6)'
+        ];
+        
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Số ứng tuyển',
+                    data: counts,
+                    backgroundColor: colors.slice(0, labels.length),
+                    borderColor: colors.slice(0, labels.length).map(c => c.replace('0.6', '1')),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'right'
+                    }
+                }
+            }
+        });
+    }
+
+    // Khởi tạo biểu đồ doanh thu theo tháng
+    async function initRevenueChart() {
+        const data = await fetchRevenueByMonth();
+        const ctx = document.getElementById('revenueChart');
+        
+        if (!ctx) return;
+        
+        const months = data?.months || ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'];
+        const revenues = data?.revenues || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: months,
+                datasets: [{
+                    label: 'Doanh thu (VND)',
+                    data: revenues,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return new Intl.NumberFormat('vi-VN').format(value) + ' đ';
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return 'Doanh thu: ' + new Intl.NumberFormat('vi-VN').format(context.parsed.y) + ' đ';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Hàm khởi tạo tất cả biểu đồ
+    async function initAllCharts() {
+        // Đợi Chart.js load xong (nếu chưa load)
+        if (typeof Chart === 'undefined') {
+            console.warn('Chart.js chưa được load, đợi...');
+            await new Promise(resolve => {
+                const checkChart = setInterval(() => {
+                    if (typeof Chart !== 'undefined') {
+                        clearInterval(checkChart);
+                        resolve();
+                    }
+                }, 100);
+                // Timeout sau 5 giây
+                setTimeout(() => {
+                    clearInterval(checkChart);
+                    console.error('Chart.js không thể load được');
+                    resolve();
+                }, 5000);
+            });
+        }
+        
+        // Đợi một chút để đảm bảo canvas đã render
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // Khởi tạo các biểu đồ
+        await Promise.all([
+            initUsersChart(),
+            initApplicationsByIndustryChart(),
+            initRevenueChart()
+        ]);
+        
+        console.log('✅ Đã khởi tạo tất cả biểu đồ');
+    }
+
+    // Khởi tạo biểu đồ ngay khi script được load (khi inject qua AJAX)
+    // Đợi một chút để đảm bảo DOM đã render và Chart.js đã load
+    (function() {
+        // Kiểm tra xem có canvas elements không
+        function checkAndInit() {
+            const usersChart = document.getElementById('usersChart');
+            if (usersChart && typeof Chart !== 'undefined') {
+                console.log('📊 Phát hiện canvas và Chart.js, khởi tạo biểu đồ...');
+                initAllCharts();
+                return true;
+            }
+            return false;
+        }
+        
+        // Thử ngay
+        if (!checkAndInit()) {
+            // Nếu chưa sẵn sàng, thử lại sau 100ms
+            setTimeout(() => {
+                if (!checkAndInit()) {
+                    // Thử lại sau 300ms nữa
+                    setTimeout(() => {
+                        if (!checkAndInit()) {
+                            console.warn('⚠️ Không thể khởi tạo biểu đồ: Canvas hoặc Chart.js chưa sẵn sàng');
+                        }
+                    }, 300);
+                }
+            }, 100);
+        }
+        
+        // Lắng nghe event contentLoaded từ admin.js (backup)
+        const contentArea = document.getElementById('content-area');
+        if (contentArea) {
+            contentArea.addEventListener('contentLoaded', function() {
+                console.log('📊 Nhận được event contentLoaded, khởi tạo biểu đồ...');
+                setTimeout(initAllCharts, 100);
+            });
+        }
+    })();
+</script>
 </body>
 </html>

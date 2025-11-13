@@ -1,5 +1,5 @@
 
-package com.joblink.joblink.Repository;
+package com.joblink.joblink.repository;
 
 import com.joblink.joblink.entity.Payment;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,7 +17,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Integer> {
 
     boolean existsByTxRef(String txRef);
 
-    @Query("SELECT COALESCE(SUM(p.amount), 0) FROM Payment p")
+    @Query("SELECT COALESCE(SUM(p.amount), 0) FROM Payment p WHERE p.status IN ('SUCCESS', 'PAID')")
     double getTotalRevenue();
 
 

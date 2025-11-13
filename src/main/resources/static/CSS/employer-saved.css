@@ -1,0 +1,699 @@
+employer-applications.css:root {
+    --bg: #f3f6f9;
+    --surface: #ffffff;
+    --border: #e2e8f0;
+    --muted: #64748b;
+    --text: #0f172a;
+    --primary: #0a66c2;
+    --primary-hover: #004182;
+    --success: #16a34a;
+    --danger: #dc2626;
+    --radius: 10px;
+    font-family: 'Inter', system-ui, sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+}
+
+.container {
+    max-width: 1100px;
+    margin: 36px auto;
+    padding: 0 24px;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.title h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.title p {
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 10px 16px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all .2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+}
+
+.btn:hover {
+    background: #f8fafc;
+}
+
+.btn.primary {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+}
+
+.btn.primary:hover {
+    background: var(--primary-hover);
+}
+
+.searchbar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+input[type="text"], select {
+    padding: 12px 14px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    font-size: 14px;
+    flex: 1;
+    min-width: 150px;
+    transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+input[type="text"]:focus, select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(10,102,194,0.15);
+}
+
+.banner {
+    background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    color: white;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15);
+}
+
+.banner-content h3 {
+    margin: 0 0 6px;
+    font-size: 18px;
+    font-weight: 600;
+    color: white;
+}
+
+.banner-content p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 14px;
+}
+
+.banner .btn {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    backdrop-filter: blur(10px);
+}
+
+.banner .btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    border: 1px solid var(--border);
+    overflow: visible;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+thead {
+    background: #f8fafc;
+    color: var(--muted);
+    font-weight: 600;
+}
+
+th, td {
+    padding: 12px 10px;
+    text-align: left;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+tbody tr:hover {
+    background: #f9fbff;
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    background-size: cover;
+    background-position: center;
+}
+
+.name {
+    display: flex;
+    flex-direction: column;
+}
+
+.name small {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.tag {
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    background: #eff6ff;
+    color: #1e3a8a;
+    font-weight: 500;
+    line-height: 1;
+    display: inline-block;
+    white-space: nowrap;
+}
+
+/* Status dropdown styling */
+.status-dropdown {
+    padding: 6px 8px;
+    border: none;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    outline: none;
+    line-height: 1.2;
+    display: inline-block;
+    white-space: nowrap;
+    min-width: 80px;
+    width: auto;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    text-align: center;
+    background-position: right 10px center;
+    background-repeat: no-repeat;
+    background-size: 12px;
+    transition: all 0.2s ease;
+}
+
+.status-dropdown:focus {
+    border: none;
+    outline: none;
+    box-shadow: none;
+}
+
+.actions-td {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    height: 100%;
+}
+
+.actions-td .dropdown {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.actions-td .icon-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 16px;
+    color: var(--muted);
+    transition: all .2s ease;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+}
+
+.icon-btn:hover {
+    background: #f1f5f9;
+    color: var(--primary);
+}
+
+.muted {
+    color: var(--muted);
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background-color: var(--surface);
+    min-width: 180px;
+    max-height: 200px;
+    overflow-y: auto;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    z-index: 1000;
+}
+
+.dropdown-content a {
+    color: var(--text);
+    padding: 12px 16px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    transition: background-color 0.2s;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.dropdown-content a:hover {
+    background-color: #f8fafc;
+    color: var(--primary);
+}
+
+.dropdown-content a i {
+    width: 16px;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.dropdown-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+.dropdown-content::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.dropdown-content::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+textarea, input {
+    width: 100%;
+}
+
+textarea {
+    min-height: 120px;
+    padding: 12px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+}
+
+.field {
+    margin-bottom: 12px;
+}
+
+.footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.toast {
+    position: fixed;
+    bottom: 18px;
+    right: 18px;
+    background: #111827;
+    color: #fff;
+    padding: 12px 16px;
+    border-radius: 8px;
+    display: none;
+    z-index: 1000;
+    font-size: 14px;
+}
+
+/* Status colors */
+.status-submitted {
+    background-color: #b3e0ff !important;
+    color: #0066cc !important;
+}
+
+.status-reviewed {
+    background-color: #ffd9b3 !important;
+    color: #cc6600 !important;
+}
+
+.status-hired {
+    background-color: #b3ffb3 !important;
+    color: #008000 !important;
+}
+
+.status-rejected {
+    background-color: #ffb3b3 !important;
+    color: #cc0000 !important;
+}
+
+td {
+    vertical-align: middle;
+}
+
+td:nth-child(7) {
+    text-align: center;
+}
+
+td:nth-child(9) {
+    text-align: center;
+}
+
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.spinner {
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid var(--primary);
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    animation: spin 1s linear infinite;
+    display: inline-block;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+}
+
+.empty-state i {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+@media (max-width: 880px){
+    table, thead, tbody, th, td, tr {
+        display: block;
+    }
+
+    thead {
+        display: none;
+    }
+
+    tbody tr {
+        background: var(--surface);
+        margin-bottom: 12px;
+        border-radius: var(--radius);
+        padding: 12px;
+    }
+
+    td {
+        padding: 6px 0;
+    }
+
+    .searchbar {
+        flex-direction: column;
+    }
+
+    .searchbar input, .searchbar select {
+        flex: none;
+        width: 100%;
+    }
+
+    .dropdown-content {
+        right: 0;
+        left: auto;
+    }
+}
+.wrap {
+    width: 100%;
+    margin: 0;
+    padding: 20px;
+    min-height: calc(100vh - 80px);
+    position: relative;
+    z-index: 1;
+}
+
+/* FIX MODAL - THÊM VÀO CUỐI FILE CSS */
+.modal-backdrop {
+    position: fixed !important;
+    inset: 0 !important;
+    background: rgba(15,23,42,0.45) !important;
+    display: none !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 20px !important;
+    z-index: 99999 !important;
+    backdrop-filter: blur(2px);
+}
+
+.modal-backdrop[style*="display: flex"] {
+    display: flex !important;
+}
+
+.modal {
+    margin-top: 100px; /* khoảng cách so với top */
+    margin-bottom:20px;
+    display: flex !important;
+    flex-direction: column !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    z-index: 100000 !important;
+    background: var(--surface) !important;
+    border-radius: var(--radius) !important;
+    padding: 0 !important;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+    width: 95% !important;
+    max-width: 500px !important;
+    max-height: 85vh !important;
+    overflow: hidden !important;
+    border: 1px solid var(--border) !important;
+}
+
+/* Header modal cách trên */
+.modal h3 {
+    margin: 0 !important;
+    padding: 24px 24px 16px 24px !important;
+    font-weight: 600 !important;
+    font-size: 18px !important;
+    color: var(--text) !important;
+    border-bottom: 1px solid var(--border) !important;
+}
+
+/* Content modal - mở rộng chiều cao */
+.modal-content {
+    flex: 1 !important;
+                padding: 0px 24px !important; /* THÊM PADDING TRÁI PHẢI 24px */
+                overflow-y: auto !important;
+                max-height: calc(85vh - 140px) !important;
+}
+
+
+.modal label.muted {
+    color: var(--muted) !important;
+    font-size: 14px !important;
+    margin-bottom: 8px !important;
+    display: block !important;
+    font-weight: 500 !important;
+}
+
+.modal input, .modal textarea {
+         box-sizing: border-box;
+            width: 100% !important; /* 100% chiều rộng của field */
+            max-width: 100% !important;
+            padding: 12px 16px !important;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            font-size: 14px;
+            font-family: 'Inter', system-ui, sans-serif;
+            transition: all 0.2s ease;
+            display: block !important;
+}
+
+.modal textarea {
+    min-height: 180px !important;
+    resize: vertical !important;
+    line-height: 1.5 !important;
+}
+
+.modal input:focus, .modal textarea:focus {
+     box-sizing: border-box;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 12px 16px !important; /* Khoảng cách bên TRONG input */
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        font-size: 14px;
+        font-family: 'Inter', system-ui, sans-serif;
+        transition: all 0.2s ease;
+        margin: 0 !important; /* Đảm bảo không có margin */
+}
+
+/* Footer đẩy xuống cuối modal */
+.modal .footer {
+    display: flex !important;
+    justify-content: flex-end !important;
+    gap: 12px !important;
+    padding: 20px 24px !important;
+    border-top: 1px solid var(--border) !important;
+    background: var(--surface) !important;
+    margin-top: auto !important;
+}
+
+/* Đảm bảo modal không bị ẩn bởi bất kỳ style nào */
+#modalBackdrop,
+#singleEmailModal {
+    display: none;
+}
+
+#modalBackdrop[style*="flex"],
+#singleEmailModal[style*="flex"] {
+    display: flex !important;
+}
+
+/* Responsive cho modal */
+@media (max-width: 768px) {
+    .modal {
+        width: 95% !important;
+        max-height: 90vh !important;
+    }
+
+    .modal h3 {
+        margin: 0 !important;
+            padding: 24px 24px 16px 24px !important;
+            font-weight: 600 !important;
+            font-size: 18px !important;
+            color: var(--text) !important;
+            border-bottom: 1px solid var(--border) !important;
+            text-align: left !important; /* Giữ căn trái cho chữ */
+            width: 100% !important;
+    }
+
+    .modal-content {
+        flex: 1 !important;
+            padding: 0px 24px !important; /* THÊM PADDING TRÁI PHẢI 24px */
+            overflow-y: auto !important;
+            max-height: calc(85vh - 140px) !important;
+    }
+
+    .modal .footer {
+        padding: 16px 20px !important;
+    }
+
+    .modal textarea {
+        min-height: 150px !important;
+    }
+}
+/* Căn giữa nội dung modal */
+.modal-content {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    width: 100% !important;
+}
+
+.modal .field {
+    margin-bottom: 16px !important;
+        width: 100% !important;
+        padding: 0 15px !important; /* QUAN TRỌNG: cách đều trái phải 24px */
+        box-sizing: border-box !important;
+}
+
+.modal label.muted {
+    width: 100% !important;
+    text-align: left !important;
+}
+
+.modal input, .modal textarea {
+    margin: 0 auto !important;
+    display: block !important;
+}
+
+/* Căn giữa preview recipient */
+.modal .muted {
+    width: 100% !important;
+    text-align: center !important;
+    margin-bottom: 16px !important;
+    padding: 0 24px !important;
+}
+
+/* Đảm bảo footer căn giữa các button */
+.modal .footer {
+    display: flex !important;
+    justify-content: center !important;
+    gap: 12px !important;
+    width: 100% !important;
+}
+
+/* Responsive cho căn giữa */
+@media (max-width: 768px) {
+    .modal .field {
+        max-width: 100% !important;
+        padding: 0 8px !important;
+    }
+
+    .modal input, .modal textarea {
+        max-width: 100% !important;
+    }
+
+    .modal .footer {
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+    }
+
+    .modal .footer .btn {
+        flex: 1 !important;
+        min-width: 120px !important;
+        justify-content: center !important;
+    }
+}

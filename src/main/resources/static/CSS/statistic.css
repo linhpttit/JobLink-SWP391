@@ -245,6 +245,66 @@ body {
     border-color: #5953F5;
 }
 
+.dashboard-section {
+  padding: 20px;
+}
+
+/* Grid 2 cột × 2 hàng */
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 20px;
+}
+
+/* Khối biểu đồ */
+.chart-box {
+  background: #ffffff; /* nền trắng */
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  text-align: center;
+}
+
+/* Tiêu đề */
+.chart-box h2,
+.chart-box h3 {
+  margin: 0;
+  color: #333;
+  font-weight: 600;
+}
+
+/* Placeholder biểu đồ */
+.chart-placeholder {
+  background-color: #f7f7f7;
+  border: 2px dashed #ccc;
+  border-radius: 10px;
+  padding: 40px;
+  color: #777;
+  margin-top: 15px;
+}
+
+.chart-placeholder i {
+  font-size: 32px;
+  display: block;
+  margin-bottom: 10px;
+}
+
+/* Hover hiệu ứng nhẹ */
+.chart-box:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+}
+
+/* Responsive: 1 cột trên mobile */
+@media (max-width: 768px) {
+  .chart-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
 /* Responsive Design */
 @media (max-width: 1200px) {
     .system-stats section:nth-of-type(2) {

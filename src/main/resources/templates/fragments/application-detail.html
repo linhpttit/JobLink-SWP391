@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <div th:fragment="detail">
+        <div class="modal-content" style="max-width: 800px; margin: 50px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #eee;">
+                    <h2 style="margin: 0; color: #333;">Chi tiết đơn ứng tuyển</h2>
+                    <button class="close-modal" onclick="closeApplicationDetailModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #666;">&times;</button>
+                </div>
+                
+                <div class="modal-body" th:if="${application != null}">
+                    <!-- Thông tin ứng viên -->
+                    <div class="detail-section" style="margin-bottom: 25px;">
+                        <h3 style="color: #1976d2; margin-bottom: 15px; font-size: 18px;">Thông tin ứng viên</h3>
+                        <div class="detail-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div class="detail-item">
+                                <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px;">Ảnh đại diện:</label>
+                                <img th:src="${application.avatarUrl ?: 'https://i.pinimg.com/736x/d7/62/ea/d762eacadd9c9cc5e9c04244b711a972.jpg'}" 
+                                     alt="Avatar" 
+                                     style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #ddd;">
+                            </div>
+                            <div class="detail-item">
+                                <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px;">Tên ứng viên:</label>
+                                <p style="margin: 0; color: #333;" th:text="${application.candidateName ?: 'N/A'}">N/A</p>
+                            </div>
+                            <div class="detail-item">
+                                <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px;">Email:</label>
+                                <p style="margin: 0; color: #333;" th:text="${application.candidateEmail ?: 'N/A'}">N/A</p>
+                            </div>
+                            <div class="detail-item">
+                                <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px;">Số điện thoại:</label>
+                                <p style="margin: 0; color: #333;" th:text="${application.candidatePhone ?: 'N/A'}">N/A</p>
+                            </div>
+                            <div class="detail-item">
+                                <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px;">Kinh nghiệm:</label>
+                                <p style="margin: 0; color: #333;" th:text="${application.experienceYears != null ? (application.experienceYears + ' năm') : 'N/A'}">N/A</p>
+                            </div>
+                            <div class="detail-item">
+                                <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px;">Học vấn:</label>
+                                <p style="margin: 0; color: #333;" th:text="${application.education ?: 'N/A'}">N/A</p>
+                            </div>
+                            <div class="detail-item">
+                                <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px;">Địa chỉ:</label>
+                                <p style="margin: 0; color: #333;" th:text="${application.location ?: 'N/A'}">N/A</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Thông tin công việc -->
+                    <div class="detail-section" style="margin-bottom: 25px;">
+                        <h3 style="color: #1976d2; margin-bottom: 15px; font-size: 18px;">Thông tin công việc</h3>
+                        <div class="detail-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div class="detail-item">
+                                <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px;">Vị trí:</label>
+                                <p style="margin: 0; color: #333;" th:text="${application.position ?: 'N/A'}">N/A</p>
+                            </div>
+                            <div class="detail-item">
+                                <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px;">Mã công việc:</label>
+                                <p style="margin: 0; color: #333;" th:text="${application.jobId ?: 'N/A'}">N/A</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Thông tin đơn ứng tuyển -->
+                    <div class="detail-section" style="margin-bottom: 25px;">
+                        <h3 style="color: #1976d2; margin-bottom: 15px; font-size: 18px;">Thông tin đơn ứng tuyển</h3>
+                        <div class="detail-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div class="detail-item">
+                                <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px;">Mã đơn:</label>
+                                <p style="margin: 0; color: #333;" th:text="${application.applicationId ?: 'N/A'}">N/A</p>
+                            </div>
+                            <div class="detail-item">
+                                <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px;">Trạng thái:</label>
+                                <span th:switch="${application.status}">
+                                    <span th:case="'submitted'" class="status-badge status-submitted">ĐÃ NỘP</span>
+                                    <span th:case="'reviewing'" class="status-badge status-reviewing">ĐANG XEM XÉT</span>
+                                    <span th:case="'accepted'" class="status-badge status-accepted">CHẤP NHẬN</span>
+                                    <span th:case="'denied'" class="status-badge status-denied">TỪ CHỐI</span>
+                                    <span th:case="'withdrawn'" class="status-badge status-withdrawn">RÚT HỒ SƠ</span>
+                                    <span th:case="*" class="status-badge" th:text="${application.status ?: 'N/A'}">N/A</span>
+                                </span>
+                            </div>
+                            <div class="detail-item">
+                                <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px;">Ngày nộp:</label>
+                                <p style="margin: 0; color: #333;" 
+                                   th:text="${application.appliedAt != null ? #temporals.format(application.appliedAt, 'dd/MM/yyyy HH:mm') : 'N/A'}">N/A</p>
+                            </div>
+                            <div class="detail-item">
+                                <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px;">Cập nhật lần cuối:</label>
+                                <p style="margin: 0; color: #333;" 
+                                   th:text="${application.lastStatusAt != null ? #temporals.format(application.lastStatusAt, 'dd/MM/yyyy HH:mm') : 'N/A'}">N/A</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- CV/Tài liệu -->
+                    <div class="detail-section" style="margin-bottom: 25px;">
+                        <h3 style="color: #1976d2; margin-bottom: 15px; font-size: 18px;">CV/Tài liệu</h3>
+                        <div class="detail-item">
+                            <a th:if="${application.cvUrl != null and application.cvUrl != ''}" 
+                               th:href="${application.cvUrl}" 
+                               target="_blank" 
+                               class="cv-link"
+                               style="display: inline-block; padding: 10px 20px; background: #1976d2; color: white; text-decoration: none; border-radius: 4px;">
+                                <i class="fas fa-file-pdf"></i> Xem CV
+                            </a>
+                            <span th:if="${application.cvUrl == null or application.cvUrl == ''}" style="color: #999;">Không có CV</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Ghi chú -->
+                    <div class="detail-section" style="margin-bottom: 25px;">
+                        <h3 style="color: #1976d2; margin-bottom: 15px; font-size: 18px;">Ghi chú</h3>
+                        <div class="detail-item">
+                            <p style="margin: 0; color: #333; padding: 15px; background: #f5f5f5; border-radius: 4px; white-space: pre-wrap;" 
+                               th:text="${application.note != null and application.note != '' ? application.note : 'Không có ghi chú'}">Không có ghi chú</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-footer" style="margin-top: 20px; padding-top: 15px; border-top: 2px solid #eee; text-align: right;">
+                    <button onclick="closeApplicationDetailModal()" 
+                            style="padding: 10px 20px; background: #666; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        Đóng
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

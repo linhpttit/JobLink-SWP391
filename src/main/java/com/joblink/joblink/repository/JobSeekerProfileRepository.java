@@ -1,4 +1,4 @@
-package com.joblink.joblink.Repository;
+package com.joblink.joblink.repository;
 
 import com.joblink.joblink.entity.JobSeekerProfile;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,7 +16,7 @@ public interface JobSeekerProfileRepository extends JpaRepository<JobSeekerProfi
     SELECT j.*
     FROM JobSeekerProfile j
     INNER JOIN Users u ON j.user_id = u.user_id
-    WHERE LOWER(u.role) = 'jobseeker'
+    WHERE LOWER(u.role) = 'seeker'
       AND (
         :keyword IS NULL 
         OR :keyword = '' 
@@ -28,7 +28,7 @@ public interface JobSeekerProfileRepository extends JpaRepository<JobSeekerProfi
         OR (
           (:experience = 0 AND (j.experience_years = 0 OR j.experience_years IS NULL))
           OR (:experience = 1 AND j.experience_years = 1)
-          OR (:experience = 2 AND j.experience_years = 2)
+                  OR (:experience = 2 AND j.experience_years = 2)
           OR (:experience = 3 AND j.experience_years >= 3)
         )
       )
@@ -50,7 +50,7 @@ public interface JobSeekerProfileRepository extends JpaRepository<JobSeekerProfi
     SELECT COUNT(*)
     FROM JobSeekerProfile j
     INNER JOIN Users u ON j.user_id = u.user_id
-    WHERE LOWER(u.role) = 'jobseeker'
+    WHERE LOWER(u.role) = 'seeker'
       AND (
         :keyword IS NULL 
         OR :keyword = '' 
@@ -84,7 +84,7 @@ public interface JobSeekerProfileRepository extends JpaRepository<JobSeekerProfi
     SELECT COUNT(*)
     FROM JobSeekerProfile j
     JOIN Users u ON j.user_id = u.user_id
-    WHERE LOWER(u.role) = 'jobseeker'
+    WHERE LOWER(u.role) = 'seeker'
     """, nativeQuery = true)
     long countJobSeekers();
 
@@ -93,7 +93,7 @@ public interface JobSeekerProfileRepository extends JpaRepository<JobSeekerProfi
     SELECT j.*
     FROM JobSeekerProfile j
     INNER JOIN Users u ON j.user_id = u.user_id
-    WHERE LOWER(u.role) = 'jobseeker'
+    WHERE LOWER(u.role) = 'seeker'
       AND (
         :keyword IS NULL 
         OR :keyword = '' 

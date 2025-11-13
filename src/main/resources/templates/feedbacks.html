@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,52 +14,400 @@
     </div>
 
     <div class="filters">
-        <input type="text" placeholder="Tìm theo user, công ty, nội dung...">
-        <select>
-            <option value="">Tất cả trạng thái</option>
-            <option value="pending">Chưa xử lý</option>
-            <option value="resolved">Đã đồng ý / ẩn bài</option>
+        <input type="text" id="searchInput" placeholder="Tìm theo user, công ty, nội dung..." 
+               th:value="${search != null ? search : ''}">
+        <select id="ratingSelect">
+            <option value="" th:selected="${rating == null or rating == ''}">Tất cả đánh giá</option>
+            <option value="5" th:selected="${rating == '5'}">5 sao</option>
+            <option value="4" th:selected="${rating == '4'}">4 sao</option>
+            <option value="3" th:selected="${rating == '3'}">3 sao</option>
+            <option value="2" th:selected="${rating == '2'}">2 sao</option>
+            <option value="1" th:selected="${rating == '1'}">1 sao</option>
         </select>
     </div>
 
-    <div class="table-container">
-        <table class="feedbacks-table">
-            <thead>
-            <tr>
-                <th>Người gửi</th>
-                <th>Công ty / Ứng viên</th>
-                <th>Nội dung</th>
-                <th>Ngày gửi</th>
-                <th>Trạng thái</th>
-                <th>Hành động</th>
-            </tr>
-            </thead>
-            <tr class="no-data">
-                <td colspan="8" style="text-align:center; padding: 20px; color: #888;">
-                    Không có dữ liệu
-                </td>
-            </tr>
-        </table>
-    </div>
-    <!-- Pagination -->
-    <div class="pagination">
-        <div class="pagination-info">
-            Hiển thị 1-10 của 245 kết quả
+    <!-- Table wrapper để reload -->
+    <div id="table-wrapper">
+        <div th:fragment="table">
+            <div class="table-container">
+                <table class="feedbacks-table">
+                    <thead>
+                    <tr>
+                        <th>Người gửi</th>
+                        <th>Công ty / Ứng viên</th>
+                        <th>Nội dung</th>
+                        <th>Ngày gửi</th>
+                        <th>Đánh giá</th>
+                        <th>Hành động</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${reviews == null or reviews.isEmpty()}" class="no-data">
+                        <td colspan="6" style="text-align:center; padding: 20px; color: #888;">
+                            Không có dữ liệu
+                        </td>
+                    </tr>
+                    <tr th:each="review : ${reviews}" th:if="${reviews != null and !reviews.isEmpty()}">
+                        <td th:text="${review.seeker != null ? (review.seeker.fullName != null ? review.seeker.fullName : review.seeker.email) : 'N/A'}">Người gửi</td>
+                        <td th:text="${review.employer != null ? review.employer.companyName : 'N/A'}">Công ty</td>
+                        <td>
+                            <div style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" 
+                                 th:title="${review.comment != null ? review.comment : ''}"
+                                 th:text="${review.comment != null ? review.comment : 'Không có nội dung'}">Nội dung</div>
+                        </td>
+                        <td th:text="${review.createdAt != null ? #temporals.format(review.createdAt, 'dd/MM/yyyy HH:mm') : 'N/A'}">Ngày gửi</td>
+                        <td>
+                            <div th:if="${review.rating != null}" style="display: inline-flex; align-items: center; gap: 2px;">
+                                <span th:each="i : ${#numbers.sequence(1, 5)}">
+                                    <i th:class="${i <= review.rating} ? 'fas fa-star' : 'far fa-star'"
+                                       style="color: #ffc107; font-size: 14px;"></i>
+                                </span>
+                                <span style="margin-left: 5px; color: #666; font-size: 12px;" 
+                                      th:text="'(' + ${review.rating} + '/5)'">(5/5)</span>
+                            </div>
+                            <span th:if="${review.rating == null}" style="color: #888;">Chưa có đánh giá</span>
+                        </td>
+                        <td>
+                            <button class="btn-action" 
+                                    title="Xem chi tiết"
+                                    th:onclick="'viewReviewDetail(' + ${review.reviewId} + ')'"
+                                    style="margin-right: 5px;">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn-action" 
+                                    title="Xóa"
+                                    th:onclick="'deleteReview(' + ${review.reviewId} + ')'"
+                                    th:disabled="${review.isDeleted != null and review.isDeleted == true}"
+                                    th:style="${review.isDeleted != null and review.isDeleted == true} ? 'opacity: 0.5; cursor: not-allowed;' : ''"
+                                    th:id="'deleteBtn-' + ${review.reviewId}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- Pagination -->
+            <div class="pagination">
+                <div class="pagination-info">
+                    <span th:if="${total != null and total > 0}">
+                        Hiển thị 
+                        <span th:text="${currentPage * size + 1}">0</span>
+                        -
+                        <span th:text="${(currentPage + 1) * size > total ? total : (currentPage + 1) * size}">0</span>
+                        của 
+                        <span th:text="${total}">0</span>
+                        kết quả
+                    </span>
+                    <span th:if="${total == null or total == 0}">
+                        Không có kết quả
+                    </span>
+                </div>
+                <div class="pagination-controls" th:if="${totalPages != null and totalPages > 0}">
+                    <!-- Previous button -->
+                    <button type="button" class="pagination-btn pagination-prev" 
+                            th:disabled="${currentPage == 0}"
+                            th:data-page="${currentPage - 1}">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    
+                    <!-- Page numbers -->
+                    <span th:if="${totalPages != null and totalPages > 0}">
+                        <!-- Hiển thị tất cả các trang nếu <= 7 trang -->
+                        <span th:if="${totalPages <= 7}">
+                            <button type="button" class="pagination-btn pagination-page" 
+                                    th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                                    th:data-page="${i}"
+                                    th:class="${i == currentPage ? 'pagination-btn active' : 'pagination-btn'}"
+                                    th:text="${i + 1}">1</button>
+                        </span>
+                        <!-- Hiển thị rút gọn nếu > 7 trang -->
+                        <span th:if="${totalPages > 7}">
+                            <!-- Trang đầu -->
+                            <button type="button" class="pagination-btn pagination-page" 
+                                    th:data-page="0"
+                                    th:class="${currentPage == 0 ? 'pagination-btn active' : 'pagination-btn'}"
+                                    th:text="1">1</button>
+                            <!-- Dấu ... nếu currentPage > 3 -->
+                            <span th:if="${currentPage > 3}">
+                                <button class="pagination-btn" disabled>...</button>
+                            </span>
+                            <!-- Các trang xung quanh currentPage -->
+                            <span th:each="i : ${#numbers.sequence(
+                                currentPage > 3 ? currentPage - 1 : 1, 
+                                currentPage < totalPages - 4 ? currentPage + 1 : totalPages - 2
+                            )}">
+                                <button type="button" class="pagination-btn pagination-page" 
+                                        th:data-page="${i}"
+                                        th:class="${i == currentPage ? 'pagination-btn active' : 'pagination-btn'}"
+                                        th:text="${i + 1}"></button>
+                            </span>
+                            <!-- Dấu ... nếu currentPage < totalPages - 4 -->
+                            <span th:if="${currentPage < totalPages - 4}">
+                                <button class="pagination-btn" disabled>...</button>
+                            </span>
+                            <!-- Trang cuối -->
+                            <button type="button" class="pagination-btn pagination-page" 
+                                    th:data-page="${totalPages - 1}"
+                                    th:class="${currentPage == totalPages - 1 ? 'pagination-btn active' : 'pagination-btn'}"
+                                    th:text="${totalPages}"></button>
+                        </span>
+                    </span>
+                    
+                    <!-- Next button -->
+                    <button type="button" class="pagination-btn pagination-next" 
+                            th:data-page="${currentPage + 1}"
+                            th:disabled="${currentPage == null or totalPages == null or currentPage >= totalPages - 1}">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
         </div>
-        <div class="pagination-controls">
-            <button class="pagination-btn" disabled>
-                <i class="fas fa-chevron-left"></i>
-            </button>
-            <button class="pagination-btn active">1</button>
-            <button class="pagination-btn">2</button>
-            <button class="pagination-btn">3</button>
-            <button class="pagination-btn">...</button>
-            <button class="pagination-btn">10</button>
-            <button class="pagination-btn">
-                <i class="fas fa-chevron-right"></i>
+    </div>
+</div>
+
+<!-- Fragment cho modal detail -->
+<div th:fragment="detail" style="display: none;">
+    <div class="modal-content" style="max-width: 800px; margin: 50px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #eee;">
+            <h2 style="margin: 0; color: #333;">Chi tiết đánh giá</h2>
+            <button class="close-modal" onclick="closeReviewDetailModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #666;">&times;</button>
+        </div>
+        
+        <div class="modal-body" th:if="${review != null}">
+            <!-- Thông tin người đánh giá -->
+            <div class="detail-section" style="margin-bottom: 25px;">
+                <h3 style="color: #1976d2; margin-bottom: 15px; font-size: 18px;">Thông tin người đánh giá</h3>
+                <div class="detail-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="detail-item">
+                        <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px;">Tên:</label>
+                        <p style="margin: 0; color: #333;" 
+                           th:text="${review.seeker != null and review.seeker.fullName != null ? review.seeker.fullName : 'N/A'}">N/A</p>
+                    </div>
+                    <div class="detail-item">
+                        <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px;">Email:</label>
+                        <p style="margin: 0; color: #333;" 
+                           th:text="${review.seeker != null and review.seeker.email != null ? review.seeker.email : 'N/A'}">N/A</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Thông tin công ty -->
+            <div class="detail-section" style="margin-bottom: 25px;">
+                <h3 style="color: #1976d2; margin-bottom: 15px; font-size: 18px;">Thông tin công ty</h3>
+                <div class="detail-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="detail-item">
+                        <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px;">Tên công ty:</label>
+                        <p style="margin: 0; color: #333;" 
+                           th:text="${review.employer != null and review.employer.companyName != null ? review.employer.companyName : 'N/A'}">N/A</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Thông tin đánh giá -->
+            <div class="detail-section" style="margin-bottom: 25px;">
+                <h3 style="color: #1976d2; margin-bottom: 15px; font-size: 18px;">Thông tin đánh giá</h3>
+                <div class="detail-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="detail-item">
+                        <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px;">Điểm đánh giá:</label>
+                        <div th:if="${review.rating != null}" style="display: inline-flex; align-items: center; gap: 2px;">
+                            <span th:each="i : ${#numbers.sequence(1, 5)}">
+                                <i th:class="${i <= review.rating} ? 'fas fa-star' : 'far fa-star'"
+                                   style="color: #ffc107; font-size: 18px;"></i>
+                            </span>
+                            <span style="margin-left: 10px; color: #333; font-size: 16px; font-weight: 600;" 
+                                  th:text="${review.rating} + '/5'">5/5</span>
+                        </div>
+                        <span th:if="${review.rating == null}" style="color: #888;">Chưa có đánh giá</span>
+                    </div>
+                    <div class="detail-item">
+                        <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px;">Ngày đánh giá:</label>
+                        <p style="margin: 0; color: #333;" 
+                           th:text="${review.createdAt != null ? #temporals.format(review.createdAt, 'dd/MM/yyyy HH:mm') : 'N/A'}">N/A</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Nội dung đánh giá -->
+            <div class="detail-section" style="margin-bottom: 25px;">
+                <h3 style="color: #1976d2; margin-bottom: 15px; font-size: 18px;">Nội dung đánh giá</h3>
+                <div class="detail-item">
+                    <p style="margin: 0; color: #333; padding: 15px; background: #f5f5f5; border-radius: 4px; white-space: pre-wrap; min-height: 100px;" 
+                       th:text="${review.comment != null and review.comment != '' ? review.comment : 'Không có nội dung đánh giá'}">Không có nội dung đánh giá</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal-footer" style="margin-top: 20px; padding-top: 15px; border-top: 2px solid #eee; text-align: right;">
+            <button onclick="closeReviewDetailModal()" 
+                    style="padding: 10px 20px; background: #666; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                Đóng
             </button>
         </div>
     </div>
 </div>
+
+<script>
+(function() {
+    const searchInput = document.getElementById('searchInput');
+    const ratingSelect = document.getElementById('ratingSelect');
+    const tableWrapper = document.getElementById('table-wrapper');
+    
+    let currentPage = 0;
+    
+    function reloadTable(page) {
+        if (page !== undefined) currentPage = page;
+        const search = searchInput.value.trim();
+        const rating = ratingSelect.value;
+        const params = new URLSearchParams();
+        if (search) params.append('search', search);
+        if (rating) params.append('rating', rating);
+        params.append('page', currentPage);
+        params.append('size', 5);
+        
+        fetch('/admin/feedbacks/table?' + params.toString())
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.text();
+            })
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const fragment = doc.body.querySelector('div') || doc.body;
+                if (fragment) {
+                    tableWrapper.innerHTML = fragment.innerHTML;
+                } else {
+                    tableWrapper.innerHTML = html;
+                }
+            })
+            .catch(error => {
+                console.error('Error loading table:', error);
+                tableWrapper.innerHTML = '<div style="text-align:center; padding: 20px; color: #f00;">Lỗi khi tải dữ liệu</div>';
+            });
+    }
+    
+    // Attach pagination listeners - sử dụng event delegation ở tableWrapper level
+    // Chỉ cần attach một lần, không cần attach lại mỗi lần reload
+    tableWrapper.addEventListener('click', function(e) {
+        const btn = e.target.closest('.pagination-page, .pagination-prev, .pagination-next');
+        if (!btn || btn.disabled) return;
+        e.preventDefault();
+        const page = parseInt(btn.getAttribute('data-page')) || 0;
+        reloadTable(page);
+    });
+    
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+    
+    const debouncedReload = debounce(function() {
+        currentPage = 0;
+        reloadTable();
+    }, 300);
+    
+    searchInput.addEventListener('input', debouncedReload);
+    ratingSelect.addEventListener('change', function() {
+        currentPage = 0;
+        reloadTable();
+    });
+    
+    // Function để xem chi tiết review
+    window.viewReviewDetail = function(reviewId) {
+        let modal = document.getElementById('reviewDetailModal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'reviewDetailModal';
+            modal.className = 'modal';
+            modal.style.cssText = 'display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5);';
+            document.body.appendChild(modal);
+        }
+        
+        fetch('/admin/feedbacks/' + reviewId + '/detail')
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.text();
+            })
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const modalContent = doc.querySelector('.modal-content') || doc.body.querySelector('div');
+                
+                if (modalContent) {
+                    modal.innerHTML = modalContent.outerHTML;
+                } else {
+                    modal.innerHTML = '<div class="modal-content"><p>Không thể tải chi tiết</p></div>';
+                }
+                modal.style.display = 'block';
+                
+                const closeBtn = modal.querySelector('.close-modal');
+                if (closeBtn) {
+                    closeBtn.onclick = closeReviewDetailModal;
+                }
+                
+                modal.onclick = function(event) {
+                    if (event.target === modal) {
+                        closeReviewDetailModal();
+                    }
+                };
+            })
+            .catch(error => {
+                console.error('Error loading review detail:', error);
+                alert('Lỗi khi tải chi tiết đánh giá');
+            });
+    };
+    
+    // Function để đóng modal
+    window.closeReviewDetailModal = function() {
+        const modal = document.getElementById('reviewDetailModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    };
+    
+    // Function để xóa review
+    window.deleteReview = function(reviewId) {
+        if (!confirm('Bạn có chắc chắn muốn xóa đánh giá này?')) {
+            return;
+        }
+        
+        const deleteBtn = document.getElementById('deleteBtn-' + reviewId);
+        if (deleteBtn && deleteBtn.disabled) {
+            return;
+        }
+        
+        fetch('/admin/feedbacks/' + reviewId + '/delete', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                if (deleteBtn) {
+                    deleteBtn.disabled = true;
+                    deleteBtn.style.opacity = '0.5';
+                    deleteBtn.style.cursor = 'not-allowed';
+                }
+                alert(data.message || 'Đã xóa đánh giá thành công');
+            } else {
+                alert(data.message || 'Có lỗi xảy ra khi xóa đánh giá');
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting review:', error);
+            alert('Lỗi khi xóa đánh giá');
+        });
+    };
+})();
+</script>
 </body>
 </html>

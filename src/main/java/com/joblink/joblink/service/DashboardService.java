@@ -1,6 +1,6 @@
 package com.joblink.joblink.service;
 
-import com.joblink.joblink.Repository.*;
+import com.joblink.joblink.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -36,6 +36,16 @@ public class DashboardService {
 
     public long countApplications() {
         return applicationRepository.count();
+    }
+
+    /**
+     * Đếm số CV đang xem xét (status = "submitted" hoặc "reviewing")
+     * Đây là những CV đã được upload nhưng chưa được employer duyệt
+     */
+    public long countReviewingCVs() {
+        long submitted = applicationRepository.countByStatus("submitted");
+        long reviewing = applicationRepository.countByStatus("reviewing");
+        return submitted + reviewing;
     }
 
     public double getTotalRevenue() {
