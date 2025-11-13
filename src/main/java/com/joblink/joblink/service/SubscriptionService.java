@@ -1,6 +1,6 @@
 package com.joblink.joblink.service;
 
-import com.joblink.joblink.Repository.*; // Import các Repository cần thiết
+import com.joblink.joblink.repository.*; // Import các Repository cần thiết
 import com.joblink.joblink.entity.*;   // Import các Entity cần thiết
 import lombok.RequiredArgsConstructor;   // Lombok để tự tạo constructor
 import org.springframework.stereotype.Service; // Đánh dấu đây là một Service Bean

@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Website Tìm kiếm việc làm</title>
     <!-- CSS -->
-      <link rel="stylesheet" th:href="@{/employer.css}">
+    <link rel="stylesheet" th:href="@{/employer.css}">
     <!-- Nếu trang con có css riêng -->
     <th:block th:if="${pageCss != null}">
         <link rel="stylesheet" th:href="${pageCss}">
@@ -91,20 +91,20 @@
                             <span class="nav-text">Tin tuyển dụng</span>
                         </a>
                     </li>
-                    <li class="nav-item" onclick="loadContent('applications.html')">
-                        <a href="javascript:void(0)">
+                    <li class="nav-item">
+                        <a th:href="@{/applications}">
                             <span class="nav-icon"><i class="fa fa-file-alt"></i></span>
                             <span class="nav-text">Hồ sơ ứng tuyển</span>
                         </a>
                     </li>
                     <li class="nav-item" onclick="loadContent('companies.html')">
-                         <a href="javascript:void(0)">
+                        <a href="javascript:void(0)">
                             <span class="nav-icon"><i class="fa fa-industry"></i></span>
                             <span class="nav-text">Danh sách việc làm</span>
                         </a>
                     </li>
-                    <li class="nav-item" onclick="loadContent('blog.html')">
-                        <a href="javascript:void(0)">
+                    <li class="nav-item">
+                        <a th:href="@{/saved}">
                             <span class="nav-icon"><i class="fa fa-pen-to-square"></i></span>
                             <span class="nav-text">Ứng viên đã lưu</span>
                         </a>

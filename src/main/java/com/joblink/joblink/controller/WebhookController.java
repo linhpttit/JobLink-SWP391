@@ -1,7 +1,6 @@
 package com.joblink.joblink.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.joblink.joblink.Repository.PaymentRepository;
+import com.joblink.joblink.repository.PaymentRepository;
 import com.joblink.joblink.dto.ApiResponse;
 import com.joblink.joblink.entity.Payment;
 import com.joblink.joblink.service.PayOSService; // Import PayOSService for helper method

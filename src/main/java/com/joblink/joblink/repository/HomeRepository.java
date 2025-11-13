@@ -1,8 +1,7 @@
-package com.joblink.joblink.Repository;
+package com.joblink.joblink.repository;
 
 import com.joblink.joblink.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 

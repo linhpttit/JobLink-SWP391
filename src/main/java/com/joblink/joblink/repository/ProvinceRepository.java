@@ -1,4 +1,4 @@
-package com.joblink.joblink.Repository;
+package com.joblink.joblink.repository;
 
 import com.joblink.joblink.entity.Province;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -32,13 +32,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Toggle notification dropdown
 function toggleNotifications() {
-    document.getElementById("notificationDropdown").classList.toggle("show");
+    const dropdown = document.getElementById("notificationDropdown");
+    if (dropdown) {
+        dropdown.classList.toggle("show");
+    }
 }
 
 // Ẩn dropdown khi click ra ngoài
 window.addEventListener("click", (event) => {
     if (!event.target.closest('.notification-icon')) {
-        document.getElementById("notificationDropdown").classList.remove("show");
+        const dropdown = document.getElementById("notificationDropdown");
+        if (dropdown) {
+            dropdown.classList.remove("show");
+        }
     }
 });
 
@@ -81,11 +87,14 @@ function loadContent(url) {
                     }
                     console.log(`✅ Đã execute script ${i + 1}`);
                 }
+                
+                // Đợi một chút để đảm bảo scripts đã chạy xong
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                // Trigger custom event để các script khác biết content đã load xong
+                contentArea.dispatchEvent(new CustomEvent('contentLoaded', { detail: { url } }));
+                console.log("📢 Đã dispatch 'contentLoaded' event");
             })();
-            
-            // Trigger custom event để các script khác biết content đã load xong
-            contentArea.dispatchEvent(new CustomEvent('contentLoaded', { detail: { url } }));
-            console.log("📢 Đã dispatch 'contentLoaded' event");
 
             // Sau khi content và scripts được load xong
         })

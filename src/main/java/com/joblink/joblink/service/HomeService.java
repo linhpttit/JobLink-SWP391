@@ -1,7 +1,7 @@
 package com.joblink.joblink.service;
 
 import com.joblink.joblink.dto.*;
-import com.joblink.joblink.Repository.*;
+import com.joblink.joblink.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -1,6 +1,6 @@
 package com.joblink.joblink.service;
 
-import com.joblink.joblink.Repository.BlogPostRepository;
+import com.joblink.joblink.repository.BlogPostRepository;
 import com.joblink.joblink.entity.BlogPost;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -1,5 +1,5 @@
 // File: com/joblink/joblink/repository/JobPostingRepository.java (ĐÃ SỬA LỖI HOÀN CHỈNH)
-package com.joblink.joblink.Repository;
+package com.joblink.joblink.repository;
 
 import com.joblink.joblink.entity.JobPosting;
 import org.springframework.data.jpa.repository.JpaRepository;

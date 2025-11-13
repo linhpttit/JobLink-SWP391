@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,51 +13,60 @@
     <div class="applications-header">
         <h2 class="applications-title"><i class="fa-solid fa-file"></i>Quản lý CV / Ứng viên</h2>
         <div class="applications-actions">
-            <button class="btn btn-primary">
+            <a th:href="@{/admin/applications/export(search=${search}, status=${status}, jobId=${jobId}, dateFilter=${dateFilter})}" 
+               class="btn btn-primary" 
+               style="text-decoration: none; display: inline-block;">
                 <i class="fas fa-download"></i> Xuất Excel
-            </button>
+            </a>
         </div>
     </div>
 
     <!-- Filters -->
-    <div class="applications-filters">
-        <div class="filter-row">
-            <div class="filter-group">
-                <label for="searchCV">Tìm kiếm</label>
-                <div class="search-box">
-                    <input type="text" id="searchCV" placeholder="Tìm theo tên, email, công việc...">
-                    <i class="fas fa-search"></i>
+    <form method="GET" action="/admin/applications" id="filterForm">
+        <div class="applications-filters">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label for="search">Tìm kiếm</label>
+                    <div class="search-box">
+                        <input type="text" id="search" name="search" 
+                               th:value="${search}" 
+                               placeholder="Tìm theo tên, email, công việc...">
+                        <i class="fas fa-search"></i>
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label for="status">Trạng thái</label>
+                    <select id="status" name="status">
+                        <option value="">Tất cả</option>
+                        <option value="submitted" th:selected="${status == 'submitted'}">Đã nộp</option>
+                        <option value="reviewing" th:selected="${status == 'reviewing'}">Đang xem xét</option>
+                        <option value="accepted" th:selected="${status == 'accepted'}">Chấp nhận</option>
+                        <option value="denied" th:selected="${status == 'denied'}">Từ chối</option>
+                        <option value="withdrawn" th:selected="${status == 'withdrawn'}">Rút hồ sơ</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="jobId">Công việc</label>
+                    <select id="jobId" name="jobId">
+                        <option value="">Tất cả</option>
+                        <!-- TODO: Thêm options từ backend -->
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="dateFilter">Ngày nộp</label>
+                    <select id="dateFilter" name="dateFilter">
+                        <option value="">Tất cả</option>
+                        <option value="today" th:selected="${dateFilter == 'today'}">Hôm nay</option>
+                        <option value="week" th:selected="${dateFilter == 'week'}">Tuần này</option>
+                        <option value="month" th:selected="${dateFilter == 'month'}">Tháng này</option>
+                    </select>
                 </div>
             </div>
-            <div class="filter-group">
-                <label for="statusFilter">Trạng thái</label>
-                <select id="statusFilter">
-                    <option value="">Tất cả</option>
-                    <option value="submitted">Đã nộp</option>
-                    <option value="reviewing">Đang xem xét</option>
-                    <option value="accepted">Chấp nhận</option>
-                    <option value="denied">Từ chối</option>
-                    <option value="withdrawn">Rút hồ sơ</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label for="jobFilter">Công việc</label>
-                <select id="jobFilter">
-                    <option value="">Tất cả</option>
-                    <!-- Options từ backend -->
-                </select>
-            </div>
-            <div class="filter-group">
-                <label for="dateFilter">Ngày nộp</label>
-                <select id="dateFilter">
-                    <option value="">Tất cả</option>
-                    <option value="today">Hôm nay</option>
-                    <option value="week">Tuần này</option>
-                    <option value="month">Tháng này</option>
-                </select>
-            </div>
+            <!-- Hidden fields để giữ pagination -->
+            <input type="hidden" name="page" id="pageInput" th:value="${currentPage}">
+            <input type="hidden" name="size" value="5">
         </div>
-    </div>
+    </form>
 
     <!-- Statistics -->
     <div class="applications-stats">
@@ -66,7 +75,7 @@
                 <i class="fas fa-clipboard-list"></i>
             </div>
             <div class="stat-info">
-                <h3>245</h3>
+                <h3 th:text="${totalCVs}">0</h3>
                 <p>Tổng số CV</p>
             </div>
         </div>
@@ -75,8 +84,8 @@
                 <i class="fas fa-clock"></i>
             </div>
             <div class="stat-info">
-                <h3>120</h3>
-                <p>Đang xem xét</p>
+                <h3 th:text="${reviewingCVs}">0</h3>
+                <p>Đơn đang xem xét</p>
             </div>
         </div>
         <div class="stat-card">
@@ -84,8 +93,8 @@
                 <i class="fas fa-check-circle"></i>
             </div>
             <div class="stat-info">
-                <h3>75</h3>
-                <p>Đã chấp nhận</p>
+                <h3 th:text="${acceptedCVs}">0</h3>
+                <p>Đơn được chấp nhận</p>
             </div>
         </div>
         <div class="stat-card">
@@ -93,56 +102,313 @@
                 <i class="fas fa-times-circle"></i>
             </div>
             <div class="stat-info">
-                <h3>50</h3>
-                <p>Đã từ chối</p>
+                <h3 th:text="${deniedCVs}">0</h3>
+                <p>Đơn bị từ chối</p>
             </div>
         </div>
     </div>
 
-    <!-- Applications Table -->
-    <div class="applications-table-container">
-        <table class="applications-table">
-            <thead>
-            <tr>
-                <th>Ứng viên</th>
-                <th>Email</th>
-                <th>Công việc</th>
-                <th>Ngày nộp</th>
-                <th>Trạng thái</th>
-                <th>CV / Tài liệu</th>
-                <th>Ghi chú</th>
-                <th>Thao tác</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr class="no-data">
-                <td colspan="8" style="text-align:center; padding: 20px; color: #888;">
-                    Không có dữ liệu
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Pagination -->
-    <div class="pagination">
-        <div class="pagination-info">
-            Hiển thị 1-10 của 245 kết quả
-        </div>
-        <div class="pagination-controls">
-            <button class="pagination-btn" disabled>
-                <i class="fas fa-chevron-left"></i>
-            </button>
-            <button class="pagination-btn active">1</button>
-            <button class="pagination-btn">2</button>
-            <button class="pagination-btn">3</button>
-            <button class="pagination-btn">...</button>
-            <button class="pagination-btn">10</button>
-            <button class="pagination-btn">
-                <i class="fas fa-chevron-right"></i>
-            </button>
-        </div>
+    <!-- Applications Table và Pagination - sẽ được load qua AJAX -->
+    <div id="applications-table-wrapper">
+        <div th:replace="fragments/applications-table :: table"></div>
     </div>
 </div>
+
+<script>
+    (function() {
+        let currentPage = 0;
+        
+        // Load table qua AJAX
+        function loadTable() {
+            const wrapper = document.getElementById('applications-table-wrapper');
+            if (!wrapper) return;
+            
+            wrapper.innerHTML = '<div style="text-align:center; padding: 20px;"><i class="fas fa-spinner fa-spin"></i> Đang tải...</div>';
+            
+            const form = document.getElementById('filterForm');
+            if (!form) return;
+            
+            const formData = new FormData(form);
+            formData.set('page', currentPage);
+            
+            const params = new URLSearchParams();
+            for (let [key, value] of formData.entries()) {
+                if (value) params.append(key, value);
+            }
+            
+            fetch(`/admin/applications/table?${params.toString()}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.text();
+                })
+                .then(html => {
+                    // Parse HTML và lấy phần fragment
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    // Tìm div chứa table và pagination (div đầu tiên trong body)
+                    const fragment = doc.body.querySelector('div') || doc.body;
+                    if (fragment) {
+                        wrapper.innerHTML = fragment.innerHTML;
+                        // Re-attach event listeners cho pagination
+                        attachPaginationListeners();
+                    } else {
+                        wrapper.innerHTML = html;
+                        attachPaginationListeners();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading table:', error);
+                    wrapper.innerHTML = '<div style="text-align:center; padding: 20px; color: #f00;">Lỗi khi tải dữ liệu</div>';
+                });
+        }
+        
+        // Debounce function để tránh gọi API quá nhiều khi nhập
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+        
+        // Attach event listeners cho pagination buttons - dùng event delegation để giảm code
+        function attachPaginationListeners() {
+            const paginationControls = document.querySelector('.pagination-controls');
+            if (paginationControls) {
+                // Dùng event delegation - chỉ cần 1 listener cho tất cả buttons
+                paginationControls.addEventListener('click', function(e) {
+                    const btn = e.target.closest('.pagination-page, .pagination-prev, .pagination-next');
+                    if (!btn || btn.disabled) return;
+                    e.preventDefault();
+                    currentPage = parseInt(btn.getAttribute('data-page')) || 0;
+                    loadTable();
+                });
+            }
+        }
+        
+        // Initialize
+        function init() {
+            const searchInput = document.getElementById('search');
+            const statusSelect = document.getElementById('status');
+            const jobIdSelect = document.getElementById('jobId');
+            const dateFilterSelect = document.getElementById('dateFilter');
+            
+            // Auto-filter khi nhập (với debounce 500ms)
+            if (searchInput) {
+                searchInput.addEventListener('input', debounce(function() {
+                    currentPage = 0;
+                    loadTable();
+                }, 500));
+            }
+            
+            // Auto-filter khi thay đổi dropdown
+            [statusSelect, jobIdSelect, dateFilterSelect].forEach(el => {
+                if (el) {
+                    el.addEventListener('change', function() {
+                        currentPage = 0;
+                        loadTable();
+                    });
+                }
+            });
+            
+            // Attach pagination listeners (nếu đã có sẵn từ server render)
+            attachPaginationListeners();
+        }
+        
+        // Chạy khi DOM ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    })();
+    
+    // Function để xem chi tiết application
+    function viewApplicationDetail(applicationId) {
+        const modal = document.getElementById('applicationDetailModal');
+        if (!modal) {
+            // Nếu modal chưa có, tạo nó
+            const modalContainer = document.createElement('div');
+            modalContainer.id = 'applicationDetailModal';
+            modalContainer.className = 'modal';
+            modalContainer.style.cssText = 'display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5);';
+            document.body.appendChild(modalContainer);
+        }
+        
+        // Load modal content từ server
+        fetch(`/admin/applications/${applicationId}/detail`)
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.text();
+            })
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const modalContent = doc.querySelector('.modal-content') || doc.body.querySelector('div');
+                
+                const modal = document.getElementById('applicationDetailModal');
+                if (modalContent) {
+                    modal.innerHTML = modalContent.outerHTML;
+                } else {
+                    modal.innerHTML = '<div class="modal-content"><p>Không thể tải chi tiết</p></div>';
+                }
+                modal.style.display = 'block';
+                
+                // Attach close event
+                const closeBtn = modal.querySelector('.close-modal');
+                if (closeBtn) {
+                    closeBtn.onclick = closeApplicationDetailModal;
+                }
+                
+                // Close when clicking outside
+                modal.onclick = function(event) {
+                    if (event.target === modal) {
+                        closeApplicationDetailModal();
+                    }
+                };
+            })
+            .catch(error => {
+                console.error('Error loading application detail:', error);
+                alert('Lỗi khi tải chi tiết đơn ứng tuyển');
+            });
+    }
+    
+    // Function để đóng modal
+    function closeApplicationDetailModal() {
+        const modal = document.getElementById('applicationDetailModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
+</script>
+
+<style>
+    .candidate-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .candidate-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .status-withdrawn {
+        background-color: #F3E5F5;
+        color: #7B1FA2;
+        border: 1px solid #E1BEE7;
+    }
+
+    .cv-link {
+        color: #1976d2;
+        text-decoration: none;
+    }
+
+    .cv-link:hover {
+        text-decoration: underline;
+    }
+
+    .note-text {
+        display: block;
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-icon {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 4px 8px;
+        color: #666;
+        font-size: 16px;
+    }
+
+    .btn-icon:hover {
+        color: #1976d2;
+    }
+    
+    /* Modal styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.5);
+    }
+    
+    .modal-content {
+        max-width: 800px;
+        margin: 50px auto;
+        background: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        position: relative;
+    }
+    
+    .close-modal {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #666;
+        position: absolute;
+        right: 15px;
+        top: 15px;
+    }
+    
+    .close-modal:hover {
+        color: #000;
+    }
+
+    .status-submitted {
+        background-color: #E3F2FD;
+        color: #1976D2;
+        border: 1px solid #BBDEFB;
+    }
+    
+    .status-reviewing {
+        background-color: #FFF3E0;
+        color: #F57C00;
+        border: 1px solid #FFE0B2;
+    }
+    
+    .status-accepted {
+        background-color: #D1FAE5;
+        color: #10B981;
+        border: 1px solid #A7F3D0;
+    }
+    
+    .status-denied {
+        background-color: #FEE2E2;
+        color: #EF4444;
+        border: 1px solid #FECACA;
+    }
+    
+    .status-withdrawn {
+        background-color: #F3E5F5;
+        color: #7B1FA2;
+        border: 1px solid #E1BEE7;
+    }
+</style>
+
 </body>
 </html>

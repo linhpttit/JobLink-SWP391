@@ -1,7 +1,7 @@
 package com.joblink.joblink.controller;
 
 // --- Repository Imports ---
-import com.joblink.joblink.Repository.*;
+import com.joblink.joblink.repository.*;
 
 // --- Entity Imports ---
 import com.joblink.joblink.entity.*;
@@ -15,8 +15,6 @@ import com.joblink.joblink.service.SubscriptionService;
 import jakarta.servlet.http.HttpServletResponse; // Import HttpServletResponse for redirect
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -25,14 +23,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 // --- PayOS SDK Imports ---
 import vn.payos.model.v2.paymentRequests.CreatePaymentLinkResponse;
-import vn.payos.model.v2.paymentRequests.PaymentLink;
 
-import java.io.IOException; // Import IOException
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.logging.Logger;
 
