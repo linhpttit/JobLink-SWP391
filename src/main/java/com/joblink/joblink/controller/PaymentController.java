@@ -107,13 +107,17 @@ public class PaymentController {
             Invoice savedInvoice = invoiceRepository.save(invoice);
             String internalOrderId = String.valueOf(savedInvoice.getInvoiceId());
 
+
+LocalDateTime start = LocalDateTime.now();
+LocalDateTime end = start.plusDays(pkg.getDurationDays());
             PremiumSubscriptions subscription = new PremiumSubscriptions();
             // ... (set subscription fields as before) ...
             subscription.setUserId(user.getUserId()); subscription.setSeekerId(seeker.getSeekerId());
             subscription.setPackageId(pkg.getPackageId()); subscription.setStatus("PENDING");
             subscription.setIsActive(false); subscription.setCreatedAt(LocalDateTime.now());
             subscription.setInvoiceId(savedInvoice.getInvoiceId());
-            subscription.setStartDate(null); subscription.setEndDate(null);
+            subscription.setStartDate(start);
+            subscription.setEndDate(end);
             PremiumSubscriptions savedSub = subscriptionsRepository.save(subscription);
 
             savedInvoice.setSubscriptionId(savedSub.getSubscriptionId());

@@ -38,8 +38,8 @@ public class MessageDao {
             Message msg = new Message();
             msg.setMessageId(rs.getInt("message_id"));
             msg.setConversationId(rs.getInt("conversation_id"));
-            msg.setSenderUserId(rs.getInt("sender_user_id"));
-            msg.setReceiverUserId(rs.getInt("receiver_user_id"));
+            msg.setUserId(rs.getInt("sender_user_id"));
+            msg.setUserId2(rs.getInt("receiver_user_id"));
             msg.setMessageContent(rs.getString("message_content"));
             msg.setMessageType(rs.getString("message_type"));
             msg.setIsRead(rs.getBoolean("is_read"));
@@ -66,8 +66,8 @@ public class MessageDao {
         jdbc.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.setInt(1, message.getConversationId());
-            ps.setInt(2, message.getSenderUserId());
-            ps.setInt(3, message.getReceiverUserId());
+            ps.setInt(2, message.getUserId());
+            ps.setInt(3, message.getUserId2());
             ps.setString(4, message.getMessageContent());
             ps.setString(5, message.getMessageType() != null ? message.getMessageType() : "text");
             return ps;
@@ -105,8 +105,8 @@ public class MessageDao {
             Message msg = new Message();
             msg.setMessageId(rs.getInt("message_id"));
             msg.setConversationId(rs.getInt("conversation_id"));
-            msg.setSenderUserId(rs.getInt("sender_user_id"));
-            msg.setReceiverUserId(rs.getInt("receiver_user_id"));
+            msg.setUserId(rs.getInt("sender_user_id"));
+            msg.setUserId2(rs.getInt("receiver_user_id"));
             msg.setMessageContent(rs.getString("message_content"));
             msg.setMessageType(rs.getString("message_type"));
             msg.setIsRead(rs.getBoolean("is_read"));

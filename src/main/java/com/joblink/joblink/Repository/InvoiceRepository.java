@@ -21,4 +21,7 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Integer> {
     // *** ADD THIS METHOD SIGNATURE ***
     Optional<Invoice> findByInvoiceIdAndUserId(Integer invoiceId, Integer userId);
 
+    // SỬA LỖI: Tên trường là "txnRef", không phải "paymentCode"
+    Optional<Invoice> findByTxnRef(String txnRef);
+
 }

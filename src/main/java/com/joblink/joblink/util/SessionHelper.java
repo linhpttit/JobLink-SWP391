@@ -2,7 +2,7 @@ package com.joblink.joblink.util;
 
 import com.joblink.joblink.auth.model.User;
 import com.joblink.joblink.dto.UserSessionDTO;
-import com.joblink.joblink.model.JobSeekerProfile;
+import com.joblink.joblink.model.JobSeekerProfile2;
 import com.joblink.joblink.service.ProfileService;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +26,7 @@ public class SessionHelper {
         // Try to enrich for seekers
         if (user.getRole() != null && "seeker".equalsIgnoreCase(user.getRole())) {
             try {
-                JobSeekerProfile profile = profileService.getOrCreateProfile(user.getUserId());
+                JobSeekerProfile2 profile = profileService.getOrCreateProfile(user.getUserId());
                 if (profile != null) {
                     dto.setFullName(profile.getFullname());
                     dto.setAvatarUrl(profile.getAvatarUrl());

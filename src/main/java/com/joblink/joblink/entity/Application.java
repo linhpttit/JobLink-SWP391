@@ -1,5 +1,6 @@
 package com.joblink.joblink.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
@@ -37,4 +38,44 @@ public class Application {
 
     @Column(name = "status_log", columnDefinition = "NVARCHAR(MAX)")
     private String statusLog;
+
+    // Transient fields for frontend - cần @JsonProperty để serialize sang JSON
+    @Transient
+    @JsonProperty
+    private String candidateName;
+
+    @Transient
+    @JsonProperty
+    private String candidateEmail;
+
+    @Transient
+    @JsonProperty
+    private String candidatePhone;
+
+    @Transient
+    @JsonProperty
+    private String avatarUrl;
+
+    @Transient
+    @JsonProperty
+    private String position;
+
+    @Transient
+    @JsonProperty
+    private String location;
+
+    @Transient
+    @JsonProperty
+    private Integer experienceYears;
+
+    @Transient
+    @JsonProperty
+    private String education;
+
+    @Transient
+    @JsonProperty
+    private Boolean saved;
+
+    // Constructors
+    public Application() {}
 }

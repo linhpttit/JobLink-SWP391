@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nâng cấp Premium - JobLink</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/CSS/header.css}">
+    <link rel="stylesheet" th:href="@{/CSS/homepage.css}">
     <style>
         * {
             margin: 0;
@@ -244,6 +246,7 @@
     </style>
 </head>
 <body>
+<div th:replace="~{header :: header}"></div>
 <div class="container">
     <div class="header">
         <h1>Nâng cấp tài khoản Premium</h1>
@@ -430,5 +433,7 @@
         });
     });
 </script>
+<script th:src="@{/JS/header-usermenu.js}"></script>
 </body>
+
 </html>
