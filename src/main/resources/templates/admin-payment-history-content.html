@@ -1,0 +1,209 @@
+<!-- Fragment template for admin payment history content -->
+<div class="admin-payment-container">
+    <div class="admin-header">
+        <h2><i class="fa-solid fa-money-bill-transfer"></i> Quản lý thanh toán & hóa đơn</h2>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="stats-grid" th:if="${transactions != null && !transactions.isEmpty()}">
+        <div class="stat-card total">
+            <i class="fas fa-shopping-cart"></i>
+            <div class="stat-value" th:text="${transactions.size()}">0</div>
+            <div class="stat-label">Tổng giao dịch</div>
+        </div>
+        <div class="stat-card success">
+            <i class="fas fa-check-circle"></i>
+            <div class="stat-value" th:text="${successCount}">0</div>
+            <div class="stat-label">Thành công</div>
+        </div>
+        <div class="stat-card failed">
+            <i class="fas fa-times-circle"></i>
+            <div class="stat-value" th:text="${failedCount}">0</div>
+            <div class="stat-label">Thất bại</div>
+        </div>
+        <div class="stat-card revenue">
+            <i class="fas fa-coins"></i>
+            <div class="stat-value"
+                th:text="${#numbers.formatDecimal(totalRevenue, 0, 'COMMA', 0, 'POINT') + ' đ'}">0 đ</div>
+            <div class="stat-label">Tổng doanh thu</div>
+        </div>
+    </div>
+
+    <!-- Enhanced Filters -->
+    <div class="filters-container">
+        <div class="filters-form" id="filtersForm">
+            <div class="filters-row">
+                <div class="filter-group">
+                    <label>Tìm kiếm</label>
+                    <input type="text" id="search" placeholder="Mã giao dịch, email, username..." th:value="${searchValue}">
+                </div>
+                <div class="filter-group">
+                    <label>Trạng thái</label>
+                    <select id="paymentStatus">
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="SUCCESS" th:selected="${paymentStatusValue == 'SUCCESS'}">Thành công</option>
+                        <option value="FAILED" th:selected="${paymentStatusValue == 'FAILED'}">Thất bại</option>
+                        <option value="PENDING" th:selected="${paymentStatusValue == 'PENDING'}">Chờ xử lý</option>
+                        <option value="CANCELLED" th:selected="${paymentStatusValue == 'CANCELLED'}">Đã hủy</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Gói dịch vụ</label>
+                    <select id="tierLevel">
+                        <option value="">Tất cả gói</option>
+                        <option value="1" th:selected="${tierLevelValue == 1}">Standard</option>
+                        <option value="2" th:selected="${tierLevelValue == 2}">Pro</option>
+                        <option value="3" th:selected="${tierLevelValue == 3}">Premium</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Phương thức</label>
+                    <select id="paymentMethod">
+                        <option value="">Tất cả</option>
+                        <option value="ATM" th:selected="${paymentMethodValue == 'ATM'}">ATM</option>
+                        <option value="VISA" th:selected="${paymentMethodValue == 'VISA'}">VISA</option>
+                        <option value="MASTERCARD" th:selected="${paymentMethodValue == 'MASTERCARD'}">MasterCard</option>
+                        <option value="FREE" th:selected="${paymentMethodValue == 'FREE'}">Miễn phí</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="filters-actions">
+                <button type="button" class="btn-filter">
+                    <i class="fas fa-filter"></i> Lọc
+                </button>
+                <button type="button" class="btn-clear">
+                    <i class="fas fa-times"></i> Xóa bộ lọc
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction History Table -->
+    <div class="admin-table-container">
+        <div th:if="${transactions == null || transactions.isEmpty()}" class="no-data">
+            <i class="fas fa-inbox"></i>
+            <p>Chưa có giao dịch nào trong hệ thống</p>
+        </div>
+
+        <table class="admin-table" th:if="${transactions != null && !transactions.isEmpty()}">
+            <thead>
+                <tr>
+                    <th>MÃ GIAO DỊCH</th>
+                    <th>NGƯỜI DÙNG</th>
+                    <th>CÔNG TY</th>
+                    <th>GÓI DỊCH VỤ</th>
+                    <th>SỐ TIỀN</th>
+                    <th>TRẠNG THÁI</th>
+                    <th>NGÀY TẠO</th>
+                    <th>NGÀY THANH TOÁN</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="transaction : ${transactions}">
+                    <td>
+                        <span class="transaction-id" th:text="${transaction.vnpayTxnRef}">#20251109A</span>
+                    </td>
+                    <td>
+                        <div class="user-info">
+                            <span class="user-name"
+                                th:text="${transaction.user != null ? transaction.user.username : 'N/A'}">Nguyễn Văn A</span>
+                            <span class="user-email"
+                                th:text="${transaction.user != null ? transaction.user.email : 'N/A'}">user@example.com</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="company-name"
+                            th:text="${employerMap[transaction.user.userId] != null && employerMap[transaction.user.userId].companyName != null ? employerMap[transaction.user.userId].companyName : 'Chưa cập nhật'}">Công ty ABC</span>
+                    </td>
+                    <td>
+                        <span class="package-badge"
+                            th:classappend="${transaction.tierUpgradedTo == 1 ? 'badge-standard' : (transaction.tierUpgradedTo == 2 ? 'badge-pro' : 'badge-premium')}"
+                            th:text="${transaction.tierUpgradedTo == 1 ? 'STANDARD' : (transaction.tierUpgradedTo == 2 ? 'PRO' : 'PREMIUM')}">
+                            PREMIUM
+                        </span>
+                    </td>
+                    <td>
+                        <span class="amount"
+                            th:text="${#numbers.formatDecimal(transaction.amount, 0, 'COMMA', 0, 'POINT') + ' đ'}">1,300,000 đ</span>
+                    </td>
+                    <td>
+                        <div class="status-wrapper">
+                            <span class="status-label"
+                                th:classappend="${transaction.paymentStatus == 'SUCCESS' ? 'status-success' : (transaction.paymentStatus == 'PENDING' ? 'status-pending' : (transaction.paymentStatus == 'CANCELLED' ? 'status-cancelled' : 'status-failed'))}">
+                                <span
+                                    th:text="${transaction.paymentStatus == 'SUCCESS' ? 'Thành công' : (transaction.paymentStatus == 'PENDING' ? 'Chờ xử lý' : (transaction.paymentStatus == 'CANCELLED' ? 'Đã hủy' : 'Thất bại'))}">Thành công</span>
+                            </span>
+                        </div>
+                    </td>
+                    <td>
+                        <span th:text="${#temporals.format(transaction.createdAt, 'dd/MM/yyyy HH:mm')}">09/11/2025 14:30</span>
+                    </td>
+                    <td>
+                        <span th:if="${transaction.paidAt != null}"
+                            th:text="${#temporals.format(transaction.paidAt, 'dd/MM/yyyy HH:mm')}">09/11/2025 14:35</span>
+                        <span th:unless="${transaction.paidAt != null}" class="text-muted">-</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="pagination-container" th:if="${totalPages > 1}">
+        <div class="pagination-info">
+            <span>Hiển thị <strong th:text="${currentPage * size + 1}">1</strong> - 
+                  <strong th:text="${currentPage * size + transactions.size()}">10</strong> 
+                  của <strong th:text="${totalElements}">100</strong> kết quả</span>
+        </div>
+        
+        <div class="pagination-controls">
+            <!-- Previous button -->
+            <a th:if="${currentPage > 0}" 
+               th:data-page="${currentPage - 1}"
+               class="pagination-btn pagination-link" href="javascript:void(0)">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+            <span th:unless="${currentPage > 0}" class="pagination-btn disabled">
+                <i class="fas fa-chevron-left"></i>
+            </span>
+            
+            <!-- Page numbers -->
+            <th:block th:with="startPage=${(currentPage / 5) * 5}, 
+                              endPage=${T(java.lang.Math).min(startPage + 4, totalPages - 1)}">
+                
+                <!-- First page if not in current range -->
+                <a th:if="${startPage > 0}" 
+                   data-page="0"
+                   class="pagination-btn pagination-link" href="javascript:void(0)">1</a>
+                <span th:if="${startPage > 1}" class="pagination-dots">...</span>
+                
+                <!-- Page range -->
+                <th:block th:each="pageNum : ${#numbers.sequence(startPage, endPage)}">
+                    <span th:if="${pageNum == currentPage}" class="pagination-btn active" th:text="${pageNum + 1}">1</span>
+                    <a th:unless="${pageNum == currentPage}" 
+                       th:data-page="${pageNum}"
+                       class="pagination-btn pagination-link" href="javascript:void(0)" th:text="${pageNum + 1}">1</a>
+                </th:block>
+                
+                <!-- Last page if not in current range -->
+                <span th:if="${endPage < totalPages - 2}" class="pagination-dots">...</span>
+                <a th:if="${endPage < totalPages - 1}" 
+                   th:data-page="${totalPages - 1}"
+                   class="pagination-btn pagination-link" href="javascript:void(0)" th:text="${totalPages}">10</a>
+            </th:block>
+            
+            <!-- Next button -->
+            <a th:if="${currentPage < totalPages - 1}" 
+               th:data-page="${currentPage + 1}"
+               class="pagination-btn pagination-link" href="javascript:void(0)">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+            <span th:unless="${currentPage < totalPages - 1}" class="pagination-btn disabled">
+                <i class="fas fa-chevron-right"></i>
+            </span>
+        </div>
+    </div>
+</div>
+
+

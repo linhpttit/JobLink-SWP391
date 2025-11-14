@@ -1,10 +1,17 @@
 package com.joblink.joblink.service;
 
 import com.joblink.joblink.config.VNPayConfig;
+import com.joblink.joblink.dto.PaymentFilterDTO;
 import com.joblink.joblink.entity.*;
 import com.joblink.joblink.repository.*;
+import com.joblink.joblink.specification.PaymentTransactionSpecification;
 import com.joblink.joblink.util.VNPayUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -65,6 +72,12 @@ public class PaymentService {
         transaction.setAmount(subscriptionPackage.getPrice());
         transaction.setPaymentStatus("PENDING");
         transaction.setTransactionInfo("Thanh toán gói " + subscriptionPackage.getPackageName());
+        
+        // Set employer nếu có (tạm thời comment out)
+        // if (employerOpt.isPresent()) {
+        //     transaction.setEmployer(employerOpt.get());
+        // }
+        
         transactionRepository.save(transaction);
 
         // Tạo parameters cho VNPay
@@ -222,8 +235,9 @@ public class PaymentService {
 
         employerRepository.save(employer);
 
-        // Lưu tier đã nâng cấp vào transaction
+        // Lưu tier đã nâng cấp vào transaction và cập nhật employer reference
         transaction.setTierUpgradedTo(pkg.getTierLevel());
+        // transaction.setEmployer(employer); // Tạm thời comment out
     }
 
     /**
@@ -429,6 +443,85 @@ public class PaymentService {
     }
 
     /**
+     * Lấy tất cả payment transactions cho admin (bao gồm thông tin user và employer)
+     */
+    public List<PaymentTransaction> getAllPaymentTransactionsForAdmin() {
+        return transactionRepository.findAllByOrderByCreatedAtDesc();
+    }
+
+    /**
+     * Lấy payment transactions với pagination và filtering cho admin
+     */
+    public Page<PaymentTransaction> getPaymentTransactionsForAdmin(PaymentFilterDTO filter) {
+        // Tạo Pageable object
+        Sort sort = Sort.by(Sort.Direction.fromString(filter.getSortDirection()), filter.getSortBy());
+        Pageable pageable = PageRequest.of(filter.getPage(), filter.getSize(), sort);
+        
+        // Tạo Specification từ filter
+        Specification<PaymentTransaction> spec = PaymentTransactionSpecification.withFilters(filter);
+        
+        return transactionRepository.findAll(spec, pageable);
+    }
+
+    /**
+     * Lấy thống kê payment cho admin với filter
+     */
+    public Map<String, Object> getPaymentStatisticsForAdmin(PaymentFilterDTO filter) {
+        Map<String, Object> stats = new HashMap<>();
+        
+        // Nếu không có filter, lấy tất cả
+        List<PaymentTransaction> transactions;
+        if (filter == null || isEmptyFilter(filter)) {
+            transactions = getAllPaymentTransactionsForAdmin();
+        } else {
+            // Apply filter nhưng không pagination để tính thống kê chính xác
+            Specification<PaymentTransaction> spec = PaymentTransactionSpecification.withFilters(filter);
+            transactions = transactionRepository.findAll(spec);
+        }
+        
+        long successCount = transactions.stream()
+                .filter(t -> "SUCCESS".equals(t.getPaymentStatus()))
+                .count();
+        
+        long failedCount = transactions.stream()
+                .filter(t -> "FAILED".equals(t.getPaymentStatus()) || "CANCELLED".equals(t.getPaymentStatus()))
+                .count();
+        
+        long totalRevenue = transactions.stream()
+                .filter(t -> "SUCCESS".equals(t.getPaymentStatus()))
+                .mapToLong(PaymentTransaction::getAmount)
+                .sum();
+        
+        stats.put("totalTransactions", transactions.size());
+        stats.put("successCount", successCount);
+        stats.put("failedCount", failedCount);
+        stats.put("totalRevenue", totalRevenue);
+        
+        return stats;
+    }
+
+    /**
+     * Lấy thống kê payment cho admin (backward compatibility)
+     */
+    public Map<String, Object> getPaymentStatisticsForAdmin() {
+        return getPaymentStatisticsForAdmin(null);
+    }
+
+    /**
+     * Kiểm tra xem filter có rỗng không
+     */
+    private boolean isEmptyFilter(PaymentFilterDTO filter) {
+        return (filter.getSearch() == null || filter.getSearch().trim().isEmpty()) &&
+               (filter.getPaymentStatus() == null || filter.getPaymentStatus().trim().isEmpty()) &&
+               filter.getTierLevel() == null &&
+               (filter.getPaymentMethod() == null || filter.getPaymentMethod().trim().isEmpty()) &&
+               filter.getFromDate() == null &&
+               filter.getToDate() == null &&
+               filter.getMinAmount() == null &&
+               filter.getMaxAmount() == null;
+    }
+
+    /**
      * Kích hoạt gói Free (price = 0) trực tiếp không cần thanh toán
      */
     @Transactional
@@ -473,6 +566,7 @@ public class PaymentService {
             PaymentTransaction transaction = new PaymentTransaction();
             transaction.setUser(user);
             transaction.setSubscriptionPackage(subscriptionPackage);
+            // transaction.setEmployer(employer); // Tạm thời comment out
             transaction.setVnpayTxnRef("FREE" + System.currentTimeMillis());
             transaction.setAmount(0L);
             transaction.setPaymentStatus("SUCCESS");

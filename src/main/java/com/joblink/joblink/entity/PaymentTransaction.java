@@ -30,6 +30,11 @@ public class PaymentTransaction {
     @JoinColumn(name = "package_id", nullable = false)
     private SubscriptionPackage subscriptionPackage;
 
+    // Tạm thời comment out employer relationship để tránh lỗi database
+    // @ManyToOne(fetch = FetchType.LAZY)
+    // @JoinColumn(name = "employer_id")
+    // private Employer employer;
+
     @Column(name = "vnpay_txn_ref", unique = true, length = 100)
     private String vnpayTxnRef; // Mã giao dịch VNPay
 

@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý thanh toán & hóa đơn</title>
+    <link rel="stylesheet" href="/CSS/payments.css">
+    <link rel="stylesheet" th:href="@{/CSS/payment-history.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    
+    <script>
+        console.log('Script in head loading...');
+        
+        function filterPayments() {
+            console.log('Filter payments called from head script');
+            alert('Filter function works from head!');
+            
+            const btn = document.querySelector('.btn-filter');
+            if (btn) {
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang lọc...';
+                btn.disabled = true;
+            }
+            
+            const filterData = {
+                search: document.getElementById('search')?.value || '',
+                paymentStatus: document.getElementById('paymentStatus')?.value || '',
+                tierLevel: document.getElementById('tierLevel')?.value || null,
+                paymentMethod: document.getElementById('paymentMethod')?.value || '',
+                page: 0,
+                size: 10,
+                sortBy: 'createdAt',
+                sortDirection: 'desc'
+            };
+            
+            fetch('/admin/payments/filter', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(filterData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                alert('Received ' + (data.transactions ? data.transactions.length : 0) + ' transactions');
+                
+                // Update table if container exists
+                const tableContainer = document.querySelector('.admin-table-container');
+                if (tableContainer && data.transactions) {
+                    let tableHTML = '<table class="admin-table"><thead><tr><th>MÃ GIAO DỊCH</th><th>NGƯỜI DÙNG</th><th>CÔNG TY</th><th>GÓI DỊCH VỤ</th><th>SỐ TIỀN</th><th>TRẠNG THÁI</th><th>NGÀY TẠO</th><th>NGÀY THANH TOÁN</th><th>HẠN SỬ DỤNG</th></tr></thead><tbody>';
+                    
+                    data.transactions.forEach(transaction => {
+                        const employer = data.employerMap ? data.employerMap[transaction.user?.userId] : null;
+                        const companyName = employer?.companyName || 'Chưa cập nhật';
+                        const statusText = transaction.paymentStatus === 'SUCCESS' ? 'Thành công' : 
+                                         (transaction.paymentStatus === 'PENDING' ? 'Chờ xử lý' : 
+                                         (transaction.paymentStatus === 'CANCELLED' ? 'Đã hủy' : 'Thất bại'));
+                        const packageName = transaction.tierUpgradedTo === 1 ? 'STANDARD' : 
+                                          (transaction.tierUpgradedTo === 2 ? 'PRO' : 'PREMIUM');
+                        
+                        tableHTML += '<tr>';
+                        tableHTML += '<td>' + (transaction.vnpayTxnRef || '') + '</td>';
+                        tableHTML += '<td>' + (transaction.user?.username || 'N/A') + '<br><small>' + (transaction.user?.email || 'N/A') + '</small></td>';
+                        tableHTML += '<td>' + companyName + '</td>';
+                        tableHTML += '<td>' + packageName + '</td>';
+                        tableHTML += '<td>' + new Intl.NumberFormat('vi-VN').format(transaction.amount) + ' đ</td>';
+                        tableHTML += '<td>' + statusText + '</td>';
+                        tableHTML += '<td>' + new Date(transaction.createdAt).toLocaleDateString('vi-VN') + '</td>';
+                        tableHTML += '<td>' + (transaction.paidAt ? new Date(transaction.paidAt).toLocaleDateString('vi-VN') : '-') + '</td>';
+                        tableHTML += '<td>-</td>';
+                        tableHTML += '</tr>';
+                    });
+                    
+                    tableHTML += '</tbody></table>';
+                    tableContainer.innerHTML = tableHTML;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error: ' + error.message);
+            })
+            .finally(() => {
+                if (btn) {
+                    btn.innerHTML = '<i class="fas fa-filter"></i> Lọc';
+                    btn.disabled = false;
+                }
+            });
+        }
+        
+        console.log('filterPayments defined in head:', typeof filterPayments);
+        
+        // Page size change function
+        function changePageSize(newSize) {
+            var currentUrl = new URL(window.location.href);
+            var params = new URLSearchParams(currentUrl.search);
+            params.set('size', newSize);
+            params.set('page', '0'); // Reset to first page when changing size
+            window.location.href = '/admin/payments?' + params.toString();
+        }
+    </script>
+    
+    <style>
+        .admin-payment-container {
+            padding: 20px;
+            background: #f9f9f9;
+            min-height: 100vh;
+        }
+
+        .admin-header {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .admin-header h2 {
+            margin: 0;
+            color: #333;
+            font-size: 24px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .stat-card i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .stat-card.total {
+            color: #007bff;
+        }
+
+        .stat-card.success {
+            color: #28a745;
+        }
+
+        .stat-card.failed {
+            color: #dc3545;
+        }
+
+        .stat-card.revenue {
+            color: #17a2b8;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .filters {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filters input,
+        .filters select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .filters input {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .admin-table-container {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .admin-table th {
+            background: #f8f9fa;
+            padding: 15px 10px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #dee2e6;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        .admin-table td {
+            padding: 15px 10px;
+            border-bottom: 1px solid #dee2e6;
+            vertical-align: middle;
+        }
+
+        .admin-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .user-email {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .company-name {
+            font-weight: 500;
+            color: #007bff;
+        }
+
+        .transaction-id {
+            font-family: monospace;
+            background: #f1f3f4;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        .amount {
+            font-weight: 600;
+            color: #28a745;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .no-data i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #ccc;
+        }
+
+        /* Enhanced Filters Styling */
+        .filters-container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .filters-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .filters-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9rem;
+        }
+
+        .filter-group input,
+        .filter-group select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .filter-group input:focus,
+        .filter-group select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+
+        .filters-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn-filter,
+        .btn-clear {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-filter {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-filter:hover {
+            background: #0056b3;
+        }
+
+        .btn-clear {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-clear:hover {
+            background: #545b62;
+            text-decoration: none;
+            color: white;
+        }
+
+        .page-size-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .page-size-group label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .page-size-group select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        /* Pagination Styling */
+        .pagination-container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .pagination-info {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .pagination-btn {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            background: #fff;
+            color: #333;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+        }
+
+        .pagination-btn:hover:not(.disabled):not(.active) {
+            background: #f8f9fa;
+            border-color: #007bff;
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .pagination-btn.active {
+            background: #007bff;
+            border-color: #007bff;
+            color: white;
+        }
+
+        .pagination-btn.disabled {
+            background: #f8f9fa;
+            color: #6c757d;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .pagination-dots {
+            padding: 8px 4px;
+            color: #6c757d;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .filters-row {
+                grid-template-columns: 1fr;
+            }
+
+            .filters-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .page-size-group {
+                margin-left: 0;
+                justify-content: center;
+            }
+
+            .pagination-container {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .pagination-controls {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-payment-container">
+        <div class="admin-header">
+            <h2><i class="fa-solid fa-money-bill-transfer"></i> Quản lý thanh toán & hóa đơn</h2>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="stats-grid" th:if="${transactions != null && !transactions.isEmpty()}">
+            <div class="stat-card total">
+                <i class="fas fa-shopping-cart"></i>
+                <div class="stat-value" th:text="${transactions.size()}">0</div>
+                <div class="stat-label">Tổng giao dịch</div>
+            </div>
+            <div class="stat-card success">
+                <i class="fas fa-check-circle"></i>
+                <div class="stat-value" th:text="${successCount}">0</div>
+                <div class="stat-label">Thành công</div>
+            </div>
+            <div class="stat-card failed">
+                <i class="fas fa-times-circle"></i>
+                <div class="stat-value" th:text="${failedCount}">0</div>
+                <div class="stat-label">Thất bại</div>
+            </div>
+            <div class="stat-card revenue">
+                <i class="fas fa-coins"></i>
+                <div class="stat-value"
+                    th:text="${#numbers.formatDecimal(totalRevenue, 0, 'COMMA', 0, 'POINT') + ' đ'}">0 đ</div>
+                <div class="stat-label">Tổng doanh thu</div>
+            </div>
+        </div>
+
+        <!-- Enhanced Filters -->
+        <div class="filters-container">
+            <div class="filters-form" id="filtersForm">
+                <div class="filters-row">
+                    <div class="filter-group">
+                        <label>Tìm kiếm</label>
+                        <input type="text" id="search" placeholder="Mã giao dịch, email, username..." th:value="${searchValue}">
+                    </div>
+                    <div class="filter-group">
+                        <label>Trạng thái</label>
+                        <select id="paymentStatus">
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="SUCCESS" th:selected="${paymentStatusValue == 'SUCCESS'}">Thành công</option>
+                            <option value="FAILED" th:selected="${paymentStatusValue == 'FAILED'}">Thất bại</option>
+                            <option value="PENDING" th:selected="${paymentStatusValue == 'PENDING'}">Chờ xử lý</option>
+                            <option value="CANCELLED" th:selected="${paymentStatusValue == 'CANCELLED'}">Đã hủy</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Gói dịch vụ</label>
+                        <select id="tierLevel">
+                            <option value="">Tất cả gói</option>
+                            <option value="1" th:selected="${tierLevelValue == 1}">Standard</option>
+                            <option value="2" th:selected="${tierLevelValue == 2}">Pro</option>
+                            <option value="3" th:selected="${tierLevelValue == 3}">Premium</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Phương thức</label>
+                        <select id="paymentMethod">
+                            <option value="">Tất cả</option>
+                            <option value="ATM" th:selected="${paymentMethodValue == 'ATM'}">ATM</option>
+                            <option value="VISA" th:selected="${paymentMethodValue == 'VISA'}">VISA</option>
+                            <option value="MASTERCARD" th:selected="${paymentMethodValue == 'MASTERCARD'}">MasterCard</option>
+                            <option value="FREE" th:selected="${paymentMethodValue == 'FREE'}">Miễn phí</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="filters-row">
+                    <div class="filter-group">
+                        <label>Từ ngày</label>
+                        <input type="datetime-local" id="fromDate">
+                    </div>
+                    <div class="filter-group">
+                        <label>Đến ngày</label>
+                        <input type="datetime-local" id="toDate">
+                    </div>
+                    <div class="filter-group">
+                        <label>Số tiền từ</label>
+                        <input type="number" id="minAmount" placeholder="VNĐ">
+                    </div>
+                    <div class="filter-group">
+                        <label>Số tiền đến</label>
+                        <input type="number" id="maxAmount" placeholder="VNĐ">
+                    </div>
+                </div>
+
+                <div class="filters-actions">
+                    <!-- Test button -->
+                    <button type="button" onclick="alert('Direct onclick works!')" style="background: red; color: white; padding: 10px; margin-right: 10px;">
+                        TEST BUTTON
+                    </button>
+
+                    <button type="button" class="btn-filter" onclick="
+                        console.log('Filter button clicked');
+                        this.innerHTML = 'Loading...';
+                        this.disabled = true;
+                        
+                        var filterData = {
+                            search: document.getElementById('search').value || '',
+                            paymentStatus: document.getElementById('paymentStatus').value || '',
+                            tierLevel: document.getElementById('tierLevel').value || null,
+                            paymentMethod: document.getElementById('paymentMethod').value || '',
+                            page: 0,
+                            size: 10,
+                            sortBy: 'createdAt',
+                            sortDirection: 'desc'
+                        };
+                        
+                        var self = this;
+                        fetch('/admin/payments/filter', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(filterData)
+                        })
+                        .then(function(response) { return response.json(); })
+                        .then(function(data) {
+                            console.log('Data received:', data);
+                            
+                            // Update statistics
+                            var successStat = document.querySelector('.stat-card.success .stat-value');
+                            var failedStat = document.querySelector('.stat-card.failed .stat-value');
+                            var revenueStat = document.querySelector('.stat-card.revenue .stat-value');
+                            
+                            if (successStat) successStat.textContent = data.successCount || 0;
+                            if (failedStat) failedStat.textContent = data.failedCount || 0;
+                            if (revenueStat) revenueStat.textContent = new Intl.NumberFormat('vi-VN').format(data.totalRevenue || 0) + ' đ';
+                            
+                            // Redirect with filter parameters
+                            var params = new URLSearchParams();
+                            if (filterData.search) params.append('search', filterData.search);
+                            if (filterData.paymentStatus) params.append('paymentStatus', filterData.paymentStatus);
+                            if (filterData.tierLevel) params.append('tierLevel', filterData.tierLevel);
+                            if (filterData.paymentMethod) params.append('paymentMethod', filterData.paymentMethod);
+                            params.append('page', filterData.page);
+                            params.append('size', filterData.size);
+                            
+                            var newUrl = '/admin/payments?' + params.toString();
+                            window.location.href = newUrl;
+                        })
+                        .catch(function(error) {
+                            alert('Error: ' + error.message);
+                            self.innerHTML = 'Lọc';
+                            self.disabled = false;
+                        });
+                    ">
+                        <i class="fas fa-filter"></i> Lọc
+                    </button>
+                    <button type="button" class="btn-clear" onclick="
+                        document.getElementById('search').value = '';
+                        document.getElementById('paymentStatus').value = '';
+                        document.getElementById('tierLevel').value = '';
+                        document.getElementById('paymentMethod').value = '';
+                        document.getElementById('fromDate').value = '';
+                        document.getElementById('toDate').value = '';
+                        document.getElementById('minAmount').value = '';
+                        document.getElementById('maxAmount').value = '';
+                        window.location.href = '/admin/payments';
+                    ">
+                        <i class="fas fa-times"></i> Xóa bộ lọc
+                    </button>
+
+                    <!-- Page size selector -->
+                    <div class="page-size-group">
+                        <label>Hiển thị:</label>
+                        <select id="pageSize" onchange="changePageSize(this.value)">
+                            <option value="10" th:selected="${size == 10}">10</option>
+                            <option value="25" th:selected="${size == 25}">25</option>
+                            <option value="50" th:selected="${size == 50}">50</option>
+                            <option value="100" th:selected="${size == 100}">100</option>
+                        </select>
+                        <span>kết quả</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transaction History Table -->
+        <div class="admin-table-container">
+            <div th:if="${transactions == null || transactions.isEmpty()}" class="no-data">
+                <i class="fas fa-inbox"></i>
+                <p>Chưa có giao dịch nào trong hệ thống</p>
+            </div>
+
+            <table class="admin-table" th:if="${transactions != null && !transactions.isEmpty()}">
+                <thead>
+                    <tr>
+                        <th>MÃ GIAO DỊCH</th>
+                        <th>NGƯỜI DÙNG</th>
+                        <th>CÔNG TY</th>
+                        <th>GÓI DỊCH VỤ</th>
+                        <th>SỐ TIỀN</th>
+                        <th>TRẠNG THÁI</th>
+                        <th>NGÀY TẠO</th>
+                        <th>NGÀY THANH TOÁN</th>
+                        <th>HẠN SỬ DỤNG</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="transaction : ${transactions}">
+                        <td>
+                            <span class="transaction-id" th:text="${transaction.vnpayTxnRef}">#20251109A</span>
+                        </td>
+                        <td>
+                            <div class="user-info">
+                                <span class="user-name"
+                                    th:text="${transaction.user != null ? transaction.user.username : 'N/A'}">Nguyễn Văn
+                                    A</span>
+                                <span class="user-email"
+                                    th:text="${transaction.user != null ? transaction.user.email : 'N/A'}">user@example.com</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="company-name"
+                                th:text="${employerMap[transaction.user.userId] != null && employerMap[transaction.user.userId].companyName != null ? employerMap[transaction.user.userId].companyName : 'Chưa cập nhật'}">Công
+                                ty ABC</span>
+                        </td>
+                        <td>
+                            <span class="package-badge"
+                                th:classappend="${transaction.tierUpgradedTo == 1 ? 'badge-standard' : (transaction.tierUpgradedTo == 2 ? 'badge-pro' : 'badge-premium')}"
+                                th:text="${transaction.tierUpgradedTo == 1 ? 'STANDARD' : (transaction.tierUpgradedTo == 2 ? 'PRO' : 'PREMIUM')}">
+                                PREMIUM
+                            </span>
+                        </td>
+                        <td>
+                            <span class="amount"
+                                th:text="${#numbers.formatDecimal(transaction.amount, 0, 'COMMA', 0, 'POINT') + ' đ'}">1,300,000
+                                đ</span>
+                        </td>
+                        <td>
+                            <div class="status-wrapper">
+                                <span class="status-label"
+                                    th:classappend="${transaction.paymentStatus == 'SUCCESS' ? 'status-success' : (transaction.paymentStatus == 'PENDING' ? 'status-pending' : (transaction.paymentStatus == 'CANCELLED' ? 'status-cancelled' : 'status-failed'))}">
+                                    <span
+                                        th:text="${transaction.paymentStatus == 'SUCCESS' ? 'Thành công' : (transaction.paymentStatus == 'PENDING' ? 'Chờ xử lý' : (transaction.paymentStatus == 'CANCELLED' ? 'Đã hủy' : 'Thất bại'))}">Thành
+                                        công</span>
+                                </span>
+                                <small class="status-code"
+                                    th:text="'Code: ' + ${transaction.vnpayResponseCode != null ? transaction.vnpayResponseCode : '00'}">Code:
+                                    00</small>
+                            </div>
+                        </td>
+                        <td>
+                            <span th:text="${#temporals.format(transaction.createdAt, 'dd/MM/yyyy HH:mm')}">09/11/2025
+                                14:30</span>
+                        </td>
+                        <td>
+                            <span th:if="${transaction.paidAt != null}"
+                                th:text="${#temporals.format(transaction.paidAt, 'dd/MM/yyyy HH:mm')}">09/11/2025
+                                14:35</span>
+                            <span th:unless="${transaction.paidAt != null}" class="text-muted">-</span>
+                        </td>
+                        <td>
+                            <!-- SUCCESS: Tính ngày hết hạn = paidAt + durationDays -->
+                            <div class="expiry-wrapper"
+                                th:if="${transaction.paymentStatus == 'SUCCESS' && transaction.paidAt != null}">
+                                <span class="expiry-date"
+                                    th:with="expiryDate=${transaction.paidAt.plusDays(transaction.subscriptionPackage.durationDays)}"
+                                    th:text="${#temporals.format(expiryDate, 'dd/MM/yyyy')}">12/11/2025</span>
+                                <small class="expiry-status"
+                                    th:with="expiryDate=${transaction.paidAt.plusDays(transaction.subscriptionPackage.durationDays)},daysLeft=${T(java.time.temporal.ChronoUnit).DAYS.between(T(java.time.LocalDateTime).now(), expiryDate)}"
+                                    th:classappend="${daysLeft > 0 ? 'expiry-active' : 'expiry-expired'}"
+                                    th:text="${daysLeft > 0 ? 'Còn ' + daysLeft + ' ngày' : 'Đã hết hạn'}">
+                                    Còn 1 ngày
+                                </small>
+                            </div>
+                            <!-- Other statuses -->
+                            <div class="expiry-wrapper"
+                                th:unless="${transaction.paymentStatus == 'SUCCESS' && transaction.paidAt != null}">
+                                <span class="expiry-date">-</span>
+                                <small class="expiry-status expiry-expired">-</small>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination Controls -->
+        <div class="pagination-container" id="paginationContainer">
+            <div class="pagination-info">
+                <span>Hiển thị <strong th:text="${currentPage * size + 1}">1</strong> - 
+                      <strong th:text="${#numbers.formatInteger(currentPage * size + transactions.size(), 0)}">10</strong> 
+                      của <strong th:text="${totalElements}">100</strong> kết quả</span>
+            </div>
+            
+            <div class="pagination-controls">
+                <!-- Previous button -->
+                <a th:if="${currentPage > 0}" 
+                   th:href="@{/admin/payments(search=${searchValue}, paymentStatus=${paymentStatusValue}, tierLevel=${tierLevelValue}, paymentMethod=${paymentMethodValue}, page=${currentPage - 1}, size=${size})}"
+                   class="pagination-btn">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+                <span th:unless="${currentPage > 0}" class="pagination-btn disabled">
+                    <i class="fas fa-chevron-left"></i>
+                </span>
+                
+                <!-- Page numbers -->
+                <th:block th:with="startPage=${(currentPage / 5) * 5}, 
+                                  endPage=${T(java.lang.Math).min(startPage + 4, totalPages - 1)}">
+                    
+                    <!-- First page if not in current range -->
+                    <a th:if="${startPage > 0}" 
+                       th:href="@{/admin/payments(search=${searchValue}, paymentStatus=${paymentStatusValue}, tierLevel=${tierLevelValue}, paymentMethod=${paymentMethodValue}, page=0, size=${size})}"
+                       class="pagination-btn">1</a>
+                    <span th:if="${startPage > 1}" class="pagination-dots">...</span>
+                    
+                    <!-- Page range -->
+                    <th:block th:each="pageNum : ${#numbers.sequence(startPage, endPage)}">
+                        <span th:if="${pageNum == currentPage}" class="pagination-btn active" th:text="${pageNum + 1}">1</span>
+                        <a th:unless="${pageNum == currentPage}" 
+                           th:href="@{/admin/payments(search=${searchValue}, paymentStatus=${paymentStatusValue}, tierLevel=${tierLevelValue}, paymentMethod=${paymentMethodValue}, page=${pageNum}, size=${size})}"
+                           class="pagination-btn" th:text="${pageNum + 1}">1</a>
+                    </th:block>
+                    
+                    <!-- Last page if not in current range -->
+                    <span th:if="${endPage < totalPages - 2}" class="pagination-dots">...</span>
+                    <a th:if="${endPage < totalPages - 1}" 
+                       th:href="@{/admin/payments(search=${searchValue}, paymentStatus=${paymentStatusValue}, tierLevel=${tierLevelValue}, paymentMethod=${paymentMethodValue}, page=${totalPages - 1}, size=${size})}"
+                       class="pagination-btn" th:text="${totalPages}">10</a>
+                </th:block>
+                
+                <!-- Next button -->
+                <a th:if="${currentPage < totalPages - 1}" 
+                   th:href="@{/admin/payments(search=${searchValue}, paymentStatus=${paymentStatusValue}, tierLevel=${tierLevelValue}, paymentMethod=${paymentMethodValue}, page=${currentPage + 1}, size=${size})}"
+                   class="pagination-btn">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+                <span th:unless="${currentPage < totalPages - 1}" class="pagination-btn disabled">
+                    <i class="fas fa-chevron-right"></i>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log('JavaScript loading...');
+
+        // Define function globally
+        window.filterPayments = function() {
+            console.log('Filter payments called');
+
+            const btn = document.querySelector('.btn-filter');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang lọc...';
+            btn.disabled = true;
+
+            const filterData = {
+                search: document.getElementById('search').value || '',
+                paymentStatus: document.getElementById('paymentStatus').value || '',
+                tierLevel: document.getElementById('tierLevel').value || null,
+                paymentMethod: document.getElementById('paymentMethod').value || '',
+                page: 0,
+                size: 10,
+                sortBy: 'createdAt',
+                sortDirection: 'desc'
+            };
+
+            fetch('/admin/payments/filter', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(filterData)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+
+                    // Update statistics
+                    if (document.querySelector('.stat-card.success .stat-value')) {
+                        document.querySelector('.stat-card.success .stat-value').textContent = data.successCount || 0;
+                    }
+                    if (document.querySelector('.stat-card.failed .stat-value')) {
+                        document.querySelector('.stat-card.failed .stat-value').textContent = data.failedCount || 0;
+                    }
+                    if (document.querySelector('.stat-card.revenue .stat-value')) {
+                        document.querySelector('.stat-card.revenue .stat-value').textContent = new Intl.NumberFormat('vi-VN').format(data.totalRevenue || 0) + ' đ';
+                    }
+
+                    // Update table
+                    const tableContainer = document.querySelector('.admin-table-container');
+                    if (!data.transactions || data.transactions.length === 0) {
+                        tableContainer.innerHTML = '<div class="no-data"><i class="fas fa-inbox"></i><p>Không tìm thấy giao dịch nào phù hợp</p></div>';
+                    } else {
+                        let tableHTML = '<table class="admin-table"><thead><tr><th>MÃ GIAO DỊCH</th><th>NGƯỜI DÙNG</th><th>CÔNG TY</th><th>GÓI DỊCH VỤ</th><th>SỐ TIỀN</th><th>TRẠNG THÁI</th><th>NGÀY TẠO</th><th>NGÀY THANH TOÁN</th><th>HẠN SỬ DỤNG</th></tr></thead><tbody>';
+
+                        data.transactions.forEach(transaction => {
+                            const employer = data.employerMap ? data.employerMap[transaction.user?.userId] : null;
+                            const companyName = employer?.companyName || 'Chưa cập nhật';
+                            const statusText = transaction.paymentStatus === 'SUCCESS' ? 'Thành công' :
+                                (transaction.paymentStatus === 'PENDING' ? 'Chờ xử lý' :
+                                    (transaction.paymentStatus === 'CANCELLED' ? 'Đã hủy' : 'Thất bại'));
+                            const packageName = transaction.tierUpgradedTo === 1 ? 'STANDARD' :
+                                (transaction.tierUpgradedTo === 2 ? 'PRO' : 'PREMIUM');
+
+                            tableHTML += '<tr>';
+                            tableHTML += '<td><span class="transaction-id">' + (transaction.vnpayTxnRef || '') + '</span></td>';
+                            tableHTML += '<td><div class="user-info"><span class="user-name">' + (transaction.user?.username || 'N/A') + '</span><span class="user-email">' + (transaction.user?.email || 'N/A') + '</span></div></td>';
+                            tableHTML += '<td><span class="company-name">' + companyName + '</span></td>';
+                            tableHTML += '<td><span class="package-badge">' + packageName + '</span></td>';
+                            tableHTML += '<td><span class="amount">' + new Intl.NumberFormat('vi-VN').format(transaction.amount) + ' đ</span></td>';
+                            tableHTML += '<td><div class="status-label"><span class="status-' + transaction.paymentStatus.toLowerCase() + '">' + statusText + '</span></div></td>';
+                            tableHTML += '<td><span class="date">' + new Date(transaction.createdAt).toLocaleDateString('vi-VN') + '</span></td>';
+                            tableHTML += '<td><span class="date">' + (transaction.paidAt ? new Date(transaction.paidAt).toLocaleDateString('vi-VN') : '-') + '</span></td>';
+                            tableHTML += '<td>-</td>';
+                            tableHTML += '</tr>';
+                        });
+
+                        tableHTML += '</tbody></table>';
+                        tableContainer.innerHTML = tableHTML;
+                    }
+
+                    alert('Đã cập nhật ' + (data.transactions ? data.transactions.length : 0) + ' giao dịch');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error: ' + error.message);
+                })
+                .finally(() => {
+                    btn.innerHTML = '<i class="fas fa-filter"></i> Lọc';
+                    btn.disabled = false;
+                });
+        };
+
+        // Use event delegation instead of onclick
+        document.addEventListener('click', function(e) {
+            const action = e.target.closest('[data-action]')?.getAttribute('data-action');
+            
+            if (action === 'test') {
+                alert('Test button works with event delegation!');
+            }
+            
+            if (action === 'filter') {
+                console.log('Filter button clicked via event delegation');
+                
+                const btn = e.target.closest('.btn-filter');
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang lọc...';
+                btn.disabled = true;
+                
+                const filterData = {
+                    search: document.getElementById('search')?.value || '',
+                    paymentStatus: document.getElementById('paymentStatus')?.value || '',
+                    tierLevel: document.getElementById('tierLevel')?.value || null,
+                    paymentMethod: document.getElementById('paymentMethod')?.value || '',
+                    page: 0,
+                    size: 10,
+                    sortBy: 'createdAt',
+                    sortDirection: 'desc'
+                };
+                
+                fetch('/admin/payments/filter', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(filterData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+                    alert('Received ' + (data.transactions ? data.transactions.length : 0) + ' transactions');
+                    
+                    // Update table
+                    const tableContainer = document.querySelector('.admin-table-container');
+                    if (tableContainer && data.transactions) {
+                        let tableHTML = '<table class="admin-table"><thead><tr><th>MÃ GIAO DỊCH</th><th>NGƯỜI DÙNG</th><th>CÔNG TY</th><th>GÓI DỊCH VỤ</th><th>SỐ TIỀN</th><th>TRẠNG THÁI</th><th>NGÀY TẠO</th><th>NGÀY THANH TOÁN</th><th>HẠN SỬ DỤNG</th></tr></thead><tbody>';
+                        
+                        data.transactions.forEach(transaction => {
+                            const employer = data.employerMap ? data.employerMap[transaction.user?.userId] : null;
+                            const companyName = employer?.companyName || 'Chưa cập nhật';
+                            const statusText = transaction.paymentStatus === 'SUCCESS' ? 'Thành công' : 
+                                             (transaction.paymentStatus === 'PENDING' ? 'Chờ xử lý' : 
+                                             (transaction.paymentStatus === 'CANCELLED' ? 'Đã hủy' : 'Thất bại'));
+                            const packageName = transaction.tierUpgradedTo === 1 ? 'STANDARD' : 
+                                              (transaction.tierUpgradedTo === 2 ? 'PRO' : 'PREMIUM');
+                            
+                            tableHTML += '<tr>';
+                            tableHTML += '<td>' + (transaction.vnpayTxnRef || '') + '</td>';
+                            tableHTML += '<td>' + (transaction.user?.username || 'N/A') + '<br><small>' + (transaction.user?.email || 'N/A') + '</small></td>';
+                            tableHTML += '<td>' + companyName + '</td>';
+                            tableHTML += '<td>' + packageName + '</td>';
+                            tableHTML += '<td>' + new Intl.NumberFormat('vi-VN').format(transaction.amount) + ' đ</td>';
+                            tableHTML += '<td>' + statusText + '</td>';
+                            tableHTML += '<td>' + new Date(transaction.createdAt).toLocaleDateString('vi-VN') + '</td>';
+                            tableHTML += '<td>' + (transaction.paidAt ? new Date(transaction.paidAt).toLocaleDateString('vi-VN') : '-') + '</td>';
+                            tableHTML += '<td>-</td>';
+                            tableHTML += '</tr>';
+                        });
+                        
+                        tableHTML += '</tbody></table>';
+                        tableContainer.innerHTML = tableHTML;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error: ' + error.message);
+                })
+                .finally(() => {
+                    btn.innerHTML = '<i class="fas fa-filter"></i> Lọc';
+                    btn.disabled = false;
+                });
+            }
+            
+            if (action === 'clear') {
+                document.getElementById('search').value = '';
+                document.getElementById('paymentStatus').value = '';
+                document.getElementById('tierLevel').value = '';
+                document.getElementById('paymentMethod').value = '';
+                document.getElementById('fromDate').value = '';
+                document.getElementById('toDate').value = '';
+                document.getElementById('minAmount').value = '';
+                document.getElementById('maxAmount').value = '';
+                alert('Filters cleared!');
+            }
+        });
+        
+        console.log('Event delegation setup complete');
+    </script>
+</body>
+
+</html>
