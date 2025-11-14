@@ -7,6 +7,7 @@ import com.joblink.joblink.dto.CandidateStatusDTO;
 import com.joblink.joblink.dto.DashboardStatsDTO;
 import com.joblink.joblink.dto.MarketAnalysisDTO;
 import com.joblink.joblink.service.CandidateRecommendationService;
+import com.joblink.joblink.service.PaymentService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
@@ -26,11 +27,14 @@ public class EmployerDashboardController {
 
     private final JdbcTemplate jdbc;
     private final CandidateRecommendationService recommendationService;
+    private final PaymentService paymentService;
 
     public EmployerDashboardController(JdbcTemplate jdbc, 
-                                      CandidateRecommendationService recommendationService) {
+                                      CandidateRecommendationService recommendationService,
+                                      PaymentService paymentService) {
         this.jdbc = jdbc;
         this.recommendationService = recommendationService;
+        this.paymentService = paymentService;
     }
 
     @GetMapping("/dashboard")
@@ -147,6 +151,15 @@ public class EmployerDashboardController {
             model.addAttribute("rejectedCount", 0);
             model.addAttribute("acceptedCount", 0);
             model.addAttribute("recommendedCandidates", java.util.Collections.emptyList());
+        }
+
+        // Lấy thông tin tier hiện tại
+        try {
+            Map<String, Object> tierInfo = paymentService.getEmployerTierInfo(user.getUserId());
+            model.addAttribute("currentTier", tierInfo.get("tierLevel"));
+        } catch (Exception e) {
+            System.err.println("Error loading tier info: " + e.getMessage());
+            model.addAttribute("currentTier", 0); // Default Free tier
         }
 
         model.addAttribute("user", user);

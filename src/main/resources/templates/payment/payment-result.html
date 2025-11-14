@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{employer/employer-layout}">
+<head>
+    <title>Kết quả thanh toán - JobLink</title>
+    <link rel="stylesheet" th:href="@{/CSS/payment-result.css}">
+    <style>
+        /* Override content-area to use full width */
+        .content-area {
+            width: 100% !important;
+            max-width: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        
+        .result-container {
+            width: 100% !important;
+            max-width: none !important;
+            margin: 0 !important;
+            padding: 20px !important;
+        }
+        .features-preview {
+            width: 100% !important;
+            max-width: none !important;
+            margin: 0 !important;
+            padding: 20px !important;
+        }
+    </style>
+</head>
+
+<div layout:fragment="content">
+    <div class="result-container">
+        <div class="result-card" th:classappend="${success ? 'success' : 'error'}">
+            <div class="result-icon">
+                <i class="fas" th:classappend="${success ? 'fa-check-circle' : 'fa-times-circle'}"></i>
+            </div>
+            
+            <h1 th:text="${success ? 'Thanh toán thành công!' : 'Thanh toán thất bại!'}">Thanh toán thành công!</h1>
+            
+            <p class="result-message" th:text="${message}">
+                Giao dịch của bạn đã được xử lý thành công. Tài khoản của bạn đã được nâng cấp.
+            </p>
+
+            <div class="result-details" th:if="${success}">
+                <div class="detail-item">
+                    <i class="fas fa-crown"></i>
+                    <span>Tài khoản của bạn đã được nâng cấp tier thành công</span>
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-bolt"></i>
+                    <span>Các tính năng premium đã được kích hoạt ngay lập tức</span>
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-envelope"></i>
+                    <span>Chúng tôi đã gửi xác nhận qua email của bạn</span>
+                </div>
+            </div>
+
+            <div class="result-actions">
+                <a th:href="@{/payment/history}" class="btn btn-primary">
+                    <i class="fas fa-history"></i> Xem lịch sử thanh toán
+                </a>
+                <a th:href="@{/employer/dashboard}" class="btn btn-secondary">
+                    <i class="fas fa-tachometer-alt"></i> Về trang quản lý
+                </a>
+                <a th:href="@{/payment/upgrade}" class="btn btn-outline" th:if="${!success}">
+                    <i class="fas fa-redo"></i> Thử lại
+                </a>
+            </div>
+
+            <!-- Next Steps for Success -->
+            <div class="next-steps" th:if="${success}">
+                <h3><i class="fas fa-lightbulb"></i> Tiếp theo bạn có thể:</h3>
+                <ul>
+                    <li>
+                        <i class="fas fa-briefcase"></i>
+                        <span>Đăng tin tuyển dụng mới với độ ưu tiên cao hơn</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-search"></i>
+                        <span>Tìm kiếm ứng viên tiềm năng với AI</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-chart-line"></i>
+                        <span>Xem thống kê chi tiết về tin đăng của bạn</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-star"></i>
+                        <span>Sử dụng tính năng nổi bật tin tuyển dụng</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Error Info -->
+            <div class="error-info" th:if="${!success}">
+                <h3><i class="fas fa-question-circle"></i> Cần hỗ trợ?</h3>
+                <p>Nếu bạn gặp vấn đề với thanh toán, vui lòng liên hệ:</p>
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <span>Hotline: <strong>1900-xxxx</strong></span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <span>Email: <strong>support@joblink.vn</strong></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transaction Info -->
+            <div class="transaction-info" th:if="${transactionId != null}">
+                <small>Mã giao dịch: <strong th:text="${transactionId}">TXN123456</strong></small>
+            </div>
+        </div>
+
+        <!-- Additional Features Preview (for success) -->
+        <div class="features-preview" th:if="${success}">
+            <h2>Tính năng mới của bạn</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="fas fa-rocket"></i>
+                    <h3>Tin ưu tiên</h3>
+                    <p>Tin của bạn sẽ hiển thị ở vị trí cao hơn trong kết quả tìm kiếm</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-chart-bar"></i>
+                    <h3>Thống kê nâng cao</h3>
+                    <p>Xem chi tiết lượt xem, lượt ứng tuyển và hiệu suất tin đăng</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-users"></i>
+                    <h3>Tìm ứng viên</h3>
+                    <p>Chủ động tìm kiếm và liên hệ với ứng viên tiềm năng</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-headset"></i>
+                    <h3>Hỗ trợ VIP</h3>
+                    <p>Nhận hỗ trợ ưu tiên từ đội ngũ chăm sóc khách hàng</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Auto redirect after 10 seconds for failed payments
+        if (document.querySelector('.result-card.error')) {
+            setTimeout(() => {
+                const urlParams = new URLSearchParams(window.location.search);
+                if (!urlParams.has('stay')) {
+                    window.location.href = '/payment/upgrade';
+                }
+            }, 10000);
+        }
+    </script>
+</div>

@@ -15,7 +15,7 @@ import java.util.List;
 @RequestMapping("/api/employers")
 @RequiredArgsConstructor
 public class EmployerController {
-    private final EmployerService employerService;
+    private  EmployerService employerService;
 
     @GetMapping("/open")
     public ResponseEntity<List<EmployerProfile>> searchOpenEmployers(

@@ -39,5 +39,11 @@ public class Employer {
     @Column(name = "description", columnDefinition = "NVARCHAR(MAX)")
     private String description;
 
+    @Column(name = "tier_level")
+    private Integer tierLevel = 1; // 1=Basic, 2=Premium, 3=Enterprise
+
+    @Column(name = "subscription_expires_at")
+    private java.time.LocalDateTime subscriptionExpiresAt;
+
     // Lombok @Data tự động generate getters, setters, toString, equals, hashCode
 }

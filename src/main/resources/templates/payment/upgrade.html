@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{employer/employer-layout}">
+<head>
+    <title>Nâng cấp tài khoản - JobLink</title>
+    
+    <style>
+        /* Override content-area to use full width */
+        .content-area {
+            width: 100% !important;
+            max-width: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* Thiết lập cơ bản */
+        .pricing-container {
+            width: 100%;
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        /* Header */
+        .pricing-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .pricing-header h1 {
+            font-size: 2.2rem;
+            color: #000;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .pricing-header p {
+            font-size: 1.1rem;
+            color: #666;
+        }
+
+        /* Card Wrapper */
+        .pricing-cards-wrapper {
+            display: flex;
+            gap: 25px;
+            justify-content: center;
+        }
+
+        /* Pricing Card */
+        .pricing-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+            width: 360px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* Đẩy nút CTA xuống dưới */
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Class để JS thêm vào khi chạm (cho mobile) */
+        .pricing-card.active-hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); 
+        }
+
+        /* Popular Card (PRO) */
+        .popular-card {
+            position: relative;
+            border: 2px solid #2563eb; /* Màu xanh đậm hơn cho nổi bật */
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2563eb;
+            color: #fff;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
+
+        /* Premium Card (Border Highlight) */
+        .premium-border {
+            border: 2px solid #7c3aed; /* Màu tím đậm hơn cho Premium */
+        }
+
+        /* Card Header */
+        .card-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .card-header .title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 5px;
+        }
+
+        .card-header .subtitle {
+            font-size: 0.95rem;
+            color: #777;
+            margin-bottom: 15px;
+        }
+
+        .price {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #000;
+            margin-top: 10px;
+        }
+
+        .price .unit {
+            font-size: 1.1rem;
+            font-weight: 400;
+            color: #666;
+            margin-left: 5px;
+        }
+
+        .pro .price, .pro .title {
+            color: #2563eb; /* Highlight màu xanh cho PRO */
+        }
+
+        .premium .price, .premium .title {
+            color: #7c3aed; /* Highlight màu tím cho PREMIUM */
+        }
+
+        /* Card Body (Features List) */
+        .card-body h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .card-body ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .card-body li {
+            display: flex;
+            align-items: flex-start;
+            gap: 5px;
+            font-size: 0.95rem;
+            padding: 8px 0;
+            color: #444;
+            font-weight: 400; /* Đảm bảo text không bị in đậm */
+        }
+
+        .card-body li strong {
+            font-weight: 700;
+            color: #000; /* Keyword highlight */
+        }
+        
+        /* Đảm bảo text không in đậm nếu không phải là strong */
+        .card-body li span {
+            font-weight: 400;
+        }
+
+
+        /* Icon Styling */
+        .card-body .icon {
+            margin-right: 10px;
+            font-size: 1.1rem;
+            line-height: 1.1;
+        }
+
+        .card-body .limitation {
+            color: #888;
+        }
+
+        .card-body .limitation .icon-x {
+            color: #ef4444; /* Màu đỏ cho giới hạn/không có */
+        }
+
+        /* Call to Action Button */
+        .cta-button {
+            display: block;
+            width: 80%; /* Giữ 80% để thấy hiệu ứng căn giữa */
+            margin-left: auto; /* Căn giữa */
+            margin-right: auto; /* Căn giữa */
+            padding: 12px;
+            margin-top: 30px;
+            text-align: center;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.3s, opacity 0.3s;
+        }
+        
+        /* Màu cho từng gói */
+        .standard .cta-button {
+            background-color: #e5e7eb;
+            color: #1a1a1a;
+        }
+        .standard .cta-button:hover {
+            background-color: #d1d5db;
+        }
+
+        .pro .cta-button {
+            background-color: #2563eb;
+            color: #ffffff;
+        }
+        .pro .cta-button:hover {
+            background-color: #1d4ed8;
+        }
+        
+        .premium .cta-button {
+            background-color: #7c3aed;
+            color: #ffffff;
+        }
+        .premium .cta-button:hover {
+            background-color: #6d28d9;
+        }
+
+        /* --- FAQ Section Styles --- */
+        .faq-section {
+            width: 100%;
+            margin: 80px 0 40px 0;
+            padding: 20px;
+            border-top: 2px solid #ddd;
+        }
+
+        .faq-section h2 {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 30px;
+        }
+
+        .faq-item {
+            border-bottom: 1px solid #eee;
+        }
+
+        .faq-question {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            font-weight: 600;
+            color: #333;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .faq-question:hover {
+            color: #2563eb;
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-in-out, padding 0.3s;
+            padding: 0 0 0 10px;
+            font-size: 0.95rem;
+            color: #555;
+        }
+
+        /* Dùng class này để mở nội dung FAQ */
+        .faq-item.active .faq-answer {
+            max-height: 200px; /* Giá trị đủ lớn để chứa nội dung */
+            padding: 0 0 15px 10px;
+        }
+
+        .faq-item.active .faq-question .toggle-icon {
+            transform: rotate(180deg);
+        }
+        
+        .toggle-icon {
+            font-size: 1.5rem;
+            line-height: 1;
+            transition: transform 0.3s;
+        }
+
+        /* Media Query cho responsive */
+        @media (max-width: 1100px) {
+            .pricing-cards-wrapper {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .pricing-card {
+                width: 80%;
+                max-width: 450px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .pricing-header h1 {
+                font-size: 1.8rem;
+            }
+
+            .pricing-card {
+                width: 95%;
+                padding: 20px;
+            }
+            
+            .price {
+                font-size: 2rem;
+            }
+            
+            /* Điều chỉnh CTA khi responsive */
+            .cta-button {
+                width: 90%; /* Dùng 90% khi màn hình nhỏ */
+            }
+        }
+    </style>
+</head>
+
+<div layout:fragment="content">
+    <div class="pricing-container">
+        
+        <header class="pricing-header">
+            <h1>Chọn gói dịch vụ phù hợp</h1>
+            <p>Nâng cao hiệu quả tuyển dụng với các gói dịch vụ được thiết kế riêng cho doanh nghiệp của bạn</p>
+        </header>
+
+        <!-- Error/Success Messages -->
+        <div class="alert alert-danger" th:if="${error}" th:text="${error}" style="background-color: #fee; color: #c33; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center;"></div>
+        <div class="alert alert-success" th:if="${success}" th:text="${success}" style="background-color: #efe; color: #3c3; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center;"></div>
+
+        <div class="pricing-cards-wrapper">
+            
+            <!-- Loop through packages from backend, exclude Free tier (tierLevel = 0) -->
+            <div class="pricing-card" 
+                 th:each="package : ${packages}" 
+                 th:if="${package.tierLevel > 0}"
+                 th:classappend="${package.tierLevel == 1 ? 'standard' : (package.tierLevel == 2 ? 'pro popular-card' : 'premium premium-border')}">
+                
+                <!-- Popular badge for tier 2 -->
+                <div class="popular-badge" th:if="${package.tierLevel == 2}">Phổ biến nhất</div>
+                
+                <div>
+                    <div class="card-header">
+                        <h2 class="title" th:text="${package.packageName}">STANDARD</h2>
+                        <p class="subtitle" th:text="${package.description}">Gói cơ bản cho doanh nghiệp nhỏ</p>
+                        <div class="price">
+                            <span class="value" th:text="${#numbers.formatDecimal(package.price, 0, 'COMMA', 0, 'POINT')}">300,000</span><span class="unit"> đ/</span><span class="unit" th:text="${package.durationDays == 30 ? 'Tháng' : (package.durationDays == 90 ? '3 tháng' : (package.durationDays == 180 ? '6 tháng' : (package.durationDays == 365 ? '1 năm' : package.durationDays + ' ngày')))}">1 tháng</span>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body">
+                        <h3>Tính năng bao gồm:</h3>
+                        <ul>
+                            <!-- Tier 1: Standard/Basic -->
+                            <li th:if="${package.tierLevel == 1}">
+                                <span class="icon">✅</span> Số lượt đăng bài: <strong>10 bài</strong> / tháng
+                            </li>
+                            <li th:if="${package.tierLevel == 1}">
+                                <span class="icon">💾</span> Số lượt lưu ứng viên: <strong>20 hồ sơ</strong>
+                            </li>
+                            <li th:if="${package.tierLevel == 1}">
+                                <span class="icon">📧</span> Gửi mail hàng loạt: Cơ bản
+                                <br>+ Gửi 100 Mail/tháng
+                            </li>
+                            <li th:if="${package.tierLevel == 1}">
+                                <span class="icon">📊</span> Thống kê tổng quan: 
+                                <br>+ Biểu đồ chi tiết(Tổng lượt xem, ứng tuyển)
+                            </li>
+                            
+                            <!-- Tier 2: PRO -->
+                            <li th:if="${package.tierLevel == 2}">
+                                <span class="icon">🚀</span> Số lượt đăng bài: <strong>30 bài</strong> / tháng
+                            </li>
+                            <li th:if="${package.tierLevel == 2}">
+                                <span class="icon">⭐</span> Số lượt lưu ứng viên: <strong>100 hồ sơ</strong>
+                            </li>
+                            <li th:if="${package.tierLevel == 2}">
+                                <span class="icon">📧</span> Gửi mail hàng loạt: Không giới hạn
+                            </li>
+                            <li th:if="${package.tierLevel == 2}">
+                                <span class="icon">📈</span> Thống kê tổng quan:
+                                <br>+ Biểu đồ chi tiết
+                            </li>
+                            <li th:if="${package.tierLevel == 2}">
+                                <span class="icon">🗺️</span> Phân tích thị trường: 
+                                <br>+ Xu hướng ngành, mức lương
+                            </li>
+                            <li th:if="${package.tierLevel == 2}">
+                                <span class="icon">✅</span> Dashboard nâng cao & KPI: Cơ bản 
+                                <br>+ Báo cáo dạng biểu đồ
+                            </li>
+                            
+                            <!-- Tier 3+: PREMIUM -->
+                            <li th:if="${package.tierLevel >= 3}">
+                                <span class="icon">👑</span> Số lượt đăng bài: <strong>Không giới hạn</strong>
+                            </li>
+                            <li th:if="${package.tierLevel >= 3}">
+                                <span class="icon">♾️</span> Số lượt lưu ứng viên: <strong>Không giới hạn</strong>
+                            </li>
+                            <li th:if="${package.tierLevel >= 3}">
+                                <span class="icon">📧</span> Gửi mail hàng loạt: <strong>Không giới hạn</strong>
+                            </li>
+                            <li th:if="${package.tierLevel >= 3}">
+                                <span class="icon">🧠</span> Thống kê tổng quan: Có 
+                                <br>+ AI phân tích hiệu quả
+                            </li>
+                            <li th:if="${package.tierLevel >= 3}">
+                                <span class="icon">📊</span> Phân tích thị trường: Có 
+                                <br>+ Xu hướng ngành, mức lương
+                            </li>
+                            <li th:if="${package.tierLevel >= 3}">
+                                <span class="icon">📍</span> Gợi ý ngành nghề: Có 
+                                <br>+ AI cập nhật tự động
+                            </li>
+                            <li th:if="${package.tierLevel >= 3}">
+                                <span class="icon">💡</span> AI gợi ý ứng viên: Có 
+                                <br>+ AI cập nhật tự động
+                            </li>
+                            <li th:if="${package.tierLevel >= 3}">
+                                <span class="icon">🛠️</span> Dashboard nâng cao & KPI:
+                                <br>+ Báo cáo dạng biểu đồ, lọc nâng cao
+                            </li>
+                        </ul>
+
+                        <h3 th:if="${package.tierLevel < 3}">Giới hạn/Không có:</h3>
+                        <ul th:if="${package.tierLevel < 3}">
+                            <!-- Tier 1: Standard limitations -->
+                            <li class="limitation" th:if="${package.tierLevel == 1}">
+                                <span class="icon icon-x">❌</span> Phân tích thị trường tuyển dụng
+                            </li>
+                            <li class="limitation" th:if="${package.tierLevel == 1}">
+                                <span class="icon icon-x">❌</span> Gợi ý ngành nghề theo địa bàn
+                            </li>
+                            <li class="limitation" th:if="${package.tierLevel == 1}">
+                                <span class="icon icon-x">❌</span> AI gợi ý ứng viên phù hợp
+                            </li>
+                            <li class="limitation" th:if="${package.tierLevel == 1}">
+                                <span class="icon icon-x">❌</span> Dashboard nâng cao & KPI tùy chỉnh
+                            </li>
+                            
+                            <!-- Tier 2: PRO limitations -->
+                            <li class="limitation" th:if="${package.tierLevel == 2}">
+                                <span class="icon icon-x">❌</span> Gợi ý ngành nghề theo địa bàn
+                            </li>
+                            <li class="limitation" th:if="${package.tierLevel == 2}">
+                                <span class="icon icon-x">❌</span> AI gợi ý ứng viên phù hợp
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Nút cho gói hiện tại -->
+                <button th:if="${currentTier == package.tierLevel && isSubscriptionActive}" 
+                        type="button"
+                        class="cta-button"
+                        disabled
+                        style="background-color: #10b981; color: white; opacity: 0.8; cursor: default;">
+                    Gói đang sử dụng
+                </button>
+                
+                <!-- Nút disabled cho gói thấp hơn tier hiện tại -->
+                <button th:if="${isSubscriptionActive && package.tierLevel < currentTier}" 
+                        type="button"
+                        class="cta-button"
+                        disabled
+                        style="opacity: 0.5; cursor: not-allowed; background-color: #9ca3af; color: white;">
+                    Không thể hạ cấp
+                </button>
+                
+                <!-- Form upgrade cho gói cao hơn hoặc khi hết hạn -->
+                <form th:if="${(!isSubscriptionActive || package.tierLevel > currentTier) && currentTier != package.tierLevel}" 
+                      th:action="@{/payment/create}" 
+                      method="post"
+                      style="margin: 0;">
+                    <input type="hidden" name="packageId" th:value="${package.packageId}">
+                    <button type="submit" class="cta-button">
+                        <span th:text="${package.tierLevel == 1 ? 'Đăng ký ngay' : (package.tierLevel == 2 ? 'Bắt đầu dùng PRO' : 'Tư vấn & Đăng ký AI Suite')}">Đăng ký ngay</span>
+                    </button>
+                </form>
+            </div>
+
+        </div>
+        
+        <div class="faq-section">
+            <h2>❓ Câu hỏi thường gặp</h2>
+            
+            <div class="faq-item" id="faq1">
+                <div class="faq-question">
+                    Tôi có thể thay đổi gói bất cứ lúc nào không?
+                    <span class="toggle-icon"></span>
+                </div>
+                <div class="faq-answer">
+                    Có, bạn có thể nâng cấp hoặc hạ cấp gói dịch vụ bất cứ lúc nào. Thay đổi sẽ có hiệu lực ngay lập tức.
+                </div>
+            </div>
+
+            <div class="faq-item" id="faq2">
+                <div class="faq-question">
+                    AI trong gói PREMIUM hoạt động như thế nào?
+                    <span class="toggle-icon"></span>
+                </div>
+                <div class="faq-answer">
+                    AI sẽ phân tích dữ liệu tuyển dụng, đưa ra gợi ý ứng viên phù hợp và tự động soạn email tương tác dựa trên hành vi của ứng viên.
+                </div>
+            </div>
+
+            <div class="faq-item" id="faq3">
+                <div class="faq-question">
+                    Có hỗ trợ kỹ thuật không?
+                    <span class="toggle-icon"></span>
+                </div>
+                <div class="faq-answer">
+                    Tất cả gói đều có hỗ trợ email. Gói PREMIUM có hỗ trợ ưu tiên 24/7 qua điện thoại và chat.
+                </div>
+            </div>
+            
+            <div class="faq-item" id="faq4">
+                <div class="faq-question">
+                    Dữ liệu có được bảo mật không?
+                    <span class="toggle-icon"></span>
+                </div>
+                <div class="faq-answer">
+                    Chúng tôi sử dụng mã hóa SSL và tuân thủ các tiêu chuẩn bảo mật quốc tế để bảo vệ dữ liệu của bạn, đảm bảo an toàn tuyệt đối.
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const pricingCards = document.querySelectorAll('.pricing-card');
+            const ctaButtons = document.querySelectorAll('.cta-button');
+            const faqQuestions = document.querySelectorAll('.faq-question');
+
+            // --- 1. Hiệu ứng Hover trên thiết bị di động (Touch/Focus) ---
+            pricingCards.forEach(card => {
+                card.addEventListener('touchstart', function() {
+                    pricingCards.forEach(c => c.classList.remove('active-hover'));
+                    this.classList.add('active-hover');
+                });
+                document.addEventListener('touchstart', function(event) {
+                    if (!card.contains(event.target)) {
+                        card.classList.remove('active-hover');
+                    }
+                });
+            });
+
+            // --- 2. Xử lý nút Đăng ký (Call to Action) ---
+            // Form submission is handled by Thymeleaf, no need for JS alert
+
+            // --- 3. Xử lý chức năng Accordion cho FAQ ---
+            faqQuestions.forEach(question => {
+                // Thêm icon mặc định
+                if (!question.querySelector('.toggle-icon')) {
+                    const icon = document.createElement('span');
+                    icon.classList.add('toggle-icon');
+                    icon.textContent = '▼'; // Sử dụng mũi tên thay vì để trống
+                    question.appendChild(icon);
+                }
+
+
+                question.addEventListener('click', function() {
+                    const parentItem = this.closest('.faq-item');
+                    const isActive = parentItem.classList.contains('active');
+                    
+                    // Đóng tất cả các accordion khác
+                    document.querySelectorAll('.faq-item').forEach(item => {
+                        item.classList.remove('active');
+                    });
+                    
+                    // Mở hoặc đóng accordion hiện tại
+                    if (!isActive) {
+                        parentItem.classList.add('active');
+                    }
+                });
+            });
+        });
+    </script>
+</div>

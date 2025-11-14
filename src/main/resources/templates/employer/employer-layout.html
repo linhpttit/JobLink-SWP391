@@ -115,14 +115,14 @@
                             <span class="nav-text">Phản hồi/khiếu nại</span>
                         </a>
                     </li>
-                    <li class="nav-item" onclick="loadContent('premium.html')">
-                        <a href="javascript:void(0)">
+                    <li class="nav-item">
+                        <a th:href="@{/payment/upgrade}">
                             <span class="nav-icon"><i class="fa fa-gem"></i></span>
                             <span class="nav-text">Gói dịch vụ</span>
                         </a>
                     </li>
-                    <li class="nav-item" onclick="loadContent('payments.html')">
-                        <a href="javascript:void(0)">
+                    <li class="nav-item">
+                        <a th:href="@{/payment/history}">
                             <span class="nav-icon"><i class="fa fa-money-bill-wave"></i></span>
                             <span class="nav-text">Lịch sử thanh toán</span>
                         </a>
@@ -136,8 +136,8 @@
     </div>
 </div>
 
-<!-- AI Chatbot Widget -->
-<div id="chatbot-widget">
+<!-- AI Chatbot Widget - Chỉ hiển thị cho Enterprise (tier >= 3) -->
+<div id="chatbot-widget" th:if="${currentTier != null and currentTier >= 3}">
     <!-- Chat Button -->
     <button id="chatbot-toggle" class="chatbot-toggle">
         <i class="fas fa-comments"></i>
@@ -196,6 +196,7 @@
 
 /* Toggle Button */
 .chatbot-toggle {
+    display: block;
     width: 60px;
     height: 60px;
     border-radius: 50%;
@@ -579,6 +580,7 @@ chatbotToggle.addEventListener('click', () => {
 
 chatbotClose.addEventListener('click', () => {
     chatbotBox.style.display = 'none';
+    chatbotToggle.style.display = ''; // Hiển thị lại nút toggle (về giá trị mặc định)
 });
 
 // New session

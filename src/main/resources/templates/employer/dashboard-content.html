@@ -798,16 +798,23 @@
         <div class="premium-banner">
             <div class="premium-content">
                 <h3>
-                    <i class="fas fa-crown"></i>
-                    Gói PREMIUM
+                    <i class="fas" th:classappend="${currentTier == 0 ? 'fa-gift' : (currentTier == 1 ? 'fa-briefcase' : (currentTier == 2 ? 'fa-gem' : 'fa-trophy'))}"></i>
+                    Gói <span th:text="${currentTier == 0 ? 'FREE' : (currentTier == 1 ? 'Standard' : (currentTier == 2 ? 'Pro' : 'Premium'))}">PREMIUM</span>
                 </h3>
-                <p>Gói cần sử dụng để đăng tất cả các gói tin tuyển dụng cao cấp</p>
+                <p th:text="${currentTier == 0 ? 'Nâng cấp để sử dụng đầy đủ tính năng' : 
+                             (currentTier == 1 ? 'Nâng cấp lên Pro để có thêm tính năng cao cấp' : 
+                             (currentTier == 2 ? 'Bạn đang sử dụng gói Pro với đầy đủ tính năng' : 
+                             'Bạn đang sử dụng gói cao cấp nhất với AI Chat Bot'))}">
+                    Gói cần sử dụng để đăng tất cả các gói tin tuyển dụng cao cấp
+                </p>
             </div>
-            <button class="premium-btn">Quản lý gói</button>
+            <a th:href="@{/payment/upgrade}" style="text-decoration: none;">
+                <button class="premium-btn">Quản lý gói</button>
+            </a>
         </div>
 
         <!-- Stats Grid Header with Filter -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;" th:if="${currentTier != null and currentTier >= 1}">
             <h3 style="margin: 0; color: #2c3e50;">Thống kê tổng quan</h3>
             <select id="statsFilterPeriod" style="padding: 8px 15px; border: 1px solid #e0e6ed; border-radius: 6px; font-size: 14px; cursor: pointer;">
                 <option value="1day" selected>1 ngày gần nhất</option>
@@ -820,7 +827,7 @@
         </div>
 
         <!-- Stats Grid -->
-        <div class="stats-grid">
+        <div class="stats-grid" th:if="${currentTier != null and currentTier >= 1}">
             <div class="stat-card" style="--accent-color: #3498db;">
                 <div class="stat-header">
                     <div class="stat-icon" style="background: #e3f2fd; color: #3498db;">
@@ -894,7 +901,7 @@
                 <h3>AI Talent Suite</h3>
                 <p>Khả năng AI có thể tích hợp trường và tìm ứng viên phù hợp</p>
             </div>
-            <button class="ai-btn">
+            <button class="ai-btn" onclick="openChatbot()">
                 <i class="fas fa-robot"></i>
                 Khởi chạy AI
             </button>
@@ -903,13 +910,19 @@
         <!-- Content Grid -->
         <div class="content-grid">
             <!-- Market Analysis -->
-            <div class="content-card">
+            <div class="content-card" th:if="${currentTier != null and currentTier >= 2}">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                     <h4 style="margin: 0;">
                         <div class="icon" style="background: #e3f2fd; color: #3498db;">
                             <i class="fas fa-clipboard-list"></i>
                         </div>
                         Phân tích thị trường
+                        <span th:if="${currentTier == 2}" style="font-size: 0.75rem; color: #2563eb; margin-left: 8px;">
+                            <i class="fas fa-gem"></i> Pro
+                        </span>
+                        <span th:if="${currentTier >= 3}" style="font-size: 0.75rem; color: #7c3aed; margin-left: 8px;">
+                            <i class="fas fa-crown"></i> Premium
+                        </span>
                     </h4>
                     <select id="marketPositionFilter" style="padding: 6px 12px; border: 1px solid #e0e6ed; border-radius: 6px; font-size: 13px; cursor: pointer;">
                         <!-- Options will be loaded dynamically -->
@@ -925,12 +938,19 @@
             </div>
 
             <!-- Top Candidates -->
-            <div class="content-card">
+            <!-- Gợi ý ứng viên - Chỉ hiển thị cho Premium (tier >= 2) -->
+            <div class="content-card" th:if="${currentTier != null and currentTier >= 2}">
                 <h4>
                     <div class="icon" style="background: #d4edda; color: #2ecc71;">
                         <i class="fas fa-star"></i>
                     </div>
                     Gợi ý ứng viên
+                    <span th:if="${currentTier == 2}" style="font-size: 0.75rem; color: #2563eb; margin-left: 8px;">
+                        <i class="fas fa-gem"></i> Pro
+                    </span>
+                    <span th:if="${currentTier >= 3}" style="font-size: 0.75rem; color: #7c3aed; margin-left: 8px;">
+                        <i class="fas fa-crown"></i> Premium
+                    </span>
                 </h4>
                 
                 <!-- Hiển thị danh sách ứng viên từ backend -->
@@ -1077,10 +1097,18 @@
         </div>
 
         <!-- Charts Section -->
-        <div class="charts-grid">
+        <!-- Biểu đồ thống kê - Chỉ hiển thị cho Premium (tier >= 2) -->
+        <div class="charts-grid" th:if="${currentTier != null and currentTier >= 2}">
             <div class="chart-card">
                 <div class="chart-header">
-                    <h4>Ứng viên theo vị trí</h4>
+                    <h4>Ứng viên theo vị trí
+                        <span th:if="${currentTier == 2}" style="font-size: 0.75rem; color: #2563eb; margin-left: 8px;">
+                            <i class="fas fa-gem"></i> Pro
+                        </span>
+                        <span th:if="${currentTier >= 3}" style="font-size: 0.75rem; color: #7c3aed; margin-left: 8px;">
+                            <i class="fas fa-crown"></i> Premium
+                        </span>
+                    </h4>
                     <select id="positionPeriodFilter" style="padding: 5px 10px; border: 1px solid #e0e6ed; border-radius: 6px;">
                         <option value="7days" selected>7 ngày gần nhất</option>
                         <option value="1month">1 tháng gần nhất</option>
@@ -1096,7 +1124,14 @@
 
             <div class="chart-card">
                 <div class="chart-header">
-                    <h4>Xu hướng ứng viên</h4>
+                    <h4>Xu hướng ứng viên
+                        <span th:if="${currentTier == 2}" style="font-size: 0.75rem; color: #2563eb; margin-left: 8px;">
+                            <i class="fas fa-gem"></i> Pro
+                        </span>
+                        <span th:if="${currentTier >= 3}" style="font-size: 0.75rem; color: #7c3aed; margin-left: 8px;">
+                            <i class="fas fa-crown"></i> Premium
+                        </span>
+                    </h4>
                     <select id="trendPeriodFilter" style="padding: 5px 10px; border: 1px solid #e0e6ed; border-radius: 6px;">
                         <option value="7days" selected>7 ngày gần nhất</option>
                         <option value="1month">1 tháng gần nhất</option>
@@ -1112,7 +1147,14 @@
 
             <div class="chart-card">
                 <div class="chart-header">
-                    <h4>Trạng thái ứng viên</h4>
+                    <h4>Trạng thái ứng viên
+                        <span th:if="${currentTier == 2}" style="font-size: 0.75rem; color: #2563eb; margin-left: 8px;">
+                            <i class="fas fa-gem"></i> Pro
+                        </span>
+                        <span th:if="${currentTier >= 3}" style="font-size: 0.75rem; color: #7c3aed; margin-left: 8px;">
+                            <i class="fas fa-crown"></i> Premium
+                        </span>
+                    </h4>
                     <select id="statusPeriodFilter" style="padding: 5px 10px; border: 1px solid #e0e6ed; border-radius: 6px;">
                         <option value="7days" selected>7 ngày gần nhất</option>
                         <option value="1month">1 tháng gần nhất</option>
@@ -2284,6 +2326,29 @@
                     <p>Chưa có dữ liệu phân tích cho vị trí này</p>
                 </div>
             `;
+        }
+        
+        // Function để mở chatbot
+        function openChatbot() {
+            const chatbotToggle = document.getElementById('chatbot-toggle');
+            const chatbotBox = document.getElementById('chatbot-box');
+            
+            if (chatbotToggle && chatbotBox) {
+                // Hiển thị chatbot box
+                chatbotBox.style.display = 'flex';
+                chatbotToggle.style.display = 'none';
+                
+                // Focus vào input field
+                setTimeout(() => {
+                    const inputField = document.getElementById('chatbot-input-field');
+                    if (inputField) {
+                        inputField.focus();
+                    }
+                }, 100);
+            } else {
+                // Nếu không tìm thấy chatbot (tier < 3), hiển thị thông báo
+                alert('Tính năng AI Chat Bot chỉ dành cho gói Premium. Vui lòng nâng cấp tài khoản!');
+            }
         }
         </script>
     </div>

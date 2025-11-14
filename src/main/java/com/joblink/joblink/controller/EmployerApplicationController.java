@@ -3,6 +3,7 @@ package com.joblink.joblink.controller;
 import com.joblink.joblink.dto.ApplicationFilter;
 import com.joblink.joblink.entity.Application;
 import com.joblink.joblink.service.ApplicationService;
+import com.joblink.joblink.service.SessionHelperService; // ← THÊM IMPORT NÀY
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +11,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,16 +20,15 @@ import java.util.Map;
 public class EmployerApplicationController {
 
     private final ApplicationService applicationService;
+    private final SessionHelperService sessionHelperService; // ← THÊM DÒNG NÀY
 
-    public EmployerApplicationController(ApplicationService applicationService) {
+    // ← UPDATE CONSTRUCTOR - THÊM PARAMETER
+    public EmployerApplicationController(ApplicationService applicationService,
+                                         SessionHelperService sessionHelperService) {
         this.applicationService = applicationService;
+        this.sessionHelperService = sessionHelperService;
     }
 
-    /**
-     * Hiển thị trang chủ - quản lý ứng viên (TẤT CẢ ứng viên)
-     * URL: GET /applications
-     * FIXED: Xử lý tham số đúng cách
-     */
     @GetMapping("/applications")
     public String showApplicationsPage(
             @RequestParam(required = false) String search,
@@ -43,57 +42,26 @@ public class EmployerApplicationController {
             @RequestParam(defaultValue = "10") int size,
             Model model) {
 
-        // Tạo filter với giá trị mặc định và xử lý null
-        ApplicationFilter filter = new ApplicationFilter();
-        filter.setSearch(search != null ? search : "");
-        filter.setPositions(positions != null ? positions : new ArrayList<>());
-        filter.setMinExperience(minExperience);
-        filter.setMaxExperience(maxExperience);
-        filter.setStatuses(statuses != null ? statuses : new ArrayList<>());
-        filter.setEducationLevels(educationLevels != null ? educationLevels : new ArrayList<>());
-        filter.setLocation(location != null ? location : "");
-        filter.setPage(page);
-        filter.setSize(size);
-        filter.setSortDirection("DESC");
+        // THAY THẾ: Kiểm tra authentication
+        if (!sessionHelperService.isEmployer()) {
+            return "redirect:/signin";
+        }
 
-        // TODO: Thay thế 1L bằng employerId thực tế từ authentication
-        Long employerId = getCurrentEmployerId(); // Cần implement method này
+        ApplicationFilter filter = createFilter(search, positions, minExperience,
+                maxExperience, statuses, educationLevels,
+                location, page, size);
 
-        // Lấy dữ liệu từ service (TẤT CẢ ứng viên)
+        // THAY THẾ 1L: Lấy employerId thực từ session
+        Long employerId = sessionHelperService.getCurrentEmployerId();
+
         Page<Application> applications = applicationService.getApplicationsWithFilters(filter, employerId);
         Map<String, Object> filterOptions = applicationService.getFilterOptions();
 
-        // Add data to model for Thymeleaf
-        model.addAttribute("applications", applications.getContent());
-        model.addAttribute("currentPage", applications.getNumber());
-        model.addAttribute("totalPages", applications.getTotalPages());
-        model.addAttribute("totalElements", applications.getTotalElements());
-        model.addAttribute("pageSize", size);
-        model.addAttribute("pageType", "all");
-
-        // Filter options
-        model.addAttribute("positions", filterOptions.getOrDefault("positions", new ArrayList<>()));
-        model.addAttribute("locations", filterOptions.getOrDefault("locations", new ArrayList<>()));
-        model.addAttribute("educationLevels", filterOptions.getOrDefault("educationLevels", new ArrayList<>()));
-        model.addAttribute("statuses", filterOptions.getOrDefault("statuses", new ArrayList<>()));
-
-        // Current filter values
-        model.addAttribute("search", filter.getSearch());
-        model.addAttribute("selectedPositions", filter.getPositions());
-        model.addAttribute("minExperience", filter.getMinExperience() != null ? filter.getMinExperience() : 0);
-        model.addAttribute("maxExperience", filter.getMaxExperience() != null ? filter.getMaxExperience() : 20);
-        model.addAttribute("selectedStatuses", filter.getStatuses());
-        model.addAttribute("selectedEducationLevels", filter.getEducationLevels());
-        model.addAttribute("location", filter.getLocation());
+        addModelAttributes(model, applications, filterOptions, filter, size, "all");
 
         return "employer/employer-applications";
     }
 
-    /**
-     * Hiển thị trang SAVED - chỉ ứng viên đã bookmark
-     * URL: GET /applications/saved
-     * FIXED: Xử lý tham số đúng cách
-     */
     @GetMapping("/saved")
     public String showSavedApplicationsPage(
             @RequestParam(required = false) String search,
@@ -107,7 +75,94 @@ public class EmployerApplicationController {
             @RequestParam(defaultValue = "10") int size,
             Model model) {
 
-        // Tạo filter với giá trị mặc định và xử lý null
+        // THAY THẾ: Kiểm tra authentication
+        if (!sessionHelperService.isEmployer()) {
+            return "redirect:/signin";
+        }
+
+        ApplicationFilter filter = createFilter(search, positions, minExperience,
+                maxExperience, statuses, educationLevels,
+                location, page, size);
+
+        // THAY THẾ 1L: Lấy employerId thực từ session
+        Long employerId = sessionHelperService.getCurrentEmployerId();
+
+        Page<Application> applications = applicationService.getSavedApplicationsWithFilters(filter, employerId);
+        Map<String, Object> filterOptions = applicationService.getFilterOptions();
+
+        addModelAttributes(model, applications, filterOptions, filter, size, "saved");
+
+        return "employer/employer-saved";
+    }
+
+    @PostMapping("/applications/{id}/status")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> updateStatus(
+            @PathVariable Long id,
+            @RequestParam String status) {
+
+        Map<String, Object> response = new HashMap<>();
+        try {
+            // THÊM: Kiểm tra authentication
+            if (!sessionHelperService.isEmployer()) {
+                response.put("success", false);
+                response.put("message", "Authentication failed: Not an employer");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
+
+            Application updatedApplication = applicationService.updateApplicationStatus(id, status);
+
+            response.put("success", true);
+            response.put("message", "Status updated successfully");
+            response.put("newStatus", status);
+            response.put("applicationId", id);
+            return ResponseEntity.ok(response);
+
+        } catch (SecurityException e) {
+            response.put("success", false);
+            response.put("message", "Authentication failed: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Failed to update status: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @PostMapping("/applications/{id}/bookmark")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> toggleBookmark(@PathVariable Long id) {
+
+        Map<String, Object> response = new HashMap<>();
+        try {
+            // THAY THẾ 1L: Lấy employerId thực từ session
+            Long employerId = sessionHelperService.getCurrentEmployerId();
+
+            boolean isBookmarked = applicationService.toggleBookmark(id, employerId);
+
+            response.put("success", true);
+            response.put("message", isBookmarked ? "Application bookmarked" : "Bookmark removed");
+            response.put("isBookmarked", isBookmarked);
+            response.put("applicationId", id);
+            return ResponseEntity.ok(response);
+
+        } catch (SecurityException e) {
+            response.put("success", false);
+            response.put("message", "Authentication failed: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Failed to toggle bookmark: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    // ========== HELPER METHODS (GIỮ NGUYÊN) ==========
+
+    private ApplicationFilter createFilter(String search, List<String> positions,
+                                           Integer minExperience, Integer maxExperience,
+                                           List<String> statuses, List<String> educationLevels,
+                                           String location, int page, int size) {
         ApplicationFilter filter = new ApplicationFilter();
         filter.setSearch(search != null ? search : "");
         filter.setPositions(positions != null ? positions : new ArrayList<>());
@@ -119,29 +174,24 @@ public class EmployerApplicationController {
         filter.setPage(page);
         filter.setSize(size);
         filter.setSortDirection("DESC");
+        return filter;
+    }
 
-        // TODO: Thay thế 1L bằng employerId thực tế từ authentication
-        Long employerId = getCurrentEmployerId(); // Cần implement method này
-
-        // Lấy dữ liệu từ service (CHỈ ứng viên đã bookmark)
-        Page<Application> applications = applicationService.getSavedApplicationsWithFilters(filter, employerId);
-        Map<String, Object> filterOptions = applicationService.getFilterOptions();
-
-        // Add data to model for Thymeleaf
+    private void addModelAttributes(Model model, Page<Application> applications,
+                                    Map<String, Object> filterOptions, ApplicationFilter filter,
+                                    int size, String pageType) {
         model.addAttribute("applications", applications.getContent());
         model.addAttribute("currentPage", applications.getNumber());
         model.addAttribute("totalPages", applications.getTotalPages());
         model.addAttribute("totalElements", applications.getTotalElements());
         model.addAttribute("pageSize", size);
-        model.addAttribute("pageType", "saved");
+        model.addAttribute("pageType", pageType);
 
-        // Filter options
         model.addAttribute("positions", filterOptions.getOrDefault("positions", new ArrayList<>()));
         model.addAttribute("locations", filterOptions.getOrDefault("locations", new ArrayList<>()));
         model.addAttribute("educationLevels", filterOptions.getOrDefault("educationLevels", new ArrayList<>()));
         model.addAttribute("statuses", filterOptions.getOrDefault("statuses", new ArrayList<>()));
 
-        // Current filter values
         model.addAttribute("search", filter.getSearch());
         model.addAttribute("selectedPositions", filter.getPositions());
         model.addAttribute("minExperience", filter.getMinExperience() != null ? filter.getMinExperience() : 0);
@@ -149,83 +199,8 @@ public class EmployerApplicationController {
         model.addAttribute("selectedStatuses", filter.getStatuses());
         model.addAttribute("selectedEducationLevels", filter.getEducationLevels());
         model.addAttribute("location", filter.getLocation());
-
-        return "employer/employer-saved";
     }
 
-    /**
-     * Cập nhật trạng thái ứng viên - Hỗ trợ cả AJAX và normal request
-     * URL: POST /applications/{id}/status
-     * FIXED: Sử dụng employerId thực tế
-     */
-    @PostMapping("/applications/{id}/status")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> updateStatus(
-            @PathVariable Long id,
-            @RequestParam String status,
-            HttpServletRequest request) {
-
-        Map<String, Object> response = new HashMap<>();
-        try {
-            Application updatedApplication = applicationService.updateApplicationStatus(id, status);
-
-            response.put("success", true);
-            response.put("message", "Status updated successfully");
-            response.put("newStatus", status);
-            response.put("applicationId", id);
-            return ResponseEntity.ok(response);
-
-        } catch (Exception e) {
-            response.put("success", false);
-            response.put("message", "Failed to update status: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
-    }
-
-    /**
-     * Bookmark ứng viên - Hỗ trợ cả AJAX và normal request
-     * URL: POST /applications/{id}/bookmark
-     * FIXED: Sử dụng employerId thực tế
-     */
-    @PostMapping("/applications/{id}/bookmark")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> toggleBookmark(
-            @PathVariable Long id,
-            HttpServletRequest request) {
-
-        Map<String, Object> response = new HashMap<>();
-        try {
-            // TODO: Thay thế 1L bằng employerId thực tế từ authentication
-            Long employerId = getCurrentEmployerId();
-
-            boolean isBookmarked = applicationService.toggleBookmark(id, employerId);
-
-            response.put("success", true);
-            response.put("message", isBookmarked ? "Application bookmarked" : "Bookmark removed");
-            response.put("isBookmarked", isBookmarked);
-            response.put("applicationId", id);
-            return ResponseEntity.ok(response);
-
-        } catch (Exception e) {
-            response.put("success", false);
-            response.put("message", "Failed to toggle bookmark: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
-    }
-
-    /**
-     * Helper method để lấy employerId từ authentication
-     * TODO: Implement method này dựa trên hệ thống authentication của bạn
-     */
-    private Long getCurrentEmployerId() {
-        // Tạm thời return 1L, cần thay thế bằng logic thực tế
-        // Ví dụ: return SecurityContextHolder.getContext().getAuthentication().getPrincipal().getId();
-        return 1L;
-    }
-
-    /**
-     * API để lấy filter options (cho AJAX)
-     */
     @GetMapping("/api/filter-options")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getFilterOptions() {
@@ -239,4 +214,11 @@ public class EmployerApplicationController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
+
+    /**
+     * XÓA METHOD NÀY - KHÔNG CẦN NỮA
+     */
+    // private Long getCurrentEmployerId() {
+    //     return 1L; // DELETE THIS METHOD
+    // }
 }

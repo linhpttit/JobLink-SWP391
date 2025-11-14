@@ -6,8 +6,13 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
+/**
+ * Tìm employer theo username (giữ lại nếu có nơi khác dùng)
+ */
 @Repository
 public interface EmployerRepository extends JpaRepository<Employer, Long> {
 
@@ -38,4 +43,16 @@ public interface EmployerRepository extends JpaRepository<Employer, Long> {
     @Query("SELECT CASE WHEN COUNT(e) > 0 THEN true ELSE false END " +
             "FROM Employer e WHERE e.phoneNumber = :phoneNumber AND e.id <> :employerId")
     boolean existsByPhoneNumberAndIdNot(@Param("phoneNumber") String phoneNumber, @Param("employerId") Long employerId);
+
+    /**
+     * Tìm tất cả employer có subscription hết hạn và tier > 0
+     */
+    @Query("SELECT e FROM Employer e JOIN FETCH e.user WHERE e.subscriptionExpiresAt < :now AND e.tierLevel > 0")
+    List<Employer> findExpiredSubscriptions(@Param("now") LocalDateTime now);
+
+    /**
+     * Tìm tất cả employer có subscription sắp hết hạn (trong vòng X ngày)
+     */
+    @Query("SELECT e FROM Employer e JOIN FETCH e.user WHERE e.subscriptionExpiresAt BETWEEN CURRENT_TIMESTAMP AND :expiryDate AND e.tierLevel > 0")
+    List<Employer> findExpiringSubscriptions(@Param("expiryDate") LocalDateTime expiryDate);
 }
