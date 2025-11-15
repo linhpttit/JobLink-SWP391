@@ -1,5 +1,9 @@
 package com.joblink.joblink.service;
 
+<<<<<<< HEAD
+=======
+import com.joblink.joblink.dao.ApplicationDao;
+>>>>>>> 5b84532ce7c137b8c9bb0033ca31dc467a3e2141
 import com.joblink.joblink.dto.ApplicationFilter;
 import com.joblink.joblink.entity.Application;
 import com.joblink.joblink.Repository.ApplicationRepository;
@@ -17,16 +21,34 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 5b84532ce7c137b8c9bb0033ca31dc467a3e2141
 @Service
 @Transactional
 public class ApplicationService {
 
     private final ApplicationRepository applicationRepository;
+<<<<<<< HEAD
 
     public ApplicationService(ApplicationRepository applicationRepository) {
         this.applicationRepository = applicationRepository;
     }
 
+=======
+    private final ApplicationDao applicationDao;
+
+    public ApplicationService(ApplicationRepository applicationRepository, ApplicationDao applicationDao) {
+        this.applicationRepository = applicationRepository;
+        this.applicationDao = applicationDao;
+    }
+
+    public List<Map<String, Object>> getAppliedCompaniesForSeeker(int seekerId) {
+    return applicationDao.findAppliedCompaniesBySeeker(seekerId);
+}
+
+>>>>>>> 5b84532ce7c137b8c9bb0033ca31dc467a3e2141
     /**
      * Lấy danh sách applications với filter (cho trang chính)
      */

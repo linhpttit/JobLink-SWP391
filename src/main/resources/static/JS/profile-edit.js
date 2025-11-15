@@ -1310,36 +1310,57 @@
 
 /************** Avatar **************/
 document.getElementById("avatarInput")?.addEventListener("change", (e) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  const reader = new FileReader();
-  reader.onload = (ev) => (document.getElementById("avatarPreview").src = ev.target.result);
-  reader.readAsDataURL(file);
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+        // Cập nhật ảnh preview trên trang profile
+        document.getElementById("avatarPreview").src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
 
-  const formData = new FormData();
-  formData.append("avatar", file);
+    const formData = new FormData();
+    formData.append("avatar", file);
 
-  fetch("/jobseeker/profile/avatar", { method: "POST", body: formData })
-    .then((res) => {
-      if (res.ok) {
-        showNotification("Avatar uploaded successfully", "success");
-        // Update header avatar immediately if present
-        const headerImg = document.getElementById('headerAvatar');
-        // Update all avatar elements used across the site (header, usermenu, etc.)
-        const previewSrc = document.getElementById('avatarPreview')?.src;
-        if (previewSrc) {
-          document.querySelectorAll('.site-avatar').forEach(img => {
-            try { img.src = previewSrc; } catch (e) { /* ignore */ }
-          });
-        }
-      } else {
-        showNotification("Failed to upload avatar", "error");
-      }
-      setTimeout(() => location.reload(), 1000);
+    fetch("/jobseeker/profile/avatar", {
+        method: "POST",
+        body: formData
     })
-    .catch(() => showNotification("Error uploading avatar", "error"));
+    .then((res) => {
+        if (!res.ok) {
+            // Nếu server báo lỗi (ví dụ: 500, 401)
+            throw new Error("Upload failed");
+        }
+        return res.json(); // 1. Đọc response dưới dạng JSON
+    })
+    .then((data) => {
+        // 2. Lấy URL mới từ response (giống key trong Map ở Java)
+        const newAvatarUrl = data.newAvatarUrl;
+
+        showNotification("Avatar uploaded successfully", "success");
+
+        // 3. Cập nhật ảnh preview (để nó dùng URL thật thay vì dataURL)
+        document.getElementById("avatarPreview").src = newAvatarUrl;
+
+        // 4. Cập nhật TẤT CẢ các ảnh avatar khác trên trang (header, user menu)
+        // (Hãy kiểm tra class/id trong header.html của bạn)
+        const headerAvatars = document.querySelectorAll('.usermenu__btn img, .usermenu__avatar');
+        headerAvatars.forEach(img => {
+            img.src = newAvatarUrl;
+            img.srcset = newAvatarUrl; // Cập nhật cả srcset nếu có
+        });
+
+        // 5. KHÔNG RELOAD LẠI TRANG
+        // setTimeout(() => location.reload(), 1000); // <-- XÓA HOẶC CHÚ THÍCH DÒNG NÀY
+    })
+    .catch(() => {
+        showNotification("Error uploading avatar", "error");
+        // Nếu lỗi, có thể reload lại để lấy ảnh cũ từ server
+        setTimeout(() => location.reload(), 1000);
+    });
 });
+
 
 /************** Word counter **************/
 const selfIntro = document.querySelector('textarea[name="about"]');

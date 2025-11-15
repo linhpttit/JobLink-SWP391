@@ -3,7 +3,11 @@ package com.joblink.joblink.controller;
 import com.joblink.joblink.auth.model.User;
 import com.joblink.joblink.model.JobSeekerProfile2;
 import com.joblink.joblink.model.PremiumSubscription;
+<<<<<<< HEAD
 import com.joblink.joblink.service.ApplicationService2;
+=======
+import com.joblink.joblink.service.ApplicationService;
+>>>>>>> 5b84532ce7c137b8c9bb0033ca31dc467a3e2141
 import com.joblink.joblink.service.JobSeekerService;
 import com.joblink.joblink.service.PremiumService;
 import com.joblink.joblink.service.ProfileService;
@@ -24,16 +28,28 @@ public class NetworkingController {
     private final JobSeekerService jobSeekerService;
     private final ProfileService profileService;
     private final PremiumService premiumService;
+<<<<<<< HEAD
     private final ApplicationService2 applicationService2;
+=======
+    private final ApplicationService applicationService;
+>>>>>>> 5b84532ce7c137b8c9bb0033ca31dc467a3e2141
 
     public NetworkingController(JobSeekerService jobSeekerService,
                                 ProfileService profileService,
                                 PremiumService premiumService,
+<<<<<<< HEAD
                                 ApplicationService2 applicationService2) {
         this.jobSeekerService = jobSeekerService;
         this.profileService = profileService;
         this.premiumService = premiumService;
         this.applicationService2 = applicationService2;
+=======
+                                ApplicationService applicationService) {
+        this.jobSeekerService = jobSeekerService;
+        this.profileService = profileService;
+        this.premiumService = premiumService;
+        this.applicationService = applicationService;
+>>>>>>> 5b84532ce7c137b8c9bb0033ca31dc467a3e2141
     }
 
     @GetMapping
@@ -62,7 +78,11 @@ public class NetworkingController {
         List<Map<String, Object>> appliedCompanies = Collections.emptyList();
         if (hasPremium) {
             try {
+<<<<<<< HEAD
                 appliedCompanies = applicationService2.getAppliedCompaniesForSeeker(me.getSeekerId());
+=======
+                appliedCompanies = applicationService.getAppliedCompaniesForSeeker(me.getSeekerId());
+>>>>>>> 5b84532ce7c137b8c9bb0033ca31dc467a3e2141
             } catch (Exception ignored) { }
         }
 

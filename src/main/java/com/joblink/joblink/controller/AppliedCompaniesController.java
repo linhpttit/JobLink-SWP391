@@ -2,7 +2,11 @@ package com.joblink.joblink.controller;
 
 import com.joblink.joblink.auth.model.User;
 import com.joblink.joblink.model.JobSeekerProfile2;
+<<<<<<< HEAD
 import com.joblink.joblink.service.ApplicationService2;
+=======
+import com.joblink.joblink.service.ApplicationService;
+>>>>>>> 5b84532ce7c137b8c9bb0033ca31dc467a3e2141
 import com.joblink.joblink.service.PremiumService;
 import com.joblink.joblink.service.ProfileService;
 import jakarta.servlet.http.HttpSession;
@@ -17,6 +21,7 @@ import java.util.Map;
 @Controller
 @RequestMapping("/jobseeker/applied-companies")
 public class    AppliedCompaniesController {
+<<<<<<< HEAD
     private final ApplicationService2 applicationService2;
     private final PremiumService premiumService;
     private final ProfileService profileService;
@@ -25,6 +30,16 @@ public class    AppliedCompaniesController {
                                       PremiumService premiumService,
                                       ProfileService profileService) {
         this.applicationService2 = applicationService2;
+=======
+    private final ApplicationService applicationService;
+    private final PremiumService premiumService;
+    private final ProfileService profileService;
+
+    public AppliedCompaniesController(ApplicationService applicationService,
+                                      PremiumService premiumService,
+                                      ProfileService profileService) {
+        this.applicationService = applicationService;
+>>>>>>> 5b84532ce7c137b8c9bb0033ca31dc467a3e2141
         this.premiumService = premiumService;
         this.profileService = profileService;
     }
@@ -39,7 +54,11 @@ public class    AppliedCompaniesController {
         // if (!hasMessagingAccess) return "redirect:/jobseeker/premium";
 
         JobSeekerProfile2 profile = profileService.getOrCreateProfile(user.getUserId()); // ✅ đúng khoá
+<<<<<<< HEAD
         List<Map<String, Object>> appliedCompanies = applicationService2.getAppliedCompaniesForSeeker(profile.getSeekerId());
+=======
+        List<Map<String, Object>> appliedCompanies = applicationService.getAppliedCompaniesForSeeker(profile.getSeekerId());
+>>>>>>> 5b84532ce7c137b8c9bb0033ca31dc467a3e2141
 
         model.addAttribute("appliedCompanies", appliedCompanies);
         model.addAttribute("user", user);
@@ -53,7 +72,11 @@ public class    AppliedCompaniesController {
         if (user == null) return ResponseEntity.status(401).build();
 
         JobSeekerProfile2 profile = profileService.getOrCreateProfile(user.getUserId()); // ✅ đúng khoá
+<<<<<<< HEAD
         List<Map<String, Object>> appliedCompanies = applicationService2.getAppliedCompaniesForSeeker(profile.getSeekerId());
+=======
+        List<Map<String, Object>> appliedCompanies = applicationService.getAppliedCompaniesForSeeker(profile.getSeekerId());
+>>>>>>> 5b84532ce7c137b8c9bb0033ca31dc467a3e2141
         return ResponseEntity.ok(appliedCompanies);
     }
 }

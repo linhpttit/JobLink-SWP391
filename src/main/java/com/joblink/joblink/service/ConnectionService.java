@@ -95,6 +95,7 @@ public class ConnectionService {
 
         connectionRequestDao.updateStatus(requestId, "ACCEPTED");
 
+<<<<<<< HEAD
         // Tạo hội thoại seeker-seeker nếu chưa có
         Conversation existingConv = conversationDao.findBySeekerPair(
                 request.getRequesterSeekerId(), request.getTargetSeekerId());
@@ -102,6 +103,29 @@ public class ConnectionService {
             Conversation conversation = new Conversation();
             conversation.setSeekerId(request.getRequesterSeekerId());
             conversation.setSeekerId2(request.getTargetSeekerId());
+=======
+        // Lấy 2 seeker từ request
+        Integer s1 = request.getRequesterSeekerId();
+        Integer s2 = request.getTargetSeekerId();
+        if (s1 == null || s2 == null) {
+            throw new IllegalStateException("Seeker ids must not be null");
+        }
+        if (s1.equals(s2)) {
+            throw new IllegalStateException("Cannot create conversation with the same seeker twice");
+        }
+
+        // 🔑 Chuẩn hoá thứ tự: nhỏ -> seeker_id ; lớn -> seeker_id_2
+        int left  = Math.min(s1, s2);
+        int right = Math.max(s1, s2);
+
+        // Tìm theo thứ tự đã chuẩn hoá để tránh 5-8 và 8-5 là hai cuộc khác nhau
+        Conversation existingConv = conversationDao.findByParticipants(left, right);
+        if (existingConv == null) {
+            Conversation conversation = new Conversation();
+            conversation.setSeekerId(left);          // nhỏ hơn
+            conversation.setSeekerId2(right);        // lớn hơn
+            conversation.setEmployerId(null);        // seeker-seeker thì employer_id phải null
+>>>>>>> 5b84532ce7c137b8c9bb0033ca31dc467a3e2141
             conversation.setConversationType("SEEKER_SEEKER");
             conversationDao.create(conversation);
         }

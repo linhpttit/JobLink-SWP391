@@ -4,7 +4,10 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+<<<<<<< HEAD
 
+=======
+>>>>>>> 5b84532ce7c137b8c9bb0033ca31dc467a3e2141
 import java.time.LocalDateTime;
 
 /**
@@ -43,8 +46,16 @@ public class CompanyReview {
     // 🔹 Ngày tạo (tự động set theo DB default hoặc tự set từ code)
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
+<<<<<<< HEAD
     
     // 🔹 Đánh dấu đã xóa (soft delete) - sử dụng @Transient để tránh lỗi nếu column chưa tồn tại
     @Transient
     private Boolean isDeleted = false;
 }
+=======
+
+    // 🔹 Đánh dấu đã xóa (soft delete) - sử dụng @Transient để tránh lỗi nếu column chưa tồn tại
+    @Transient
+    private Boolean isDeleted = false;
+}
+>>>>>>> 5b84532ce7c137b8c9bb0033ca31dc467a3e2141

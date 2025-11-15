@@ -68,10 +68,64 @@ public class PaymentController {
             RedirectAttributes redirectAttributes) {
         
         try {
+<<<<<<< HEAD
             // Kiểm tra user đã login chưa
             UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
             if (user == null) {
                 return "redirect:/auth/login";
+=======
+            // 1. Get necessary info
+            JobSeekerProfile seeker = seekerRepository.findByUserId(user.getUserId())
+                    .orElseThrow(() -> new NoSuchElementException("Seeker profile not found."));
+            PremiumPackages pkg = packageRepository.findById(packageId)
+                    .orElseThrow(() -> new NoSuchElementException("Package ID not found: " + packageId));
+
+            // 2. Create local DB records (Invoice, Subscription, Payment) in PENDING state
+            Invoice invoice = Invoice.builder()
+                    .userId(user.getUserId()).seekerId(seeker.getSeekerId())
+                    .amount(pkg.getPrice()).status("PENDING")
+                    .issuedAt(LocalDateTime.now()).dueAt(LocalDateTime.now().plusMinutes(15))
+                    .build();
+            Invoice savedInvoice = invoiceRepository.save(invoice);
+            String internalOrderId = String.valueOf(savedInvoice.getInvoiceId());
+
+
+LocalDateTime start = LocalDateTime.now();
+LocalDateTime end = start.plusDays(pkg.getDurationDays());
+            PremiumSubscriptions subscription = new PremiumSubscriptions();
+            // ... (set subscription fields as before) ...
+            subscription.setUserId(user.getUserId()); subscription.setSeekerId(seeker.getSeekerId());
+            subscription.setPackageId(pkg.getPackageId()); subscription.setStatus("PENDING");
+            subscription.setIsActive(false); subscription.setCreatedAt(LocalDateTime.now());
+            subscription.setInvoiceId(savedInvoice.getInvoiceId());
+            subscription.setStartDate(start);
+            subscription.setEndDate(end);
+            PremiumSubscriptions savedSub = subscriptionsRepository.save(subscription);
+
+            savedInvoice.setSubscriptionId(savedSub.getSubscriptionId());
+            invoiceRepository.save(savedInvoice);
+
+            // 3. Call PayOS Service
+            CreatePaymentLinkResponse payosResponse = payOSService.createPaymentLink(internalOrderId, pkg, user);
+            String checkoutUrl = payosResponse.getCheckoutUrl(); // Get the PayOS checkout URL
+            Long payosOrderCode = payosResponse.getOrderCode(); // Get the PayOS code
+
+            // 4. Create local Payment record
+            Payment payment = new Payment();
+            payment.setInvoiceId(savedInvoice.getInvoiceId());
+            payment.setProvider("PAYOS");
+            payment.setTxRef(internalOrderId);
+            // No need to save payosOrderCode in DB if not changing schema
+            payment.setAmount(pkg.getPrice());
+            payment.setStatus("PENDING");
+            payment.setCreatedAt(LocalDateTime.now());
+            paymentRepository.save(payment);
+
+            // --- 5. IMMEDIATE REDIRECT TO PAYOS ---
+            if (checkoutUrl == null || checkoutUrl.trim().isEmpty()) {
+                logger.severe("PayOS did not return a checkoutUrl for PayOS Code: " + payosOrderCode);
+                throw new Exception("Could not get PayOS checkout link.");
+>>>>>>> 5b84532ce7c137b8c9bb0033ca31dc467a3e2141
             }
 
             // Lấy thông tin package

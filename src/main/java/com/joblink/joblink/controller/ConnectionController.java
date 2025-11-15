@@ -1,6 +1,10 @@
 package com.joblink.joblink.controller;
 
+<<<<<<< HEAD
 import com.joblink.joblink.auth.model.User;
+=======
+
+>>>>>>> 5b84532ce7c137b8c9bb0033ca31dc467a3e2141
 import com.joblink.joblink.dto.UserSessionDTO;
 import com.joblink.joblink.model.ConnectionRequest;
 import com.joblink.joblink.model.JobSeekerProfile2;
@@ -15,6 +19,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 5b84532ce7c137b8c9bb0033ca31dc467a3e2141
 import java.util.List;
 import java.util.Map;
 
@@ -65,7 +73,11 @@ public class ConnectionController {
     @PostMapping("/request")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> sendRequest(@RequestBody Map<String, Object> payload, HttpSession session) {
+<<<<<<< HEAD
         User user = (User) session.getAttribute("user");
+=======
+        UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
+>>>>>>> 5b84532ce7c137b8c9bb0033ca31dc467a3e2141
         if (user == null) return ResponseEntity.status(401).body(Map.of("error", "Unauthorized"));
 
         try {
@@ -85,7 +97,11 @@ public class ConnectionController {
     @PostMapping("/accept/{requestId}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> acceptRequest(@PathVariable int requestId, HttpSession session) {
+<<<<<<< HEAD
         User user = (User) session.getAttribute("user");
+=======
+        UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
+>>>>>>> 5b84532ce7c137b8c9bb0033ca31dc467a3e2141
         if (user == null) return ResponseEntity.status(401).body(Map.of("error", "Unauthorized"));
         try {
             connectionService.acceptConnectionRequest(requestId);
@@ -98,7 +114,11 @@ public class ConnectionController {
     @PostMapping("/reject/{requestId}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> rejectRequest(@PathVariable int requestId, HttpSession session) {
+<<<<<<< HEAD
         User user = (User) session.getAttribute("user");
+=======
+        UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
+>>>>>>> 5b84532ce7c137b8c9bb0033ca31dc467a3e2141
         if (user == null) return ResponseEntity.status(401).body(Map.of("error", "Unauthorized"));
         try {
             connectionService.rejectConnectionRequest(requestId);
@@ -111,7 +131,11 @@ public class ConnectionController {
     @GetMapping("/suggestions")
     @ResponseBody
     public ResponseEntity<List<Map<String, Object>>> getSuggestions(HttpSession session) {
+<<<<<<< HEAD
         User user = (User) session.getAttribute("user");
+=======
+        UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
+>>>>>>> 5b84532ce7c137b8c9bb0033ca31dc467a3e2141
         if (user == null) return ResponseEntity.status(401).build();
         return ResponseEntity.ok(connectionService.getSuggestedConnections(user.getUserId()));
     }

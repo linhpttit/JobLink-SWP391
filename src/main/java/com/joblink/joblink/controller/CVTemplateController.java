@@ -1,7 +1,10 @@
 package com.joblink.joblink.controller;
 
 import com.joblink.joblink.auth.model.User;
+<<<<<<< HEAD
 import com.joblink.joblink.dto.UserSessionDTO;
+=======
+>>>>>>> 5b84532ce7c137b8c9bb0033ca31dc467a3e2141
 import com.joblink.joblink.model.*;
 import com.joblink.joblink.service.*;
 import jakarta.servlet.http.HttpSession;
@@ -11,6 +14,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+<<<<<<< HEAD
+=======
+import com.joblink.joblink.dto.UserSessionDTO;
+>>>>>>> 5b84532ce7c137b8c9bb0033ca31dc467a3e2141
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -36,16 +43,27 @@ public class CVTemplateController {
 
     @GetMapping
     public String showTemplates(HttpSession session, Model model) {
+<<<<<<< HEAD
         UserSessionDTO userSession = (UserSessionDTO) session.getAttribute("user");
         if (userSession == null) return "redirect:/auth/login";
 
         if (!premiumService.hasFeature(userSession.getUserId(), "cv_templates")) {
+=======
+        UserSessionDTO userSession = (UserSessionDTO) session.getAttribute("user");  // ✅ FIX
+        if (userSession == null) return "redirect:/auth/login";
+
+        if (!premiumService.hasFeature(userSession.getUserId(), "cv_templates")) {  // ✅ FIX
+>>>>>>> 5b84532ce7c137b8c9bb0033ca31dc467a3e2141
             return "redirect:/jobseeker/premium";
         }
 
         List<CVTemplate> templates = cvTemplateService.getAllActiveTemplates();
         model.addAttribute("templates", templates);
+<<<<<<< HEAD
         model.addAttribute("user", userSession);
+=======
+        model.addAttribute("user", userSession);  // ✅ FIX
+>>>>>>> 5b84532ce7c137b8c9bb0033ca31dc467a3e2141
         model.addAttribute("hasCVAccess", true);
         return "cv-templates";
     }
@@ -54,10 +72,17 @@ public class CVTemplateController {
     public String viewTemplate(@PathVariable int templateId,
                                HttpSession session,
                                Model model) {
+<<<<<<< HEAD
         User user = (User) session.getAttribute("user");
         if (user == null) return "redirect:/auth/login";
 
         if (!premiumService.hasFeature(user.getUserId(), "cv_templates")) {
+=======
+        UserSessionDTO userSession = (UserSessionDTO) session.getAttribute("user");  // ✅ FIX
+        if (userSession == null) return "redirect:/auth/login";
+
+        if (!premiumService.hasFeature(userSession.getUserId(), "cv_templates")) {  // ✅ FIX
+>>>>>>> 5b84532ce7c137b8c9bb0033ca31dc467a3e2141
             return "redirect:/jobseeker/premium";
         }
 
@@ -67,7 +92,11 @@ public class CVTemplateController {
             return "redirect:/jobseeker/cv-templates";
         }
 
+<<<<<<< HEAD
         JobSeekerProfile2 profile = jobSeekerService.getProfileByUserId(user.getUserId());
+=======
+        JobSeekerProfile2 profile = jobSeekerService.getProfileByUserId(userSession.getUserId());  // ✅ FIX
+>>>>>>> 5b84532ce7c137b8c9bb0033ca31dc467a3e2141
         if (profile == null) {
             model.addAttribute("error", "Please create your JobSeeker profile first.");
             return "redirect:/jobseeker/profile/edit";
@@ -75,7 +104,11 @@ public class CVTemplateController {
 
         model.addAttribute("template", template);
         model.addAttribute("profile", profile);
+<<<<<<< HEAD
         model.addAttribute("user", user);
+=======
+        model.addAttribute("user", userSession);  // ✅ FIX
+>>>>>>> 5b84532ce7c137b8c9bb0033ca31dc467a3e2141
         return "cv-template-view";
     }
 
@@ -86,6 +119,7 @@ public class CVTemplateController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> exportTemplate(@PathVariable int templateId,
                                                               HttpSession session) {
+<<<<<<< HEAD
         User user = (User) session.getAttribute("user");
         Map<String, Object> res = new HashMap<>();
         if (user == null) return ResponseEntity.status(401).body(Map.of("success", false, "error", "Unauthorized"));
@@ -95,6 +129,17 @@ public class CVTemplateController {
         }
 
         JobSeekerProfile2 profile = jobSeekerService.getProfileByUserId(user.getUserId());
+=======
+        UserSessionDTO userSession = (UserSessionDTO) session.getAttribute("user");  // ✅ FIX
+        Map<String, Object> res = new HashMap<>();
+        if (userSession == null) return ResponseEntity.status(401).body(Map.of("success", false, "error", "Unauthorized"));
+
+        if (!premiumService.hasFeature(userSession.getUserId(), "cv_templates")) {  // ✅ FIX
+            return ResponseEntity.status(403).body(Map.of("success", false, "error", "Premium access required"));
+        }
+
+        JobSeekerProfile2 profile = jobSeekerService.getProfileByUserId(userSession.getUserId());  // ✅ FIX
+>>>>>>> 5b84532ce7c137b8c9bb0033ca31dc467a3e2141
         if (profile == null) {
             return ResponseEntity.badRequest().body(Map.of("success", false, "error", "Profile not found"));
         }
@@ -104,7 +149,10 @@ public class CVTemplateController {
             return ResponseEntity.status(404).body(Map.of("success", false, "error", "Template not found"));
         }
 
+<<<<<<< HEAD
         // Lưu lịch sử export (nếu bạn muốn lưu) – tên file an toàn
+=======
+>>>>>>> 5b84532ce7c137b8c9bb0033ca31dc467a3e2141
         String safeName = (profile.getFullname() == null ? "CV" : profile.getFullname()).replaceAll("\\s+", "_");
         String fileName = "CV_" + safeName + "_" + template.getTemplateCode() + ".pdf";
         cvTemplateService.saveExportRecord(profile.getSeekerId(), templateId, fileName);
@@ -123,11 +171,19 @@ public class CVTemplateController {
     public ResponseEntity<byte[]> downloadTemplate(@PathVariable int templateId,
                                                    @RequestParam(name = "fn", required = false) String fn,
                                                    HttpSession session) {
+<<<<<<< HEAD
         User user = (User) session.getAttribute("user");
         if (user == null) return ResponseEntity.status(401).build();
         if (!premiumService.hasFeature(user.getUserId(), "cv_templates")) return ResponseEntity.status(403).build();
 
         JobSeekerProfile2 profile = jobSeekerService.getProfileByUserId(user.getUserId());
+=======
+        UserSessionDTO userSession = (UserSessionDTO) session.getAttribute("user");  // ✅ FIX
+        if (userSession == null) return ResponseEntity.status(401).build();
+        if (!premiumService.hasFeature(userSession.getUserId(), "cv_templates")) return ResponseEntity.status(403).build();  // ✅ FIX
+
+        JobSeekerProfile2 profile = jobSeekerService.getProfileByUserId(userSession.getUserId());  // ✅ FIX
+>>>>>>> 5b84532ce7c137b8c9bb0033ca31dc467a3e2141
         if (profile == null) return ResponseEntity.badRequest().build();
 
         CVTemplate template = cvTemplateService.getTemplateById(templateId);

@@ -3,10 +3,14 @@ package com.joblink.joblink.dao;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+<<<<<<< HEAD
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+=======
+import java.util.*;
+>>>>>>> 5b84532ce7c137b8c9bb0033ca31dc467a3e2141
 
 @Repository
 public class JobSearchDao {

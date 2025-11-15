@@ -45,7 +45,6 @@ public class Invoice {
     @Column(name = "paid_at")
     private LocalDateTime paidAt;
 
-
-
-
+    @Column(name = "txn_ref", length = 100)
+    private String txnRef;
 }

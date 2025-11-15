@@ -56,7 +56,7 @@
                     <div class="avatar-preview">
                         <img id="avatarPreview"
                              th:src="${profile.avatarUrl != null ? profile.avatarUrl : '/images/user.png'}"
-                             alt="Avatar" src="/static/images/user.png">
+                             alt="Avatar" src="/images/user.png">
                     </div>
                     <div class="avatar-actions">
                         <label for="avatarInput" class="btn-upload">
@@ -278,7 +278,7 @@
             <div class="certificates-grid" id="certificatesList">
                 <div class="certificate-card" th:each="cert : ${certificates}">
                     <div class="certificate-image" th:if="${cert.certificateImageUrl}">
-                        <img th:src="${cert.certificateImageUrl}" alt="Certificate" src="/static/images/user.png">
+                        <img th:src="${cert.certificateImageUrl}" alt="Certificate" src="/images/user.png">
                     </div>
                     <div class="certificate-content">
                         <h4 th:text="${cert.issuingOrganization}">Organization</h4>

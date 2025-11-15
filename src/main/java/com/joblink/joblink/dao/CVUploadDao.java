@@ -99,4 +99,10 @@ public class CVUploadDao {
             return null;
         }
     }
+
+    public long countAll() {
+        String sql = "SELECT COUNT(*) FROM CVUpload";
+        Long count = jdbc.queryForObject(sql, Long.class);
+        return count != null ? count : 0L;
+    }
 }
