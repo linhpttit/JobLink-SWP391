@@ -1,0 +1,41 @@
+:root{
+  --bg:#f7f8fb; --card:#fff; --muted:#8b95a7; --text:#111827; --border:#e5e7eb; --primary:#2563eb; --primary-100:#e7efff;
+  --success:#16a34a; --danger:#dc2626; --chip-bg:#eef2ff;
+}
+*{box-sizing:border-box}
+body{margin:0; font:14px/1.45 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; background:var(--bg); color:var(--text)}
+.container{max-width:1000px; margin:40px auto; padding:0 16px}
+.card{background:var(--card); border:1px solid var(--border); border-radius:14px; box-shadow:0 1px 2px rgba(16,24,40,.04)}
+.card-header{display:flex; align-items:center; justify-content:space-between; padding:18px 20px; border-bottom:1px solid var(--border)}
+.title{font-weight:700; font-size:18px}
+.count{color:var(--muted); font-weight:600}
+.toolbar{display:flex; gap:10px; align-items:center}
+.select{appearance:none; padding:10px 36px 10px 12px; border:1px solid var(--border); border-radius:10px; background:#fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="%238b95a7" stroke-width="2"><path d="M6 8l4 4 4-4"/></svg>') no-repeat right 10px center; color:#374151}
+.table{width:100%}
+table{width:100%; border-collapse:separate; border-spacing:0}
+thead th{font-size:12px; color:var(--muted); font-weight:700; text-align:left; padding:14px 20px}
+tbody tr{border-top:1px solid var(--border)}
+tbody td{padding:16px 20px; vertical-align:middle}
+.job-title{font-weight:700}
+.sub{font-size:12px; color:var(--muted)}
+.status{display:inline-flex; align-items:center; gap:6px; font-weight:700}
+.dot{width:8px; height:8px; border-radius:999px}
+.dot.success{background:var(--success)}
+.dot.expire{background:var(--danger)}
+.apps{display:flex; align-items:center; gap:6px; color:#374151}
+.btn{padding:10px 14px; font-weight:700; border-radius:10px; border:1px solid var(--primary); background:var(--primary); color:#fff; text-decoration:none; display:inline-flex; align-items:center; gap:8px}
+.btn.secondary{background:#fff; color:var(--primary)}
+.row{position:relative}
+.row.active{outline:2px solid var(--primary-100); outline-offset:0; border-radius:12px}
+.menu{position:relative}
+.kebab{width:34px; height:34px; border-radius:10px; border:1px solid var(--border); background:#fff; display:grid; place-items:center; cursor:pointer}
+.kebab span{width:3px; height:3px; background:#9aa5b1; border-radius:999px; display:block; box-shadow:0 6px 0 #9aa5b1, 0 -6px 0 #9aa5b1}
+.dropdown{position:absolute; right:0; top:42px; width:190px; background:#fff; border:1px solid var(--border); border-radius:12px; box-shadow:0 12px 24px rgba(16,24,40,.12); display:none; z-index:3}
+.dropdown a{display:block; padding:12px 14px; color:#111827; text-decoration:none}
+.dropdown a:hover{background:#f3f4f6}
+.pagination{display:flex; gap:10px; align-items:center; justify-content:center; padding:18px}
+.page{width:36px; height:36px; border-radius:10px; border:1px solid var(--border); display:grid; place-items:center; text-decoration:none; color:#374151}
+.page.active{background:var(--primary); color:#fff; border-color:var(--primary)}
+.arrow{font-weight:700}
+/* Simple show/hide driven by data-open attribute */
+[data-open="true"] + .dropdown{display:block}
