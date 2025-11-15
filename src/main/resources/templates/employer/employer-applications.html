@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{employer/employer-layout}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobLink - Applicant Tracking System</title>
+    <link rel="stylesheet" href="/CSS/employer-applications.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+<main class="wrap" layout:fragment="content">
+<div class="container">
+    <div class="filter-section">
+        <!-- FORM BAO BỌC FILTERS -->
+        <form id="filter-form" method="get" action="/applications">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-input" name="search" th:value="${search}" placeholder="Search by candidate name, email, or phone">
+                <button type="button" class="clear-filters" onclick="clearFilters()">Clear All Filters</button>
+                <button type="button" class="hide-filters" id="toggle-filters"><i class="fas fa-filter"></i> <span>Show Filters</span></button>
+            </div>
+
+            <div class="filters" id="filters-panel">
+
+                <div class="filter-group job-exp-group">
+
+                    <div class="sub-group">
+                        <label>Job Position</label>
+                        <select id="job-position" name="positions">
+                            <option value="">All Positions</option>
+                            <option th:each="position : ${positions}"
+                                    th:value="${position}"
+                                    th:text="${position}"
+                                    th:selected="${selectedPositions != null && selectedPositions.contains(position)}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="sub-group">
+                        <label>Số năm kinh nghiệm</label>
+                        <div class="range-slider-container">
+                            <div class="range-slider-wrapper">
+                                <input type="range" min="0" max="20"
+                                       th:value="${maxExperience != null ? maxExperience : 0}"
+                                       class="range-slider" id="experience-range">
+                            </div>
+                            <div class="range-value-display" id="range-value">
+                                <span th:text="${maxExperience != null ? maxExperience : 0}">0</span> năm
+                            </div>
+                            <div class="range-labels">
+                                <span>0</span>
+                                <span>20</span>
+                            </div>
+                            <input type="hidden" name="minExperience" id="minExperience" value="0">
+                            <input type="hidden" name="maxExperience" id="maxExperience"
+                                   th:value="${maxExperience != null ? maxExperience : 0}">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filter-group status-exp-group">
+
+                    <div class="status-container">
+                        <label>Application Status</label>
+                        <div class="checkbox-group">
+                            <label th:each="status : ${statuses}">
+                                <input type="checkbox" name="statuses" th:value="${status}"
+                                       th:checked="${selectedStatuses != null && selectedStatuses.contains(status)}">
+                                <span th:text="${#strings.capitalize(status)}">Status</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="education-container">
+                        <label>Education Level</label>
+                        <select id="education-level" name="educationLevels">
+                            <option value="">All Levels</option>
+                            <option th:each="edu : ${educationLevels}"
+                                    th:value="${edu}"
+                                    th:text="${edu}"
+                                    th:selected="${selectedEducationLevels != null && selectedEducationLevels.contains(edu)}">
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="filter-row-2">
+                    <div class="filter-group-wide">
+                        <label>Skills / Keywords</label>
+                        <input type="text" name="skills" placeholder="e.g., React, Python, Design">
+                    </div>
+
+                    <div class="filter-group-wide">
+                        <label>Location</label>
+                        <input type="text" name="location" th:value="${location}" placeholder="City, State, or Remote">
+                    </div>
+                </div>
+
+                <!-- NÚT APPLY FILTERS -->
+                <div class="filter-actions">
+                    <button type="button" class="clear-filters" onclick="clearFilters()">Clear All</button>
+                    <button type="submit" class="apply-filters">Apply Filters</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <hr class="divider">
+
+    <!-- BULK ACTIONS -->
+    <div class="bulk-actions">
+        <div class="select-all-container">
+            <input type="checkbox" id="select-all" class="select-candidate">
+            <label for="select-all">Select All</label>
+        </div>
+        <button class="bulk-send-email" id="bulk-send-email" disabled>Send Email to Selected</button>
+        <span id="selected-count">0 selected</span>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+            <tr>
+                <th style="width: 20px; text-align: center;">
+                    <input type="checkbox" id="header-checkbox" class="select-candidate">
+                </th>
+                <th>CANDIDATE</th>
+                <th>CONTACT</th>
+                <th>POSITION</th>
+                <th>APPLIED DATE</th>
+                <th>STATUS</th>
+                <th class="save-cell">SAVE</th>
+                <th class="actions-cell">ACTIONS</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="app : ${applications}" th:attr="data-app-id=${app.applicationId}">
+                <td style="text-align: center;">
+                    <input type="checkbox" class="select-candidate candidate-checkbox"
+                           th:attr="data-app-id=${app.applicationId}"
+                           th:data-email="${app.candidateEmail}"
+                           th:data-name="${app.candidateName}">
+                </td>
+                <td>
+                    <div class="candidate-info" style="display: flex; align-items: center; gap: 12px;">
+                        <img th:src="${app.avatarUrl != null ? app.avatarUrl : 'https://via.placeholder.com/150/28a745/ffffff?text=User'}"
+                             th:alt="${app.candidateName}" class="candidate-avatar">
+                        <div class="candidate-details">
+                            <a href="#" th:text="${app.candidateName}">Candidate Name</a>
+                            <small th:text="${app.education != null ? app.education : 'No education info'}">Education</small>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="contact-info">
+                        <a th:href="'mailto:' + ${app.candidateEmail}" th:text="${app.candidateEmail}">email@example.com</a>
+                        <a th:href="'tel:' + ${app.candidatePhone}" th:text="${app.candidatePhone}">+1 (555) 000-0000</a>
+                    </div>
+                </td>
+                <td th:text="${app.position}">Position
+                    <small style="display:block; color:var(--secondary-text);" th:text="${app.location != null ? app.location : 'No location'}">Location</small>
+                </td>
+                <td th:text="${#temporals.format(app.appliedAt, 'dd/MM/yyyy')}">01/01/2024</td>
+
+                <td>
+                    <form th:action="@{/applications/{id}/status(id=${app.applicationId})}" method="post" class="status-form">
+                        <select class="status-dropdown"
+                                th:classappend="'status-' + ${app.status}"
+                                th:attr="data-previous-value=${app.status}"
+                                name="status">
+                            <option value="submitted" th:selected="${app.status == 'submitted'}">Submitted</option>
+                            <option value="reviewed" th:selected="${app.status == 'reviewed'}">Reviewed</option>
+                            <option value="hired" th:selected="${app.status == 'hired'}">Hired</option>
+                            <option value="rejected" th:selected="${app.status == 'rejected'}">Rejected</option>
+                        </select>
+                    </form>
+                </td>
+
+                <td class="save-cell">
+                    <form th:action="@{/applications/{id}/bookmark(id=${app.applicationId})}" method="post" class="bookmark-form">
+                        <button type="submit" class="save-button" th:classappend="${app.saved} ? 'saved' : ''">
+                            <i th:classappend="${app.saved} ? 'fas fa-bookmark' : 'far fa-bookmark'"></i>
+                        </button>
+                    </form>
+                </td>
+                <td class="actions-cell">
+                    <i class="fas fa-ellipsis-v actions-icon"></i>
+                    <div class="dropdown-menu">
+                        <button class="dropdown-item send-email-action" th:attr="data-email=${app.candidateEmail}">
+                            <i class="fas fa-envelope"></i> Send Email
+                        </button>
+                        <!-- FIXED: CV sẽ mở link ngoài -->
+                        <a th:if="${app.cvUrl}" th:href="${app.cvUrl}" target="_blank" rel="noopener noreferrer" class="dropdown-item">
+                            <i class="fas fa-file-pdf"></i> View CV
+                        </a>
+                        <a th:unless="${app.cvUrl}" href="#" class="dropdown-item" style="opacity: 0.5; cursor: not-allowed;">
+                            <i class="fas fa-file-pdf"></i> No CV Available
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination">
+        <p id="pagination-info">
+            Showing <span th:text="${currentPage * pageSize + 1}">1</span> to
+            <span th:text="${(currentPage + 1) * pageSize > totalElements ? totalElements : (currentPage + 1) * pageSize}">10</span> of
+            <span th:text="${totalElements}">12</span> results
+        </p>
+        <div class="pagination-controls">
+            <a th:if="${currentPage > 0}"
+               th:href="@{/applications(search=${search}, positions=${selectedPositions}, minExperience=${minExperience}, maxExperience=${maxExperience}, statuses=${selectedStatuses}, educationLevels=${selectedEducationLevels}, location=${location}, page=${currentPage - 1}, size=${pageSize})}"
+               class="prev-btn">Previous</a>
+            <a th:if="${currentPage == 0}" class="prev-btn" style="opacity: 0.5; cursor: not-allowed;">Previous</a>
+
+            <a th:if="${currentPage < totalPages - 1}"
+               th:href="@{/applications(search=${search}, positions=${selectedPositions}, minExperience=${minExperience}, maxExperience=${maxExperience}, statuses=${selectedStatuses}, educationLevels=${selectedEducationLevels}, location=${location}, page=${currentPage + 1}, size=${pageSize})}"
+               class="next-btn">Next</a>
+            <a th:if="${currentPage >= totalPages - 1}" class="next-btn" style="opacity: 0.5; cursor: not-allowed;">Next</a>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Email Modal -->
+<div class="modal-overlay" id="bulk-email-modal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 class="modal-title">Send Bulk Email</h3>
+            <button class="modal-close" id="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>You are about to send an email to <span id="selected-candidates-count">0</span> candidates:</p>
+            <div class="selected-candidates-list" id="selected-candidates-list">
+                <!-- Selected candidates will be listed here -->
+            </div>
+            <p>This will open Gmail with all selected email addresses in the "To" field.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn modal-btn-cancel" id="cancel-bulk-email">Cancel</button>
+            <button class="modal-btn modal-btn-primary" id="confirm-bulk-email">Open Gmail</button>
+        </div>
+    </div>
+</div>
+
+<script src="/JS/employer-applications.js"></script>
+</main>
+</body>
+</html>

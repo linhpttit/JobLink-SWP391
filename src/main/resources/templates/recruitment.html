@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý tin tuyển dụng</title>
+    <link rel="stylesheet" href="/CSS/recruitment.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="recruitment-management">
+    <!-- Header -->
+    <div class="recruitment-header">
+        <h2 class="recruitment-title"><i class="fa-solid fa-file"></i>Tin tuyển dụng</h2>
+    </div>
+
+    <!-- Filters -->
+    <div class="recruitment-filters">
+        <div class="filter-row">
+            <div class="filter-group">
+                <label for="jobSearch">Tìm kiếm</label>
+                <div class="search-box">
+                    <input type="text" id="jobSearch" placeholder="Tìm theo tiêu đề, công ty...">
+                    <i class="fas fa-search"></i>
+                </div>
+            </div>
+            <div class="filter-group">
+                <label for="statusFilter">Trạng thái</label>
+                <select id="statusFilter">
+                    <option value="">Tất cả</option>
+                    <option value="active">Đang hoạt động</option>
+                    <option value="pending">Chờ duyệt</option>
+                    <option value="expired">Hết hạn</option>
+                    <option value="rejected">Từ chối</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="dateFilter">Ngày đăng</label>
+                <select id="dateFilter">
+                    <option value="">Tất cả thời gian</option>
+                    <option value="today">Hôm nay</option>
+                    <option value="week">Tuần này</option>
+                    <option value="month">Tháng này</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="categoryFilter">Ngành nghề</label>
+                <select id="categoryFilter">
+                    <option value="">Tất cả ngành</option>
+                    <option value="it">Công nghệ thông tin</option>
+                    <option value="finance">Tài chính - Ngân hàng</option>
+                    <option value="marketing">Marketing</option>
+                    <option value="hr">Nhân sự</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="recruitment-stats">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-clipboard-list"></i>
+            </div>
+            <div class="stat-info">
+                <h3>245</h3>
+                <p>Tổng số tin</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon active">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-info">
+                <h3>189</h3>
+                <p>Đang hoạt động</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon pending">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-info">
+                <h3>32</h3>
+                <p>Chờ duyệt</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon inactive">
+                <i class="fas fa-times-circle"></i>
+            </div>
+            <div class="stat-info">
+                <h3>24</h3>
+                <p>Từ chối</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recruitment Table -->
+    <div class="recruitment-table-container">
+        <table class="recruitment-table">
+            <thead>
+            <tr>
+                <th>Tiêu đề</th>
+                <th>Công ty</th>
+                <th>Ngành</th>
+                <th>Địa điểm</th>
+                <th>Lương</th>
+                <th>Ngày đăng</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="no-data">
+                <td colspan="9" style="text-align:center; padding: 20px; color: #888;">
+                    Không có dữ liệu
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+        <div class="pagination-info">
+            Hiển thị 1-10 của 245 kết quả
+        </div>
+        <div class="pagination-controls">
+            <button class="pagination-btn" disabled>
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="pagination-btn active">1</button>
+            <button class="pagination-btn">2</button>
+            <button class="pagination-btn">3</button>
+            <button class="pagination-btn">...</button>
+            <button class="pagination-btn">10</button>
+            <button class="pagination-btn">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="recruitment.js"></script>
+</body>
+</html>

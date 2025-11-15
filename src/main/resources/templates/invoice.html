@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${invoice != null} ? 'Hóa đơn #' + ${invoice.invoiceId} : 'Hóa đơn Thanh toán'">Hóa đơn Thanh toán</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f4f7f6; color: #333; }
+        .invoice-box { max-width: 800px; margin: 50px auto; padding: 40px; border: 1px solid #eee; background: #fff; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); border-radius: 8px; }
+        .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; flex-wrap: wrap; }
+        .header .company-details { margin-bottom: 20px; }
+        .header .company-details h2 { margin: 0 0 10px 0; color: #555; font-size: 1.5em; }
+        .header .company-details p { margin: 2px 0; font-size: 0.9em; color: #666; }
+        .header .invoice-details { text-align: right; min-width: 250px; }
+        .header .invoice-details h3 { margin: 0 0 5px 0; color: #333; font-size: 1.2em; }
+        .header .invoice-details p { margin: 2px 0; font-size: 0.9em; color: #666; }
+        .customer-details { margin-bottom: 40px; }
+        .customer-details h4 { margin-bottom: 10px; color: #555; }
+        .customer-details p { margin: 2px 0; font-size: 0.9em; color: #666; }
+        table { width: 100%; line-height: inherit; text-align: left; border-collapse: collapse; }
+        table th { background: #eee; padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold; color: #555; }
+        table td { padding: 10px; border-bottom: 1px solid #eee; vertical-align: top; }
+        table tr.item td { border-bottom: 1px solid #eee; }
+        table tr.item.last td { border-bottom: none; }
+        table tr.total td:last-child { border-top: 2px solid #eee; font-weight: bold; font-size: 1.1em; color: #333; text-align: right; }
+        .status { padding: 5px 10px; border-radius: 4px; font-weight: bold; display: inline-block; font-size: 0.9em; margin-top: 10px; text-transform: uppercase; }
+        .status.paid { background-color: #dcfce7; color: #166534; border: 1px solid #a7f3d0; }
+        .status.pending { background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+        .status.cancelled { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+        .status.refunded { background-color: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe; }
+        .status.failed { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+        .footer { margin-top: 40px; text-align: center; font-size: 0.8em; color: #aaa; }
+        .print-button { display: block; width: 150px; margin: 30px auto 0; padding: 12px; background-color: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 1em; text-align: center; }
+        .print-button:hover { background-color: #5a6fd8; }
+         @media print {
+            body { -webkit-print-color-adjust: exact; margin: 0; padding: 10px; background-color: #fff; color: #000;}
+            .invoice-box { box-shadow: none; border: 1px solid #ccc; margin: 0; max-width: 100%; border-radius: 0; padding: 20px;}
+            .header, .customer-details, .footer { margin-bottom: 20px; }
+            .print-button { display: none; }
+            table th { background: #eee !important; color: #555 !important; }
+            .status { border: 1px solid #ccc !important; }
+            .status.paid { background-color: #dcfce7 !important; color: #166534 !important; }
+            .status.pending { background-color: #fef3c7 !important; color: #92400e !important; }
+            .status.cancelled { background-color: #fee2e2 !important; color: #991b1b !important; }
+            .status.refunded { background-color: #e0e7ff !important; color: #3730a3 !important; }
+            .status.failed { background-color: #fee2e2 !important; color: #991b1b !important; }
+        }
+    </style>
+</head>
+<body>
+<div th:if="${invoice != null}" class="invoice-box">
+    <div class="header">
+        <div class="company-details">
+            <h2>JobLink</h2>
+            <p>123 Đường ABC, Quận XYZ, Đà Nẵng</p>
+            <p>support@joblink.vn</p>
+        </div>
+        <div class="invoice-details">
+            <h3>HÓA ĐƠN #<span th:text="${invoice.invoiceId}">123</span></h3>
+            <p>Ngày tạo: <span th:text="${invoice.issuedAt != null ? #temporals.format(invoice.issuedAt, 'dd/MM/yyyy HH:mm') : 'N/A'}">--/--/----</span></p>
+            <p>Hạn TT: <span th:text="${invoice.dueAt != null ? #temporals.format(invoice.dueAt, 'dd/MM/yyyy HH:mm') : 'N/A'}">--/--/----</span></p>
+            <p th:if="${invoice.paidAt != null}">Ngày TT: <span th:text="${#temporals.format(invoice.paidAt, 'dd/MM/yyyy HH:mm')}">--/--/----</span></p>
+            <p>Trạng thái:
+                <span th:text="${#strings.toUpperCase(invoice.status)}"
+                      th:classappend="${#strings.toLowerCase(invoice.status)}"
+                      class="status">
+                        PENDING
+                    </span>
+            </p>
+        </div>
+    </div>
+
+    <div class="customer-details">
+        <h4>Thông tin khách hàng:</h4>
+        <div th:if="${customer != null}">
+            <p th:text="${customer.username ?: 'N/A'}">Tên người dùng</p>
+            <p th:text="${customer.email}">email@example.com</p>
+            <p th:text="'User ID: ' + ${invoice.userId}"></p>
+        </div>
+        <div th:unless="${customer != null}">
+            <p th:text="'User ID: ' + ${invoice.userId}">User ID: 99</p>
+            <p>Không tải được thông tin người dùng.</p>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Mô tả</th>
+            <th>Số lượng</th>
+            <th>Đơn giá (VNĐ)</th>
+            <th style="text-align: right;">Thành tiền (VNĐ)</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="item last">
+            <td>
+                        <span th:if="${premiumPackage != null}"
+                              th:text="'Nâng cấp gói: ' + ${premiumPackage.name}">
+                            Nâng cấp gói: Premium
+                        </span>
+                <span th:unless="${premiumPackage != null}">
+                            Dịch vụ JobLink Premium
+                        </span>
+                <div th:if="${premiumPackage != null}" style="font-size: 0.85em; color: #666;">
+                    (Thời hạn: <span th:text="${premiumPackage.durationDays}">30</span> ngày)
+                </div>
+            </td>
+            <td>1</td>
+            <td th:text="${invoice.amount != null ? #numbers.formatDecimal(invoice.amount, 0, 'COMMA', 0, 'POINT') : '0'}">0</td>
+            <td style="text-align: right;" th:text="${invoice.amount != null ? #numbers.formatDecimal(invoice.amount, 0, 'COMMA', 0, 'POINT') : '0'}">0</td>
+        </tr>
+
+        <tr class="total">
+            <td colspan="3" style="border-top: 2px solid #eee;"></td>
+            <td>Tổng cộng: <strong th:text="${invoice.amount != null ? #numbers.formatDecimal(invoice.amount, 0, 'COMMA', 0, 'POINT') : '0'} + ' VNĐ'">0 VNĐ</strong></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="footer">
+        Cảm ơn bạn đã sử dụng dịch vụ của JobLink!
+    </div>
+
+    <button onclick="window.print()" class="print-button"><i class="fas fa-print"></i> In hóa đơn</button>
+</div>
+
+<div th:unless="${invoice != null}" style="text-align: center; margin-top: 50px;">
+    <h2>Không tìm thấy hóa đơn</h2>
+    <p th:text="${error ?: 'Có lỗi xảy ra khi tải thông tin hóa đơn.'}">Lỗi tải hóa đơn.</p>
+    <a th:href="@{/}" style="display: inline-block; margin-top: 20px; padding: 10px 20px; background-color: #667eea; color: white; text-decoration: none; border-radius: 5px;">Quay về trang chủ</a>
+</div>
+</body>
+</html>

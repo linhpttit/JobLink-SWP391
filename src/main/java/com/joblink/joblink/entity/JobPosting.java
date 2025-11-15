@@ -1,5 +1,7 @@
 package com.joblink.joblink.entity;
 
+
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -72,27 +74,27 @@ public class JobPosting {
     private String contactPhone;
 
     @Column(name = "posted_at", nullable = false)
-    private LocalDate postedAt = LocalDate.now();
+    private LocalDateTime postedAt = LocalDateTime.now(); // Sửa lại thành LocalDateTime
 
     // ===================== RELATIONSHIPS =====================
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employer_id", nullable = false)
     private Employer employer;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "skill_id", nullable = false)
     private Skill skill;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "province_id")
     private Province province;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "district_id")
     private District district;
 }

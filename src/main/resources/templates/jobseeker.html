@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Người tìm việc</title>
+    <link rel="stylesheet" th:href="@{/CSS/jobseeker.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <script>
+        // LƯU Ý: Script trong <head> có thể KHÔNG CHẠY nếu trang được load qua AJAX
+        // Tất cả logic chính nằm trong script ở body (sau tag </div>)
+        (function() {
+            'use strict';
+            console.log("🔧 Script trong <head> đã được load (nếu bạn thấy log này nghĩa là trang load trực tiếp)");
+
+            // Kiểm tra context: chỉ hoạt động khi ở trang jobseeker
+            function isJobSeekerPageHead() {
+                return !!document.getElementById("searchInput") && 
+                       !!document.querySelector(".jobseeker-management");
+            }
+
+            // Hàm áp dụng filter (được gọi từ onclick trong HTML)
+            // CHỈ HOẠT ĐỘNG KHI Ở TRANG JOBSEEKER
+            window.applyFilters = function() {
+                if (!isJobSeekerPageHead()) {
+                    return;
+                }
+                console.log("🔍 applyFilters() được gọi từ onclick");
+                // Lưu ý: Các biến searchInput, statusFilter, etc. được định nghĩa trong body script
+                // Functions trong head chỉ là fallback, logic chính ở body
+                if (window.fetchJobSeekers) {
+                    window.fetchJobSeekers();
+                } else {
+                    console.error("❌ fetchJobSeekers chưa được định nghĩa");
+                }
+            };
+            
+            // Hàm reset tất cả filter (được gọi từ onclick trong HTML)
+            // CHỈ HOẠT ĐỘNG KHI Ở TRANG JOBSEEKER
+            window.resetFilters = function() {
+                if (!isJobSeekerPageHead()) {
+                    return;
+                }
+                console.log("🔄 resetFilters() được gọi");
+                // Lấy elements nếu có
+                const searchInputEl = document.getElementById("searchInput");
+                const statusFilterEl = document.getElementById("statusFilter");
+                const experienceFilterEl = document.getElementById("experienceFilter");
+                if (searchInputEl) searchInputEl.value = "";
+                if (statusFilterEl) statusFilterEl.value = "";
+                if (experienceFilterEl) experienceFilterEl.value = "";
+                if (window.fetchJobSeekers) {
+                    window.fetchJobSeekers();
+                } else {
+                    console.error("❌ fetchJobSeekers chưa được định nghĩa");
+                }
+            };
+            
+            // Đăng ký event listener ngay khi DOM sẵn sàng
+            // CHỈ HOẠT ĐỘNG KHI Ở TRANG JOBSEEKER
+            window.initButtons = function() {
+                if (!isJobSeekerPageHead()) {
+                    return;
+                }
+                const filterBtn = document.getElementById("filterBtn");
+                const resetFilterBtn = document.getElementById("resetFilterBtn");
+                
+                if (filterBtn) {
+                    console.log("✅ Đăng ký event listener cho nút Lọc");
+                    filterBtn.onclick = function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log("🔍 Nút Lọc được click");
+                        window.applyFilters();
+                        return false;
+                    };
+                }
+                
+                if (resetFilterBtn) {
+                    console.log("✅ Đăng ký event listener cho nút Xóa bộ lọc");
+                    resetFilterBtn.onclick = function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log("🔄 Nút Xóa bộ lọc được click");
+                        window.resetFilters();
+                        return false;
+                    };
+                }
+            };
+            
+            // Thử đăng ký ngay nếu DOM đã sẵn sàng
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', window.initButtons);
+            } else {
+                // DOM đã sẵn sàng
+                window.initButtons();
+            }
+        })(); // Đóng IIFE cho script trong head
+    </script>
+</head>
+
+<body>
+<div class="jobseeker-management">
+    <!-- Header -->
+    <div class="jobseeker-header">
+        <h2 class="jobseeker-title"><i class="fas fa-user-tie"></i> Tài khoản người tìm việc</h2>
+        <div class="jobseeker-actions">
+            <button type="button" class="btn btn-success" id="exportBtn" onclick="if(typeof window.exportToExcel === 'function') { window.exportToExcel(); } else { console.error('exportToExcel not found'); alert('Chức năng xuất Excel chưa sẵn sàng'); } return false;">
+                <i class="fas fa-download"></i> Xuất Excel
+            </button>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="jobseeker-filters">
+        <div class="filter-row">
+            <div class="filter-group">
+                <label for="searchInput">Tìm kiếm</label>
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Tìm kiếm theo tên, email...">
+                    <i class="fas fa-search"></i>
+                </div>
+            </div>
+            <div class="filter-group">
+                <label for="statusFilter">Trạng thái</label>
+                <select id="statusFilter">
+                    <option value="">Tất cả</option>
+                    <option value="active">Đang hoạt động</option>
+                    <option value="locked">Đã khóa</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="experienceFilter">Kinh nghiệm</label>
+                <select id="experienceFilter">
+                    <option value="">Tất cả</option>
+                    <option value="0">Chưa có</option>
+                    <option value="1">1 năm</option>
+                    <option value="2">2 năm</option>
+                    <option value="3">3+ năm</option>
+                </select>
+            </div>
+            <div class="filter-group" style="display: flex; align-items: flex-end; gap: 10px; margin-left: 10px;">
+                <button type="button" class="btn btn-primary" id="filterBtn" style="height: 38px; padding: 0 20px; cursor: pointer; border: none; background-color: #007bff; color: white; border-radius: 4px;">
+                    <i class="fas fa-filter"></i> Lọc
+                </button>
+                <button type="button" class="btn btn-secondary" id="resetFilterBtn" style="height: 38px; padding: 0 20px; cursor: pointer; border: none; background-color: #6c757d; color: white; border-radius: 4px;">
+                    <i class="fas fa-redo"></i> Xóa bộ lọc
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="jobseeker-stats">
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-users"></i></div>
+            <div class="stat-info">
+                <h3 th:text="${totalJobSeekers}">0</h3>
+                <p>Tổng số người tìm việc</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon active"><i class="fas fa-user-check"></i></div>
+            <div class="stat-info">
+                <h3 th:text="${activeJobSeekers}">0</h3>
+                <p>Đang hoạt động</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon inactive"><i class="fas fa-user-lock"></i></div>
+            <div class="stat-info">
+                <h3 th:text="${lockedJobSeekers}">0</h3>
+                <p>Đã khóa</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
+            <div class="stat-info">
+                <h3 th:text="${totalCVs}">0</h3>
+                <p>CV đã tạo</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Job Seeker Table -->
+    <div class="jobseeker-table-container">
+        <table class="jobseeker-table">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Họ và tên</th>
+                <th>Email</th>
+                <th>Giới tính</th>
+                <th>Địa chỉ</th>
+                <th>Kinh nghiệm</th>
+                <th>Vị trí</th>
+                <th>Trạng thái</th>
+                <th>Ngày cập nhật</th>
+                <th>Hành động</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:if="${#lists.isEmpty(jobSeekers)}">
+                <td colspan="10" style="text-align:center; padding:20px; color:#888;">
+                    Không có dữ liệu
+                </td>
+            </tr>
+
+            <tr th:each="j : ${jobSeekers}">
+                <td th:text="${j.seekerId}"></td>
+                <td th:text="${j.fullName}"></td>
+                <td th:text="${j.email}"></td>
+                <td th:text="${j.gender}"></td>
+                <td th:text="${j.address}"></td>
+                <td th:text="${j.experienceYears} + ' năm'"></td>
+                <td th:text="${j.headline}"></td>
+                <td>
+                    <span th:text="${j.isLocked == false and j.receiveInvitations == true} ? 'Đang hoạt động' : 'Đã khóa'"
+                          th:classappend="${j.isLocked == false and j.receiveInvitations == true} ? 'status-active' : 'status-locked'"></span>
+                </td>
+                <td th:text="${#temporals.format(j.updatedAt, 'yyyy-MM-dd')}"></td>
+                <td>
+                    <!-- Nút xóa: disabled và xám màu nếu đã khóa -->
+                    <button th:if="${j.isLocked == false and j.receiveInvitations == true}"
+                            class="btn btn-sm btn-danger"
+                            onclick="if(typeof window.deleteJobSeeker === 'function') { window.deleteJobSeeker(this.getAttribute('data-seeker-id') || 0); } else { console.error('deleteJobSeeker not found'); alert('Chức năng xóa chưa sẵn sàng'); } return false;"
+                            th:attr="data-seeker-id=${j.seekerId}"
+                            title="Khóa tài khoản người tìm việc">
+                        <i class="fas fa-trash-alt"></i> Xóa
+                    </button>
+                    <button th:if="${j.isLocked == true or j.receiveInvitations == false}"
+                            class="btn btn-sm btn-secondary"
+                            disabled
+                            style="cursor: not-allowed; opacity: 0.6;"
+                            title="Không thể xóa tài khoản đã khóa">
+                        <i class="fas fa-trash-alt"></i> Xóa
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+        <div class="pagination-info" id="paginationInfo">
+            Hiển thị <span id="fromIndex">1</span>-<span id="toIndex">5</span> của <span id="totalResults">0</span> kết quả
+        </div>
+        <div class="pagination-controls" id="paginationControls">
+            <button class="pagination-btn" id="prevBtn" disabled><i class="fas fa-chevron-left"></i></button>
+            <div id="pageNumbers"></div>
+            <button class="pagination-btn" id="nextBtn"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </div>
+</div>
+<script>
+    // Wrap toàn bộ code trong IIFE để tránh ảnh hưởng đến admin.html
+    (function() {
+        'use strict'; // Strict mode để tránh global leaks
+        
+        console.log("🔧 ===== SCRIPT TRONG BODY JOBSEEKER ĐÃ ĐƯỢC LOAD (ISOLATED SCOPE) =====");
+
+        // Khai báo biến trong local scope (không dùng var global)
+        let searchInput, statusFilter, experienceFilter, tbody;
+        let searchTimeout;
+        let currentPage = 1;
+        let totalPages = 1;
+        let totalResults = 0;
+        const pageSize = 5;
+        console.log("🔧 Đã khai báo biến local trong scope riêng");
+
+        // Kiểm tra context: chỉ hoạt động khi ở trang jobseeker
+        function isJobSeekerPage() {
+            return !!document.getElementById("searchInput") && 
+                   !!document.querySelector(".jobseeker-management");
+        }
+
+    // Định nghĩa exportToExcel TRƯỚC để có thể dùng trong onclick của HTML
+    // CHỈ HOẠT ĐỘNG KHI Ở TRANG JOBSEEKER
+    window.exportToExcel = function() {
+        // Kiểm tra context trước khi thực thi
+        if (!isJobSeekerPage()) {
+            console.warn("⚠️ exportToExcel được gọi nhưng không ở trang jobseeker");
+            return;
+        }
+        
+        console.log("📥 ===== exportToExcel() ĐƯỢC GỌI (EARLY DEFINITION) =====");
+        
+        // Lấy lại elements nếu chưa có
+        if (!searchInput || !statusFilter || !experienceFilter) {
+            searchInput = document.getElementById("searchInput");
+            statusFilter = document.getElementById("statusFilter");
+            experienceFilter = document.getElementById("experienceFilter");
+        }
+        
+        try {
+            // Lấy giá trị filter hiện tại
+            const keyword = searchInput ? searchInput.value.trim() : "";
+            const status = statusFilter ? statusFilter.value : "";
+            const experience = experienceFilter ? experienceFilter.value : "";
+            
+            console.log("📋 Filter values:", { keyword, status, experience });
+            
+            // Tạo URL với parameters
+            const params = new URLSearchParams();
+            if (keyword) params.append("keyword", keyword);
+            if (status) params.append("status", status);
+            if (experience) params.append("experience", experience);
+            
+            const url = `/admin/jobseeker/export${params.toString() ? '?' + params.toString() : ''}`;
+            console.log("🔗 URL export:", url);
+            
+            // Mở URL để download file
+            // Sử dụng window.location.href để trigger download
+            window.location.href = url;
+            console.log("✅ Đã redirect đến URL export");
+        } catch (error) {
+            console.error("❌ Lỗi khi xử lý export:", error);
+            alert("Lỗi khi xuất Excel: " + error.message);
+        }
+    };
+    console.log("✅ Đã định nghĩa exportToExcel sớm trong global scope");
+
+    // Định nghĩa applyFilters và resetFilters ngay lập tức
+    // CHỈ HOẠT ĐỘNG KHI Ở TRANG JOBSEEKER
+    window.applyFilters = function() {
+        // Kiểm tra context trước khi thực thi
+        if (!isJobSeekerPage()) {
+            return;
+        }
+        console.log("🔍 applyFilters() được gọi");
+        if (!searchInput || !statusFilter || !experienceFilter) {
+            searchInput = document.getElementById("searchInput");
+            statusFilter = document.getElementById("statusFilter");
+            experienceFilter = document.getElementById("experienceFilter");
+            tbody = document.querySelector(".jobseeker-table tbody");
+        }
+        currentPage = 1; // Reset về trang 1 khi apply filter mới
+        clearTimeout(searchTimeout);
+        if (window.fetchJobSeekers) {
+            window.fetchJobSeekers();
+        } else {
+            console.error("❌ fetchJobSeekers chưa được định nghĩa");
+        }
+    };
+
+    window.resetFilters = function() {
+        // Kiểm tra context trước khi thực thi
+        if (!isJobSeekerPage()) {
+            return;
+        }
+        console.log("🔄 resetFilters() được gọi");
+        if (!searchInput || !statusFilter || !experienceFilter) {
+            searchInput = document.getElementById("searchInput");
+            statusFilter = document.getElementById("statusFilter");
+            experienceFilter = document.getElementById("experienceFilter");
+            tbody = document.querySelector(".jobseeker-table tbody");
+        }
+        if (searchInput) searchInput.value = "";
+        if (statusFilter) statusFilter.value = "";
+        if (experienceFilter) experienceFilter.value = "";
+        currentPage = 1; // Reset về trang 1 khi reset filter
+        clearTimeout(searchTimeout);
+        if (window.fetchJobSeekers) {
+            window.fetchJobSeekers();
+        }
+    };
+
+    console.log("✅ Đã định nghĩa applyFilters và resetFilters");
+
+    // Hàm fetchJobSeekers - phải được định nghĩa trước
+    // CHỈ HOẠT ĐỘNG KHI Ở TRANG JOBSEEKER
+    window.fetchJobSeekers = async function() {
+        // Kiểm tra context trước khi thực thi
+        if (!isJobSeekerPage()) {
+            console.warn("⚠️ fetchJobSeekers được gọi nhưng không ở trang jobseeker");
+            return;
+        }
+        console.log("🚀 ===== fetchJobSeekers() ĐƯỢC GỌI =====");
+
+        // Nếu chưa có elements, thử lấy lại
+        if (!searchInput) searchInput = document.getElementById("searchInput");
+        if (!statusFilter) statusFilter = document.getElementById("statusFilter");
+        if (!experienceFilter) experienceFilter = document.getElementById("experienceFilter");
+        if (!tbody) tbody = document.querySelector(".jobseeker-table tbody");
+
+        // Kiểm tra lại các element
+        if (!searchInput || !statusFilter || !experienceFilter) {
+            console.error("❌ Thiếu một số element:", {
+                searchInput: !!searchInput,
+                statusFilter: !!statusFilter,
+                experienceFilter: !!experienceFilter
+            });
+            return;
+        }
+
+            const keyword = searchInput.value.trim();
+            const status = statusFilter.value;
+            const experience = experienceFilter.value;
+
+        console.log("📋 Filter values:", { keyword, status, experience });
+
+            const params = new URLSearchParams();
+        // Chỉ append nếu có giá trị (không append empty string)
+            if (keyword) params.append("keyword", keyword);
+            if (status) params.append("status", status);
+            if (experience) params.append("experience", experience);
+            params.append("page", currentPage);
+            params.append("size", pageSize);
+
+        const url = `/admin/jobseeker/search?${params.toString()}`;
+        console.log("🔍 Đang tìm kiếm:", url);
+
+        // Hiển thị loading
+        if (tbody) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="10" style="text-align:center; padding:20px; color:#888;">
+                        <i class="fas fa-spinner fa-spin"></i> Đang tải dữ liệu...
+                    </td>
+                </tr>
+            `;
+        }
+
+        try {
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include'
+            });
+
+            console.log("📡 Response status:", response.status);
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error("❌ Lỗi response:", errorText);
+                throw new Error(`HTTP ${response.status}: ${errorText || 'Unknown error'}`);
+            }
+
+            const contentType = response.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                const text = await response.text();
+                console.error("❌ Response không phải JSON:", text.substring(0, 200));
+                throw new Error("Server trả về dữ liệu không đúng định dạng JSON");
+            }
+
+            const responseData = await response.json();
+            console.log("✅ Nhận được data:", responseData);
+
+            // Backend trả về object với structure: { data: [...], total: ..., page: ..., totalPages: ... }
+            let jobSeekers = [];
+            if (Array.isArray(responseData)) {
+                // Nếu response là array (backward compatibility)
+                jobSeekers = responseData;
+                totalResults = jobSeekers.length;
+                totalPages = 1;
+            } else if (responseData.data && Array.isArray(responseData.data)) {
+                // Nếu response là object có property 'data'
+                jobSeekers = responseData.data;
+                totalResults = responseData.total || jobSeekers.length;
+                currentPage = responseData.page || 1;
+                totalPages = responseData.totalPages || 1;
+            }
+
+            console.log("✅ Số lượng kết quả:", jobSeekers.length, "Trang:", currentPage, "/", totalPages);
+
+            if (jobSeekers.length === 0) {
+                console.log("ℹ️ Không có dữ liệu phù hợp với filter hiện tại");
+            }
+
+            window.renderTable(jobSeekers);
+            window.renderPagination();
+            // Cập nhật thống kê sau khi render table
+            if (typeof window.updateStats === 'function') {
+                window.updateStats();
+            }
+            } catch (error) {
+            console.error("❌ Lỗi khi gọi API:", error);
+            console.error("❌ Error stack:", error.stack);
+            if (tbody) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="10" style="text-align:center; padding:20px; color:#dc3545;">
+                            <i class="fas fa-exclamation-triangle"></i> Lỗi khi tải dữ liệu: ${error.message}
+                            <br><small>Vui lòng mở Console (F12) để xem chi tiết</small>
+                            <br><small>URL: ${url}</small>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+    }
+
+
+    // Hàm render table
+    window.renderTable = function(jobSeekers) {
+        if (!tbody) {
+            console.error("❌ Không tìm thấy tbody");
+            return;
+        }
+
+        tbody.innerHTML = "";
+
+            if (!jobSeekers || jobSeekers.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="10" style="text-align:center; padding:20px; color:#888;">
+                        Không có dữ liệu phù hợp
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            jobSeekers.forEach(j => {
+            const isActive = j.isLocked === false && j.receiveInvitations === true;
+            const statusText = isActive ? "Đang hoạt động" : "Đã khóa";
+            const statusClass = isActive ? "status-active" : "status-locked";
+                const updated = j.updatedAt ? j.updatedAt.split("T")[0] : "";
+
+            // Xác định nút xóa có được disable không
+            const isDisabled = !isActive; // Nếu đã khóa thì disable
+            const deleteBtnClass = isDisabled ? "btn btn-sm btn-secondary" : "btn btn-sm btn-danger";
+            const deleteBtnStyle = isDisabled ? "cursor: not-allowed; opacity: 0.6;" : "";
+            const deleteBtnDisabled = isDisabled ? "disabled" : "";
+            const deleteOnclick = isDisabled ? "return false;" : `if(typeof window.deleteJobSeeker === 'function') { window.deleteJobSeeker(${j.seekerId || 0}); } else { console.error('deleteJobSeeker not found'); alert('Chức năng xóa chưa sẵn sàng'); } return false;`;
+
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${j.seekerId || ""}</td>
+                        <td>${j.fullName || ""}</td>
+                        <td>${j.email || ""}</td>
+                        <td>${j.gender || ""}</td>
+                        <td>${j.address || ""}</td>
+                        <td>${j.experienceYears || 0} năm</td>
+                        <td>${j.headline || ""}</td>
+                        <td><span class="${statusClass}">${statusText}</span></td>
+                        <td>${updated}</td>
+                <td>
+                    <button class="${deleteBtnClass}" ${deleteBtnDisabled} style="${deleteBtnStyle}" onclick="${deleteOnclick}" title="${isDisabled ? 'Không thể xóa tài khoản đã khóa' : 'Khóa tài khoản người tìm việc'}">
+                        <i class="fas fa-trash-alt"></i> Xóa
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+
+        console.log("✅ Đã hiển thị", jobSeekers.length, "bản ghi");
+    }
+
+    // Hàm render pagination
+    window.renderPagination = function() {
+        const paginationInfo = document.getElementById("paginationInfo");
+        const paginationControls = document.getElementById("paginationControls");
+        const pageNumbers = document.getElementById("pageNumbers");
+        const prevBtn = document.getElementById("prevBtn");
+        const nextBtn = document.getElementById("nextBtn");
+
+        if (!paginationInfo || !paginationControls) {
+            console.error("❌ Không tìm thấy pagination elements");
+            return;
+        }
+
+        // Cập nhật thông tin pagination
+        const fromIndex = totalResults > 0 ? (currentPage - 1) * pageSize + 1 : 0;
+        const toIndex = Math.min(currentPage * pageSize, totalResults);
+        
+        const fromIndexEl = document.getElementById("fromIndex");
+        const toIndexEl = document.getElementById("toIndex");
+        const totalResultsEl = document.getElementById("totalResults");
+        
+        if (fromIndexEl) fromIndexEl.textContent = fromIndex;
+        if (toIndexEl) toIndexEl.textContent = toIndex;
+        if (totalResultsEl) totalResultsEl.textContent = totalResults;
+
+        // Cập nhật nút Previous/Next
+        if (prevBtn) {
+            prevBtn.disabled = currentPage <= 1;
+            prevBtn.onclick = currentPage > 1 ? function() {
+                currentPage--;
+                window.fetchJobSeekers();
+            } : null;
+        }
+
+        if (nextBtn) {
+            nextBtn.disabled = currentPage >= totalPages;
+            nextBtn.onclick = currentPage < totalPages ? function() {
+                currentPage++;
+                window.fetchJobSeekers();
+            } : null;
+        }
+
+        // Render số trang
+        if (!pageNumbers) {
+            console.error("❌ Không tìm thấy pageNumbers");
+            return;
+        }
+
+        pageNumbers.innerHTML = "";
+
+        if (totalPages <= 1) {
+            // Chỉ hiển thị trang 1 nếu chỉ có 1 trang
+            const btn = document.createElement("button");
+            btn.className = "pagination-btn active";
+            btn.textContent = "1";
+            btn.disabled = true;
+            pageNumbers.appendChild(btn);
+            return;
+        }
+
+        // Hiển thị tối đa 7 nút (bao gồm ...)
+        let startPage, endPage;
+        
+        if (totalPages <= 7) {
+            // Nếu ít hơn 7 trang, hiển thị tất cả
+            startPage = 1;
+            endPage = totalPages;
+        } else {
+            // Nếu nhiều hơn 7 trang
+            if (currentPage <= 4) {
+                startPage = 1;
+                endPage = 5;
+            } else if (currentPage >= totalPages - 3) {
+                startPage = totalPages - 4;
+                endPage = totalPages;
+            } else {
+                startPage = currentPage - 2;
+                endPage = currentPage + 2;
+            }
+        }
+
+        // Nút đầu tiên
+        if (startPage > 1) {
+            const btn = document.createElement("button");
+            btn.className = "pagination-btn";
+            btn.textContent = "1";
+            btn.onclick = function() {
+                currentPage = 1;
+                window.fetchJobSeekers();
+            };
+            pageNumbers.appendChild(btn);
+            
+            if (startPage > 2) {
+                const dots = document.createElement("button");
+                dots.className = "pagination-btn";
+                dots.textContent = "...";
+                dots.disabled = true;
+                dots.style.cursor = "default";
+                pageNumbers.appendChild(dots);
+            }
+        }
+
+        // Các nút trang
+        for (let i = startPage; i <= endPage; i++) {
+            const btn = document.createElement("button");
+            btn.className = "pagination-btn";
+            if (i === currentPage) {
+                btn.classList.add("active");
+            }
+            btn.textContent = i;
+            btn.onclick = function() {
+                currentPage = i;
+                window.fetchJobSeekers();
+            };
+            pageNumbers.appendChild(btn);
+        }
+
+        // Nút cuối cùng
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                const dots = document.createElement("button");
+                dots.className = "pagination-btn";
+                dots.textContent = "...";
+                dots.disabled = true;
+                dots.style.cursor = "default";
+                pageNumbers.appendChild(dots);
+            }
+            
+            const btn = document.createElement("button");
+            btn.className = "pagination-btn";
+            btn.textContent = totalPages;
+            btn.onclick = function() {
+                currentPage = totalPages;
+                window.fetchJobSeekers();
+            };
+            pageNumbers.appendChild(btn);
+        }
+    }
+
+    // Hàm xóa mềm job seeker (chuyển sang trạng thái đã khóa) - ĐỊNH NGHĨA Ở GLOBAL SCOPE
+    // CHỈ HOẠT ĐỘNG KHI Ở TRANG JOBSEEKER
+    window.deleteJobSeeker = async function(seekerId) {
+        // Kiểm tra context trước khi thực thi
+        if (!isJobSeekerPage()) {
+            console.warn("⚠️ deleteJobSeeker được gọi nhưng không ở trang jobseeker");
+            return;
+        }
+        console.log("🗑️ ===== deleteJobSeeker() ĐƯỢC GỌI với seekerId:", seekerId);
+        
+        if (!seekerId || seekerId === 0) {
+            console.error("❌ Invalid seekerId:", seekerId);
+            alert("❌ ID không hợp lệ");
+            return;
+        }
+
+        if (!confirm("Bạn có chắc chắn muốn khóa tài khoản người tìm việc này?\n\nTài khoản sẽ chuyển từ 'Đang hoạt động' sang 'Đã khóa'.")) {
+            console.log("❌ User đã cancel");
+            return;
+        }
+
+        console.log("🗑️ Đang xóa mềm job seeker:", seekerId);
+
+        try {
+            const response = await fetch(`/admin/jobseeker/${seekerId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include'
+            });
+
+            console.log("📡 Response status:", response.status);
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error("❌ Lỗi response:", errorText);
+                throw new Error(`HTTP ${response.status}: ${errorText || 'Unknown error'}`);
+            }
+
+            const result = await response.json();
+            console.log("📡 Response delete:", result);
+
+            if (result.success) {
+                alert("✅ " + result.message);
+                // Refresh lại danh sách và thống kê
+                console.log("🔄 Đang refresh lại danh sách và thống kê sau khi xóa mềm...");
+                // Cập nhật thống kê trước
+                if (typeof window.updateStats === 'function') {
+                    console.log("📊 Gọi updateStats()...");
+                    await window.updateStats();
+                }
+                // Sau đó refresh danh sách
+                if (typeof window.fetchJobSeekers === 'function') {
+                    console.log("🔄 Gọi fetchJobSeekers()...");
+                    window.fetchJobSeekers();
+                }
+            } else {
+                alert("❌ " + result.message);
+            }
+        } catch (error) {
+            console.error("❌ Lỗi khi xóa mềm:", error);
+            console.error("❌ Error stack:", error.stack);
+            alert("❌ Lỗi khi khóa tài khoản. Vui lòng thử lại.\n\n" + error.message);
+        }
+    };
+    console.log("✅ Đã định nghĩa deleteJobSeeker trong global scope");
+
+    // exportToExcel đã được định nghĩa sớm ở trên, không cần định nghĩa lại
+
+    // Hàm cập nhật thống kê
+    // CHỈ HOẠT ĐỘNG KHI Ở TRANG JOBSEEKER
+    window.updateStats = async function() {
+        // Kiểm tra context trước khi thực thi
+        if (!isJobSeekerPage()) {
+            console.warn("⚠️ updateStats được gọi nhưng không ở trang jobseeker");
+            return;
+        }
+        try {
+            console.log("📊 ===== Đang cập nhật thống kê =====");
+            const response = await fetch("/admin/api/jobseekers/stats", {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include'
+            });
+            
+            console.log("📡 Stats response status:", response.status);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            
+            const data = await response.json();
+            console.log("📊 Nhận được thống kê từ API:", data);
+
+            // Tìm các phần tử thống kê - sử dụng nhiều cách để đảm bảo tìm được
+            const jobSeekerStats = document.querySelector(".jobseeker-stats");
+            console.log("🔍 Tìm .jobseeker-stats:", !!jobSeekerStats);
+            
+            // Cách 1: Tìm tất cả stat cards trong jobseeker-stats
+            const statCards = jobSeekerStats ? jobSeekerStats.querySelectorAll(".stat-card") : 
+                             document.querySelectorAll(".jobseeker-stats .stat-card");
+            console.log("🔍 Tìm thấy", statCards.length, "stat cards");
+            
+            // Log từng card để debug
+            statCards.forEach((card, index) => {
+                const h3 = card.querySelector("h3");
+                const p = card.querySelector("p");
+                console.log(`📊 Card ${index}:`, {
+                    hasH3: !!h3,
+                    currentText: h3 ? h3.textContent : 'N/A',
+                    description: p ? p.textContent : 'N/A'
+                });
+            });
+            
+            if (statCards.length >= 4) {
+                // Card 0: Tổng số
+                const totalH3 = statCards[0].querySelector("h3");
+                if (totalH3) {
+                    const oldValue = totalH3.textContent;
+                    totalH3.textContent = data.total || 0;
+                    console.log(`✅ Cập nhật tổng số: ${oldValue} -> ${data.total}`);
+                } else {
+                    console.error("❌ Không tìm thấy h3 trong card 0 (Tổng số)");
+                }
+                
+                // Card 1: Đang hoạt động
+                const activeH3 = statCards[1].querySelector("h3");
+                if (activeH3) {
+                    const oldValue = activeH3.textContent.trim();
+                    const newValue = String(data.active || 0);
+                    
+                    // Xóa th:text attribute nếu có (Thymeleaf có thể giữ giá trị cũ)
+                    activeH3.removeAttribute("th:text");
+                    
+                    // Cập nhật bằng nhiều cách
+                    activeH3.textContent = newValue;
+                    activeH3.innerText = newValue;
+                    
+                    // Nếu vẫn không hoạt động, thử innerHTML
+                    if (activeH3.textContent.trim() !== newValue) {
+                        console.warn("⚠️ textContent không khớp, thử innerHTML...");
+                        activeH3.innerHTML = newValue;
+                    }
+                    
+                    console.log(`✅ Cập nhật đang hoạt động: '${oldValue}' -> '${newValue}'`);
+                    console.log(`🔍 Verify: activeH3.textContent = '${activeH3.textContent}', innerText = '${activeH3.innerText}'`);
+                } else {
+                    console.error("❌ Không tìm thấy h3 trong card 1 (Đang hoạt động)");
+                }
+                
+                // Card 2: Đã khóa
+                const lockedH3 = statCards[2].querySelector("h3");
+                if (lockedH3) {
+                    const oldValue = lockedH3.textContent.trim();
+                    const newValue = String(data.locked || 0);
+                    
+                    // Xóa th:text attribute nếu có (Thymeleaf có thể giữ giá trị cũ)
+                    lockedH3.removeAttribute("th:text");
+                    
+                    // Cập nhật bằng nhiều cách
+                    lockedH3.textContent = newValue;
+                    lockedH3.innerText = newValue;
+                    
+                    // Nếu vẫn không hoạt động, thử innerHTML
+                    if (lockedH3.textContent.trim() !== newValue) {
+                        console.warn("⚠️ textContent không khớp, thử innerHTML...");
+                        lockedH3.innerHTML = newValue;
+                    }
+                    
+                    console.log(`✅ Cập nhật đã khóa: '${oldValue}' -> '${newValue}'`);
+                    console.log(`🔍 Verify: lockedH3.textContent = '${lockedH3.textContent}', innerText = '${lockedH3.innerText}'`);
+                } else {
+                    console.error("❌ Không tìm thấy h3 trong card 2 (Đã khóa)");
+                }
+                
+                // Card 3: CV đã tạo
+                const cvH3 = statCards[3].querySelector("h3");
+                if (cvH3) {
+                    const oldValue = cvH3.textContent;
+                    cvH3.textContent = data.cv || 0;
+                    console.log(`✅ Cập nhật CV: ${oldValue} -> ${data.cv}`);
+                } else {
+                    console.error("❌ Không tìm thấy h3 trong card 3 (CV)");
+                }
+                
+                console.log("✅ Đã cập nhật tất cả thống kê");
+                
+                // Verify lại sau khi cập nhật
+                setTimeout(function() {
+                    console.log("🔍 Verify sau khi cập nhật:");
+                    statCards.forEach((card, index) => {
+                        const h3 = card.querySelector("h3");
+                        const p = card.querySelector("p");
+                        console.log(`📊 Card ${index} (${p ? p.textContent : 'N/A'}):`, h3 ? h3.textContent : 'N/A');
+                    });
+                }, 100);
+            } else {
+                console.error("❌ Không tìm thấy đủ stat cards (cần 4, tìm thấy " + statCards.length + ")");
+                // Fallback: thử tìm bằng selector cũ
+                const statH3s = document.querySelectorAll(".jobseeker-stats .stat-card h3");
+                console.log("⚠️ Thử fallback selector, tìm thấy", statH3s.length, "h3 elements");
+                if (statH3s.length >= 4) {
+                    console.log("⚠️ Sử dụng fallback selector...");
+                    statH3s[0].textContent = data.total || 0;
+                    statH3s[1].textContent = data.active || 0;
+                    statH3s[2].textContent = data.locked || 0;
+                    statH3s[3].textContent = data.cv || 0;
+                    console.log("✅ Đã cập nhật bằng fallback selector");
+                }
+            }
+        } catch (error) {
+            console.error("❌ Lỗi khi cập nhật thống kê:", error);
+            console.error("❌ Error stack:", error.stack);
+        }
+    }
+
+    // Hàm khởi tạo trang jobseeker (gọi lại mỗi khi content được load)
+    function initJobSeekerPage() {
+        // Kiểm tra context: chỉ chạy khi ở trang jobseeker
+        if (!isJobSeekerPage()) {
+            console.warn("⚠️ initJobSeekerPage được gọi nhưng không ở trang jobseeker, bỏ qua");
+            return;
+        }
+        
+        console.log("📋 Khởi tạo trang jobseeker management");
+
+        // Lấy lại elements
+        searchInput = document.getElementById("searchInput");
+        statusFilter = document.getElementById("statusFilter");
+        experienceFilter = document.getElementById("experienceFilter");
+        tbody = document.querySelector(".jobseeker-table tbody");
+        const filterBtn = document.getElementById("filterBtn");
+        const resetFilterBtn = document.getElementById("resetFilterBtn");
+        const exportBtn = document.getElementById("exportBtn");
+
+        // Kiểm tra các element có tồn tại không
+        console.log("🔍 Kiểm tra elements:", {
+            searchInput: !!searchInput,
+            statusFilter: !!statusFilter,
+            experienceFilter: !!experienceFilter,
+            tbody: !!tbody,
+            filterBtn: !!filterBtn,
+            resetFilterBtn: !!resetFilterBtn,
+            exportBtn: !!exportBtn
+        });
+
+        if (!searchInput || !statusFilter || !experienceFilter || !tbody) {
+            console.error("❌ Không tìm thấy các element cần thiết");
+            return;
+        }
+
+        // Đã xóa chế độ tự động lọc khi nhập - chỉ lọc khi nhấn nút "Lọc"
+        // Có thể giữ lại tìm kiếm khi nhấn Enter nếu muốn (tùy chọn)
+        if (searchInput) {
+            // Tìm kiếm khi nhấn Enter trong ô tìm kiếm (tùy chọn - có thể xóa nếu không cần)
+            searchInput.addEventListener("keypress", function(e) {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    clearTimeout(searchTimeout);
+                    if (window.applyFilters) {
+                        window.applyFilters();
+                    }
+                }
+            });
+        }
+
+        // Kiểm tra lại buttons và đảm bảo event listener đã được đăng ký
+        if (filterBtn) {
+            console.log("✅ Nút Lọc đã tồn tại, event listener đã được đăng ký trong <head>");
+        } else {
+            console.error("❌ Không tìm thấy nút Lọc với id='filterBtn'");
+        }
+
+        if (resetFilterBtn) {
+            console.log("✅ Nút Xóa bộ lọc đã tồn tại, event listener đã được đăng ký trong <head>");
+        } else {
+            console.error("❌ Không tìm thấy nút Xóa bộ lọc với id='resetFilterBtn'");
+        }
+
+        // Đăng ký event listener trực tiếp ở đây để đảm bảo hoạt động
+        console.log("🔧 Đang đăng ký event listener cho các nút...");
+
+        if (filterBtn) {
+            console.log("✅ Tìm thấy nút Lọc, đăng ký onclick");
+            // Xóa event listener cũ nếu có
+            filterBtn.onclick = null;
+            filterBtn.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log("🔍 [BODY SCRIPT] Nút Lọc được click!");
+                if (window.applyFilters) {
+                    window.applyFilters();
+                } else {
+                    console.error("❌ window.applyFilters không tồn tại!");
+                    // Gọi trực tiếp
+                    if (searchInput && statusFilter && experienceFilter) {
+                        clearTimeout(searchTimeout);
+                        window.fetchJobSeekers();
+                    }
+                }
+                return false;
+            };
+            console.log("✅ Đã đăng ký onclick cho nút Lọc");
+        } else {
+            console.error("❌ Không tìm thấy nút Lọc!");
+        }
+
+        if (resetFilterBtn) {
+            console.log("✅ Tìm thấy nút Xóa bộ lọc, đăng ký onclick");
+            resetFilterBtn.onclick = null;
+            resetFilterBtn.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log("🔄 [BODY SCRIPT] Nút Xóa bộ lọc được click!");
+                if (window.resetFilters) {
+                    window.resetFilters();
+                } else {
+                    console.error("❌ window.resetFilters không tồn tại!");
+                    // Gọi trực tiếp
+                    if (searchInput) searchInput.value = "";
+                    if (statusFilter) statusFilter.value = "";
+                    if (experienceFilter) experienceFilter.value = "";
+                    clearTimeout(searchTimeout);
+                    window.fetchJobSeekers();
+                }
+                return false;
+            };
+            console.log("✅ Đã đăng ký onclick cho nút Xóa bộ lọc");
+        } else {
+            console.error("❌ Không tìm thấy nút Xóa bộ lọc!");
+        }
+
+        // Gọi lại initButtons từ head nếu có (backup)
+        if (typeof window.initButtons === 'function') {
+            console.log("✅ Gọi lại window.initButtons()");
+            window.initButtons();
+        } else {
+            console.warn("⚠️ window.initButtons không tồn tại (có thể bình thường nếu script trong head không chạy)");
+        }
+
+        // Dropdown filter - vẫn có thể tự động filter nếu muốn
+        // Hoặc comment lại nếu muốn chỉ filter khi click nút
+        // if (statusFilter) {
+        //     statusFilter.addEventListener("change", fetchJobSeekers);
+        // }
+        // if (experienceFilter) {
+        //     experienceFilter.addEventListener("change", fetchJobSeekers);
+        // }
+
+        // deleteJobSeeker và exportToExcel đã được định nghĩa ở global scope ở trên, không cần định nghĩa lại ở đây
+
+        // Đăng ký event listener cho nút Xuất Excel (backup cho onclick inline)
+        if (exportBtn) {
+            console.log("✅ Tìm thấy nút Xuất Excel, đăng ký event listener (backup)");
+            
+            // Xóa onclick cũ nếu có (để tránh conflict)
+            exportBtn.onclick = null;
+            
+            // Đăng ký onclick handler mới
+            exportBtn.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log("📥 ===== [DOMContentLoaded onclick] NÚT XUẤT EXCEL ĐƯỢC CLICK =====");
+                console.log("🔍 Kiểm tra window.exportToExcel:", typeof window.exportToExcel);
+                if (typeof window.exportToExcel === 'function') {
+                    console.log("✅ Gọi window.exportToExcel()...");
+                    window.exportToExcel();
+                } else {
+                    console.error("❌ window.exportToExcel không tồn tại!");
+                    alert("Chức năng xuất Excel chưa sẵn sàng. Vui lòng refresh trang.");
+                }
+                return false;
+            };
+            
+            // Thêm addEventListener backup
+            exportBtn.addEventListener("click", function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log("📥 ===== [addEventListener] NÚT XUẤT EXCEL ĐƯỢC CLICK =====");
+                if (typeof window.exportToExcel === 'function') {
+                    console.log("✅ Gọi window.exportToExcel() từ addEventListener...");
+                    window.exportToExcel();
+                } else {
+                    console.error("❌ window.exportToExcel không tồn tại trong addEventListener!");
+                }
+                return false;
+            });
+            
+            // Test: Kiểm tra onclick handler
+            console.log("🧪 Test exportBtn:", {
+                exists: !!exportBtn,
+                hasOnclick: typeof exportBtn.onclick === 'function',
+                onclickType: typeof exportBtn.onclick
+            });
+            
+            console.log("✅ Đã đăng ký event listener cho nút Xuất Excel");
+        } else {
+            console.error("❌ Không tìm thấy nút Xuất Excel với id='exportBtn'");
+        }
+
+        // QUAN TRỌNG: Xóa dữ liệu Thymeleaf ban đầu để tránh buttons không hoạt động
+        // Vì buttons được render bởi Thymeleaf không có onclick handler
+        if (tbody) {
+            const existingRows = tbody.querySelectorAll("tr");
+            if (existingRows.length > 0) {
+                console.log("🧹 Xóa", existingRows.length, "rows từ Thymeleaf để tránh buttons không hoạt động...");
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="10" style="text-align:center; padding:20px; color:#888;">
+                            <i class="fas fa-spinner fa-spin"></i> Đang tải dữ liệu...
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Tự động load dữ liệu khi trang được mở
+        console.log("🚀 Đang tải dữ liệu ban đầu...");
+        // Đảm bảo fetchJobSeekers được gọi để render table với buttons có onclick handler
+        setTimeout(function() {
+            if (typeof window.fetchJobSeekers === 'function') {
+                console.log("✅ fetchJobSeekers đã sẵn sàng, gọi ngay...");
+                window.fetchJobSeekers();
+            } else {
+                console.error("❌ window.fetchJobSeekers chưa được định nghĩa!");
+            }
+        }, 100);
+        
+        window.updateStats();
+
+        // Test: Kiểm tra xem các nút có thể click được không
+        console.log("🧪 Test buttons:", {
+            filterBtnExists: !!filterBtn,
+            filterBtnDisabled: filterBtn ? filterBtn.disabled : 'N/A',
+            filterBtnStyle: filterBtn ? window.getComputedStyle(filterBtn).pointerEvents : 'N/A',
+            resetFilterBtnExists: !!resetFilterBtn,
+            resetFilterBtnDisabled: resetFilterBtn ? resetFilterBtn.disabled : 'N/A'
+        });
+
+        // Đảm bảo buttons không bị disabled
+        if (filterBtn) {
+            filterBtn.disabled = false;
+            filterBtn.style.pointerEvents = 'auto';
+        }
+        if (resetFilterBtn) {
+            resetFilterBtn.disabled = false;
+            resetFilterBtn.style.pointerEvents = 'auto';
+        }
+    }
+
+    // Khởi tạo khi DOM sẵn sàng (trang load trực tiếp)
+    if (document.readyState === 'loading') {
+        document.addEventListener("DOMContentLoaded", initJobSeekerPage);
+    } else {
+        // DOM đã sẵn sàng
+        setTimeout(initJobSeekerPage, 100);
+    }
+
+    // Event listener cho content được load qua AJAX
+    // Lắng nghe trên contentArea để re-initialize khi load lại
+    (function() {
+        // Kiểm tra xem có đang ở trang jobseeker không
+        const searchInputCheck = document.getElementById("searchInput");
+        if (!searchInputCheck) {
+            // Không phải trang jobseeker, không lắng nghe
+            return;
+        }
+        
+        const contentAreaEl = document.getElementById('content-area');
+        if (contentAreaEl) {
+            contentAreaEl.addEventListener('contentLoaded', function(e) {
+                // Kiểm tra lại xem có đang ở trang jobseeker không
+                const searchInputCheck2 = document.getElementById("searchInput");
+                if (searchInputCheck2) {
+                    // Đợi một chút để đảm bảo DOM đã update và scripts đã được execute
+                    setTimeout(function() {
+                        console.log("🔄 Re-initializing jobseeker page after AJAX load");
+                        initJobSeekerPage();
+                    }, 100);
+                }
+            });
+        } else {
+            // Nếu contentArea chưa tồn tại, thử lại sau
+            setTimeout(function() {
+                const area = document.getElementById('content-area');
+                if (area) {
+                    area.addEventListener('contentLoaded', function(e) {
+                        const searchInputCheck2 = document.getElementById("searchInput");
+                        if (searchInputCheck2) {
+                            setTimeout(function() {
+                                console.log("🔄 Re-initializing jobseeker page after AJAX load (delayed)");
+                                initJobSeekerPage();
+                            }, 100);
+                        }
+                    });
+                }
+            }, 500);
+        }
+    })();
+    
+    })(); 
+</script>
+</body>
+</html>

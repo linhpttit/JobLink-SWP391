@@ -11,6 +11,40 @@
 </head>
 <body class="bg-soft">
 <main class="wrap" layout:fragment="content">
+    <!-- Tier Info Banner (chỉ hiển thị cho tier < 3) -->
+    <div th:if="${remainingPosts != null && currentTier != null && currentTier < 3}" style="margin-top: 20px; margin-bottom: 20px; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; color: white; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h3 style="margin: 0 0 5px 0; font-size: 18px;">
+                <i class="fas fa-briefcase"></i>
+                Số bài đăng còn lại
+            </h3>
+            <p style="margin: 0; opacity: 0.9; font-size: 14px;">
+                Bạn đang sử dụng <strong th:text="${#numbers.formatInteger(currentPosts, 0, 'COMMA')}">0</strong>/<strong th:text="${#numbers.formatInteger(maxPosts, 0, 'COMMA')}">0</strong> bài đăng
+            </p>
+        </div>
+        <div style="text-align: center; background: rgba(255,255,255,0.2); padding: 15px 25px; border-radius: 10px;">
+            <div style="font-size: 32px; font-weight: bold;" th:text="${#numbers.formatInteger(remainingPosts, 0, 'COMMA')}">0</div>
+            <div style="font-size: 12px; opacity: 0.9;">bài còn lại</div>
+        </div>
+    </div>
+
+    <!-- Premium Unlimited Banner (chỉ hiển thị cho tier >= 3) -->
+    <div th:if="${currentTier != null && currentTier >= 3}" style="margin-top: 20px; margin-bottom: 20px; padding: 15px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 12px; color: white; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h3 style="margin: 0 0 5px 0; font-size: 18px;">
+                <i class="fas fa-crown"></i>
+                Gói Premium - Không giới hạn
+            </h3>
+            <p style="margin: 0; opacity: 0.9; font-size: 14px;">
+                Bạn có thể đăng <strong>không giới hạn</strong> bài tuyển dụng
+            </p>
+        </div>
+        <div style="text-align: center; background: rgba(255,255,255,0.2); padding: 15px 25px; border-radius: 10px;">
+            <div style="font-size: 32px; font-weight: bold;">∞</div>
+            <div style="font-size: 12px; opacity: 0.9;">Unlimited</div>
+        </div>
+    </div>
+
     <form class="card" th:action="@{/jobPosting}" th:object="${jobForm}" method="post">
 
         <!-- ========== THÔNG TIN CƠ BẢN ========== -->
@@ -167,7 +201,7 @@
             Bằng việc nhấn ‘Lưu và tiếp tục’, bạn xác nhận đồng ý với các điều kiện và điều khoản sử dụng
         </p>
 
-<!--        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>-->
+        <!--        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>-->
     </form>
 </main>
 </body>

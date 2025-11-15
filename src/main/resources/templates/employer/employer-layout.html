@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Website Tìm kiếm việc làm</title>
     <!-- CSS -->
-      <link rel="stylesheet" th:href="@{/employer.css}">
+    <link rel="stylesheet" th:href="@{/employer.css}">
     <!-- Nếu trang con có css riêng -->
     <th:block th:if="${pageCss != null}">
         <link rel="stylesheet" th:href="${pageCss}">
@@ -67,7 +67,7 @@
                 <div class="profile-dropdown">
                     <a th:href="@{/employer/profile}" class="dropdown-item"><i class="fa fa-user"></i> Hồ sơ </a>
                     <a th:href="@{/employer/password}" class="dropdown-item"><i class="fa fa-cog"></i> Cài đặt</a>
-                    <a th:href="@{/logout}" class="dropdown-item"><i class="fa fa-sign-out-alt"></i> Đăng xuất</a>
+                    <a th:if="${session.user != null}" th:href="@{/logout}" class="dropdown-item"><i class="fa fa-sign-out-alt"></i> Đăng xuất</a>
                 </div>
             </div>
         </div>
@@ -79,10 +79,10 @@
             <nav class="sidebar-nav">
                 <ul>
 
-                    <li class="nav-item" onclick="loadContent('statistic.html')">
-                        <a href="javascript:void(0)">
+                    <li class="nav-item">
+                        <a th:href="@{/employer/dashboard}">
                             <span class="nav-icon"><i class="fa fa-chart-bar"></i></span>
-                            <span class="nav-text">Tổng quan</span>
+                            <span class="nav-text">Dashboard</span>
                         </a>
                     </li>
                     <li class="nav-item">
@@ -91,38 +91,39 @@
                             <span class="nav-text">Tin tuyển dụng</span>
                         </a>
                     </li>
-                    <li class="nav-item" onclick="loadContent('applications.html')">
-                        <a href="javascript:void(0)">
+                    <li class="nav-item">
+                        <a th:href="@{/applications}">
                             <span class="nav-icon"><i class="fa fa-file-alt"></i></span>
                             <span class="nav-text">Hồ sơ ứng tuyển</span>
                         </a>
                     </li>
-                    <li class="nav-item" onclick="loadContent('companies.html')">
-                         <a href="javascript:void(0)">
-                            <span class="nav-icon"><i class="fa fa-industry"></i></span>
-                            <span class="nav-text">Danh sách việc làm</span>
-                        </a>
-                    </li>
-                    <li class="nav-item" onclick="loadContent('blog.html')">
-                        <a href="javascript:void(0)">
+<!--                    <li class="nav-item">-->
+<!--                        <a th:href="@{/employer-current-job-list}">-->
+<!--                            <span class="nav-icon"><i class="fa fa-industry"></i></span>-->
+<!--                            <span class="nav-text">Danh sách việc làm</span>-->
+<!--                        </a>-->
+<!--                    </li>-->
+                    <li class="nav-item">
+                        <a th:href="@{/saved}">
                             <span class="nav-icon"><i class="fa fa-pen-to-square"></i></span>
                             <span class="nav-text">Ứng viên đã lưu</span>
                         </a>
                     </li>
-                    <li class="nav-item" onclick="loadContent('feedbacks.html')">
-                        <a href="javascript:void(0)">
-                            <span class="nav-icon"><i class="fa fa-comments"></i></span>
-                            <span class="nav-text">Phản hồi/khiếu nại</span>
-                        </a>
-                    </li>
-                    <li class="nav-item" onclick="loadContent('premium.html')">
-                        <a href="javascript:void(0)">
+
+                    <li class="nav-item">
+                        <a th:href="@{/payment/upgrade}">
                             <span class="nav-icon"><i class="fa fa-gem"></i></span>
                             <span class="nav-text">Gói dịch vụ</span>
                         </a>
                     </li>
-                    <li class="nav-item" onclick="loadContent('payments.html')">
-                        <a href="javascript:void(0)">
+                    <li class="nav-item">
+                        <a th:href="@{/employer-response}">
+                            <span class="nav-icon"><i class="fa fa-comments"></i></span>
+                            <span class="nav-text">Phản hồi/khiếu nại</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a th:href="@{/payment/history}">
                             <span class="nav-icon"><i class="fa fa-money-bill-wave"></i></span>
                             <span class="nav-text">Lịch sử thanh toán</span>
                         </a>
@@ -135,6 +136,673 @@
         </main>
     </div>
 </div>
+
+<!-- AI Chatbot Widget - Chỉ hiển thị cho Enterprise (tier >= 3) -->
+<div id="chatbot-widget" th:if="${currentTier != null and currentTier >= 3}">
+    <!-- Chat Button -->
+    <button id="chatbot-toggle" class="chatbot-toggle">
+        <i class="fas fa-comments"></i>
+        <span class="chatbot-badge">AI</span>
+    </button>
+
+    <!-- Chat Box -->
+    <div id="chatbot-box" class="chatbot-box" style="display: none;">
+        <!-- Header -->
+        <div class="chatbot-header">
+            <div class="chatbot-header-content">
+                <i class="fas fa-robot"></i>
+                <div>
+                    <h4>HR Assistant AI</h4>
+                    <span class="chatbot-status">
+                        <span class="status-dot"></span>
+                        Online
+                    </span>
+                </div>
+            </div>
+            <div class="chatbot-header-actions">
+                <button id="chatbot-new-session" class="chatbot-action-btn" title="Tạo session mới">
+                    <i class="fas fa-plus"></i>
+                </button>
+                <button id="chatbot-close" class="chatbot-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        <div id="chatbot-messages" class="chatbot-messages">
+            <!-- Messages will be loaded from localStorage -->
+        </div>
+
+        <!-- Input -->
+        <div class="chatbot-input">
+            <input type="text" id="chatbot-input-field" placeholder="Nhập tin nhắn..." />
+            <button id="chatbot-send" class="chatbot-send">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Chatbot Styles -->
+<style>
+    /* Chatbot Widget */
+    #chatbot-widget {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 9999;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    /* Toggle Button */
+    .chatbot-toggle {
+        display: block;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .chatbot-toggle:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+    }
+
+    .chatbot-badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background: #ff4757;
+        color: white;
+        font-size: 10px;
+        padding: 2px 6px;
+        border-radius: 10px;
+        font-weight: bold;
+    }
+
+    /* Chat Box */
+    .chatbot-box {
+        position: absolute;
+        bottom: 80px;
+        right: 0;
+        width: 380px;
+        height: 550px;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Header */
+    .chatbot-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 16px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .chatbot-header-content {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .chatbot-header i.fa-robot {
+        font-size: 28px;
+    }
+
+    .chatbot-header h4 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    .chatbot-status {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        opacity: 0.9;
+    }
+
+    .status-dot {
+        width: 8px;
+        height: 8px;
+        background: #2ecc71;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+
+    .chatbot-header-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .chatbot-action-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        padding: 8px 12px;
+        border-radius: 6px;
+        opacity: 0.8;
+        transition: all 0.2s;
+    }
+
+    .chatbot-action-btn:hover {
+        opacity: 1;
+        background: rgba(255, 255, 255, 0.3);
+    }
+
+    .chatbot-close {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+        padding: 5px;
+        opacity: 0.8;
+        transition: opacity 0.2s;
+    }
+
+    .chatbot-close:hover {
+        opacity: 1;
+    }
+
+    /* Messages */
+    .chatbot-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+        background: #f8f9fa;
+    }
+
+    .chatbot-message {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 16px;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .message-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .bot-message .message-avatar {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .user-message {
+        flex-direction: row-reverse;
+    }
+
+    .user-message .message-avatar {
+        background: #e9ecef;
+        color: #495057;
+    }
+
+    .message-content {
+        background: white;
+        padding: 12px 16px;
+        border-radius: 12px;
+        max-width: 75%;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .user-message .message-content {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .message-content p {
+        margin: 0 0 8px 0;
+        line-height: 1.5;
+    }
+
+    .message-content p:last-child {
+        margin-bottom: 0;
+    }
+
+    .message-content ul {
+        margin: 8px 0;
+        padding-left: 20px;
+    }
+
+    .message-content li {
+        margin: 4px 0;
+    }
+
+    .message-time {
+        font-size: 11px;
+        color: #999;
+        margin-top: 4px;
+    }
+
+    /* Typing Indicator */
+    .typing-indicator {
+        display: flex;
+        gap: 4px;
+        padding: 12px 16px;
+    }
+
+    .typing-indicator span {
+        width: 8px;
+        height: 8px;
+        background: #999;
+        border-radius: 50%;
+        animation: typing 1.4s infinite;
+    }
+
+    .typing-indicator span:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .typing-indicator span:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+
+    @keyframes typing {
+        0%, 60%, 100% { transform: translateY(0); }
+        30% { transform: translateY(-10px); }
+    }
+
+    /* Input */
+    .chatbot-input {
+        padding: 16px 20px;
+        background: white;
+        border-top: 1px solid #e9ecef;
+        display: flex;
+        gap: 10px;
+    }
+
+    #chatbot-input-field {
+        flex: 1;
+        border: 1px solid #e9ecef;
+        border-radius: 24px;
+        padding: 10px 16px;
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.2s;
+    }
+
+    #chatbot-input-field:focus {
+        border-color: #667eea;
+    }
+
+    .chatbot-send {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .chatbot-send:hover {
+        transform: scale(1.1);
+    }
+
+    .chatbot-send:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    /* Scrollbar */
+    .chatbot-messages::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .chatbot-messages::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    .chatbot-messages::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 3px;
+    }
+
+    .chatbot-messages::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+        .chatbot-box {
+            width: calc(100vw - 40px);
+            height: calc(100vh - 100px);
+            bottom: 80px;
+            right: 20px;
+        }
+    }
+
+    /* Notification Animations */
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(100px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes slideOut {
+        from {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        to {
+            opacity: 0;
+            transform: translateX(100px);
+        }
+    }
+</style>
+
+<!-- Chatbot Script -->
+<script>
+    const CHATBOT_API = 'http://localhost:8000/api/chat';
+    const STORAGE_KEY = 'chatbot_history';
+    const SESSION_KEY = 'chatbot_session_id';
+
+    const chatbotToggle = document.getElementById('chatbot-toggle');
+    const chatbotBox = document.getElementById('chatbot-box');
+    const chatbotClose = document.getElementById('chatbot-close');
+    const chatbotNewSession = document.getElementById('chatbot-new-session');
+    const chatbotMessages = document.getElementById('chatbot-messages');
+    const chatbotInput = document.getElementById('chatbot-input-field');
+    const chatbotSend = document.getElementById('chatbot-send');
+
+    // Initialize session
+    let currentSessionId = localStorage.getItem(SESSION_KEY);
+    if (!currentSessionId) {
+        currentSessionId = generateSessionId();
+        localStorage.setItem(SESSION_KEY, currentSessionId);
+    }
+
+    // Load chat history on page load
+    window.addEventListener('DOMContentLoaded', () => {
+        loadChatHistory();
+    });
+
+    // Toggle chat box
+    chatbotToggle.addEventListener('click', () => {
+        chatbotBox.style.display = chatbotBox.style.display === 'none' ? 'flex' : 'none';
+        if (chatbotBox.style.display === 'flex') {
+            chatbotInput.focus();
+            scrollToBottom();
+        }
+    });
+
+    chatbotClose.addEventListener('click', () => {
+        chatbotBox.style.display = 'none';
+        chatbotToggle.style.display = ''; // Hiển thị lại nút toggle (về giá trị mặc định)
+    });
+
+    // New session
+    chatbotNewSession.addEventListener('click', () => {
+        if (confirm('Bạn có chắc muốn tạo session mới? Lịch sử chat hiện tại sẽ bị xóa.')) {
+            createNewSession();
+        }
+    });
+
+    // Send message
+    async function sendMessage() {
+        const message = chatbotInput.value.trim();
+        if (!message) return;
+
+        // Add user message
+        addMessage(message, 'user');
+        chatbotInput.value = '';
+
+        // Show typing indicator
+        showTypingIndicator();
+
+        try {
+            const response = await fetch(CHATBOT_API, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: message })
+            });
+
+            const data = await response.json();
+
+            // Remove typing indicator
+            removeTypingIndicator();
+
+            // Add bot response
+            if (data.success) {
+                addMessage(data.response, 'bot');
+            } else {
+                addMessage('Xin lỗi, có lỗi xảy ra. Vui lòng thử lại.', 'bot');
+            }
+        } catch (error) {
+            removeTypingIndicator();
+            addMessage('Không thể kết nối đến chatbot. Vui lòng kiểm tra kết nối.', 'bot');
+            console.error('Chatbot error:', error);
+        }
+    }
+
+    function addMessage(text, sender, saveToHistory = true) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `chatbot-message ${sender}-message`;
+
+        const avatar = document.createElement('div');
+        avatar.className = 'message-avatar';
+        avatar.innerHTML = sender === 'bot' ? '<i class="fas fa-robot"></i>' : '<i class="fas fa-user"></i>';
+
+        const content = document.createElement('div');
+        content.className = 'message-content';
+
+        // Convert markdown-like formatting
+        const formattedText = text
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\n/g, '<br>');
+
+        content.innerHTML = `<p>${formattedText}</p>`;
+
+        messageDiv.appendChild(avatar);
+        messageDiv.appendChild(content);
+
+        chatbotMessages.appendChild(messageDiv);
+        scrollToBottom();
+
+        // Save to localStorage
+        if (saveToHistory) {
+            saveChatHistory(text, sender);
+        }
+    }
+
+    function scrollToBottom() {
+        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+    }
+
+    function generateSessionId() {
+        return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    }
+
+    function saveChatHistory(message, sender) {
+        const history = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+
+        history.push({
+            sessionId: currentSessionId,
+            message: message,
+            sender: sender,
+            timestamp: new Date().toISOString()
+        });
+
+        // Keep only last 100 messages
+        if (history.length > 100) {
+            history.shift();
+        }
+
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+    }
+
+    function loadChatHistory() {
+        const history = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+
+        // Filter messages for current session
+        const sessionMessages = history.filter(msg => msg.sessionId === currentSessionId);
+
+        if (sessionMessages.length === 0) {
+            // Show welcome message for new session
+            addWelcomeMessage();
+        } else {
+            // Load existing messages
+            sessionMessages.forEach(msg => {
+                addMessage(msg.message, msg.sender, false);
+            });
+        }
+    }
+
+    function addWelcomeMessage() {
+        const welcomeDiv = document.createElement('div');
+        welcomeDiv.className = 'chatbot-message bot-message';
+
+        welcomeDiv.innerHTML = `
+            <div class="message-avatar">
+                <i class="fas fa-robot"></i>
+            </div>
+            <div class="message-content">
+                <p>Xin chào! 👋 Tôi là trợ lý AI. Tôi có thể giúp bạn:</p>
+                <ul>
+                    <li>Việc làm Hà Nội</li>
+                    <li>Viêc làm Hồ Chí Minh</li>
+                </ul>
+                <p>Bạn cần giúp gì?</p>
+            </div>
+        `;
+
+        chatbotMessages.appendChild(welcomeDiv);
+
+        // Save welcome message
+        saveChatHistory('Xin chào! 👋 Tôi là trợ lý AI. Tôi có thể giúp bạn:\n• Việc làm Hà Nội\n• Viêc làm Hồ Chí Minh\n\nBạn cần giúp gì?', 'bot');
+    }
+
+    function createNewSession() {
+        // Generate new session ID
+        currentSessionId = generateSessionId();
+        localStorage.setItem(SESSION_KEY, currentSessionId);
+
+        // Clear messages display
+        chatbotMessages.innerHTML = '';
+
+        // Show welcome message
+        addWelcomeMessage();
+
+        // Show notification
+        showNotification('✨ Đã tạo session mới!');
+    }
+
+    function showNotification(message) {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 10000;
+            animation: slideIn 0.3s ease;
+        `;
+        notification.textContent = message;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => notification.remove(), 300);
+        }, 2000);
+    }
+
+    function showTypingIndicator() {
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'chatbot-message bot-message';
+        typingDiv.id = 'typing-indicator';
+
+        typingDiv.innerHTML = `
+            <div class="message-avatar">
+                <i class="fas fa-robot"></i>
+            </div>
+            <div class="message-content">
+                <div class="typing-indicator">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        `;
+
+        chatbotMessages.appendChild(typingDiv);
+        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+    }
+
+    function removeTypingIndicator() {
+        const typing = document.getElementById('typing-indicator');
+        if (typing) {
+            typing.remove();
+        }
+    }
+
+    // Event listeners
+    chatbotSend.addEventListener('click', sendMessage);
+    chatbotInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    });
+</script>
 
 <!-- JS -->
 <!--<script th:src="@{/js/employer.js}"></script>-->

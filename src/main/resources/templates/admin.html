@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Website Tìm kiếm việc làm</title>
+    <!-- CSS -->
+    <link rel="stylesheet" th:href="@{/CSS/admin.css}">
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="admin-container">
+    <!-- Header -->
+    <header class="admin-header">
+        <div class="header-left">
+            <button class="menu-toggle" id="menuToggle"><i class="fa fa-bars"></i></button>
+            <h1>JobLink</h1>
+        </div>
+        <div class="header-right">
+            <!-- Profile -->
+            <div class="admin-profile">
+                <div class="admin-info">
+                    <span th:text="${adminName}">John Doe</span>
+                    <div class="admin-avatar" th:text="${adminInitial}">J</div>
+                    <i class="fa fa-caret-down caret-icon"></i>
+                </div>
+                <div class="profile-dropdown">
+                    <a href="#" class="dropdown-item"><i class="fa fa-user"></i> Hồ sơ </a>
+                    <a href="#" class="dropdown-item"><i class="fa fa-cog"></i> Cài đặt</a>
+                    <a th:href="@{/logout}" class="dropdown-item"><i class="fa fa-sign-out-alt"></i> Đăng xuất</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <div class="admin-content">
+        <aside class="sidebar">
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="nav-item active" data-url="/admin/dashboard">
+                        <a href="javascript:void(0)">
+                            <span class="nav-icon"><i class="fa fa-chart-line"></i></span>
+                            <span class="nav-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-url="/admin/jobseeker">
+                        <a href="javascript:void(0)">
+                            <span class="nav-icon"><i class="fa fa-user"></i></span>
+                            <span class="nav-text">Tài khoản người tìm việc</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-url="/admin/employer">
+                        <a href="javascript:void(0)">
+                            <span class="nav-icon"><i class="fa fa-building"></i></span>
+                            <span class="nav-text">Tài khoản nhà tuyển dụng</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-url="/admin/recruitment">
+                        <a href="javascript:void(0)">
+                            <span class="nav-icon"><i class="fa fa-clipboard-list"></i></span>
+                            <span class="nav-text">Tin tuyển dụng</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-url="/admin/applications">
+                        <a href="javascript:void(0)">
+                            <span class="nav-icon"><i class="fa fa-file-alt"></i></span>
+                            <span class="nav-text">Tất cả CV</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-url="/admin/blog">
+                        <a href="javascript:void(0)">
+                            <span class="nav-icon"><i class="fa fa-pen-to-square"></i></span>
+                            <span class="nav-text">Nội dung blog/tin tức</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-url="/admin/premium">
+                        <a href="javascript:void(0)">
+                            <span class="nav-icon"><i class="fa fa-gem"></i></span>
+                            <span class="nav-text">Gói dịch vụ</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-url="/admin/payments">
+                        <a href="javascript:void(0)">
+                            <span class="nav-icon"><i class="fa fa-money-bill-wave"></i></span>
+                            <span class="nav-text">Thanh toán & hóa đơn</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-url="/admin/feedbacks">
+                        <a href="javascript:void(0)">
+                            <span class="nav-icon"><i class="fa fa-comments"></i></span>
+                            <span class="nav-text">Phản hồi/khiếu nại</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-url="/admin/statistic">
+                        <a href="javascript:void(0)">
+                            <span class="nav-icon"><i class="fa fa-chart-bar"></i></span>
+                            <span class="nav-text">Thống kê hệ thống</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+        <main id="content-area" class="content-area">
+
+        </main>
+    </div>
+</div>
+
+<!-- JS -->
+<script src="/JS/admin.js"></script>
+</body>
+</html>

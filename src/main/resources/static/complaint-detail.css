@@ -1,0 +1,166 @@
+/* ==============================
+   Global Layout
+============================== */
+body {
+  font-family: "Inter", "Segoe UI", sans-serif;
+  background-color: #f8f9fa;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 800px;
+  background: #fff;
+  margin: 40px auto;
+  padding: 40px 50px;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* ==============================
+   Heading
+============================== */
+h2 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #0d6efd;
+  margin-bottom: 25px;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 10px;
+}
+
+/* ==============================
+   Complaint Info Section
+============================== */
+.info {
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 30px;
+}
+
+.info p {
+  margin: 8px 0;
+  line-height: 1.5;
+}
+
+.info b {
+  color: #333;
+}
+
+/* ==============================
+   Form Styling
+============================== */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+label {
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 6px;
+  display: inline-block;
+}
+
+textarea,
+select {
+  width: 100%;
+  font-size: 15px;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #fff;
+  resize: vertical;
+  transition: all 0.2s ease;
+}
+
+textarea:focus,
+select:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 4px rgba(13, 110, 253, 0.3);
+  outline: none;
+}
+
+/* ==============================
+   Status Dropdown Colors
+============================== */
+#status option[value="PENDING"] {
+  color: #f39c12;
+}
+#status option[value="IN_PROGRESS"] {
+  color: #17a2b8;
+}
+#status option[value="RESOLVED"] {
+  color: #28a745;
+}
+#status option[value="REJECTED"] {
+  color: #dc3545;
+}
+
+/* ==============================
+   Action Buttons
+============================== */
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 25px;
+}
+
+.btn {
+  display: inline-block;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 15px;
+  border: none;
+}
+
+.btn-primary {
+  background-color: #0d6efd;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #0b5ed7;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #5c636a;
+}
+
+/* ==============================
+   Responsive
+============================== */
+@media (max-width: 768px) {
+  .container {
+    padding: 25px 20px;
+    margin: 20px;
+  }
+
+  h2 {
+    font-size: 20px;
+  }
+
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn {
+    width: 100%;
+    text-align: center;
+  }
+}

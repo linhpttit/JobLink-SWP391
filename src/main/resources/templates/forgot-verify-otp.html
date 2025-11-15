@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Verify OTP — JobLink</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Outfit:wght@600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/CSS/forgot.css}" href="/CSS/forgot.css"/>
+</head>
+<body class="sky">
+
+<!-- lớp nền -->
+<div class="stars"></div>
+<div class="glows"></div>
+
+<!-- card -->
+<main class="wrap">
+    <section class="card">
+        <!-- tabs -->
+        <div class="tabs">
+            <a th:href="@{/signup}" href="/signup" class="tab">REGISTER</a>
+            <a th:href="@{/signin}" href="/signin" class="tab">LOG IN</a>
+        </div>
+
+        <form class="form" th:action="@{/forgot/verify-otp}" action="/forgot/verify-otp" method="post" autocomplete="off">
+            <h2 style="text-align: center; margin-bottom: 1.5rem; color: #333;">Verify OTP</h2>
+
+            <!-- thông báo từ server -->
+            <div class="alert error" th:if="${error}" th:text="${error}"></div>
+            <div class="alert success" th:if="${msg}" th:text="${msg}"></div>
+
+            <p style="text-align: center; color: #666; margin-bottom: 1.5rem;">
+                We've sent a verification code to <strong th:text="${email}">email@example.com</strong>
+            </p>
+
+            <!-- OTP Code -->
+            <label class="field">
+                <span class="hint">Enter Verification Code</span>
+                <input type="text" name="otpCode" placeholder="Enter 6-digit code"
+                       maxlength="6" pattern="[0-9]{6}" required>
+            </label>
+
+            <button class="btn main" type="submit">VERIFY CODE</button>
+
+            <div class="or">OR</div>
+
+            <button class="btn discord" type="button" onclick="resendOtp()" id="resendBtn">
+                Resend Code
+            </button>
+
+            <div class="row right" style="margin-top: 1rem;">
+                <a th:href="@{/forgot}" href="/forgot" class="muted small">Change Email</a>
+            </div>
+        </form>
+    </section>
+</main>
+
+<script>
+    let canResend = true;
+    let countdown = 60;
+
+    function resendOtp() {
+        if (!canResend) return;
+
+        const btn = document.getElementById('resendBtn');
+        canResend = false;
+        btn.disabled = true;
+
+        fetch('/forgot/resend-otp', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                alert(data.message);
+                startCountdown();
+            } else if (data.error) {
+                alert(data.error);
+                canResend = true;
+                btn.disabled = false;
+            }
+        })
+        .catch(error => {
+            alert('An error occurred. Please try again.');
+            canResend = true;
+            btn.disabled = false;
+        });
+    }
+
+    function startCountdown() {
+        const btn = document.getElementById('resendBtn');
+        countdown = 60;
+
+        const timer = setInterval(() => {
+            countdown--;
+            btn.textContent = `Resend Code (${countdown}s)`;
+
+            if (countdown <= 0) {
+                clearInterval(timer);
+                btn.textContent = 'Resend Code';
+                btn.disabled = false;
+                canResend = true;
+            }
+        }, 1000);
+    }
+</script>
+
+</body>
+</html>

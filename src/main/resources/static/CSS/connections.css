@@ -1,0 +1,379 @@
+/* ===== Nền & layout ===== */
+
+body {
+    background: #f0f2f5; /* giống FB */
+}
+
+.connections-container {
+    max-width: 1100px;
+    margin: 96px auto 40px; /* trừ header */
+    padding: 0 16px 40px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.connections-container h1 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: #050505;
+}
+
+.subtitle {
+    margin-bottom: 24px;
+    color: #606770;
+    font-size: 14px;
+}
+
+/* ===== Section ===== */
+
+.section {
+    margin-bottom: 32px;
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px 16px 20px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+}
+
+.section h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #050505;
+}
+
+.section-description {
+    font-size: 13px;
+    color: #65676b;
+    margin-bottom: 16px;
+}
+
+/* ===== Gợi ý kết nối ===== */
+
+.suggestions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+}
+
+.suggestion-card {
+    position: relative;
+    background: #f7f8fa;
+    border-radius: 10px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+    cursor: pointer;
+}
+
+.suggestion-card:hover {
+    background: #eef0f4;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    transform: translateY(-1px);
+}
+
+.suggestion-card .avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 8px;
+}
+
+.suggestion-info {
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+.suggestion-info h3 {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0 0 2px;
+    color: #050505;
+}
+
+.suggestion-info .job-title {
+    font-size: 13px;
+    color: #65676b;
+    margin: 0 0 4px;
+}
+
+.suggestion-info .common-skills {
+    font-size: 12px;
+    color: #65676b;
+    margin: 0;
+}
+
+.suggestion-info .common-skills strong {
+    font-weight: 600;
+    color: #050505;
+}
+
+/* nút gửi yêu cầu */
+
+.btn-connect {
+    margin-top: 4px;
+    align-self: stretch;
+    padding: 6px 0;
+    border-radius: 6px;
+    border: none;
+    background: #1b74e4;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.btn-connect:hover {
+    background: #1558ad;
+}
+
+/* ===== Box lời nhắn inline ===== */
+
+.inline-request-box {
+    display: none;
+    width: 100%;
+    margin-top: 8px;
+    padding: 8px 10px;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    font-size: 13px;
+}
+
+.inline-request-box h4 {
+    margin: 0 0 4px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.inline-request-box p {
+    margin: 0 0 6px;
+    color: #65676b;
+}
+
+.inline-request-box textarea {
+    width: 100%;
+    border-radius: 6px;
+    border: 1px solid #ccd0d5;
+    padding: 6px 8px;
+    font-size: 13px;
+    resize: vertical;
+    margin-bottom: 6px;
+}
+
+.inline-request-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.btn-inline-send {
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: none;
+    background: #1b74e4;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-inline-send:hover {
+    background: #1558ad;
+}
+
+.btn-inline-cancel {
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: none;
+    background: #e4e6eb;
+    color: #050505;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* Khi card mở, hiển thị box */
+.suggestion-card.show-inline .inline-request-box {
+    display: block;
+}
+
+/* ===== Pending requests ===== */
+
+.requests-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.request-card {
+    background: #f7f8fa;
+    border-radius: 10px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.request-card .avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.request-info h3 {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0 0 2px;
+}
+
+.request-info .common-skills {
+    font-size: 12px;
+    color: #65676b;
+    margin: 0 0 2px;
+}
+
+.request-info .message {
+    font-size: 12px;
+    color: #050505;
+    margin: 0;
+}
+
+.request-actions {
+    margin-left: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.btn-accept,
+.btn-reject {
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: none;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-accept {
+    background: #1b74e4;
+    color: #fff;
+}
+
+.btn-accept:hover {
+    background: #1558ad;
+}
+
+.btn-reject {
+    background: #e4e6eb;
+    color: #050505;
+}
+
+.btn-reject:hover {
+    background: #d8dadf;
+}
+
+/* ===== Sent requests ===== */
+
+.sent-requests-list {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sent-request-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    background: #f7f8fa;
+}
+
+.avatar-small {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.sent-request-info h4 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #050505;
+}
+
+.sent-request-info .status {
+    display: inline-block;
+    margin-top: 2px;
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 999px;
+    background: #e4e6eb;
+    color: #050505;
+}
+
+.status.accepted {
+    background: #e7f3ff;
+    color: #1877f2;
+}
+
+.status.pending {
+    background: #fff4e5;
+    color: #b26b00;
+}
+
+.status.rejected {
+    background: #fde7e9;
+    color: #c5221f;
+}
+
+.btn-message-small {
+    margin-left: 8px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    border: none;
+    font-size: 12px;
+    font-weight: 600;
+    background: #1b74e4;
+    color: #fff;
+    cursor: pointer;
+}
+
+/* ===== Empty ===== */
+
+.empty-message {
+    margin-top: 8px;
+    font-size: 13px;
+    color: #65676b;
+}
+
+/* ===== Responsive ===== */
+
+@media (max-width: 768px) {
+    .connections-container {
+        margin-top: 80px;
+    }
+    .section {
+        padding: 12px;
+    }
+    .suggestions-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .suggestions-grid {
+        grid-template-columns: 1fr;
+    }
+}
+

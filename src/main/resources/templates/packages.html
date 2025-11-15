@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nâng cấp Premium - JobLink</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/CSS/header.css}">
+    <link rel="stylesheet" th:href="@{/CSS/homepage.css}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8fafc;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #1e293b;
+            margin-bottom: 15px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: #64748b;
+        }
+
+        .current-plan {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 16px;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .current-plan h3 {
+            margin-bottom: 10px;
+        }
+
+        .current-plan .expires {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .packages-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .package-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .package-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        }
+
+        .package-card.popular {
+            border: 3px solid #667eea;
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: -15px;
+            right: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .package-name {
+            font-size: 1.5rem;
+            color: #1e293b;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .package-price {
+            font-size: 2.5rem;
+            color: #667eea;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .package-price span {
+            font-size: 1rem;
+            color: #64748b;
+            font-weight: 400;
+        }
+
+        .package-duration {
+            color: #64748b;
+            margin-bottom: 30px;
+            font-size: 0.95rem;
+        }
+
+        .features-list {
+            list-style: none;
+            margin-bottom: 30px;
+        }
+
+        .features-list li {
+            padding: 12px 0;
+            color: #475569;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .features-list li i {
+            color: #10b981;
+            font-size: 1.1rem;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+        .btn-purchase {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-purchase:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-purchase:disabled {
+            background: #e2e8f0;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .btn-purchase:disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .faq-section {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .faq-section h2 {
+            font-size: 2rem;
+            color: #1e293b;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .faq-item {
+            border-bottom: 1px solid #e2e8f0;
+            padding: 20px 0;
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .faq-answer {
+            color: #64748b;
+            line-height: 1.6;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+
+        .benefit-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .benefit-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .benefit-card h4 {
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+
+        .benefit-card p {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{header :: header}"></div>
+<div class="container">
+    <div class="header">
+        <h1>Nâng cấp tài khoản Premium</h1>
+        <p>Mở khóa toàn bộ tính năng để tìm việc hiệu quả hơn</p>
+    </div>
+
+    <!-- Current Plan -->
+    <div th:if="${currentSubscription != null and currentSubscription.isActive}" class="current-plan">
+        <h3>
+            <i class="fas fa-crown"></i>
+            Bạn đang sử dụng gói: <span th:text="${currentSubscription.packageName}">Premium</span>
+        </h3>
+        <p class="expires">
+            Hiệu lực đến: <span th:text="${#temporals.format(currentSubscription.endDate, 'dd/MM/yyyy HH:mm')}">31/12/2025</span>
+        </p>
+    </div>
+
+    <!-- Benefits Overview -->
+    <div class="benefits-grid">
+        <div class="benefit-card">
+            <div class="benefit-icon">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <h4>CV Templates Premium</h4>
+            <p>Truy cập hơn 50+ mẫu CV chuyên nghiệp</p>
+        </div>
+        <div class="benefit-card">
+            <div class="benefit-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <h4>Networking</h4>
+            <p>Kết nối với các ứng viên khác</p>
+        </div>
+        <div class="benefit-card">
+            <div class="benefit-icon">
+                <i class="fas fa-comments"></i>
+            </div>
+            <h4>Nhắn tin trực tiếp</h4>
+            <p>Chat với nhà tuyển dụng</p>
+        </div>
+        <div class="benefit-card">
+            <div class="benefit-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <h4>Thống kê chi tiết</h4>
+            <p>Xem ai đã xem hồ sơ của bạn</p>
+        </div>
+    </div>
+
+    <!-- Packages -->
+    <div class="packages-grid">
+        <div th:each="pkg : ${packages}"
+             th:class="${pkg.code == 'PREMIUM_PLUS' ? 'package-card popular' : 'package-card'}">
+
+            <div th:if="${pkg.code == 'PREMIUM_PLUS'}" class="popular-badge">
+                <i class="fas fa-star"></i> Phổ biến nhất
+            </div>
+
+            <div class="package-name" th:text="${pkg.name}">Basic</div>
+            <div class="package-price">
+                <span th:text="${#numbers.formatDecimal(pkg.price, 0, 'COMMA', 0, 'POINT')}">99,000</span>đ
+                <span>/ <span th:text="${pkg.durationDays}">30</span> ngày</span>
+            </div>
+            <div class="package-duration">
+                <i class="fas fa-calendar-alt"></i>
+                Sử dụng trong <span th:text="${pkg.durationDays}">30</span> ngày
+            </div>
+
+            <ul class="features-list">
+                <li th:if="${pkg.cvTemplatesAccess}">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Truy cập <strong>tất cả</strong> CV templates premium</span>
+                </li>
+                <li th:if="${pkg.pdfExportLimit != null and pkg.pdfExportLimit > 0}">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Export PDF: <strong><span th:text="${pkg.pdfExportLimit}">10</span> lần/tháng</strong></span>
+                </li>
+                <li th:if="${pkg.messagingEnabled}">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Nhắn tin <strong>không giới hạn</strong> với nhà tuyển dụng</span>
+                </li>
+                <li th:if="${pkg.seekerNetworkingEnabled}">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Kết nối với ứng viên khác</span>
+                </li>
+                <li>
+                    <i class="fas fa-check-circle"></i>
+                    <span>Hỗ trợ ưu tiên 24/7</span>
+                </li>
+                <li>
+                    <i class="fas fa-check-circle"></i>
+                    <span>Thống kê lượt xem hồ sơ</span>
+                </li>
+                <li>
+                    <i class="fas fa-check-circle"></i>
+                    <span>Badge "Premium" trên hồ sơ</span>
+                </li>
+            </ul>
+
+            <form th:action="@{/payment/create2}" method="post">
+                <input type="hidden" name="packageId" th:value="${pkg.packageId}">
+
+                <button type="submit" class="btn-purchase"
+                        th:disabled="${currentSubscription != null and currentSubscription.isActive and activePackage != null and pkg.price <= activePackage.price}">
+
+                    <i class="fas fa-crown"></i>
+
+                    <span th:if="${currentSubscription == null or !currentSubscription.isActive}">
+        Mua ngay
+    </span>
+
+                    <span th:if="${currentSubscription != null and currentSubscription.isActive and activePackage != null}">
+
+        <span th:if="${pkg.price < activePackage.price}">
+            Gói thấp hơn
+        </span>
+
+        <span th:if="${pkg.price == activePackage.price}">
+            Đang sử dụng
+        </span>
+
+        <span th:if="${pkg.price > activePackage.price}">
+            Nâng cấp
+        </span>
+    </span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- FAQ Section -->
+    <div class="faq-section">
+        <h2><i class="fas fa-question-circle"></i> Câu hỏi thường gặp</h2>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                <i class="fas fa-chevron-right"></i> Tôi có thể hủy gói Premium không?
+            </div>
+            <div class="faq-answer">
+                Gói Premium sẽ tự động hết hạn sau thời gian sử dụng. Bạn không cần hủy và sẽ không bị tự động gia hạn.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                <i class="fas fa-chevron-right"></i> Thanh toán có an toàn không?
+            </div>
+            <div class="faq-answer">
+                Chúng tôi sử dụng cổng thanh toán VNPay - một trong những nền tảng thanh toán uy tín nhất Việt Nam. Mọi giao dịch đều được mã hóa và bảo mật tối đa.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                <i class="fas fa-chevron-right"></i> Tôi có thể nâng cấp gói sau không?
+            </div>
+            <div class="faq-answer">
+                Có, bạn có thể nâng cấp lên gói cao hơn bất cứ lúc nào. Số ngày còn lại của gói hiện tại sẽ được quy đổi.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                <i class="fas fa-chevron-right"></i> Tính năng nào hữu ích nhất?
+            </div>
+            <div class="faq-answer">
+                Tính năng CV Templates và nhắn tin trực tiếp với nhà tuyển dụng được đánh giá cao nhất. Điều này giúp bạn nổi bật và tăng cơ hội được mời phỏng vấn.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                <i class="fas fa-chevron-right"></i> Có hóa đơn VAT không?
+            </div>
+            <div class="faq-answer">
+                Có, sau khi thanh toán thành công, bạn có thể tải hóa đơn điện tử trong phần "Lịch sử thanh toán".
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Hiệu ứng scroll smooth
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    });
+
+    // Confirm trước khi mua
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            const packageName = this.closest('.package-card').querySelector('.package-name').textContent;
+            const price = this.closest('.package-card').querySelector('.package-price').textContent.trim();
+
+            if (!confirm(`Bạn có chắc muốn mua gói "${packageName}" với giá ${price}?`)) {
+                e.preventDefault();
+            }
+        });
+    });
+</script>
+<script th:src="@{/JS/header-usermenu.js}"></script>
+</body>
+
+</html>

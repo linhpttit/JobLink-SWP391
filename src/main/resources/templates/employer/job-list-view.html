@@ -11,6 +11,9 @@
 </head>
 <body class="bg-soft">
 <main class="wrap" layout:fragment="content">
+    <div class="header-bar">
+        <a href="/jobPosting/showCreateForm" class="btn-create">+ Tạo tin</a>
+    </div>
     <section class="list">
 
         <!-- lặp qua danh sách -->
@@ -36,7 +39,7 @@
 
                 <!-- dòng ngành / chức danh -->
                 <div class="meta-line">
-                     <span th:text="${j.position}"></span>
+                    <span th:text="${j.position}"></span>
                 </div>
             </div>
 
