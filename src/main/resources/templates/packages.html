@@ -343,13 +343,32 @@
                 </li>
             </ul>
 
-            <form th:action="@{/payment/create}" method="post">
+            <form th:action="@{/payment/create2}" method="post">
                 <input type="hidden" name="packageId" th:value="${pkg.packageId}">
+
                 <button type="submit" class="btn-purchase"
-                        th:disabled="${currentSubscription != null and currentSubscription.isActive}">
+                        th:disabled="${currentSubscription != null and currentSubscription.isActive and activePackage != null and pkg.price <= activePackage.price}">
+
                     <i class="fas fa-crown"></i>
-                    <span th:if="${currentSubscription == null or !currentSubscription.isActive}">Mua ngay</span>
-                    <span th:if="${currentSubscription != null and currentSubscription.isActive}">Đang sử dụng</span>
+
+                    <span th:if="${currentSubscription == null or !currentSubscription.isActive}">
+        Mua ngay
+    </span>
+
+                    <span th:if="${currentSubscription != null and currentSubscription.isActive and activePackage != null}">
+
+        <span th:if="${pkg.price < activePackage.price}">
+            Gói thấp hơn
+        </span>
+
+        <span th:if="${pkg.price == activePackage.price}">
+            Đang sử dụng
+        </span>
+
+        <span th:if="${pkg.price > activePackage.price}">
+            Nâng cấp
+        </span>
+    </span>
                 </button>
             </form>
         </div>

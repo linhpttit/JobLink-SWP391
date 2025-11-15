@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kết Nối - JobLink</title>
+
+    <link rel="stylesheet" th:href="@{/homepage.css}">
+    <link rel="stylesheet" th:href="@{/connections.css}">
+
+</head>
+<body>
+<div th:replace="~{header :: header}"></div>
+
+<div class="connections-container">
+    <h1>Kết Nối Với Người Tìm Việc Khác</h1>
+    <!-- Updated subtitle to emphasize overlapping skills -->
+    <p class="subtitle">Mở rộng mạng lưới của bạn với những người có kỹ năng tương tự. Nhắn tin trực tiếp sau khi kết nối!</p>
+
+    <!-- Pending Requests -->
+    <div class="section" th:if="${!pendingRequests.isEmpty()}">
+        <h2>Yêu Cầu Kết Nối</h2>
+        <div class="requests-grid">
+            <div th:each="request : ${pendingRequests}" class="request-card">
+                <img th:src="${request.requesterAvatar != null ? request.requesterAvatar : '/images/user.png'}"
+                     alt="Avatar" class="avatar">
+                <div class="request-info">
+                    <h3 th:text="${request.requesterName}"></h3>
+                    <!-- Display overlapping skills -->
+                    <p class="common-skills">
+                        <strong>Kỹ năng chung:</strong> <span th:text="${request.commonSkills}"></span>
+                    </p>
+                    <p class="message" th:if="${request.message != null}" th:text="${request.message}"></p>
+                </div>
+                <div class="request-actions">
+                    <button class="btn-accept" th:attr="data-request-id=${request.requestId}">Chấp Nhận</button>
+                    <button class="btn-reject" th:attr="data-request-id=${request.requestId}">Từ Chối</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Suggestions -->
+    <div class="section">
+        <h2>Gợi Ý Kết Nối</h2>
+        <!-- Updated description to mention overlapping skills -->
+        <p class="section-description">Những người tìm việc có kỹ năng trùng khớp với bạn</p>
+        <div class="suggestions-grid">
+            <div th:each="suggestion : ${suggestions}" class="suggestion-card">
+                <img th:src="${suggestion.avatarUrl != null ? suggestion.avatarUrl : '/images/user.png'}"
+                     alt="Avatar" class="avatar">
+                <div class="suggestion-info">
+                    <h3 th:text="${suggestion.fullname}"></h3>
+                    <p class="job-title" th:text="${suggestion.headline}"></p>
+                    <!-- Display count and list of overlapping skills -->
+                    <p class="common-skills">
+                        <strong th:text="${suggestion.commonSkillCount} + ' kỹ năng chung:'"></strong>
+                        <span th:text="${#strings.listJoin(suggestion.commonSkills, ', ')}"></span>
+                    </p>
+                </div>
+                <button class="btn-connect"
+                        th:attr="data-seeker-id=${suggestion.seekerId},data-name=${suggestion.fullname},data-user-id=${suggestion.userId}">
+                    Gửi Yêu Cầu
+                </button>
+            </div>
+        </div>
+        <p th:if="${suggestions.isEmpty()}" class="empty-message">
+            Không có gợi ý kết nối nào. Hãy thêm kỹ năng vào hồ sơ của bạn!
+        </p>
+    </div>
+
+    <!-- Sent Requests -->
+    <div class="section" th:if="${!sentRequests.isEmpty()}">
+        <h2>Yêu Cầu Đã Gửi</h2>
+        <div class="sent-requests-list">
+            <div th:each="request : ${sentRequests}" class="sent-request-item">
+                <img th:src="${request.targetAvatar != null ? request.targetAvatar : '/images/user.png'}"
+                     alt="Avatar" class="avatar-small">
+                <div class="sent-request-info">
+                    <h4 th:text="${request.targetName}"></h4>
+                    <span class="status" th:classappend="${request.status.toLowerCase()}"
+                          th:text="${request.status}"></span>
+                    <!-- Show option to message if accepted -->
+                    <button th:if="${request.status == 'ACCEPTED'}"
+                            class="btn-message-small"
+                            th:attr="data-user-id=${request.targetUserId}"
+                            onclick="startChat(this)">
+                        💬 Nhắn tin
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Connection Request Modal -->
+<div id="connectionModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Gửi Yêu Cầu Kết Nối</h2>
+        <p>Gửi lời nhắn đến <strong id="targetName"></strong></p>
+        <textarea id="connectionMessage" placeholder="Viết lời nhắn của bạn (không bắt buộc)..." rows="4"></textarea>
+        <div class="modal-actions">
+            <button id="sendRequestBtn" class="btn-primary">Gửi Yêu Cầu</button>
+            <button class="btn-secondary close">Hủy</button>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/JS/connections.js}"></script>
+<script>
+    function startChat(button) {
+        const userId = button.getAttribute('data-user-id');
+        window.location.href = '/messages?userId=' + userId;
+    }
+</script>
+</body>
+</html>

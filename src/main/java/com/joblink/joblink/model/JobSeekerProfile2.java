@@ -5,7 +5,7 @@ import lombok.Data;
 import java.time.LocalDate;
 
 @Data
-public class JobSeekerProfile {
+public class JobSeekerProfile2 {
     private Integer seekerId;
     private int userId;
     private String fullname;
@@ -22,4 +22,5 @@ public class JobSeekerProfile {
 
     // === THUỘC TÍNH BẠN CẦN THÊM VÀO ĐÂY ===
     private boolean receiveInvitations;
+
 }

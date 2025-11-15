@@ -193,7 +193,7 @@
                                     <p style="margin-top:10px;font-size:14px;color:#444;">
                                         ${emp.description ? emp.description.substring(0, 150) + "..." : "Chưa có mô tả công ty."}
                                     </p>
-                                    <button class="open-position-btn" onclick="window.location.href='/employer/${emp.employerId}'">
+                                    <button class="open-position-btn" onclick="window.location.href='/findemployers/${emp.employerId}'">
                                         Xem việc làm <i class="fas fa-arrow-right"></i>
                                     </button>`;
                                 employerGrid.appendChild(card);

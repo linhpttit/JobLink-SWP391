@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Search - JobLink</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .header-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #e74c3c;
+        }
+
+        /* Search Section */
+        .search-section {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .location-select, .search-input, .search-btn {
+            padding: 12px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .location-select {
+            background: white;
+            color: #333;
+            min-width: 200px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .search-input {
+            flex: 1;
+            background: white;
+            color: #333;
+            position: relative;
+        }
+
+        .search-input::placeholder {
+            color: #999;
+        }
+
+        .search-btn {
+            background: #e74c3c;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            min-width: 120px;
+            transition: background 0.3s ease;
+        }
+
+        .search-btn:hover {
+            background: #c0392b;
+        }
+
+        /* Suggestions Dropdown */
+        .suggestions-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+
+        .suggestions-dropdown.active {
+            display: block;
+        }
+
+        .suggestion-group {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .suggestion-group:last-child {
+            border-bottom: none;
+        }
+
+        .suggestion-group-title {
+            padding: 8px 16px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #999;
+            text-transform: uppercase;
+        }
+
+        .suggestion-item {
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .suggestion-item:hover {
+            background: #f5f5f5;
+        }
+
+        /* Main Content */
+        .main-container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .featured-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            gap: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .featured-image {
+            width: 250px;
+            height: 150px;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 24px;
+            position: relative;
+        }
+
+        .featured-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #f39c12;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .featured-content {
+            flex: 1;
+        }
+
+        .featured-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .featured-subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .featured-jobs {
+            display: flex;
+            gap: 20px;
+        }
+
+        .featured-job {
+            color: #e74c3c;
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        /* Job Count Section */
+        .job-count-section {
+            margin-bottom: 20px;
+        }
+
+        .job-count {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        /* Filter Bar */
+        .filter-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-dropdown {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .filter-dropdown:hover {
+            border-color: #e74c3c;
+            background: #fff5f5;
+        }
+
+        .filter-btn {
+            background: white;
+            border: 2px solid #ddd;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin-left: auto;
+        }
+
+        .filter-btn:hover {
+            border-color: #e74c3c;
+            color: #e74c3c;
+        }
+
+        /* Results Container */
+        .results-container {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 20px;
+        }
+
+        /* Job List */
+        .job-list {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .job-card {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+            position: relative;
+        }
+
+        .job-card:hover {
+            background: #f9f9f9;
+            border-left-color: #e74c3c;
+        }
+
+        .job-card.active {
+            background: #fff5f5;
+            border-left-color: #e74c3c;
+        }
+
+        .job-card:last-child {
+            border-bottom: none;
+        }
+
+        .super-hot-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #e74c3c;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .job-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .company-name {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .job-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .job-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .job-card .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .tag {
+            background: #f0f0f0;
+            color: #333;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        /* Job Details */
+        .job-details {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            min-height: 600px;
+        }
+
+        .job-details.empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+        }
+
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .detail-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .detail-company {
+            font-size: 16px;
+            color: #e74c3c;
+            margin-bottom: 10px;
+        }
+
+        .detail-rating {
+            color: #27ae60;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .apply-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .apply-btn:hover {
+            background: #c0392b;
+        }
+
+        .detail-section {
+            margin-bottom: 25px;
+        }
+
+        .detail-section-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            color: #333;
+        }
+
+        .detail-section-content {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .detail-list {
+            list-style: none;
+        }
+
+        .detail-list li {
+            padding: 8px 0;
+            color: #666;
+        }
+
+        .detail-list li::before {
+            content: "• ";
+            color: #e74c3c;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .location-text {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #666;
+            margin: 15px 0;
+        }
+
+        /* Filter Modal */
+        .filter-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 2000;
+            align-items: flex-end;
+        }
+
+        .filter-modal.active {
+            display: flex;
+        }
+
+        .filter-modal-content {
+            background: white;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border-radius: 12px 12px 0 0;
+            padding: 30px;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .filter-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .filter-modal-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .filter-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .filter-section {
+            margin-bottom: 30px;
+        }
+
+        .filter-section-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .filter-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .chip {
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            padding: 8px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .chip:hover {
+            border-color: #e74c3c;
+            background: #fff5f5;
+        }
+
+        .chip.selected {
+            background: #e74c3c;
+            color: white;
+            border-color: #e74c3c;
+        }
+
+        .chip-add {
+            background: none;
+            border: 1px solid #ddd;
+            color: #666;
+        }
+
+        .chip-add:hover {
+            border-color: #e74c3c;
+            color: #e74c3c;
+        }
+
+        .salary-range {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .salary-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .range-slider {
+            width: 100%;
+            height: 6px;
+            background: #ddd;
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #27ae60;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        .range-slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: #27ae60;
+            cursor: pointer;
+            border-radius: 50%;
+            border: none;
+        }
+
+        .filter-search {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+            margin-bottom: 15px;
+        }
+
+        .filter-checkboxes {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #e74c3c;
+        }
+
+        .checkbox-item label {
+            cursor: pointer;
+            font-size: 13px;
+            color: #333;
+            flex: 1;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .filter-reset {
+            background: none;
+            border: none;
+            color: #0066cc;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: underline;
+        }
+
+        .filter-apply {
+            flex: 1;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .filter-apply:hover {
+            background: #c0392b;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 30px;
+        }
+
+        .page-btn {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+
+        .page-btn:hover {
+            border-color: #e74c3c;
+            color: #e74c3c;
+        }
+
+        .page-btn.active {
+            background: #e74c3c;
+            color: white;
+            border-color: #e74c3c;
+        }
+
+        .page-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Location Dropdown */
+        .location-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+            min-width: 200px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+
+        .location-dropdown.active {
+            display: block;
+        }
+
+        .location-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .location-item:hover {
+            background: #f5f5f5;
+        }
+
+        .location-item.selected {
+            background: #fff5f5;
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .results-container {
+                grid-template-columns: 1fr;
+            }
+
+            .search-section {
+                flex-direction: column;
+            }
+
+            .location-select, .search-input, .search-btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .featured-section {
+                flex-direction: column;
+            }
+
+            .featured-image {
+                width: 100%;
+            }
+
+            .filter-bar {
+                justify-content: space-between;
+            }
+
+            .filter-btn {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- Header -->
+<header>
+    <div class="header-container">
+        <div class="header-top">
+            <div class="logo">JobLink</div>
+        </div>
+
+        <!-- Search Section -->
+        <div class="search-section">
+            <div class="location-select" id="locationSelect">
+                <span>📍 Tất cả thành phố</span>
+                <div class="location-dropdown" id="locationDropdown">
+                    <div class="location-item" data-location="all">Tất cả thành phố</div>
+                    <div class="location-item" data-location="hanoi">Hà Nội</div>
+                    <div class="location-item" data-location="hcm">TP Hồ Chí Minh</div>
+                    <div class="location-item" data-location="danang">Đà Nẵng</div>
+                    <div class="location-item" data-location="angiang">An Giang</div>
+                    <div class="location-item" data-location="baria">Bà Rịa - Vũng Tàu</div>
+                </div>
+            </div>
+
+            <div style="position: relative; flex: 1;">
+                <input type="text" class="search-input" id="searchInput" placeholder="Nhập từ khoá theo kỹ năng, chức vụ, công ty...">
+                <div class="suggestions-dropdown" id="suggestionDropdown"></div>
+            </div>
+
+            <button class="search-btn" id="searchBtn">🔍 Tìm Kiếm</button>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content -->
+<div class="main-container">
+    <!-- Featured Company Section -->
+    <div class="featured-section">
+        <div class="featured-image">
+            <div class="featured-badge">Nhà Tuyển Dụng Nổi Bật</div>
+            LG
+        </div>
+        <div class="featured-content">
+            <div class="featured-title">LG Electronics Development Vietnam (LGEDV)</div>
+            <div class="featured-subtitle">Đà Nẵng • Khác • Hà Nội</div>
+            <div class="featured-jobs">
+                <a href="#" class="featured-job">Xem 2 việc làm ></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Job Count and Filters -->
+    <div class="job-count-section">
+        <div class="job-count" id="jobCount">938 việc làm IT tại Việt Nam</div>
+
+        <div class="filter-bar">
+            <select class="filter-dropdown" id="levelFilter">
+                <option value="">Cấp bậc</option>
+                <option value="fresher">Fresher</option>
+                <option value="junior">Junior</option>
+                <option value="senior">Senior</option>
+                <option value="manager">Manager</option>
+            </select>
+
+            <select class="filter-dropdown" id="typeFilter">
+                <option value="">Hình thức làm việc</option>
+                <option value="office">Tại văn phòng</option>
+                <option value="remote">Làm từ xa</option>
+                <option value="hybrid">Kết hợp</option>
+            </select>
+
+            <select class="filter-dropdown" id="salaryFilter">
+                <option value="">Mức lương</option>
+                <option value="0-500">Dưới 500K</option>
+                <option value="500-1000">500K - 1M</option>
+                <option value="1000-2000">1M - 2M</option>
+                <option value="2000-plus">Trên 2M</option>
+            </select>
+
+            <select class="filter-dropdown" id="fieldFilter">
+                <option value="">Lĩnh vực công việc</option>
+                <option value="backend">Backend</option>
+                <option value="frontend">Frontend</option>
+                <option value="fullstack">Full Stack</option>
+                <option value="mobile">Mobile</option>
+                <option value="devops">DevOps</option>
+            </select>
+
+            <button class="filter-btn" id="filterBtn">⚙️ Bộ lọc</button>
+        </div>
+    </div>
+
+    <!-- Results -->
+    <div class="results-container">
+        <!-- Job List -->
+        <div class="job-list" id="jobList">
+            <!-- Jobs will be populated here -->
+        </div>
+
+        <!-- Job Details -->
+        <div class="job-details empty" id="jobDetails">
+            <p>Chọn một công việc để xem chi tiết</p>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" id="pagination"></div>
+</div>
+
+<!-- Filter Modal -->
+<div class="filter-modal" id="filterModal">
+    <div class="filter-modal-content">
+        <div class="filter-modal-header">
+            <div class="filter-modal-title">Bộ lọc</div>
+            <button class="filter-close" id="filterCloseBtn">&times;</button>
+        </div>
+
+        <!-- Experience Level -->
+        <div class="filter-section">
+            <div class="filter-section-title">Cấp bậc</div>
+            <div class="filter-chips">
+                <div class="chip chip-add">Fresher</div>
+                <div class="chip chip-add">Junior</div>
+                <div class="chip chip-add">Senior</div>
+                <div class="chip chip-add">Manager</div>
+            </div>
+        </div>
+
+        <!-- Work Type -->
+        <div class="filter-section">
+            <div class="filter-section-title">Hình thức làm việc</div>
+            <div class="filter-chips">
+                <div class="chip chip-add">Tại văn phòng</div>
+                <div class="chip chip-add">Làm từ xa</div>
+                <div class="chip chip-add">Lĩnh hoạt</div>
+            </div>
+        </div>
+
+        <!-- Salary Range -->
+        <div class="filter-section">
+            <div class="filter-section-title">Mức lương</div>
+            <div class="salary-range">
+                <input type="range" class="range-slider" id="salarySlider" min="0" max="10000" value="5000">
+            </div>
+            <div style="text-align: center; color: #666; font-size: 13px;">
+                $<span id="salaryValue">5000</span> - $10,000
+            </div>
+        </div>
+
+        <!-- Skills -->
+        <div class="filter-section">
+            <div class="filter-section-title">Lĩnh vực công việc</div>
+            <input type="text" class="filter-search" placeholder="Tìm kiếm lĩnh vực">
+            <div class="filter-checkboxes">
+                <div class="checkbox-item">
+                    <input type="checkbox" id="skill1" value="blockchain">
+                    <label for="skill1">Dịch vụ Blockchain & Web3</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="skill2" value="food">
+                    <label for="skill2">Thực Phẩm và Đồ Uống</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="skill3" value="travel">
+                    <label for="skill3">Du Lịch và Dịch Vụ Lưu Trú</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="skill4" value="insurance">
+                    <label for="skill4">Bảo Hiểm</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="skill5" value="ecommerce">
+                    <label for="skill5">Hàng Tiêu Dùng</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Company Field -->
+        <div class="filter-section">
+            <div class="filter-section-title">Lĩnh vực công ty</div>
+            <select class="filter-search" style="appearance: auto; cursor: pointer; padding: 10px;">
+                <option value="">-- Chọn lĩnh vực --</option>
+                <option value="tech">Công nghệ</option>
+                <option value="finance">Tài chính</option>
+                <option value="retail">Bán lẻ</option>
+            </select>
+        </div>
+
+        <!-- Actions -->
+        <div class="filter-actions">
+            <button class="filter-reset" id="filterResetBtn">Xoá bộ lọc</button>
+            <button class="filter-apply" id="filterApplyBtn">Áp dụng</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Sample Data
+    const jobsData = [
+        {
+            id: 1,
+            title: "Chuyên Viên Vận Hành Ứng Dụng (Appops/ Window/ Linux)",
+            company: "ABBANK",
+            location: "Hà Nội",
+            salary: "15-25 triệu",
+            level: "junior",
+            type: "office",
+            field: "backend",
+            skills: ["Windows", "Microservices", "Unix", "Linux"],
+            description: "Chúng tôi cần một chuyên gia về vận hành ứng dụng (AppOps) để quản lý hạ tầng và ứng dụng...",
+            postedDays: 2,
+            rating: "You'll love it",
+            requirements: [
+                "Kinh nghiệm 2+ năm với AppOps",
+                "Hiểu biết sâu về Windows, Linux, Unix",
+                "Kỹ năng lập trình Microservices"
+            ]
+        },
+        {
+            id: 2,
+            title: "Automotive Software Engineer (C++, OOP, Middleware)",
+            company: "LG Electronics",
+            location: "Đà Nẵng",
+            salary: "20-30 triệu",
+            level: "senior",
+            type: "office",
+            field: "fullstack",
+            skills: ["C++", "OOP", "Middleware"],
+            description: "LG Electronics tìm kiếm kỹ sư phần mềm ô tô có kinh nghiệm...",
+            postedDays: 1,
+            rating: "You'll love it",
+            requirements: [
+                "5+ năm kinh nghiệm C++",
+                "Kiến thức OOP sâu",
+                "Kinh nghiệm với middleware"
+            ]
+        },
+        {
+            id: 3,
+            title: "System Core Engineer (Embedded Linux, C++)",
+            company: "Samsung",
+            location: "Hà Nội",
+            salary: "25-35 triệu",
+            level: "senior",
+            type: "office",
+            field: "backend",
+            skills: ["Embedded Linux", "C++", "System Design"],
+            description: "Samsung tìm kiếm kỹ sư hệ thống nhân cao cấp...",
+            postedDays: 3,
+            rating: "You'll love it",
+            requirements: [
+                "6+ năm kinh nghiệm Embedded Linux",
+                "Thành thạo C++",
+                "Kinh nghiệm thiết kế hệ thống"
+            ]
+        },
+        {
+            id: 4,
+            title: "Java Backend Developer",
+            company: "Techcombank",
+            location: "TP Hồ Chí Minh",
+            salary: "18-25 triệu",
+            level: "junior",
+            type: "hybrid",
+            field: "backend",
+            skills: ["Java", "Spring Boot", "PostgreSQL"],
+            description: "Techcombank tuyển dụng Java Backend Developer...",
+            postedDays: 5,
+            rating: "You'll love it",
+            requirements: [
+                "2+ năm kinh nghiệm Java",
+                "Thành thạo Spring Boot",
+                "Kinh nghiệm với SQL databases"
+            ]
+        },
+        {
+            id: 5,
+            title: "React Frontend Developer",
+            company: "Grab",
+            location: "Hà Nội",
+            salary: "16-22 triệu",
+            level: "junior",
+            type: "remote",
+            field: "frontend",
+            skills: ["React", "JavaScript", "CSS"],
+            description: "Grab tuyển dụng React Frontend Developer...",
+            postedDays: 4,
+            rating: "You'll love it",
+            requirements: [
+                "2+ năm kinh nghiệm React",
+                "JavaScript expertise",
+                "CSS advanced skills"
+            ]
+        },
+        {
+            id: 6,
+            title: "DevOps Engineer",
+            company: "Viettel",
+            location: "Đà Nẵng",
+            salary: "22-28 triệu",
+            level: "senior",
+            type: "office",
+            field: "devops",
+            skills: ["Docker", "Kubernetes", "AWS"],
+            description: "Viettel tuyển dụng DevOps Engineer...",
+            postedDays: 6,
+            rating: "You'll love it",
+            requirements: [
+                "4+ năm kinh nghiệm DevOps",
+                "Docker & Kubernetes",
+                "AWS experience"
+            ]
+        },
+        {
+            id: 7,
+            title: "Full Stack Developer (JavaScript/Node.js)",
+            company: "Bekhoa",
+            location: "Hà Nội",
+            salary: "17-24 triệu",
+            level: "junior",
+            type: "hybrid",
+            field: "fullstack",
+            skills: ["Node.js", "React", "MongoDB"],
+            description: "Bekhoa tuyển dụng Full Stack Developer...",
+            postedDays: 7,
+            rating: "You'll love it",
+            requirements: [
+                "2+ năm Node.js",
+                "React expertise",
+                "MongoDB knowledge"
+            ]
+        },
+        {
+            id: 8,
+            title: "Mobile Developer (iOS/Android)",
+            company: "Appota",
+            location: "TP Hồ Chí Minh",
+            salary: "19-26 triệu",
+            level: "junior",
+            type: "office",
+            field: "mobile",
+            skills: ["Swift", "Kotlin", "React Native"],
+            description: "Appota tuyển dụng Mobile Developer...",
+            postedDays: 8,
+            rating: "You'll love it",
+            requirements: [
+                "2+ năm kinh nghiệm mobile",
+                "Swift hoặc Kotlin",
+                "React Native experience"
+            ]
+        }
+    ];
+
+    let filteredJobs = [...jobsData];
+    let currentPage = 1;
+    const itemsPerPage = 5;
+    let selectedJobId = null;
+
+    // Initialize
+    function init() {
+        renderJobs();
+        setupEventListeners();
+    }
+
+    // Setup Event Listeners
+    function setupEventListeners() {
+        // Location Select
+        document.getElementById('locationSelect').addEventListener('click', () => {
+            document.getElementById('locationDropdown').classList.toggle('active');
+        });
+
+        document.querySelectorAll('.location-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                document.getElementById('locationSelect').innerHTML = `<span>📍 ${e.target.textContent}</span>`;
+                document.getElementById('locationDropdown').classList.remove('active');
+            });
+        });
+
+        // Search
+        const searchInput = document.getElementById('searchInput');
+        searchInput.addEventListener('input', handleSearchInput);
+        document.getElementById('searchBtn').addEventListener('click', handleSearch);
+
+        // Filters
+        document.getElementById('levelFilter').addEventListener('change', applyQuickFilters);
+        document.getElementById('typeFilter').addEventListener('change', applyQuickFilters);
+        document.getElementById('salaryFilter').addEventListener('change', applyQuickFilters);
+        document.getElementById('fieldFilter').addEventListener('change', applyQuickFilters);
+
+        // Filter Modal
+        document.getElementById('filterBtn').addEventListener('click', () => {
+            document.getElementById('filterModal').classList.add('active');
+        });
+
+        document.getElementById('filterCloseBtn').addEventListener('click', () => {
+            document.getElementById('filterModal').classList.remove('active');
+        });
+
+        document.getElementById('filterApplyBtn').addEventListener('click', () => {
+            applyAdvancedFilters();
+            document.getElementById('filterModal').classList.remove('active');
+        });
+
+        document.getElementById('filterResetBtn').addEventListener('click', resetFilters);
+
+        // Salary Range
+        document.getElementById('salarySlider').addEventListener('input', (e) => {
+            document.getElementById('salaryValue').textContent = e.target.value;
+        });
+
+        // Filter chips
+        document.querySelectorAll('.chip.chip-add').forEach(chip => {
+            chip.addEventListener('click', function() {
+                this.classList.toggle('selected');
+            });
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('#locationSelect')) {
+                document.getElementById('locationDropdown').classList.remove('active');
+            }
+            if (!e.target.closest('.search-section')) {
+                document.getElementById('suggestionDropdown').classList.remove('active');
+            }
+        });
+    }
+
+    // Handle Search Input
+    function handleSearchInput(e) {
+        const query = e.target.value.toLowerCase();
+        if (query.length < 1) {
+            document.getElementById('suggestionDropdown').classList.remove('active');
+            return;
+        }
+
+        const suggestions = generateSuggestions(query);
+        displaySuggestions(suggestions);
+    }
+
+    // Generate Suggestions
+    function generateSuggestions(query) {
+        const skills = [
+            'JavaScript', 'Java', 'Python', 'React', 'Node.js', 'SQL', 'C++', 'Kubernetes'
+        ];
+        const companies = [
+            'Techcombank', 'Samsung', 'LG Electronics', 'Grab', 'Viettel', 'Shopee'
+        ];
+
+        return {
+            skills: skills.filter(s => s.toLowerCase().includes(query)).slice(0, 3),
+            companies: companies.filter(c => c.toLowerCase().includes(query)).slice(0, 3)
+        };
+    }
+
+    // Display Suggestions
+    function displaySuggestions(suggestions) {
+        let html = '';
+
+        if (suggestions.skills.length > 0) {
+            html += '<div class="suggestion-group">';
+            html += '<div class="suggestion-group-title">Skill and Expertise</div>';
+            suggestions.skills.forEach(skill => {
+                html += `<div class="suggestion-item">${skill}</div>`;
+            });
+            html += '</div>';
+        }
+
+        if (suggestions.companies.length > 0) {
+            html += '<div class="suggestion-group">';
+            html += '<div class="suggestion-group-title">Company</div>';
+            suggestions.companies.forEach(company => {
+                html += `<div class="suggestion-item">${company}</div>`;
+            });
+            html += '</div>';
+        }
+
+        const dropdown = document.getElementById('suggestionDropdown');
+        dropdown.innerHTML = html;
+        dropdown.classList.add('active');
+
+        // Add click handlers
+        dropdown.querySelectorAll('.suggestion-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.getElementById('searchInput').value = item.textContent;
+                dropdown.classList.remove('active');
+            });
+        });
+    }
+
+    // Handle Search
+    function handleSearch() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        filteredJobs = jobsData.filter(job =>
+            job.title.toLowerCase().includes(query) ||
+            job.company.toLowerCase().includes(query) ||
+            job.skills.some(s => s.toLowerCase().includes(query))
+        );
+        currentPage = 1;
+        renderJobs();
+    }
+
+    // Apply Quick Filters
+    function applyQuickFilters() {
+        const level = document.getElementById('levelFilter').value;
+        const type = document.getElementById('typeFilter').value;
+        const salary = document.getElementById('salaryFilter').value;
+        const field = document.getElementById('fieldFilter').value;
+
+        filteredJobs = jobsData.filter(job => {
+            if (level && job.level !== level) return false;
+            if (type && job.type !== type) return false;
+            if (field && job.field !== field) return false;
+            return true;
+        });
+
+        currentPage = 1;
+        renderJobs();
+    }
+
+    // Apply Advanced Filters
+    function applyAdvancedFilters() {
+        const selectedChips = document.querySelectorAll('.chip.selected');
+        const skills = Array.from(selectedChips).map(chip => chip.textContent);
+        const salaryMax = parseInt(document.getElementById('salarySlider').value);
+        const selectedSkillCheckboxes = document.querySelectorAll('.filter-checkboxes input:checked');
+        const selectedSkills = Array.from(selectedSkillCheckboxes).map(cb => cb.value);
+
+        filteredJobs = jobsData.filter(job => {
+            if (skills.length > 0 && !skills.some(s => job.level.includes(s.toLowerCase()))) {
+                return false;
+            }
+            if (selectedSkills.length > 0 && !selectedSkills.some(s => job.skills.some(js => js.toLowerCase().includes(s)))) {
+                return false;
+            }
+            return true;
+        });
+
+        currentPage = 1;
+        renderJobs();
+    }
+
+    // Reset Filters
+    function resetFilters() {
+        document.getElementById('levelFilter').value = '';
+        document.getElementById('typeFilter').value = '';
+        document.getElementById('salaryFilter').value = '';
+        document.getElementById('fieldFilter').value = '';
+        document.querySelectorAll('.chip.selected').forEach(chip => chip.classList.remove('selected'));
+        document.querySelectorAll('.filter-checkboxes input').forEach(cb => cb.checked = false);
+        document.getElementById('salarySlider').value = 5000;
+        document.getElementById('salaryValue').textContent = 5000;
+
+        filteredJobs = [...jobsData];
+        currentPage = 1;
+        renderJobs();
+    }
+
+    // Render Jobs
+    function renderJobs() {
+        const start = (currentPage - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+        const paginatedJobs = filteredJobs.slice(start, end);
+
+        const jobList = document.getElementById('jobList');
+        jobList.innerHTML = '';
+
+        paginatedJobs.forEach(job => {
+            const isSuperHot = job.postedDays <= 7;
+            const card = document.createElement('div');
+            card.className = 'job-card' + (job.id === selectedJobId ? ' active' : '');
+            card.innerHTML = `
+                ${isSuperHot ? '<div class="super-hot-badge">🔥 SUPER HOT</div>' : ''}
+                <div class="job-title">${job.title}</div>
+                <div class="company-name">${job.company}</div>
+                <div class="job-meta">
+                    <div class="job-meta-item">📍 ${job.location}</div>
+                    <div class="job-meta-item">💰 ${job.salary}</div>
+                </div>
+                <div class="tags">
+                    ${job.skills.map(skill => `<span class="tag">${skill}</span>`).join('')}
+                </div>
+            `;
+            card.addEventListener('click', () => showJobDetails(job));
+            jobList.appendChild(card);
+        });
+
+        renderPagination();
+        document.getElementById('jobCount').textContent = `${filteredJobs.length} việc làm IT tại Việt Nam`;
+    }
+
+    // Show Job Details
+    function showJobDetails(job) {
+        selectedJobId = job.id;
+        document.querySelectorAll('.job-card').forEach(card => card.classList.remove('active'));
+        event.target.closest('.job-card').classList.add('active');
+
+        const detailsDiv = document.getElementById('jobDetails');
+        detailsDiv.classList.remove('empty');
+        detailsDiv.innerHTML = `
+            <div class="detail-header">
+                <div>
+                    <div class="detail-title">${job.title}</div>
+                    <div class="detail-company">${job.company}</div>
+                    <div class="detail-rating">✅ ${job.rating}</div>
+                </div>
+                <button class="apply-btn">Ứng tuyển</button>
+            </div>
+
+            <div class="location-text">
+                📍 ${job.location}
+            </div>
+
+            <div class="detail-section">
+                <div class="detail-section-title">Mô tả công việc</div>
+                <div class="detail-section-content">${job.description}</div>
+            </div>
+
+            <div class="detail-section">
+                <div class="detail-section-title">Yêu cầu</div>
+                <ul class="detail-list">
+                    ${job.requirements.map(req => `<li>${req}</li>`).join('')}
+                </ul>
+            </div>
+
+            <div class="detail-section">
+                <div class="detail-section-title">Kỹ năng</div>
+                <div class="tags">
+                    ${job.skills.map(skill => `<span class="tag">${skill}</span>`).join('')}
+                </div>
+            </div>
+
+            <div class="detail-section">
+                <div class="detail-section-title">Mức lương</div>
+                <div class="detail-section-content">${job.salary}</div>
+            </div>
+        `;
+    }
+
+    // Render Pagination
+    function renderPagination() {
+        const totalPages = Math.ceil(filteredJobs.length / itemsPerPage);
+        const pagination = document.getElementById('pagination');
+        pagination.innerHTML = '';
+
+        for (let i = 1; i <= totalPages; i++) {
+            const btn = document.createElement('button');
+            btn.className = 'page-btn' + (i === currentPage ? ' active' : '');
+            btn.textContent = i;
+            btn.addEventListener('click', () => {
+                currentPage = i;
+                renderJobs();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+            pagination.appendChild(btn);
+        }
+    }
+
+    init();
+</script>
+</body>
+</html>

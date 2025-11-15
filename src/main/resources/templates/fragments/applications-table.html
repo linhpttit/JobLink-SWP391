@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="table">
+    <!-- Applications Table -->
+    <div class="applications-table-container">
+        <table class="applications-table">
+            <thead>
+            <tr>
+                <th>Ứng viên</th>
+                <th>Email</th>
+                <th>Công việc</th>
+                <th>Ngày nộp</th>
+                <th>Trạng thái</th>
+                <th>CV / Tài liệu</th>
+                <th>Ghi chú</th>
+                <th>Thao tác</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${applications == null or #lists.isEmpty(applications)}">
+                <td colspan="8" style="text-align:center; padding: 20px; color: #888;">
+                    Không có dữ liệu
+                </td>
+            </tr>
+            <tr th:each="app : ${applications}">
+                <td>
+                    <div class="candidate-info">
+                        <img th:src="${app.avatarUrl ?: 'https://i.pinimg.com/736x/d7/62/ea/d762eacadd9c9cc5e9c04244b711a972.jpg'}"
+                             alt="Avatar" class="candidate-avatar">
+                        <div>
+                            <strong th:text="${app.candidateName ?: 'N/A'}">N/A</strong>
+                            <small th:text="${app.candidatePhone ?: ''}"></small>
+                        </div>
+                    </div>
+                </td>
+                <td th:text="${app.candidateEmail ?: 'N/A'}">N/A</td>
+                <td th:text="${app.position ?: 'N/A'}">N/A</td>
+                <td>
+                    <span th:if="${app.appliedAt != null}" th:text="${#temporals.format(app.appliedAt, 'dd/MM/yyyy')}">N/A</span>
+                    <span th:if="${app.appliedAt == null}">N/A</span>
+                </td>
+                <td>
+                        <span th:switch="${app.status}">
+                            <span th:case="'submitted'" class="status-badge status-submitted">ĐÃ NỘP</span>
+                            <span th:case="'reviewed'" class="status-badge status-reviewing">ĐANG XEM XÉT</span>
+                            <span th:case="'hired'" class="status-badge status-accepted">CHẤP NHẬN</span>
+                            <span th:case="'rejected'" class="status-badge status-denied">TỪ CHỐI</span>
+                            <span th:case="'withdrawn'" class="status-badge status-withdrawn">RÚT HỒ SƠ</span>
+                            <span th:case="*" class="status-badge" th:text="${app.status ?: 'N/A'}">N/A</span>
+                        </span>
+                </td>
+                <td>
+                    <a th:if="${app.cvUrl != null and app.cvUrl != ''}" th:href="${app.cvUrl}" target="_blank" class="cv-link">
+                        <i class="fas fa-file-pdf"></i> Xem CV
+                    </a>
+                    <span th:if="${app.cvUrl == null or app.cvUrl == ''}">Không có</span>
+                </td>
+                <td>
+                        <span class="note-text" th:if="${app.note != null and app.note != ''}"
+                              th:title="${app.note}"
+                              th:text="${app.note.length() > 30 ? (app.note.substring(0, 30) + '...') : app.note}">
+                            Ghi chú
+                        </span>
+                    <span class="note-text" th:if="${app.note == null or app.note == ''}">Không có ghi chú</span>
+                </td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="btn-icon"
+                                title="Xem chi tiết"
+                                th:onclick="'viewApplicationDetail(' + ${app.applicationId} + ')'">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+        <div class="pagination-info">
+                <span th:if="${total != null and total > 0}">
+                    Hiển thị
+                    <span th:text="${currentPage * size + 1}">0</span>
+                    -
+                    <span th:text="${(currentPage + 1) * size > total ? total : (currentPage + 1) * size}">0</span>
+                    của
+                    <span th:text="${total}">0</span>
+                    kết quả
+                </span>
+            <span th:if="${total == null or total == 0}">
+                    Không có kết quả
+                </span>
+        </div>
+        <div class="pagination-controls" th:if="${totalPages != null and totalPages > 0}">
+            <form method="GET" action="/admin/applications" style="display: inline;" class="pagination-form">
+                <!-- Giữ lại filter values -->
+                <input type="hidden" name="search" th:value="${search}">
+                <input type="hidden" name="status" th:value="${status}">
+                <input type="hidden" name="jobId" th:value="${jobId}">
+                <input type="hidden" name="dateFilter" th:value="${dateFilter}">
+                <input type="hidden" name="size" value="5">
+
+                <!-- Previous button -->
+                <button type="button" class="pagination-btn pagination-prev"
+                        th:disabled="${currentPage == 0}"
+                        th:data-page="${currentPage - 1}">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+
+                <!-- Page numbers -->
+                <span th:if="${totalPages != null and totalPages > 0}">
+                        <!-- Hiển thị tất cả các trang nếu <= 7 trang -->
+                        <span th:if="${totalPages <= 7}">
+                            <button type="button" class="pagination-btn pagination-page"
+                                    th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                                    th:data-page="${i}"
+                                    th:class="${i == currentPage ? 'pagination-btn active' : 'pagination-btn'}"
+                                    th:text="${i + 1}">1</button>
+                        </span>
+                    <!-- Hiển thị rút gọn nếu > 7 trang -->
+                        <span th:if="${totalPages > 7}">
+                            <!-- Trang đầu -->
+                            <button type="button" class="pagination-btn pagination-page"
+                                    th:data-page="0"
+                                    th:class="${currentPage == 0 ? 'pagination-btn active' : 'pagination-btn'}"
+                                    th:text="1">1</button>
+                            <!-- Dấu ... nếu currentPage > 3 -->
+                            <span th:if="${currentPage > 3}">
+                                <button class="pagination-btn" disabled>...</button>
+                            </span>
+                            <!-- Các trang xung quanh currentPage -->
+                            <span th:each="i : ${#numbers.sequence(
+                                currentPage > 3 ? currentPage - 1 : 1,
+                                currentPage < totalPages - 4 ? currentPage + 1 : totalPages - 2
+                            )}">
+                                <button type="button" class="pagination-btn pagination-page"
+                                        th:data-page="${i}"
+                                        th:class="${i == currentPage ? 'pagination-btn active' : 'pagination-btn'}"
+                                        th:text="${i + 1}"></button>
+                            </span>
+                            <!-- Dấu ... nếu currentPage < totalPages - 4 -->
+                            <span th:if="${currentPage < totalPages - 4}">
+                                <button class="pagination-btn" disabled>...</button>
+                            </span>
+                            <!-- Trang cuối -->
+                            <button type="button" class="pagination-btn pagination-page"
+                                    th:data-page="${totalPages - 1}"
+                                    th:class="${currentPage == totalPages - 1 ? 'pagination-btn active' : 'pagination-btn'}"
+                                    th:text="${totalPages}"></button>
+                        </span>
+                    </span>
+
+                <!-- Next button -->
+                <button type="button" class="pagination-btn pagination-next"
+                        th:data-page="${currentPage + 1}"
+                        th:disabled="${currentPage == null or totalPages == null or currentPage >= totalPages - 1}">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+

@@ -21,7 +21,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class EmployerService implements IEmployerService {
+public class    EmployerService implements IEmployerService {
     private final EmployerRepository employerReposistory;
     private final PasswordEncoder passwordEncoder;
     private final EmployerProfileDao employerProfileDao;

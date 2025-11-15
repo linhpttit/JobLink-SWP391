@@ -8,6 +8,7 @@ import com.joblink.joblink.service.ProfileService;
 import com.joblink.joblink.util.Constants;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -40,7 +41,7 @@ public class ProfileController {
             return "redirect:/signin";
         }
 
-        JobSeekerProfile profile = profileService.getOrCreateProfile(user.getUserId());
+        JobSeekerProfile2 profile = profileService.getOrCreateProfile(user.getUserId());
 
         model.addAttribute("profile", profile);
         model.addAttribute("educations", profileService.getEducations(profile.getSeekerId()));
@@ -84,7 +85,7 @@ public class ProfileController {
         }
 
         try {
-            JobSeekerProfile profile = profileService.getOrCreateProfile(user.getUserId());
+            JobSeekerProfile2 profile = profileService.getOrCreateProfile(user.getUserId());
             profile.setFullname(fullname);
             profile.setGender(gender);
             profile.setLocation(location);
@@ -110,33 +111,46 @@ public class ProfileController {
 
     // Avatar Upload
     @PostMapping("/profile/avatar")
-    public String uploadAvatar(
-            @RequestParam("avatar") MultipartFile file,
-            HttpSession session,
-            RedirectAttributes ra) {
+    @ResponseBody // <-- Báo cho Spring biết đây là API trả về JSON
+    public ResponseEntity<Map<String, Object>> uploadAvatar( // <-- Thay đổi kiểu trả về
+                                                             @RequestParam("avatar") MultipartFile file,
+                                                             HttpSession session) { // <-- Bỏ RedirectAttributes ra
 
+        Map<String, Object> response = new HashMap<>();
         UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
+
         if (user == null) {
-            ra.addFlashAttribute("error", "Vui lòng đăng nhập");
-            return "redirect:/signin";
+            response.put("error", "Vui lòng đăng nhập");
+            // Trả về lỗi 401 Unauthorized (Chưa đăng nhập)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
 
         try {
+            // 1. Tải file lên
             String avatarUrl = fileUploadService.uploadAvatar(file);
-            JobSeekerProfile profile = profileService.getOrCreateProfile(user.getUserId());
+
+            // 2. Cập nhật profile trong DB
+            JobSeekerProfile2 profile = profileService.getOrCreateProfile(user.getUserId());
             profile.setAvatarUrl(avatarUrl);
             profileService.updateBasicInfo(profile);
-            // Also update avatar on the session user so header shows new avatar immediately
+
+            // 3. Cập nhật session (Rất quan trọng, bạn đã làm đúng)
             user.setAvatarUrl(avatarUrl);
             session.setAttribute("user", user);
-            ra.addFlashAttribute("success", "Cập nhật avatar thành công");
+
+            // 4. Trả về JSON thành công cho JavaScript
+            response.put("success", true);
+            response.put("message", "Cập nhật avatar thành công");
+            // Gửi URL mới về để JS có thể cập nhật header ngay lập tức
+            response.put("newAvatarUrl", avatarUrl);
+            return ResponseEntity.ok(response);
+
         } catch (Exception e) {
-            ra.addFlashAttribute("error", "Lỗi upload avatar: " + e.getMessage());
+            response.put("error", "Lỗi upload avatar: " + e.getMessage());
+            // Trả về lỗi 500 Internal Server Error
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
-
-        return "redirect:/jobseeker/profile";
     }
-
     // ====== Education CRUD ======
 
     @PostMapping("/profile/education/add")
@@ -158,7 +172,7 @@ public class ProfileController {
         }
 
         try {
-            JobSeekerProfile profile = profileService.getOrCreateProfile(user.getUserId());
+            JobSeekerProfile2 profile = profileService.getOrCreateProfile(user.getUserId());
             Education education = new Education();
             education.setSeekerId(profile.getSeekerId());
             education.setUniversity(university);
@@ -198,7 +212,7 @@ public class ProfileController {
         }
 
         try {
-            JobSeekerProfile profile = profileService.getOrCreateProfile(user.getUserId());
+            JobSeekerProfile2 profile = profileService.getOrCreateProfile(user.getUserId());
             Education education = new Education();
             education.setEducationId(educationId);
             education.setSeekerId(profile.getSeekerId());
@@ -232,7 +246,7 @@ public class ProfileController {
         }
 
         try {
-            JobSeekerProfile profile = profileService.getOrCreateProfile(user.getUserId());
+            JobSeekerProfile2 profile = profileService.getOrCreateProfile(user.getUserId());
             profileService.deleteEducation(educationId);
             profileService.updateCompletionPercentage(profile.getSeekerId()); // dùng seekerId, không phải userId
             response.put("success", true);
@@ -264,7 +278,7 @@ public class ProfileController {
         }
 
         try {
-            JobSeekerProfile profile = profileService.getOrCreateProfile(user.getUserId());
+            JobSeekerProfile2 profile = profileService.getOrCreateProfile(user.getUserId());
             Experience experience = new Experience();
             experience.setSeekerId(profile.getSeekerId());
             experience.setJobTitle(jobTitle);
@@ -304,7 +318,7 @@ public class ProfileController {
         }
 
         try {
-            JobSeekerProfile profile = profileService.getOrCreateProfile(user.getUserId());
+            JobSeekerProfile2 profile = profileService.getOrCreateProfile(user.getUserId());
             Experience experience = new Experience();
             experience.setExperienceId(experienceId);
             experience.setSeekerId(profile.getSeekerId());
@@ -338,7 +352,7 @@ public class ProfileController {
         }
 
         try {
-            JobSeekerProfile profile = profileService.getOrCreateProfile(user.getUserId());
+            JobSeekerProfile2 profile = profileService.getOrCreateProfile(user.getUserId());
             profileService.deleteExperience(experienceId);
             profileService.updateCompletionPercentage(profile.getSeekerId()); // dùng seekerId
             response.put("success", true);
@@ -368,8 +382,8 @@ public class ProfileController {
         }
 
         try {
-            JobSeekerProfile profile = profileService.getOrCreateProfile(user.getUserId());
-            Skill skill = new Skill();
+            JobSeekerProfile2 profile = profileService.getOrCreateProfile(user.getUserId());
+            Skill2 skill = new Skill2();
             skill.setSeekerId(profile.getSeekerId());
             skill.setSkillName(skillName);
             skill.setYearsOfExperience(yearsOfExperience);
@@ -403,8 +417,8 @@ public class ProfileController {
         }
 
         try {
-            JobSeekerProfile profile = profileService.getOrCreateProfile(user.getUserId());
-            Skill skill = new Skill();
+            JobSeekerProfile2 profile = profileService.getOrCreateProfile(user.getUserId());
+            Skill2 skill = new Skill2();
             skill.setSkillId(skillId);
             skill.setSeekerId(profile.getSeekerId());
             skill.setSkillName(skillName);
@@ -462,7 +476,7 @@ public class ProfileController {
         }
 
         try {
-            JobSeekerProfile profile = profileService.getOrCreateProfile(user.getUserId());
+            JobSeekerProfile2 profile = profileService.getOrCreateProfile(user.getUserId());
             Language language = new Language();
             language.setSeekerId(profile.getSeekerId());
             language.setLanguageName(languageName);
@@ -495,7 +509,7 @@ public class ProfileController {
         }
 
         try {
-            JobSeekerProfile profile = profileService.getOrCreateProfile(user.getUserId());
+            JobSeekerProfile2 profile = profileService.getOrCreateProfile(user.getUserId());
             Language language = new Language();
             language.setLanguageId(languageId);
             language.setSeekerId(profile.getSeekerId());
@@ -554,7 +568,7 @@ public class ProfileController {
         }
 
         try {
-            JobSeekerProfile profile = profileService.getOrCreateProfile(user.getUserId());
+            JobSeekerProfile2 profile = profileService.getOrCreateProfile(user.getUserId());
 
             String imageUrl = null;
             if (certificateImage != null && !certificateImage.isEmpty()) {
@@ -595,7 +609,7 @@ public class ProfileController {
         }
 
         try {
-            JobSeekerProfile profile = profileService.getOrCreateProfile(user.getUserId());
+            JobSeekerProfile2 profile = profileService.getOrCreateProfile(user.getUserId());
 
             Certificate certificate = new Certificate();
             certificate.setCertificateId(certificateId);
@@ -657,7 +671,7 @@ public class ProfileController {
             return "redirect:/signin";
         }
 
-        JobSeekerProfile profile = profileService.getOrCreateProfile(user.getUserId());
+        JobSeekerProfile2 profile = profileService.getOrCreateProfile(user.getUserId());
 
         model.addAttribute("profile", profile);
         model.addAttribute("educations", profileService.getEducations(profile.getSeekerId()));

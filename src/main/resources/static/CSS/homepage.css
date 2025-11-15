@@ -629,4 +629,50 @@
 .usermenu__item--danger svg {
     color: #dc3545;
 }
+.banner-section {
+    width: 100%;
+    margin: 20px 0;
+}
+
+.banner-track {
+    position: relative;
+    width: 100%;
+    height: 45vh;             /* tầm nửa màn hình */
+    min-height: 300px;
+    max-height: 480px;
+    border-radius: 24px;
+    overflow: hidden;
+
+    /* nền dùng khi JS đổi ảnh */
+    background-size: cover;
+    background-position: center;
+}
+
+/* lớp blur nằm dưới ảnh */
+.banner-track::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    filter: blur(25px) brightness(0.8);
+    transform: scale(1.1);     /* tránh thấy viền vuông */
+    z-index: 1;
+}
+
+/* ảnh chính */
+.banner-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;     /* ảnh không crop */
+    z-index: 2;              /* nằm trên lớp blur */
+    opacity: 0;
+    transition: opacity 0.6s ease;
+}
+
+.banner-image.active {
+    opacity: 1;
+}
 

@@ -2,7 +2,7 @@
 package com.joblink.joblink.controller;
 
 import com.joblink.joblink.dto.UserSessionDTO;
-import com.joblink.joblink.model.JobSeekerProfile;
+import com.joblink.joblink.model.JobSeekerProfile2;
 import com.joblink.joblink.service.AccountService;
 import com.joblink.joblink.service.ProfileService;
 import jakarta.servlet.http.HttpSession;
@@ -37,7 +37,7 @@ public class ProfileSettingController {
             return "redirect:/signin";
         }
 
-        JobSeekerProfile profile = profileService.getOrCreateProfile(user.getUserId());
+        JobSeekerProfile2 profile = profileService.getOrCreateProfile(user.getUserId());
 
         model.addAttribute("user", user);
         model.addAttribute("profile", profile);

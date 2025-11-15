@@ -32,6 +32,44 @@ public class MessageService {
         return messageDao.findByConversationId(conversationId);
     }
 
+    public Conversation getSeekerConversation(int seekerId1, int seekerId2) {
+        return conversationDao.findBySeekerPair(seekerId1, seekerId2);
+    }
+
+    @Transactional
+    public Message sendSeekerToSeekerMessage(int senderUserId, int receiverUserId, String content,
+                                             String messageType, int senderSeekerId, int receiverSeekerId) {
+        // Check if sender is blocked by receiver
+        if (messageBlockDao.isBlocked(receiverUserId, senderUserId)) {
+            throw new IllegalStateException("You are blocked by this user");
+        }
+
+        // Get or create seeker-to-seeker conversation
+        Conversation conversation = conversationDao.findBySeekerPair(senderSeekerId, receiverSeekerId);
+        if (conversation == null) {
+            conversation = new Conversation();
+            conversation.setSeekerId(senderSeekerId);
+            conversation.setSeekerId2(receiverSeekerId);
+            conversation.setConversationType("SEEKER_SEEKER");
+            int convId = conversationDao.create(conversation);
+            conversation.setConversationId(convId);
+        }
+
+        // Create message
+        Message message = new Message();
+        message.setConversationId(conversation.getConversationId());
+        message.setSenderUserId(senderUserId);
+        message.setReceiverUserId(receiverUserId);
+        message.setMessageContent(content);
+        message.setMessageType(messageType != null ? messageType : "text");
+        message.setIsRead(false);
+        message.setIsRecalled(false);
+
+        int messageId = messageDao.create(message);
+        message.setMessageId(messageId);
+
+        return message;
+    }
     @Transactional
     public Message sendMessage(int senderUserId, int receiverUserId, String content, String messageType,
                                int seekerId, int employerId) {

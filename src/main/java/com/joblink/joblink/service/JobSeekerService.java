@@ -3,9 +3,13 @@ package com.joblink.joblink.service;
 
 
 import com.joblink.joblink.Repository.UserRepository;
+import com.joblink.joblink.dao.JobSeekerProfileDao;
+import com.joblink.joblink.dao.SkillDao;
 import com.joblink.joblink.entity.JobSeekerProfile;
+import com.joblink.joblink.model.JobSeekerProfile2;
 import com.joblink.joblink.Repository.JobSeekerProfileRepository;
 import com.joblink.joblink.entity.User;
+import com.joblink.joblink.model.Skill2;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.Query;
@@ -15,8 +19,14 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
+
 public class JobSeekerService implements IJobSeekerService {
+    private final JobSeekerProfileDao profileDao;
+    private final SkillDao skillDao;
+    public JobSeekerService(JobSeekerProfileDao profileDao, SkillDao skillDao) {
+        this.profileDao = profileDao;
+        this.skillDao = skillDao;
+    }
     @Autowired
     private JobSeekerProfileRepository jobSeekerRepository;
     @Autowired
@@ -111,5 +121,34 @@ public class JobSeekerService implements IJobSeekerService {
             return false;
         }
     }
+    public JobSeekerProfile2 getProfileBySeekerId(int seekerId) {
+        return profileDao.findBySeekerId(seekerId);
+    }
 
+    /** ✅ Dùng ở tất cả nơi có user đang đăng nhập */
+    public JobSeekerProfile2 getProfileByUserId(int userId) {
+        return profileDao.findByUserId(userId);
+    }
+
+    /** Danh sách seeker có kỹ năng trùng (cho Networking) */
+    public List<JobSeekerProfile2> findSeekersWithOverlappingSkills(int seekerId) {
+        return profileDao.findSeekersWithOverlappingSkills(seekerId);
+    }
+
+    /** Danh sách kỹ năng của seeker (type-safe) */
+    public List<Skill2> getSeekerSkills(int seekerId) {
+        return skillDao.findBySeekerId(seekerId);
+    }
+
+    /** Cập nhật hồ sơ theo seeker_id */
+    public void updateProfile(JobSeekerProfile2 profile) {
+        profileDao.updateProfile(profile);
+    }
+
+    /** (Tuỳ chọn) Tự tạo hồ sơ rỗng nếu chưa có */
+    public void ensureProfileForUser(int userId) {
+        if (profileDao.findByUserId(userId) == null) {
+            profileDao.createEmptyProfileByUserId(userId);
+        }
+    }
 }

@@ -3,7 +3,7 @@ package com.joblink.joblink.controller;
 import com.joblink.joblink.dto.UserSessionDTO;
 import com.joblink.joblink.entity.JobPosting;
 import com.joblink.joblink.model.CVUpload;
-import com.joblink.joblink.model.JobSeekerProfile;
+import com.joblink.joblink.model.JobSeekerProfile2;
 import com.joblink.joblink.service.CVUploadService;
 import com.joblink.joblink.service.JobBookmarkService;
 import com.joblink.joblink.service.JobService;
@@ -50,7 +50,7 @@ public class jobDetailController {
             // Nếu user đã login, lấy danh sách CV đã upload
             UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
             if (user != null && "seeker".equalsIgnoreCase(user.getRole())) {
-                JobSeekerProfile profile = profileService.getOrCreateProfile(user.getUserId());
+                JobSeekerProfile2 profile = profileService.getOrCreateProfile(user.getUserId());
                 List<CVUpload> userCVs = cvUploadService.getAllCVsBySeeker(profile.getSeekerId());
                 model.addAttribute("userCVs", userCVs);
                 model.addAttribute("isLoggedIn", true);
@@ -88,7 +88,7 @@ public class jobDetailController {
             return res;
         }
         try {
-            JobSeekerProfile profile = profileService.getOrCreateProfile(user.getUserId());
+            JobSeekerProfile2 profile = profileService.getOrCreateProfile(user.getUserId());
             if ("add".equalsIgnoreCase(action)) {
                 jobBookmarkService.addBookmark(profile.getSeekerId(), jobId);
             } else if ("remove".equalsIgnoreCase(action)) {
@@ -129,7 +129,7 @@ public class jobDetailController {
         }
 
         try {
-            JobSeekerProfile profile = profileService.getOrCreateProfile(user.getUserId());
+            JobSeekerProfile2 profile = profileService.getOrCreateProfile(user.getUserId());
 
             // Kiểm tra đã ứng tuyển chưa
             boolean alreadyApplied = jobService.hasApplied(jobId, profile.getSeekerId());

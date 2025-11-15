@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,56 +14,222 @@
     </div>
 
     <div class="filters">
-        <input type="text" placeholder="Tìm theo hóa đơn, công ty...">
-        <select>
-            <option value="">Tất cả trạng thái</option>
-            <option value="unpaid">Chưa thanh toán</option>
-            <option value="paid">Đã thanh toán</option>
-            <option value="failed">Thất bại</option>
+        <input type="text" id="searchInput" placeholder="Tìm theo hóa đơn, công ty..."
+               th:value="${search != null ? search : ''}">
+        <select id="statusSelect">
+            <option value="" th:selected="${status == null or status == ''}">Tất cả trạng thái</option>
+            <option value="unpaid" th:selected="${status == 'unpaid'}">Chưa thanh toán</option>
+            <option value="paid" th:selected="${status == 'paid'}">Đã thanh toán</option>
+            <option value="failed" th:selected="${status == 'failed'}">Thất bại</option>
         </select>
     </div>
 
-    <div class="table-container">
-        <table class="payments-table">
-            <thead>
-            <tr>
-                <th>Mã hóa đơn</th>
-                <th>Công ty</th>
-                <th>Số tiền</th>
-                <th>Trạng thái</th>
-                <th>Ngày lập</th>
-                <th>Nhà cung cấp</th>
-                <th>Tham chiếu giao dịch</th>
-                <th>Hành động</th>
-            </tr>
-            </thead>
-            <tr class="no-data">
-                <td colspan="8" style="text-align:center; padding: 20px; color: #888;">
-                    Không có dữ liệu
-                </td>
-            </tr>
-        </table>
-    </div>
+    <!-- Table wrapper để reload -->
+    <div id="table-wrapper">
+        <div th:fragment="table">
+            <div class="table-container">
+                <table class="payments-table">
+                    <thead>
+                    <tr>
+                        <th>Mã hóa đơn</th>
+                        <th>Công ty</th>
+                        <th>Số tiền</th>
+                        <th>Trạng thái</th>
+                        <th>Ngày lập</th>
+                        <th>Nhà cung cấp</th>
+                        <th>Tham chiếu giao dịch</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${payments == null or #lists.isEmpty(payments)}" class="no-data">
+                        <td colspan="7" style="text-align:center; padding: 20px; color: #888;">
+                            Không có dữ liệu
+                        </td>
+                    </tr>
+                    <tr th:each="payment : ${payments}">
+                        <td th:text="${payment.invoiceId}">-</td>
+                        <td th:text="${payment.companyName}">-</td>
+                        <td th:text="${#numbers.formatDecimal(payment.amount, 0, 'COMMA', 0, 'POINT') + ' VNĐ'}">-</td>
+                        <td>
+                    <span th:switch="${payment.status}">
+                        <span th:case="'PENDING'"
+                              style="background-color: #E3F2FD;
+                                color: #1976D2;
+                                border: 1px solid #BBDEFB;">
+                            Chưa thanh toán
+                        </span>
+                        <span th:case="'PAID'"
+                              style="background-color: #D1FAE5;
+                                color: #10B981;
+                                border: 1px solid #A7F3D0;">
+                            Đã thanh toán
+                        </span>
+                        <span th:case="'CANCELLED'"
+                              style="background-color: #FEE2E2;
+                                color: #EF4444;
+                                border: 1px solid #FECACA;">
+                            Thất bại
+                        </span>
+                        <span th:case="*" th:text="${payment.status}">-</span>
+                    </span>
+                        </td>
+                        <td th:text="${payment.issuedAt != null ? #temporals.format(payment.issuedAt, 'dd/MM/yyyy HH:mm') : 'N/A'}">-</td>
+                        <td th:text="${payment.provider != null ? payment.provider : 'N/A'}">-</td>
+                        <td th:text="${payment.txRef != null ? payment.txRef : 'N/A'}">-</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- Pagination -->
+            <div class="pagination">
+                <div class="pagination-info">
+                    <span th:if="${total != null and total > 0}">
+                        Hiển thị
+                        <span th:text="${currentPage * size + 1}">0</span>
+                        -
+                        <span th:text="${(currentPage + 1) * size > total ? total : (currentPage + 1) * size}">0</span>
+                        của
+                        <span th:text="${total}">0</span>
+                        kết quả
+                    </span>
+                    <span th:if="${total == null or total == 0}">
+                        Không có kết quả
+                    </span>
+                </div>
+                <div class="pagination-controls" th:if="${totalPages != null and totalPages > 0}">
+                    <!-- Previous button -->
+                    <button type="button" class="pagination-btn pagination-prev"
+                            th:disabled="${currentPage == 0}"
+                            th:data-page="${currentPage - 1}">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
 
-    <!-- Pagination -->
-    <div class="pagination">
-        <div class="pagination-info">
-            Hiển thị 1-10 của 245 kết quả
-        </div>
-        <div class="pagination-controls">
-            <button class="pagination-btn" disabled>
-                <i class="fas fa-chevron-left"></i>
-            </button>
-            <button class="pagination-btn active">1</button>
-            <button class="pagination-btn">2</button>
-            <button class="pagination-btn">3</button>
-            <button class="pagination-btn">...</button>
-            <button class="pagination-btn">10</button>
-            <button class="pagination-btn">
-                <i class="fas fa-chevron-right"></i>
-            </button>
+                    <!-- Page numbers -->
+                    <span th:if="${totalPages != null and totalPages > 0}">
+                        <!-- Hiển thị tất cả các trang nếu <= 7 trang -->
+                        <span th:if="${totalPages <= 7}">
+                            <button type="button" class="pagination-btn pagination-page"
+                                    th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                                    th:data-page="${i}"
+                                    th:class="${i == currentPage ? 'pagination-btn active' : 'pagination-btn'}"
+                                    th:text="${i + 1}">1</button>
+                        </span>
+                        <!-- Hiển thị rút gọn nếu > 7 trang -->
+                        <span th:if="${totalPages > 7}">
+                            <!-- Trang đầu -->
+                            <button type="button" class="pagination-btn pagination-page"
+                                    th:data-page="0"
+                                    th:class="${currentPage == 0 ? 'pagination-btn active' : 'pagination-btn'}"
+                                    th:text="1">1</button>
+                            <!-- Dấu ... nếu currentPage > 3 -->
+                            <span th:if="${currentPage > 3}">
+                                <button class="pagination-btn" disabled>...</button>
+                            </span>
+                            <!-- Các trang xung quanh currentPage -->
+                            <span th:each="i : ${#numbers.sequence(
+                                currentPage > 3 ? currentPage - 1 : 1,
+                                currentPage < totalPages - 4 ? currentPage + 1 : totalPages - 2
+                            )}">
+                                <button type="button" class="pagination-btn pagination-page"
+                                        th:data-page="${i}"
+                                        th:class="${i == currentPage ? 'pagination-btn active' : 'pagination-btn'}"
+                                        th:text="${i + 1}"></button>
+                            </span>
+                            <!-- Dấu ... nếu currentPage < totalPages - 4 -->
+                            <span th:if="${currentPage < totalPages - 4}">
+                                <button class="pagination-btn" disabled>...</button>
+                            </span>
+                            <!-- Trang cuối -->
+                            <button type="button" class="pagination-btn pagination-page"
+                                    th:data-page="${totalPages - 1}"
+                                    th:class="${currentPage == totalPages - 1 ? 'pagination-btn active' : 'pagination-btn'}"
+                                    th:text="${totalPages}"></button>
+                        </span>
+                    </span>
+
+                    <!-- Next button -->
+                    <button type="button" class="pagination-btn pagination-next"
+                            th:data-page="${currentPage + 1}"
+                            th:disabled="${currentPage == null or totalPages == null or currentPage >= totalPages - 1}">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+<script>
+    (function() {
+        const searchInput = document.getElementById('searchInput');
+        const statusSelect = document.getElementById('statusSelect');
+        const tableWrapper = document.getElementById('table-wrapper');
+
+        let currentPage = 0;
+
+        function reloadTable(page) {
+            if (page !== undefined) currentPage = page;
+            const search = searchInput.value.trim();
+            const status = statusSelect.value;
+            const params = new URLSearchParams();
+            if (search) params.append('search', search);
+            if (status) params.append('status', status);
+            params.append('page', currentPage);
+            params.append('size', 5);
+
+            fetch('/admin/payments/table?' + params.toString())
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.text();
+                })
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const fragment = doc.body.querySelector('div') || doc.body;
+                    if (fragment) {
+                        tableWrapper.innerHTML = fragment.innerHTML;
+                    } else {
+                        tableWrapper.innerHTML = html;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading table:', error);
+                    tableWrapper.innerHTML = '<div style="text-align:center; padding: 20px; color: #f00;">Lỗi khi tải dữ liệu</div>';
+                });
+        }
+
+        // Attach pagination listeners - sử dụng event delegation ở tableWrapper level
+        // Chỉ cần attach một lần, không cần attach lại mỗi lần reload
+        tableWrapper.addEventListener('click', function(e) {
+            const btn = e.target.closest('.pagination-page, .pagination-prev, .pagination-next');
+            if (!btn || btn.disabled) return;
+            e.preventDefault();
+            const page = parseInt(btn.getAttribute('data-page')) || 0;
+            reloadTable(page);
+        });
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        const debouncedReload = debounce(function() {
+            currentPage = 0;
+            reloadTable();
+        }, 300);
+
+        searchInput.addEventListener('input', debouncedReload);
+        statusSelect.addEventListener('change', function() {
+            currentPage = 0;
+            reloadTable();
+        });
+    })();
+</script>
 </body>
 </html>

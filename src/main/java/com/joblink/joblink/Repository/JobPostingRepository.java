@@ -65,4 +65,6 @@ public interface JobPostingRepository extends JpaRepository<JobPosting, Long> {
             "AND j.salaryMin >= :minSalary " +
             "ORDER BY j.salaryMin DESC")
     List<JobPosting> findByMinSalaryGreaterThanEqual(@Param("minSalary") java.math.BigDecimal minSalary);
+    long countByStatus(String status);
+    
 }
