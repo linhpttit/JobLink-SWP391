@@ -1,0 +1,376 @@
+{
+    "conversations": [
+      {
+        "tag": "greeting",
+        "patterns": [
+          "xin chào",
+          "chào bạn",
+          "hello",
+          "hi",
+          "hey",
+          "chào",
+          "alo",
+          "hello bạn",
+          "hi there",
+          "hey bạn",
+          "mình chào bạn",
+          "cho mình hỏi chút",
+          "có ai ở đó không",
+          "xin chào nhé",
+          "hi hi",
+          "hí",
+          "chào bot",
+          "hello bot",
+          "hi bot",
+          "chào trợ lý",
+          "hi trợ lý",
+          "hello trợ lý",
+          "bot ơi",
+          "này bot",
+          "có ai không",
+          "ê bạn",
+          "ê",
+          "alo alo",
+          "morning",
+          "good morning",
+          "good evening",
+          "good afternoon",
+          "chào buổi sáng",
+          "chào buổi trưa",
+          "chào buổi tối",
+          "mình mới vào nè",
+          "cho mình hỏi tí",
+          "mới vào, chào nhé"
+        ],
+        "responses": [
+          "Xin chào! 👋 Tôi là trợ lý tuyển dụng AI. Tôi có thể giúp bạn tìm việc làm phù hợp. Bạn đang tìm vị trí gì?",
+          "Chào bạn! 😊 Tôi có thể giúp bạn tìm công việc mơ ước. Hãy cho tôi biết bạn cần gì!"
+        ]
+      },
+      {
+        "tag": "goodbye",
+        "patterns": [
+          "tạm biệt",
+          "bye",
+          "goodbye",
+          "hẹn gặp lại",
+          "gặp lại sau nhé",
+          "tôi đi đây",
+          "chào tạm biệt",
+          "hẹn mai gặp lại",
+          "tạm biệt bạn",
+          "see you later",
+          "bái bai",
+          "bai",
+          "thôi nhé",
+          "đi đây",
+          "out nhé",
+          "tôi thoát đây",
+          "bye nha",
+          "bye bye",
+          "ok tạm biệt",
+          "cảm ơn, chào nhé",
+          "hẹn dịp khác",
+          "thôi chào"
+        ],
+        "responses": [
+          "Tạm biệt! 👋 Chúc bạn tìm được công việc mơ ước!",
+          "Hẹn gặp lại! Chúc bạn may mắn! 🍀"
+        ]
+      },
+      {
+        "tag": "thanks",
+        "patterns": [
+          "cảm ơn",
+          "thanks",
+          "thank you",
+          "cảm ơn bạn",
+          "rất cảm ơn",
+          "mình cảm ơn nha",
+          "cảm ơn nhiều",
+          "cảm ơn nhiều nhé",
+          "cảm ơn nhiều lắm",
+          "đội ơn",
+          "ok cảm ơn",
+          "thanks bạn",
+          "thank u",
+          "thanks nha",
+          "thx",
+          "cảm ơn vì đã giúp",
+          "appreciate it",
+          "biết ơn nha",
+          "được rồi cảm ơn",
+          "đã rõ cảm ơn"
+        ],
+        "responses": [
+          "Không có gì! 😊 Rất vui được giúp đỡ bạn!",
+          "Luôn sẵn sàng hỗ trợ! 💪"
+        ]
+      },
+      {
+        "tag": "help",
+        "patterns": [
+          "giúp tôi",
+          "help",
+          "hướng dẫn",
+          "làm sao",
+          "cách dùng",
+          "sử dụng thế nào",
+          "hướng dẫn tôi",
+          "trợ giúp",
+          "tôi cần giúp đỡ",
+          "làm thế nào",
+          "có thể giúp tôi không",
+          "tôi cần hướng dẫn",
+          "chỉ tôi cách dùng",
+          "chỉ tôi cách tìm việc",
+          "hỗ trợ tôi với",
+          "help me",
+          "bot giúp mình với",
+          "mình chưa biết dùng",
+          "làm sao để bắt đầu",
+          "giúp mình tìm job"
+        ],
+        "responses": [
+          "📚 Tôi có thể giúp bạn:\n• Tìm việc làm theo vị trí\n• Tìm việc theo địa điểm\n• Xem chi tiết công việc\n\nVí dụ: 'Tìm việc làm developer' hoặc 'Việc làm ở Hà Nội'"
+        ]
+      },
+      {
+        "tag": "job_search",
+        "patterns": [
+          "tìm việc làm",
+          "tìm công việc",
+          "có việc gì",
+          "việc làm nào",
+          "tất cả việc làm",
+          "tôi muốn tìm việc",
+          "tôi đang tìm việc",
+          "cho tôi xem việc làm",
+          "có job nào không",
+          "show job",
+          "list job",
+          "xem việc làm",
+          "co viec gi khong",
+          "tim viec lam",
+          "viec nao phu hop",
+          "tim job",
+          "tim viec nhanh",
+          "tim cong viec moi",
+          "cho xem job moi",
+          "job nao hot",
+          "viec lam hien co",
+          "viec lam moi nhat",
+          "co viec nao hot khong",
+          "cho minh viec lam",
+          "tim job cho toi"
+        ],
+        "responses": [
+          "Tôi sẽ tìm kiếm công việc cho bạn. Bạn muốn tìm vị trí gì? (VD: developer, designer, marketing...)"
+        ]
+      },
+      {
+        "tag": "salary_question",
+        "patterns": [
+          "lương bao nhiêu",
+          "mức lương",
+          "thu nhập",
+          "được trả bao nhiêu",
+          "lương trung bình",
+          "lương của vị trí này là bao nhiêu",
+          "mức thu nhập thế nào",
+          "lương tầm bao nhiêu",
+          "trả lương sao",
+          "lương cao không",
+          "job này trả bao nhiêu",
+          "công việc này lương bao nhiêu",
+          "mức lương khởi điểm",
+          "thu nhập có ổn không",
+          "mức lương khoảng bao nhiêu",
+          "có được thưởng không",
+          "có phúc lợi không",
+          "bao nhiêu tiền một tháng",
+          "tổng thu nhập"
+        ],
+        "responses": [
+          "Mức lương phụ thuộc vào vị trí và kinh nghiệm. Hãy cho tôi biết vị trí bạn quan tâm để tôi tìm thông tin cụ thể!"
+        ]
+      },
+      {
+        "tag": "requirements",
+        "patterns": [
+          "yêu cầu gì",
+          "cần kỹ năng gì",
+          "điều kiện",
+          "yêu cầu công việc",
+          "cần biết gì",
+          "phải có kinh nghiệm không",
+          "cần trình độ gì",
+          "phải có bằng cấp không",
+          "yêu cầu ra sao",
+          "cần kỹ năng nào",
+          "cần học gì",
+          "job này cần gì",
+          "cần kinh nghiệm mấy năm",
+          "yêu cầu tối thiểu",
+          "phải giỏi gì",
+          "phải biết tiếng anh không",
+          "phải biết code không",
+          "yêu cầu cụ thể là gì",
+          "phải có portfolio không"
+        ],
+        "responses": [
+          "Yêu cầu công việc khác nhau tùy vị trí. Bạn quan tâm đến vị trí nào? Tôi sẽ cho bạn biết yêu cầu cụ thể."
+        ]
+      },
+      {
+        "tag": "apply",
+        "patterns": [
+          "ứng tuyển",
+          "apply",
+          "nộp đơn",
+          "làm sao để ứng tuyển",
+          "muốn ứng tuyển",
+          "cách nộp đơn",
+          "nộp hồ sơ",
+          "apply job",
+          "nộp CV",
+          "nộp đơn ở đâu",
+          "ứng tuyển thế nào",
+          "gửi hồ sơ",
+          "nộp ở đâu",
+          "nộp qua đâu",
+          "nộp đơn trực tiếp không",
+          "làm sao gửi CV",
+          "nộp cv online được không",
+          "apply thế nào",
+          "có link nộp đơn không"
+        ],
+        "responses": [
+          "Để ứng tuyển:\n1. Xem chi tiết công việc\n2. Chuẩn bị CV\n3. Liên hệ theo thông tin trong job posting\n\nBạn muốn tìm vị trí gì? (VD: frontend, backend, designer...)"
+        ]
+      },
+      {
+        "tag": "position_inquiry",
+        "patterns": [
+          "frontend",
+          "backend",
+          "fullstack",
+          "developer",
+          "designer",
+          "tester",
+          "marketing",
+          "java",
+          "python",
+          "react",
+          "angular",
+          "nodejs",
+          "typescript",
+          "qa",
+          "ui/ux",
+          "mobile",
+          "ios",
+          "android",
+          "flutter",
+          "react native",
+          "golang",
+          "php",
+          "vuejs",
+          "data engineer",
+          "data analyst",
+          "ai engineer",
+          "machine learning",
+          "product manager",
+          "project manager",
+          "content",
+          "seo",
+          "social media",
+          "tester manual",
+          "automation test"
+        ],
+        "responses": [
+          "Tôi sẽ tìm kiếm công việc cho bạn..."
+        ]
+      },
+      {
+        "tag": "job_statistics",
+        "patterns": [
+          "có bao nhiêu job",
+          "bao nhiêu việc làm",
+          "tổng số job",
+          "số lượng việc làm",
+          "thống kê job",
+          "thống kê việc làm",
+          "tổng quan việc làm",
+          "overview job",
+          "thống kê",
+          "tổng hợp job",
+          "bao nhiêu công việc hiện có",
+          "hiện có bao nhiêu job",
+          "có nhiều job không",
+          "hiện có bao nhiêu việc",
+          "bao nhiêu công việc đang mở",
+          "tổng số việc",
+          "số lượng job hiện có"
+        ],
+        "responses": [
+          "Đang thống kê tổng quan..."
+        ]
+      },
+      {
+        "tag": "today_jobs",
+        "patterns": [
+          "hôm nay có bao nhiêu job",
+          "job mới hôm nay",
+          "việc làm mới",
+          "job hôm nay",
+          "job mới nhất",
+          "việc làm mới nhất",
+          "job mới nhất hôm nay",
+          "việc làm mới nhất hôm nay",
+          "job đăng hôm nay",
+          "việc làm đăng hôm nay",
+          "có job mới không",
+          "có việc mới không",
+          "công việc mới nhất",
+          "hôm nay có job nào mới",
+          "mới đăng hôm nay",
+          "job mới cập nhật",
+          "việc mới đăng",
+          "job hôm nay update",
+          "có job nào vừa đăng"
+        ],
+        "responses": [
+          "Đang kiểm tra jobs hôm nay..."
+        ]
+      },
+      {
+        "tag": "location_search",
+        "patterns": [
+          "việc làm ở hà nội",
+          "việc làm ở hcm",
+          "job ở hà nội",
+          "tìm việc ở hà nội",
+          "công việc ở hồ chí minh",
+          "việc làm tại hà nội",
+          "tìm việc ở sài gòn",
+          "việc làm tại tp.hcm",
+          "job ở sài gòn",
+          "công việc ở đà nẵng",
+          "việc ở hà nội",
+          "job tại hồ chí minh",
+          "có việc ở hà nội không",
+          "tìm job ở hcm",
+          "viec lam tai da nang",
+          "viec o ha noi",
+          "job tai da nang",
+          "viec lam o hue",
+          "viec lam o binh duong",
+          "viec lam o can tho"
+        ],
+        "responses": [
+          "Đang tìm việc làm theo địa điểm bạn yêu cầu..."
+        ]
+      }
+    ]
+  }
+  

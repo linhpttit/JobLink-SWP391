@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV Preview - JobLink</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/CSS/cv-preview.css}">
+</head>
+<body>
+<div class="cv-toolbar">
+    <div class="toolbar-content">
+        <a href="/jobseeker/profile" class="btn-back">
+            <i class="fas fa-arrow-left"></i> Back to Edit
+        </a>
+        <h1>CV Preview</h1>
+        <button onclick="window.print()" class="btn-print">
+            <i class="fas fa-print"></i> Print CV
+        </button>
+    </div>
+</div>
+
+<div class="cv-container">
+    <div class="cv-page">
+        <header class="cv-header">
+            <div class="cv-avatar">
+                <img class="site-avatar" th:src="${profile.avatarUrl != null ? profile.avatarUrl : '/images/user.png'}"
+                     alt="Profile Photo" src="">
+            </div>
+            <div class="cv-header-info">
+                <h1 class="cv-name" th:text="${profile.fullname ?: 'Your Name'}">Full Name</h1>
+                <div class="cv-contact">
+                    <div class="contact-item" th:if="${profile.email}">
+                        <i class="fas fa-envelope"></i>
+                        <span th:text="${profile.email}">email@example.com</span>
+                    </div>
+                    <div class="contact-item" th:if="${profile.phoneNumber}">
+                        <i class="fas fa-phone"></i>
+                        <span th:text="${profile.phoneNumber}">0123456789</span>
+                    </div>
+                    <div class="contact-item" th:if="${profile.location}">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span th:text="${profile.location}">Address</span>
+                    </div>
+                    <div class="contact-item" th:if="${profile.dateOfBirth}">
+                        <i class="fas fa-birthday-cake"></i>
+                        <span th:text="${#temporals.format(profile.dateOfBirth, 'dd/MM/yyyy')}">01/01/2000</span>
+                    </div>
+                    <div class="contact-item" th:if="${profile.gender}">
+                        <i class="fas fa-venus-mars"></i>
+                        <span th:text="${profile.gender == 'male' ? 'Male' : 'Female'}">Gender</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <section class="cv-section" th:if="${profile.about}">
+            <h2 class="cv-section-title">
+                <i class="fas fa-user"></i> About Me
+            </h2>
+            <p class="cv-about" th:text="${profile.about}">
+                Self introduction text goes here...
+            </p>
+        </section>
+
+
+        <section class="cv-section" th:if="${!educations.isEmpty()}">
+            <h2 class="cv-section-title">
+                <i class="fas fa-graduation-cap"></i> Education
+            </h2>
+            <div class="cv-timeline">
+                <div class="timeline-item" th:each="edu : ${educations}">
+                    <div class="timeline-date">
+                        <span th:text="${#temporals.format(edu.startDate, 'yyyy')}">2020</span>
+                        <span> - </span>
+                        <span th:text="${edu.graduationDate != null ? #temporals.format(edu.graduationDate, 'yyyy') : 'Present'}">2024</span>
+                    </div>
+                    <div class="timeline-content">
+                        <h3 th:text="${edu.university}">University Name</h3>
+                        <p class="timeline-subtitle" th:text="${edu.degreeLevel}">Bachelor's Degree</p>
+                        <p class="timeline-desc" th:if="${edu.description}" th:text="${edu.description}">Description</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="cv-section" th:if="${!experiences.isEmpty()}">
+            <h2 class="cv-section-title">
+                <i class="fas fa-briefcase"></i> Work Experience
+            </h2>
+            <div class="cv-timeline">
+                <div class="timeline-item" th:each="exp : ${experiences}">
+                    <div class="timeline-date">
+                        <span th:text="${#temporals.format(exp.startDate, 'MM/yyyy')}">01/2020</span>
+                        <span> - </span>
+                        <span th:text="${exp.endDate != null ? #temporals.format(exp.endDate, 'MM/yyyy') : 'Present'}">12/2024</span>
+                    </div>
+                    <div class="timeline-content">
+                        <h3 th:text="${exp.jobTitle}">Job Title</h3>
+                        <p class="timeline-subtitle" th:text="${exp.companyName}">Company Name</p>
+                        <p class="timeline-link" th:if="${exp.projectLink}">
+                            <i class="fas fa-link"></i>
+                            <a th:href="${exp.projectLink}" th:text="${exp.projectLink}" target="_blank">Project Link</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="cv-section" th:if="${!skills.isEmpty()}">
+            <h2 class="cv-section-title">
+                <i class="fas fa-code"></i> Skills
+            </h2>
+            <div class="cv-skills-grid">
+                <div class="skill-item" th:each="skill : ${skills}">
+                    <div class="skill-header">
+                        <h4 th:text="${skill.skillName}">Skill Name</h4>
+                        <span class="skill-years" th:text="${skill.yearsOfExperience} + ' years'">2 years</span>
+                    </div>
+                    <p class="skill-desc" th:if="${skill.description}" th:text="${skill.description}">Description</p>
+                </div>
+            </div>
+        </section>
+
+
+        <section class="cv-section" th:if="${!languages.isEmpty()}">
+            <h2 class="cv-section-title">
+                <i class="fas fa-language"></i> Languages
+            </h2>
+            <div class="cv-languages">
+                <div class="language-item" th:each="lang : ${languages}">
+                    <h4 th:text="${lang.languageName}">Language</h4>
+                    <p th:text="${lang.certificateType}">Certificate Type</p>
+                </div>
+            </div>
+        </section>
+
+
+        <section class="cv-section" th:if="${!certificates.isEmpty()}">
+            <h2 class="cv-section-title">
+                <i class="fas fa-certificate"></i> Certificates
+            </h2>
+            <div class="cv-certificates">
+                <div class="certificate-item" th:each="cert : ${certificates}">
+                    <div class="certificate-info">
+                        <h4 th:text="${cert.issuingOrganization}">Organization</h4>
+                        <p th:text="'Year: ' + ${cert.yearOfCompletion}">Year: 2024</p>
+                    </div>
+                    <div class="certificate-image" th:if="${cert.certificateImageUrl}">
+                        <img th:src="${cert.certificateImageUrl}" alt="Certificate" src="">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <footer class="cv-footer">
+            <p>Generated on <span th:text="${#temporals.format(#temporals.createNow(), 'dd MMMM yyyy')}">Date</span></p>
+        </footer>
+    </div>
+</div>
+</body>
+</html>

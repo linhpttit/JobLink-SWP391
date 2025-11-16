@@ -1,0 +1,100 @@
+:root{
+  --ink:#0f172a; --muted:#6b7280; --line:#e5e7eb; --bg:#f7f8fb;
+  --panel:#fff; --primary:#22c55e; --primary-ink:#fff;
+  --sidebar:#ffffff; --sidebar-line:#eef0f4;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font:14px/1.45 Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif
+}
+.layout{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+
+/* Main sidebar (trái ngoài cùng) */
+aside.main-nav{
+  background:var(--sidebar);border-right:1px solid var(--sidebar-line);padding:18px 12px
+}
+.nav-title{font-weight:600;font-size:20px;letter-spacing:.08em;color:var(--muted);margin:6px 8px 12px}
+.nav{display:flex;flex-direction:column;gap:4px}
+.nav a{
+  padding:10px 12px;border-radius:8px;text-decoration:none;color:inherit;display:flex;gap:10px;align-items:center
+}
+.nav a.active{background:#f0fdf4;color:#166534}
+.badge{margin-left:auto;background:#e7f3ff;border-radius:10px;padding:0 6px;color:#2563eb}
+
+/* Content */
+.content{padding:26px 32px}
+h1{font-size:20px;margin:0 0 16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:0}
+.card-hd{
+  font-size: 16px;
+  padding:14px 16px;border-bottom:1px solid var(--line);font-weight:600}
+.card-bd{display:grid;grid-template-columns:260px 1fr}
+/* Label text */
+.label{
+  font-size:16px;      
+  font-weight:600;    
+}
+span{
+  font-size:16px;      /* trước đây chưa đặt size -> mặc định 14px */
+}
+/* Sub menu left (các button điều hướng) */
+.subnav{border-right:1px solid var(--line);padding:8px}
+.subnav .btn-tab{
+  width:100%;text-align:left;border:0;background:transparent;
+  padding:10px 12px;border-radius:8px;display:flex;gap:10px;align-items:center;
+  color:inherit;text-decoration:none;cursor:pointer
+}
+.subnav .btn-tab:hover{background:#f3f4f6}
+.subnav .btn-tab.active{background:#e9fdf3;color:#047857;font-weight:600}
+
+/* Form */
+.form{padding:18px}
+.grid{display:grid;grid-template-columns:220px 1fr;gap:14px 16px}
+.label{align-self:center;color:var(--muted)}
+input[type="password"]{
+  width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font:inherit
+}
+input[type="password"]:focus{outline:none;border-color:#cbd5e1;box-shadow:0 0 0 3px #e2e8f0}
+.row-full{grid-column:1/-1}
+.help{font-size:12px;color:var(--muted)}
+.err{font-size:12px;color:#b91c1c}
+.actions{margin-top:8px;display:flex;gap:10px}
+.btn{
+  font-size: 16px;
+  padding:10px 16px;border-radius:8px;border:1px solid var(--line);background:#fff;cursor:pointer}
+.btn-primary{background:var(--primary);border-color:var(--primary);color:var(--primary-ink)}
+
+@media (max-width: 1024px){
+  .layout{grid-template-columns:1fr}
+  .card-bd{grid-template-columns:1fr}
+  .subnav{border-right:0;border-bottom:1px solid var(--line)}
+  .grid{grid-template-columns:1fr}
+}
+
+/* ===== PROFILE PAGE EXTRAS ===== */
+.grid-2col{grid-template-columns:220px 1fr;gap:14px 16px}
+.inline{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.avatar{width:44px;height:44px;border-radius:999px;background:#e5e7eb;object-fit:cover;border:1px solid var(--line)}
+.btn-outline{background:#fff;border:1px solid var(--line)}
+.readonly{
+  font-size: 16px;
+  align-self:center;color:#111827}
+select, input[type="text"]{
+  width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font:inherit;background:#fff
+}
+select:focus, input[type="text"]:focus{outline:none;border-color:#cbd5e1;box-shadow:0 0 0 3px #e2e8f0}
+.link{color:#059669;text-decoration:none}
+.link:hover{text-decoration:underline}
+.divider{border:0;border-top:1px solid var(--line);margin:10px 0 18px}
+
+/* status chip */
+.chip{display:inline-flex;align-items:center;gap:8px;border-radius:8px;padding:8px 10px;font-size:13px}
+.chip-success{background:#e8f8ee;color:#16a34a;border:1px solid #bbf7d0}
+.chip-muted{background:#f3f4f6;color:#6b7280;border:1px solid #e5e7eb}
+.dot{width:10px;height:10px;border-radius:999px;background:#16a34a;display:inline-block}
+.chip-muted .dot{background:#9ca3af}
+
+@media (max-width:1024px){
+  .grid-2col{grid-template-columns:1fr}
+}

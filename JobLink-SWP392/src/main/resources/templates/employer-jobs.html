@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Việc làm của nhà tuyển dụng - JobLink</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+    <link rel="stylesheet" th:href="@{/CSS/homepage.css}">
+    <link rel="stylesheet" th:href="@{/CSS/search.css}">
+
+    <style>
+        /* == CẢI TIẾN: Thêm màu nền nhẹ cho body == */
+        body {
+            background-color: #f8f9fa; /* Nền xám rất nhạt */
+        }
+
+        .employer-jobs-main {
+            max-width: 1400px; /* Giữ nguyên max-width của bạn */
+            margin: 20px auto;
+            padding: 0 16px;
+            min-height: 60vh;
+        }
+
+        .employer-jobs-main h1 {
+            margin: 10px 0 30px 0; /* Tăng margin dưới */
+            font-size: 28px;
+            color: #222;
+            text-align: center; /* Đưa tiêu đề ra giữa */
+        }
+
+        /* == CẢI TIẾN: Thiết kế lại thông báo "Không có việc" == */
+        .no-jobs-message {
+            background-color: #fff;
+            padding: 40px 20px;
+            color: #777;
+            text-align: center;
+            font-size: 16px;
+            border: 1px solid #eef; /* Thay cho dashed */
+            border-radius: 12px; /* Bo góc nhiều hơn */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+        }
+
+        .no-jobs-message i {
+            font-size: 2.5rem; /* Icon to hơn */
+            margin-bottom: 15px;
+            color: #1976d2; /* Dùng màu chủ đạo */
+            opacity: 0.6;
+        }
+
+        /* == CẢI TIẾN: Bố cục lưới 2 cột == */
+        .job-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr; /* 3 cột bằng nhau */
+            gap: 20px; /* Khoảng cách giữa các card */
+        }
+
+        /* Media query cho máy tính bảng: chuyển về 2 cột */
+        @media (max-width: 1100px) {
+            .job-list {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* Media query cho di động: chuyển về 1 cột */
+        @media (max-width: 768px) {
+            .job-list {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .job-card {
+            display: block;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px; /* Bo góc nhiều hơn */
+            padding: 24px; /* Tăng padding */
+            margin-bottom: 0; /* Bỏ margin (vì đã dùng 'gap' của grid) */
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease-in-out;
+
+            /* Thêm một đường viền trái để tạo điểm nhấn */
+            border-left: 4px solid #1976d2;
+        }
+
+        .job-card:hover {
+            border-color: #1976d2;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); /* Shadow đậm hơn */
+            transform: translateY(-4px); /* Nhấc lên nhiều hơn */
+        }
+
+        .job-card-content {
+            display: flex;
+            flex-direction: column; /* Sắp xếp lại theo chiều dọc */
+            gap: 12px; /* Khoảng cách giữa các phần */
+        }
+
+        /* MỚI: Thêm header để chứa Tiêu đề và Ngày */
+        .job-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            width: 100%;
+        }
+
+        .job-card-info {
+            flex-grow: 1;
+        }
+
+        .job-title {
+            font-weight: 600;
+            font-size: 20px; /* To hơn một chút */
+            color: #111;
+            margin: 0 0 10px 0;
+            padding-right: 10px; /* Tránh đè lên ngày tháng */
+        }
+
+        .job-date {
+            color: #666;
+            font-size: 13px;
+            white-space: nowrap;
+            font-weight: 500;
+            background-color: #f4f4f4; /* Nền nhẹ cho ngày */
+            padding: 4px 8px;
+            border-radius: 6px;
+            flex-shrink: 0; /* Không co lại */
+        }
+
+        /* == CẢI TIẾN: Định dạng lại metadata == */
+        .job-meta {
+            color: #555;
+            font-size: 15px;
+            display: flex;
+            flex-direction: column; /* Sắp xếp theo chiều dọc */
+            gap: 10px; /* Khoảng cách giữa các mục */
+        }
+
+        .job-meta span {
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .job-meta i {
+            margin-right: 8px; /* Tăng khoảng cách icon */
+            color: #1976d2;
+            width: 18px; /* Căn chỉnh icon */
+            text-align: center;
+        }
+
+    </style>
+</head>
+<body>
+<div th:replace="~{header :: header}"></div>
+
+<main class="employer-jobs-main">
+
+    <h1 th:if="${!#lists.isEmpty(jobs)}">
+        Việc làm tại <span th:text="${jobs[0].employer.companyName}">Tên Công Ty</span>
+    </h1>
+    <h1 th:if="${#lists.isEmpty(jobs)}">
+        Danh sách việc làm
+    </h1>
+
+    <div th:if="${#lists.isEmpty(jobs)}" class="no-jobs-message">
+        <i class="fas fa-search-plus"></i> <p>Không tìm thấy việc làm nào phù hợp.</p>
+        <p style="font-size: 14px; color: #999;">Nhà tuyển dụng này có thể chưa đăng tin hoặc các tin đã hết hạn.</p>
+    </div>
+
+    <div th:if="${!#lists.isEmpty(jobs)}" class="job-list">
+
+        <a th:each="job : ${jobs}" class="job-card" th:href="@{'/job-detail/' + ${job.jobId}}">
+            <div class="job-card-content">
+
+                <div class="job-card-header">
+                    <div class="job-card-info">
+                        <h3 class="job-title" th:text="${job.title}">Senior Java Developer (Spring Boot, Microservices)</h3>
+                    </div>
+                    <div class="job-date" th:text="${#temporals.format(job.postedAt, 'dd/MM/yyyy')}">
+                        12/11/2025
+                    </div>
+                </div>
+
+                <div class="job-meta">
+
+                    <span>
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span th:text="${job.province != null ? job.province.provinceName : 'Đang cập nhật'}">Hà Nội</span>
+                    </span>
+
+                    <span class="job-salary">
+                        <i class="fas fa-dollar-sign"></i>
+                        <span th:if="${job.salaryMin != null AND job.salaryMax != null}"
+                              th:text="${#numbers.formatDecimal(job.salaryMin/1000000, 0, 'COMMA', 0, 'POINT')} + ' - ' + ${#numbers.formatDecimal(job.salaryMax/1000000, 0, 'COMMA', 0, 'POINT')} + ' triệu'"></span>
+                        <span th:if="${job.salaryMin != null AND job.salaryMax == null}"
+                              th:text="'Từ ' + ${#numbers.formatDecimal(job.salaryMin/1000000, 0, 'COMMA', 0, 'POINT')} + ' triệu'"></span>
+                        <span th:if="${job.salaryMin == null AND job.salaryMax != null}"
+                              th:text="'Tới ' + ${#numbers.formatDecimal(job.salaryMax/1000000, 0, 'COMMA', 0, 'POINT')} + ' triệu'"></span>
+                        <span th:if="${job.salaryMin == null AND job.salaryMax == null}"
+                              th:text="'Thỏa thuận'"></span>
+                    </span>
+                </div>
+
+            </div>
+        </a>
+    </div>
+</main>
+
+<div th:replace="~{footer :: footer}"></div>
+</body>
+</html>

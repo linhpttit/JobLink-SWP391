@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Footer MyJob</title>
+    <link rel="stylesheet" href="/footer.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script th:src="@{/JS/translate.js}"></script>
+</head>
+<body>
+
+<!-- file: footer.html -->
+<div th:fragment="footer">
+    <link rel="stylesheet" th:href="@{/CSS/footer.css}">
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-col about-col">
+                <div class="logo-section-footer">
+                    <i class="fas fa-briefcase"></i>
+                    <span class="logo-text-footer">JobLink</span>
+                </div>
+                <p class="phone-number-footer">Call now: (319) 555-0115</p>
+                <p class="address">
+                    6391 Elgin St. Celina, Delaware 10299, New York, United States of America
+                </p>
+            </div>
+
+            <div class="footer-col quick-link-col">
+                <h4 data-i18n="quick_link">Quick Link</h4>
+                <ul>
+                    <li><a href="#" data-i18n="about">About</a></li>
+                    <li><a href="#"><i class="fas fa-arrow-right"></i> <span data-i18n="contact">Contact</span></a></li>
+                    <li><a href="#" data-i18n="pricing">Pricing</a></li>
+                    <li><a href="#" data-i18n="blog">Blog</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4 data-i18n="candidate">Candidate</h4>
+                <ul>
+                    <li><a href="#" data-i18n="browse_jobs">Browse Jobs</a></li>
+                    <li><a href="#" data-i18n="browse_employers">Browse Employers</a></li>
+                    <li><a href="#" data-i18n="candidate_dashboard">Candidate Dashboard</a></li>
+                    <li><a href="#" data-i18n="saved_jobs">Saved Jobs</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4 data-i18n="employers">Employers</h4>
+                <ul>
+                    <li><a href="#" data-i18n="post_a_job">Post a Job</a></li>
+                    <li><a href="#" data-i18n="browse_candidates">Browse Candidates</a></li>
+                    <li><a href="#" data-i18n="employers_dashboard">Employers Dashboard</a></li>
+                    <li><a href="#" data-i18n="applications">Applications</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4 data-i18n="support">Support</h4>
+                <ul>
+                    <li><a href="#" data-i18n="faqs">Faqs</a></li>
+                    <li><a href="#" data-i18n="privacy_policy">Privacy Policy</a></li>
+                    <li><a href="#" data-i18n="terms_conditions">Terms & Conditions</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="bottom-footer">
+            <p data-i18n="copyright">© 2024 MyJob – Job Portal. All rights Reserved</p>
+            <div class="social-icons">
+                <a href="#"><i class="fab fa-facebook-f"></i></a>
+                <a href="#"><i class="fab fa-youtube"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+            </div>
+        </div>
+    </footer>
+</div>
+
+
+</body>
+</html>

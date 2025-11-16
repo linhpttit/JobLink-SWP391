@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{employer/employer-layout}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Chỉnh sửa tin tuyển dụng</title>
+    <link rel="stylesheet" th:href="@{/edit-job-posting.css}"/>
+</head>
+<body layout:fragment="content">
+<main class="wrap">
+    <article class="card">
+        <header class="head">
+            <h1>Chỉnh sửa tin tuyển dụng</h1>
+        </header>
+
+        <form th:action="@{/jobPosting/{id}/edit(id=${job.jobId})}" th:object="${job}" method="post">
+            <input type="hidden" th:field="*{jobId}" />
+
+            <label>Tiêu đề</label>
+            <input type="text" th:field="*{title}"/>
+
+            <label>Ngành nghề</label>
+            <select th:field="*{skill.skillId}">
+                <option value="" disabled selected>--Chọn kỹ năng--</option>
+                <option th:each="s : ${skills}" th:value="${s.skillId}" th:text="${s.name}"></option>
+            </select>
+
+            <label>Thành phố</label>
+            <select th:field="*{province.provinceId}">
+                <option value="" disabled selected>--Chọn tỉnh--</option>
+                <option th:each="p : ${provinces}" th:value="${p.provinceId}" th:text="${p.provinceName}"></option>
+            </select>
+
+            <label>Quận/Huyện</label>
+            <select th:field="*{district.districtId}">
+                <option value="" disabled selected>--Chọn quận/huyện--</option>
+                <option th:each="d : ${districts}" th:value="${d.districtId}" th:text="${d.districtName}"></option>
+            </select>
+
+            <label>Kinh nghiệm</label>
+            <input type="text" th:field="*{yearExperience}"/>
+
+            <label>Mức lương tối đa</label>
+            <input type="number" th:field="*{salaryMax}"/>
+
+            <label>Mô tả công việc</label>
+            <textarea th:field="*{jobDescription}"></textarea>
+
+            <label>Yêu cầu công việc</label>
+            <textarea th:field="*{jobRequirements}"></textarea>
+
+            <label>Quyền lợi</label>
+            <textarea th:field="*{benefits}"></textarea>
+
+            <label>Họ tên liên hệ</label>
+            <input type="text" th:field="*{contactName}"/>
+
+            <label>Email liên hệ</label>
+            <input type="email" th:field="*{contactEmail}"/>
+
+            <label>Số điện thoại</label>
+            <input type="text" th:field="*{contactPhone}"/>
+
+            <button type="submit" class="btn primary">Lưu thay đổi</button>
+        </form>
+    </article>
+</main>
+</body>
+</html>

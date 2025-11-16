@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Công Ty Đã Ứng Tuyển - JobLink</title>
+    <link rel="stylesheet" th:href="@{/header.css}">
+    <style>
+        .companies-container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        .companies-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .companies-header h1 {
+            font-size: 32px;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .companies-header p {
+            font-size: 16px;
+            color: #7f8c8d;
+        }
+        .company-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 25px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.3s;
+        }
+        .company-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        .company-info {
+            flex: 1;
+        }
+        .company-name {
+            font-size: 22px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+        .company-details {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        .company-description {
+            color: #34495e;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-top: 10px;
+        }
+        .company-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.3s;
+            white-space: nowrap;
+        }
+        .btn-message {
+            background: #3498db;
+            color: white;
+        }
+        .btn-message:hover {
+            background: #2980b9;
+        }
+        .application-stats {
+            background: #ecf0f1;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #34495e;
+            text-align: center;
+        }
+        .no-companies {
+            text-align: center;
+            padding: 60px 20px;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{header :: header}"></div>
+
+<div class="companies-container">
+    <div class="companies-header">
+        <h1>Công Ty Đã Ứng Tuyển</h1>
+        <p>Nhắn tin trực tiếp với nhà tuyển dụng</p>
+    </div>
+
+    <div th:if="${appliedCompanies != null and !appliedCompanies.isEmpty()}">
+        <div th:each="company : ${appliedCompanies}" class="company-card">
+            <div class="company-info">
+                <div class="company-name" th:text="${company.companyName}">Company Name</div>
+                <div class="company-details">
+                    <div class="detail-item">
+                        <span>🏢</span>
+                        <span th:text="${company.industry}">Industry</span>
+                    </div>
+                    <div class="detail-item">
+                        <span>📍</span>
+                        <span th:text="${company.location}">Location</span>
+                    </div>
+                    <div class="detail-item">
+                        <span>📝</span>
+                        <span th:text="${company.totalApplications} + ' đơn ứng tuyển'">Applications</span>
+                    </div>
+                </div>
+                <div class="company-description" th:text="${#strings.abbreviate(company.description, 150)}">
+                    Company description...
+                </div>
+            </div>
+            <div class="company-actions">
+                <button class="btn btn-message"
+                        th:attr="data-employer-id=${company.employerId}, data-employer-user-id=${company.employerUserId}"
+                        onclick="startConversation(this)">
+                    💬 Nhắn tin
+                </button>
+                <div class="application-stats">
+                    Ứng tuyển lần cuối:<br>
+                    <span th:text="${#temporals.format(company.lastAppliedAt, 'dd/MM/yyyy')}">Date</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${appliedCompanies == null or appliedCompanies.isEmpty()}" class="no-companies">
+        <h2>Bạn chưa ứng tuyển công ty nào</h2>
+        <p>Hãy tìm kiếm và ứng tuyển công việc phù hợp để có thể nhắn tin với nhà tuyển dụng</p>
+    </div>
+</div>
+
+<script>
+    function startConversation(button) {
+        const employerId = button.getAttribute('data-employer-id');
+        const employerUserId = button.getAttribute('data-employer-user-id');
+
+        // Redirect to messages page with employer info
+        window.location.href = `/messages?employerId=${employerId}&employerUserId=${employerUserId}`;
+    }
+</script>
+</body>
+</html>
