@@ -37,4 +37,35 @@ public class Application {
 
     @Column(name = "status_log", columnDefinition = "NVARCHAR(MAX)")
     private String statusLog;
+
+    // Transient fields for frontend
+    @Transient
+    private String candidateName;
+
+    @Transient
+    private String candidateEmail;
+
+    @Transient
+    private String candidatePhone;
+
+    @Transient
+    private String avatarUrl;
+
+    @Transient
+    private String position;
+
+    @Transient
+    private String location;
+
+    @Transient
+    private Integer experienceYears;
+
+    @Transient
+    private String education;
+
+    @Transient
+    private Boolean saved;
+
+    // Constructors
+    public Application() {}
 }

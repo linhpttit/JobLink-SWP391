@@ -122,9 +122,9 @@ public interface JobSeekerProfileRepository extends JpaRepository<JobSeekerProfi
     FETCH NEXT :size ROWS ONLY
     """, nativeQuery = true)
     List<JobSeekerProfile> searchJobSeekersPaginated(@Param("keyword") String keyword,
-                                                      @Param("experience") Integer experience,
-                                                      @Param("status") String status,
-                                                      @Param("offset") int offset,
-                                                      @Param("size") int size);
+                                                     @Param("experience") Integer experience,
+                                                     @Param("status") String status,
+                                                     @Param("offset") int offset,
+                                                     @Param("size") int size);
 
 }

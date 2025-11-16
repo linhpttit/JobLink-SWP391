@@ -38,6 +38,16 @@ public class DashboardService {
         return applicationRepository.count();
     }
 
+    /**
+     * Đếm số CV đang xem xét (status = "submitted" hoặc "reviewing")
+     * Đây là những CV đã được upload nhưng chưa được employer duyệt
+     */
+    public long countReviewingCVs() {
+        long submitted = applicationRepository.countByStatus("submitted");
+        long reviewing = applicationRepository.countByStatus("reviewing");
+        return submitted + reviewing;
+    }
+
     public double getTotalRevenue() {
         return paymentRepository.getTotalRevenue();
     }

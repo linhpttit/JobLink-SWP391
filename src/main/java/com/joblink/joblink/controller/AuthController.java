@@ -5,7 +5,7 @@ import com.joblink.joblink.dao.UserDao;
 import com.joblink.joblink.dto.LoginRequest;
 import com.joblink.joblink.dto.RegisterRequest;
 import com.joblink.joblink.dto.UserSessionDTO;
-import com.joblink.joblink.model.JobSeekerProfile;
+import com.joblink.joblink.model.JobSeekerProfile2;
 import com.joblink.joblink.security.RememberMeService;
 import com.joblink.joblink.service.AuthService;
 import com.joblink.joblink.service.ProfileService;
@@ -246,7 +246,7 @@ public class AuthController {
         // ✅ Load avatar và fullName từ profile nếu là seeker
         if ("seeker".equalsIgnoreCase(user.getRole())) {
             try {
-                JobSeekerProfile profile = profileService.getOrCreateProfile(user.getUserId());
+                JobSeekerProfile2 profile = profileService.getOrCreateProfile(user.getUserId());
                 if (profile != null) {
                     dto.setFullName(profile.getFullname());
                     dto.setAvatarUrl(profile.getAvatarUrl());

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{employer/employer-layout}">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Response</title>
+    <link rel="stylesheet" th:href="@{/current-job-list.css}"/>
+</head>
+<body layout:fragment="content">
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <div class="title">
+                My Jobs <span class="count" th:text="'(' + ${totalPosts} + ')'"></span>
+            </div>
+<!--            <form th:action="@{/jobs}" method="get" class="toolbar">-->
+<!--                <label for="status" class="sub">Job status</label>-->
+<!--                <select id="status" name="status" class="select" th:value="${param.status}">-->
+<!--                    <option th:value="" th:selected="${#strings.isEmpty(param.status)}">All Jobs</option>-->
+<!--                    <option value="ACTIVE" th:selected="${param.status}=='ACTIVE'">Active</option>-->
+<!--                    <option value="EXPIRE" th:selected="${param.status}=='EXPIRE'">Expire</option>-->
+<!--                </select>-->
+<!--                <button class="btn secondary" type="submit">Lọc</button>-->
+<!--            </form>-->
+        </div>
+
+        <table>
+            <thead>
+            <tr>
+                <th>Jobs</th>
+                <th>Status</th>
+                <th>Applications</th>
+                <th style="width:260px">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="job : ${jobs}">
+                <td>
+                    <div class="job-title" th:text="${job.title}">UI/UX Designer</div>
+                    <div class="sub">
+                        <span th:text="${job.workType}">Full Time</span>
+                        <span> · </span>
+                        <span th:if="${job.submissionDeadline != null}" th:text="${#temporals.format(job.submissionDeadline, 'MMM d, yyyy')}">Dec 7, 2019</span>
+                    </div>
+                </td>
+
+                <td>
+        <span class="status">
+            <span class="dot" th:classappend="${job.status=='ACTIVE'} ? ' success' : ' expire'"></span>
+            <span th:text="${job.status=='ACTIVE' ? 'Active' : 'Expire'}">Active</span>
+        </span>
+                </td>
+
+                <td>
+        <span class="apps">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path d="M12 12c2.21..." stroke="#9aa5b1" stroke-width="1.5"/>
+            </svg>
+<!--            <span th:text="${job.applications + ' Applications'}">798 Applications</span>-->
+            <span>798 Applications</span>
+
+        </span>
+                </td>
+
+                <td>
+                    <div style="display:flex; gap:10px; justify-content:flex-end">
+                        <a class="btn" th:href="@{/jobs/{id}/applications(id=${job.id})}">View Applications</a>
+
+                        <div class="menu">
+                            <button class="kebab" type="button" onclick="this.dataset.open = this.dataset.open !== 'true'">
+                                <span></span>
+                            </button>
+                            <div class="dropdown">
+                                <a th:href="@{/jobs/{id}/promote(id=${job.id})}">Promote Job</a>
+                                <a th:href="@{/jobs/{id}(id=${job.id})}">View Detail</a>
+                                <a th:href="@{/jobs/{id}/expire(id=${job.id})}" th:if="${job.status=='ACTIVE'}">Make it Expire</a>
+                                <a th:href="@{/jobs/{id}/reopen(id=${job.id})}" th:if="${job.status!='ACTIVE'}">Re-open</a>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+
+            <tr th:if="${#lists.isEmpty(jobs)}">
+                <td colspan="4" class="sub">Không có công việc nào.</td>
+            </tr>
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>

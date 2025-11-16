@@ -22,7 +22,7 @@ public class EmployersController {
 		return "find-empoyers";
 	}
 
-	@GetMapping("/employer/{employerId}")
+	@GetMapping("/findemployers/{employerId}")
 	public String employerJobs(@PathVariable Long employerId, Model model) {
 		// Lấy danh sách job còn active của employer
 		List<JobPosting> all = jobPostingRepository.findAll();

@@ -60,6 +60,15 @@ public class HomeController implements ErrorController {
         return "search";
     }
 
+//    @GetMapping("/jobseeker/dashboardjobseeker")
+//    public String seekerDashboard(HttpSession s, Model m) {
+//        if (s.getAttribute("user") == null) return "redirect:/signin";
+//        UserSessionDTO u = (UserSessionDTO) s.getAttribute("user");
+//        if (!"seeker".equalsIgnoreCase(u.getRole())) return "redirect:/signin";
+//        m.addAttribute("user", u);
+//        return "forward:/jobseeker/dashboardjobseeker";
+//    }
+
     @GetMapping("/seeker/home")
     public String seekerHome(HttpSession s, Model m) {
         if (s.getAttribute("user") == null) return "redirect:/signin";
