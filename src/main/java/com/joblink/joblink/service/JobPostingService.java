@@ -126,6 +126,11 @@ public class JobPostingService implements IJobPostingService {
     }
 
     @Override
+    public List<JobPosting> getJobPostingsByEmployerId(Integer employerId) {
+        return  jobPostingRepository.findByEmployerId(Long.valueOf(employerId));
+    }
+
+    @Override
     public Optional<JobPosting> findJobPostingById(Long id) {
         return jobPostingRepository.findById(id);
     }

@@ -1,9 +1,6 @@
 package com.joblink.joblink.controller;
-import com.joblink.joblink.entity.JobPosting;
+import com.joblink.joblink.entity.*;
 import com.joblink.joblink.dto.JobPostingDto;
-import com.joblink.joblink.entity.District;
-import com.joblink.joblink.entity.Province;
-import com.joblink.joblink.entity.Skill;
 import com.joblink.joblink.service.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -87,7 +84,6 @@ public class JobPostingController {
 
         com.joblink.joblink.dto.UserSessionDTO user =
                 (com.joblink.joblink.dto.UserSessionDTO) userObj;
-        Integer userId = user.getUserId();
         Integer employerId = jdbc.queryForObject(
                 "SELECT employer_id FROM EmployerProfile WHERE user_id = ?",
                 Integer.class,
@@ -127,8 +123,20 @@ public class JobPostingController {
     }
 
     @GetMapping("/viewList")
-    public String showJobPostingList(Model model) {
-        List<JobPosting> jobPostings = jobPostingService.getAllJobPostings();
+    public String showJobPostingList(Model model, HttpSession session) {
+        Object userObj = session.getAttribute("user");
+        if (userObj == null) {
+            return "redirect:/signin";
+        }
+
+        com.joblink.joblink.dto.UserSessionDTO user =
+                (com.joblink.joblink.dto.UserSessionDTO) userObj;
+        Integer employerId = jdbc.queryForObject(
+                "SELECT employer_id FROM EmployerProfile WHERE user_id = ?",
+                Integer.class,
+                user.getUserId());
+
+        List<JobPosting> jobPostings = jobPostingService.getJobPostingsByEmployerId(employerId);
         model.addAttribute("jobs", jobPostings);
         return "employer/job-list-view";
     }

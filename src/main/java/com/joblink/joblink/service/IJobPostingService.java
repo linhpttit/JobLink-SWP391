@@ -17,6 +17,7 @@ public interface IJobPostingService {
     void deleteJobPostingById(Long id);
     void editJobPostingByEntity(Long id, JobPosting posting);
     List<JobPosting> getAllJobPostings();
+    List<JobPosting> getJobPostingsByEmployerId(Integer employerId);
 
     // Sửa lại kiểu dữ liệu của ID thành Long cho nhất quán
     Optional<JobPosting> findJobPostingById(Long id);
