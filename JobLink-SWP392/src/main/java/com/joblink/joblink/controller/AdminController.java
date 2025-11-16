@@ -9,20 +9,8 @@ import com.joblink.joblink.Repository.JobSeekerProfileRepository;
 import com.joblink.joblink.Repository.PaymentRepository;
 import com.joblink.joblink.Repository.UserRepository;
 import com.joblink.joblink.auth.util.CurrencyUtils;
-import com.joblink.joblink.entity.Blog;
-import com.joblink.joblink.entity.BlogPost;
-import com.joblink.joblink.entity.Employer;
-import com.joblink.joblink.entity.Invoice;
-import com.joblink.joblink.entity.JobSeekerProfile;
-import com.joblink.joblink.entity.Payment;
-import com.joblink.joblink.entity.User;
-import com.joblink.joblink.service.ApplicationService;
-import com.joblink.joblink.service.BlogPostService;
-import com.joblink.joblink.service.DashboardService;
-import com.joblink.joblink.service.EmailService;
-import com.joblink.joblink.service.JobSeekerService;
-import com.joblink.joblink.service.UserService;
-import com.joblink.joblink.entity.Application;
+import com.joblink.joblink.entity.*;
+import com.joblink.joblink.service.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -81,7 +69,8 @@ public class AdminController {
     private JobPostingRepository jobPostingRepository;
     @Autowired
     private EmailService emailService;
-
+    @Autowired
+    private IJobPostingService jobPostingService;
     private boolean ensureAdmin(HttpSession session) {
         com.joblink.joblink.dto.UserSessionDTO u = (com.joblink.joblink.dto.UserSessionDTO) session.getAttribute("user");
         return u != null && "admin".equalsIgnoreCase(u.getRole());
@@ -301,8 +290,60 @@ public class AdminController {
     public String recruitment(Model model, HttpSession session) {
         if (!ensureAdmin(session)) return "redirect:/signin";
         putUser(model, session);
+        List<JobPosting> jobs = jobPostingService.getAllJobPostings();
+        model.addAttribute("jobs", jobs);
+        long total = jobs.size();
+        long active = jobs.stream().filter(j -> "active".equals(j.getStatus())).count();
+        long inactive = jobs.stream().filter(j -> "inactive".equals(j.getStatus())).count();
+
+        model.addAttribute("totalJobs", total);
+        model.addAttribute("activeJobs", active);
+        model.addAttribute("inactiveJobs", inactive);
+
         return "recruitment"; // template file is recruitment.html in templates
     }
+    @PostMapping("/job/toggle/{id}")
+    @ResponseBody
+    public Map<String, Object> toggleJobStatus(@PathVariable("id") Long jobId) {
+        JobPosting job = jobPostingService.toggleJobStatus(jobId); // toggle trạng thái
+
+        // Lấy toàn bộ danh sách để thống kê
+        List<JobPosting> allJobs = jobPostingService.getAllJobPostings();
+        long total = allJobs.size();
+        long active = allJobs.stream().filter(j -> "active".equals(j.getStatus())).count();
+        long inactive = allJobs.stream().filter(j -> "inactive".equals(j.getStatus())).count();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", job.getStatus()); // "active" hoặc "inactive"
+        response.put("totalJobs", total);
+        response.put("activeJobs", active);
+        response.put("inactiveJobs", inactive);
+
+        return response;
+    }
+    @GetMapping("/jobs/filter")
+    @ResponseBody
+    public List<Map<String,Object>> filterJobs(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String skill,
+            @RequestParam(required = false) String date
+    ) {
+        List<JobPosting> jobs = jobPostingService.filterJobs(keyword, status, skill, date);
+
+        return jobs.stream().map(j -> Map.of(
+                "jobId", j.getJobId(),
+                "title", j.getTitle(),
+                "employer", Map.of("companyName", j.getEmployer().getCompanyName()),
+                "skill", Map.of("name", j.getSkill().getName()),
+                "province", Map.of("provinceName", j.getProvince().getProvinceName()),
+                "salaryMin", j.getSalaryMin(),
+                "salaryMax", j.getSalaryMax(),
+                "status", j.getStatus(),
+                "postedAtFormatted", j.getPostedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+        )).collect(Collectors.toList());
+    }
+
 
     @GetMapping("/employer")
     public String employer(

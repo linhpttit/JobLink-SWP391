@@ -8,8 +8,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -154,5 +156,65 @@ public class JobPostingService implements IJobPostingService {
         return List.of();
     }
 
-    // Bạn cần thêm phương thức getRelatedJobs vào đây để implement interface
+    @Override
+    public void hideJob(Long jobId) {
+        JobPosting job = jobPostingRepository.findById(jobId)
+                .orElseThrow(() -> new RuntimeException("Job not found"));
+
+        job.setStatus("Deactive");
+        jobPostingRepository.save(job);
+    }
+
+    @Transactional
+    @Override
+    public JobPosting toggleJobStatus(Long jobId) {
+        JobPosting job = jobPostingRepository.findById(jobId)
+                .orElseThrow(() -> new RuntimeException("Job không tồn tại với id: " + jobId));
+
+        if ("active".equalsIgnoreCase(job.getStatus())) {
+            job.setStatus("inactive"); // Tạm ẩn
+        } else {
+            job.setStatus("active");   // Kích hoạt
+        }
+
+        return jobPostingRepository.save(job);
+    }
+    @Override
+    public List<JobPosting> filterJobs(String keyword, String status, String skill, String date) {
+        List<JobPosting> jobs = getAllJobPostings(); // lấy tất cả
+
+        if(keyword != null && !keyword.isEmpty()) {
+            jobs = jobs.stream()
+                    .filter(j -> j.getTitle().toLowerCase().contains(keyword.toLowerCase())
+                            || j.getEmployer().getCompanyName().toLowerCase().contains(keyword.toLowerCase()))
+                    .collect(Collectors.toList());
+        }
+
+        if(status != null && !status.isEmpty()) {
+            jobs = jobs.stream()
+                    .filter(j -> status.equals(j.getStatus()))
+                    .collect(Collectors.toList());
+        }
+
+        if(skill != null && !skill.isEmpty()) {
+            jobs = jobs.stream()
+                    .filter(j -> skill.equals(j.getSkill().getName())) // code tương ứng với select option
+                    .collect(Collectors.toList());
+        }
+
+        if(date != null && !date.isEmpty()) {
+            LocalDate now = LocalDate.now();
+            jobs = jobs.stream().filter(j -> {
+                LocalDate posted = j.getPostedAt().toLocalDate();
+                switch(date) {
+                    case "today": return posted.isEqual(now);
+                    case "week": return posted.isAfter(now.minusDays(7)) || posted.isEqual(now.minusDays(7));
+                    case "month": return posted.isAfter(now.minusMonths(1)) || posted.isEqual(now.minusMonths(1));
+                    default: return true;
+                }
+            }).collect(Collectors.toList());
+        }
+
+        return jobs;
+    }
 }
