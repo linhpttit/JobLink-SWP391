@@ -30,4 +30,7 @@ public interface IJobPostingService {
 
     // ✅ BỔ SUNG PHƯƠNG THỨC CÒN THIẾU
     List<JobPosting> getRelatedJobs(Integer categoryId, Long excludeJobId);
+    void hideJob(Long jobId);
+    JobPosting toggleJobStatus(Long jobId);
+    List<JobPosting> filterJobs(String keyword, String status, String skill, String date);
 }
