@@ -26,33 +26,21 @@ public class    EmployerService implements IEmployerService {
     private final PasswordEncoder passwordEncoder;
     private final EmployerProfileDao employerProfileDao;
     private final UserRepository userRepository;
+    private final AuthService auth;
 
     @Override
-    public boolean changePassword(Integer userId, String curPass, String newPass, String confirmPass) {
+    public boolean changePassword(Integer userId, String newPass, String confirmPass) {
         System.out.println("=== CHANGE PASSWORD ===");
         System.out.println("User ID: " + userId);
 
-        // Tìm hoặc tạo employer profile
-        Employer employer = getOrCreateEmployerProfile(userId);
-
-        System.out.println("✅ Tìm thấy employer ID: " + employer.getId());
-        System.out.println("   Company: " + employer.getCompanyName());
-
-        // Kiểm tra mật khẩu hiện tại
-        if (!passwordEncoder.matches(curPass, employer.getUser().getPasswordHash())) {
-            System.err.println("❌ Mật khẩu hiện tại không đúng");
-            return false;
-        }
-
-        // Kiểm tra mật khẩu mới khớp với xác nhận
+        User user = userRepository.getById(userId);
         if (!newPass.equals(confirmPass)) {
             System.err.println("❌ Mật khẩu mới và xác nhận không khớp");
             return false;
         }
 
-        // Cập nhật mật khẩu mới
-        employer.getUser().setPasswordHash(passwordEncoder.encode(newPass));
-        employerReposistory.save(employer);
+        user.setPasswordHash(passwordEncoder.encode(newPass));
+        userRepository.save(user);
         System.out.println("✅ Đổi mật khẩu thành công");
         return true;
     }
