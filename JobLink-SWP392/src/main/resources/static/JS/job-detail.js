@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const applyForm = document.getElementById('applyForm');
     const cvSelect = document.querySelector('.form-select');
     const coverLetterTextarea = document.querySelector('.form-textarea');
+    const followCompanyBtn = document.getElementById('followCompanyBtn');
 
     // Mở modal khi click Apply Now
     if (applyNowBtn) {
@@ -131,6 +132,68 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Enable submit button
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalContent;
+            }
+        });
+    }
+
+    // ===== XỬ LÝ FOLLOW COMPANY =====
+    if (followCompanyBtn) {
+        followCompanyBtn.addEventListener('click', async function(e) {
+            e.preventDefault();
+            
+            const isLoggedIn = document.body.dataset.isLoggedIn === 'true';
+            if (!isLoggedIn) {
+                window.location.href = '/signin?redirect=' + window.location.pathname;
+                return;
+            }
+
+            const employerId = followCompanyBtn.dataset.employerId;
+            if (!employerId) {
+                showNotification('Không tìm thấy thông tin công ty', 'error');
+                return;
+            }
+
+            const isFollowing = followCompanyBtn.classList.contains('following');
+            const action = isFollowing ? 'unfollow' : 'follow';
+            const url = isFollowing ? '/jobseeker/unfollow-company' : '/jobseeker/follow-company';
+
+            // Disable button
+            followCompanyBtn.disabled = true;
+            const originalContent = followCompanyBtn.innerHTML;
+            followCompanyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+
+            try {
+                const formData = new FormData();
+                formData.append('employerId', employerId);
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Update button state
+                    if (action === 'follow') {
+                        followCompanyBtn.classList.add('following');
+                        followCompanyBtn.innerHTML = '<i class="fas fa-heart"></i> <span>Đã theo dõi</span>';
+                        showNotification('Đã theo dõi công ty thành công!', 'success');
+                    } else {
+                        followCompanyBtn.classList.remove('following');
+                        followCompanyBtn.innerHTML = '<i class="far fa-heart"></i> <span>Theo dõi công ty</span>';
+                        showNotification('Đã bỏ theo dõi công ty', 'success');
+                    }
+                } else {
+                    showNotification(result.message || 'Có lỗi xảy ra', 'error');
+                    followCompanyBtn.innerHTML = originalContent;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('Có lỗi xảy ra khi thực hiện thao tác', 'error');
+                followCompanyBtn.innerHTML = originalContent;
+            } finally {
+                followCompanyBtn.disabled = false;
             }
         });
     }

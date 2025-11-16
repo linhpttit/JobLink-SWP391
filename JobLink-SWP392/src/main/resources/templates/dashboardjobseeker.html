@@ -472,14 +472,21 @@ padding: 24px;
 
         <!-- Statistics Cards -->
         <div class="stats-row">
-            <div class="stat-card">
+            <div class="stat-card" style="cursor: pointer;" onclick="window.location.href='/jobseeker/jobs'">
                 <div class="stat-icon applications">
                     <i class="fas fa-file-alt"></i>
                 </div>
                 <div class="stat-number" th:text="${stats.totalApplications}">0</div>
                 <div class="stat-label">Jobs Applied</div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card" style="cursor: pointer;" onclick="window.location.href='/jobseeker/saved-jobs'">
+                <div class="stat-icon applications">
+                    <i class="fas fa-bookmark"></i>
+                </div>
+                <div class="stat-number" th:text="${stats.jobsBookmarked}">0</div>
+                <div class="stat-label">Saved Jobs</div>
+            </div>
+            <div class="stat-card" style="cursor: pointer;" onclick="window.location.href='/jobseeker/followed-companies'">
                 <div class="stat-icon companies">
                     <i class="fas fa-star"></i>
                 </div>

@@ -175,7 +175,7 @@
             </div>
 
             <div class="job-actions">
-                <button class="btn btn-view" th:onclick="'window.location.href=\'/job-detail?id=' + ${job.jobId} + '\''">
+                <button class="btn btn-view" th:onclick="'window.location.href=\'/job-detail/' + ${job.jobId} + '\''">
                     Xem chi tiết
                 </button>
                 <button class="btn btn-apply" th:onclick="'applyJob(' + ${job.jobId} + ')'">
@@ -194,7 +194,7 @@
 <script>
     function applyJob(jobId) {
         // Redirect to job detail page or open apply modal
-        window.location.href = '/job-detail?id=' + jobId;
+        window.location.href = '/job-detail/' + jobId;
     }
 </script>
 </body>

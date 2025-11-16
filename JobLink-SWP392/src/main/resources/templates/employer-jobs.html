@@ -158,7 +158,7 @@
 <main class="employer-jobs-main">
 
     <h1 th:if="${!#lists.isEmpty(jobs)}">
-        Việc làm tại <span th:text="${jobs[0].employer.companyName}">Tên Công Ty</span>
+        Việc làm tại <span th:text="${companyName != null ? companyName : 'Nhà tuyển dụng'}">Tên Công Ty</span>
     </h1>
     <h1 th:if="${#lists.isEmpty(jobs)}">
         Danh sách việc làm

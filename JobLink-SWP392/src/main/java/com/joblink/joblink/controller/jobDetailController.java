@@ -5,6 +5,7 @@ import com.joblink.joblink.entity.JobPosting;
 import com.joblink.joblink.model.CVUpload;
 import com.joblink.joblink.model.JobSeekerProfile2;
 import com.joblink.joblink.service.CVUploadService;
+import com.joblink.joblink.service.CompanyFollowService;
 import com.joblink.joblink.service.JobBookmarkService;
 import com.joblink.joblink.service.JobService;
 import com.joblink.joblink.service.ProfileService;
@@ -28,6 +29,7 @@ public class jobDetailController {
     private final CVUploadService cvUploadService;
     private final ProfileService profileService;
     private final JobBookmarkService jobBookmarkService;
+    private final CompanyFollowService companyFollowService;
 
     @GetMapping("/job-detail/{jobId}")
     public String jobDetail(@PathVariable long jobId,
@@ -56,9 +58,25 @@ public class jobDetailController {
                 model.addAttribute("isLoggedIn", true);
                 boolean bookmarked = jobBookmarkService.isBookmarked(profile.getSeekerId(), jobId);
                 model.addAttribute("isBookmarked", bookmarked);
+                
+                // Check follow status nếu có employer
+                if (job.getEmployer() != null && job.getEmployer().getId() != null) {
+                    boolean isFollowing = companyFollowService.isFollowing(profile.getSeekerId(), job.getEmployer().getId().intValue());
+                    model.addAttribute("isFollowingCompany", isFollowing);
+                    model.addAttribute("employerId", job.getEmployer().getId());
+                } else {
+                    model.addAttribute("isFollowingCompany", false);
+                    model.addAttribute("employerId", null);
+                }
             } else {
                 model.addAttribute("isLoggedIn", false);
                 model.addAttribute("isBookmarked", false);
+                model.addAttribute("isFollowingCompany", false);
+                if (job.getEmployer() != null && job.getEmployer().getId() != null) {
+                    model.addAttribute("employerId", job.getEmployer().getId());
+                } else {
+                    model.addAttribute("employerId", null);
+                }
             }
 
             return "job-detail";
@@ -141,9 +159,28 @@ public class jobDetailController {
 
             // Lấy thông tin CV
             CVUpload cv = cvUploadService.getCVById(cvId);
-            if (cv == null || cv.getSeekerId() != profile.getSeekerId()) {
+            
+            // Debug logging
+            System.out.println("🔍 Debug Apply Job:");
+            System.out.println("   - CV ID: " + cvId);
+            System.out.println("   - CV found: " + (cv != null));
+            if (cv != null) {
+                System.out.println("   - CV seekerId: " + cv.getSeekerId());
+                System.out.println("   - Profile seekerId: " + profile.getSeekerId());
+            }
+            
+            if (cv == null) {
+                System.err.println("❌ CV not found with ID: " + cvId);
                 response.put("success", false);
-                response.put("message", "CV không hợp lệ");
+                response.put("message", "CV không tồn tại hoặc đã bị xóa");
+                return response;
+            }
+            
+            // Sửa lại so sánh seekerId - dùng Objects.equals để tránh vấn đề null và unboxing
+            if (cv.getSeekerId() == null || !cv.getSeekerId().equals(profile.getSeekerId())) {
+                System.err.println("❌ CV seekerId mismatch: CV seekerId=" + cv.getSeekerId() + ", Profile seekerId=" + profile.getSeekerId());
+                response.put("success", false);
+                response.put("message", "CV không thuộc về tài khoản của bạn");
                 return response;
             }
 

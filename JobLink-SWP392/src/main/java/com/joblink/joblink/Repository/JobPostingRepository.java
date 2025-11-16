@@ -67,4 +67,9 @@ public interface JobPostingRepository extends JpaRepository<JobPosting, Long> {
     List<JobPosting> findByMinSalaryGreaterThanEqual(@Param("minSalary") java.math.BigDecimal minSalary);
     long countByStatus(String status);
     
+    @Query("SELECT j FROM JobPosting j JOIN FETCH j.employer WHERE j.jobId = :jobId")
+    JobPosting findByIdWithEmployer(@Param("jobId") Long jobId);
+    
+    @Query("SELECT j FROM JobPosting j JOIN FETCH j.employer WHERE j.employer.id = :employerId AND j.status = :status ORDER BY j.postedAt DESC")
+    List<JobPosting> findByEmployerIdAndStatusWithEmployer(@Param("employerId") Long employerId, @Param("status") String status);
 }

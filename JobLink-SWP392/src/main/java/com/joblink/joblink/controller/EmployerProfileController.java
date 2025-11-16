@@ -33,7 +33,6 @@ public class EmployerProfileController {
 
     @PostMapping("/password")
     public String changePassword(
-            @RequestParam("currentPassword") String currentPass,
             @RequestParam("newPassword") String newPass,
             @RequestParam("confirmPassword") String confirmPass,
             HttpSession session,
@@ -47,7 +46,7 @@ public class EmployerProfileController {
             return "redirect:/signin";
         }
 
-        boolean result = employerService.changePassword(user.getUserId(), currentPass, newPass, confirmPass);
+        boolean result = employerService.changePassword(user.getUserId(), newPass, confirmPass);
         if (result) {
             ra.addFlashAttribute("message", "Đổi mật khẩu thành công!");
             return "redirect:/employer/password";

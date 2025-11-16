@@ -3,6 +3,8 @@ package com.joblink.joblink.service;
 import com.joblink.joblink.dto.ApplicationFilter;
 import com.joblink.joblink.entity.Application;
 import com.joblink.joblink.Repository.ApplicationRepository;
+import com.joblink.joblink.Repository.JobPostingRepository;
+import com.joblink.joblink.entity.JobPosting;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -22,9 +24,15 @@ import java.util.stream.Collectors;
 public class ApplicationService {
 
     private final ApplicationRepository applicationRepository;
+    private final JobPostingRepository jobPostingRepository;
+    private final NotificationService notificationService;
 
-    public ApplicationService(ApplicationRepository applicationRepository) {
+    public ApplicationService(ApplicationRepository applicationRepository,
+                             JobPostingRepository jobPostingRepository,
+                             NotificationService notificationService) {
         this.applicationRepository = applicationRepository;
+        this.jobPostingRepository = jobPostingRepository;
+        this.notificationService = notificationService;
     }
 
     /**
@@ -150,9 +158,42 @@ public class ApplicationService {
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new RuntimeException("Application not found with id: " + applicationId));
 
+        String oldStatus = application.getStatus();
         application.setStatus(status);
         application.setLastStatusAt(LocalDateTime.now());
-        return applicationRepository.save(application);
+        Application savedApplication = applicationRepository.save(application);
+
+        // Tạo notification khi job được chấp nhận (status = "hired" hoặc "accepted")
+        if (("hired".equalsIgnoreCase(status) || "accepted".equalsIgnoreCase(status)) && 
+            !status.equalsIgnoreCase(oldStatus)) {
+            try {
+                Integer jobId = application.getJobId();
+                Integer seekerId = application.getSeekerId();
+                
+                if (jobId != null && seekerId != null) {
+                    // Lấy thông tin job với employer (dùng JOIN FETCH để tránh LazyInitializationException)
+                    JobPosting job = jobPostingRepository.findByIdWithEmployer(jobId.longValue());
+                    if (job != null) {
+                        String jobTitle = job.getTitle();
+                        String companyName = "Nhà tuyển dụng";
+                        
+                        if (job.getEmployer() != null) {
+                            companyName = job.getEmployer().getCompanyName();
+                        }
+                        
+                        // Tạo notification
+                        notificationService.createJobAcceptedNotification(seekerId, jobId, jobTitle, companyName);
+                        System.out.println("✅ Đã tạo notification khi job accepted: applicationId=" + applicationId + ", jobId=" + jobId + ", seekerId=" + seekerId);
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println("❌ Lỗi khi tạo notification cho application " + applicationId + ": " + e.getMessage());
+                e.printStackTrace();
+                // Không throw exception để không ảnh hưởng đến việc cập nhật status
+            }
+        }
+
+        return savedApplication;
     }
 
     /**

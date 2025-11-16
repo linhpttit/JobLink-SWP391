@@ -6,6 +6,7 @@ import com.joblink.joblink.service.IEmployerComplaintService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -19,16 +20,21 @@ import java.util.Map;
 @RequestMapping("/employer-response")
 public class EmployerComplainController {
     private final IEmployerComplaintService employerComplaintService;
-
+    private final JdbcTemplate jdbc;
     @GetMapping
     public String viewComplaintPage(Model model, HttpSession session, RedirectAttributes ra){
-        UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
-        if (user == null) {
-            ra.addFlashAttribute("error", "Vui lòng đăng nhập");
+        Object userObj = session.getAttribute("user");
+        if (userObj == null) {
             return "redirect:/signin";
         }
-        Long currentEmployerId = Long.valueOf(user.getUserId());
-        List<EmployerComplaint> complaints = complaintService.getComplaintsByEmployer((Long) currentEmployerId);
+        com.joblink.joblink.dto.UserSessionDTO user =
+                (com.joblink.joblink.dto.UserSessionDTO) userObj;
+        Integer employerId = jdbc.queryForObject(
+                "SELECT employer_id FROM EmployerProfile WHERE user_id = ?",
+                Integer.class,
+                user.getUserId()
+        );
+        List<EmployerComplaint> complaints = complaintService.getComplaintsByEmployer(Long.valueOf(employerId));
 
         model.addAttribute("complaints", complaints);
         return "employer/employer-response";
@@ -74,16 +80,19 @@ public class EmployerComplainController {
                                     HttpSession session,
                                     RedirectAttributes ra) {
 
-        UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
-        if (user == null) {
-            ra.addFlashAttribute("error", "Vui lòng đăng nhập");
+        Object userObj = session.getAttribute("user");
+        if (userObj == null) {
             return "redirect:/signin";
         }
-
-        Long currentEmployerId = Long.valueOf(user.getUserId());
-
+        com.joblink.joblink.dto.UserSessionDTO user =
+                (com.joblink.joblink.dto.UserSessionDTO) userObj;
+        Integer employerId = jdbc.queryForObject(
+                "SELECT employer_id FROM EmployerProfile WHERE user_id = ?",
+                Integer.class,
+                user.getUserId()
+        );
         List<EmployerComplaint> complaints =
-                complaintService.searchComplaintsByEmployer(currentEmployerId, status, keyword);
+                complaintService.searchComplaintsByEmployer(Long.valueOf(employerId), status, keyword);
 
         model.addAttribute("complaints", complaints);
         model.addAttribute("selectedStatus", status);

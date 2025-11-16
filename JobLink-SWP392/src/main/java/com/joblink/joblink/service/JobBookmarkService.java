@@ -5,6 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Map;
+
 @Service
 @RequiredArgsConstructor
 public class JobBookmarkService {
@@ -25,6 +28,14 @@ public class JobBookmarkService {
 	public boolean removeBookmark(int seekerId, long jobId) {
 		jobBookmarkDao.remove(seekerId, jobId);
 		return true;
+	}
+
+	public List<Map<String, Object>> getBookmarkedJobs(int seekerId) {
+		return jobBookmarkDao.getBookmarkedJobsWithDetails(seekerId);
+	}
+
+	public int countBookmarks(int seekerId) {
+		return jobBookmarkDao.countBookmarksBySeeker(seekerId);
 	}
 }
 

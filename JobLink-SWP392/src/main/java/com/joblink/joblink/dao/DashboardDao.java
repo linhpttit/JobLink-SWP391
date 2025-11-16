@@ -88,6 +88,11 @@ public class DashboardDao {
         Integer totalFollows = jdbc.queryForObject(followsSql, Integer.class, seekerId);
         stats.put("companiesFollowed", totalFollows != null ? totalFollows : 0);
 
+        // Jobs bookmarked
+        String bookmarksSql = "SELECT COUNT(*) as total FROM JobBookmarks WHERE seeker_id = ?";
+        Integer totalBookmarks = jdbc.queryForObject(bookmarksSql, Integer.class, seekerId);
+        stats.put("jobsBookmarked", totalBookmarks != null ? totalBookmarks : 0);
+
         // Total spending (from invoices)
         String spendingSql = """
             SELECT COALESCE(SUM(i.amount), 0) as total_spending

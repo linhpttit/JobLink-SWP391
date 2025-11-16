@@ -223,6 +223,16 @@
                 <h3 th:text="${job != null and job.employer != null ? job.employer.companyName : 'Tech Solutions Inc.'}">Tech Solutions Inc.</h3>
                 <p style="color: #64748b; margin-bottom: 20px;" th:text="${job != null and job.employer != null ? job.employer.industry : 'Information Technology'}">Information Technology</p>
 
+                <!-- Follow Company Button -->
+                <div th:if="${isLoggedIn and employerId != null}" style="margin-bottom: 20px;">
+                    <button class="btn-primary" id="followCompanyBtn" 
+                            th:data-employer-id="${employerId}"
+                            th:classappend="${isFollowingCompany} ? 'following' : ''">
+                        <i th:class="${isFollowingCompany} ? 'fas fa-heart' : 'far fa-heart'"></i>
+                        <span th:text="${isFollowingCompany} ? 'Đã theo dõi' : 'Theo dõi công ty'">Theo dõi công ty</span>
+                    </button>
+                </div>
+
                 <div class="company-info-list">
                     <div class="company-info-item">
                         <span class="company-info-label">Founded in:</span>

@@ -251,4 +251,36 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 
     long countByStatus(String status);
 
+    /**
+     * Lấy danh sách applications của jobseeker với thông tin job và company
+     */
+    @Query(value = """
+        SELECT 
+            a.application_id, 
+            a.job_id, 
+            a.seeker_id, 
+            a.status, 
+            a.applied_at, 
+            a.last_status_at, 
+            a.cv_url, 
+            a.note,
+            jp.title AS job_title,
+            jp.position,
+            jp.work_type,
+            jp.salary_min,
+            jp.salary_max,
+            jp.submission_deadline,
+            jp.posted_at,
+            ep.company_name,
+            ep.employer_id,
+            ep.industry,
+            ep.location AS company_location
+        FROM Applications a
+        INNER JOIN JobsPosting jp ON a.job_id = jp.job_id
+        INNER JOIN EmployerProfile ep ON jp.employer_id = ep.employer_id
+        WHERE a.seeker_id = :seekerId
+        ORDER BY a.applied_at DESC
+        """, nativeQuery = true)
+    List<Object[]> findApplicationsBySeekerIdWithJobDetails(@Param("seekerId") Integer seekerId);
+
 }

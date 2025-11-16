@@ -24,14 +24,32 @@ public class EmployersController {
 
 	@GetMapping("/findemployers/{employerId}")
 	public String employerJobs(@PathVariable Long employerId, Model model) {
-		// Lấy danh sách job còn active của employer
-		List<JobPosting> all = jobPostingRepository.findAll();
-		List<JobPosting> jobs = all.stream()
-			.filter(j -> j.getEmployer() != null && j.getEmployer().getId() != null && j.getEmployer().getId().equals(employerId))
-			.filter(j -> j.getStatus() != null && j.getStatus().equalsIgnoreCase("ACTIVE"))
-			.toList();
-		model.addAttribute("jobs", jobs);
-		return "employer-jobs";
+		try {
+			// Lấy danh sách job còn active của employer - dùng query với JOIN FETCH để tránh LazyInitializationException
+			List<JobPosting> jobs = jobPostingRepository.findByEmployerIdAndStatusWithEmployer(employerId, "ACTIVE");
+			model.addAttribute("jobs", jobs);
+			
+			// Lấy tên công ty từ job đầu tiên nếu có
+			if (!jobs.isEmpty() && jobs.get(0).getEmployer() != null) {
+				model.addAttribute("companyName", jobs.get(0).getEmployer().getCompanyName());
+			} else {
+				model.addAttribute("companyName", "Nhà tuyển dụng");
+			}
+			
+			return "employer-jobs";
+		} catch (Exception e) {
+			System.err.println("❌ Lỗi khi lấy jobs của employer " + employerId + ": " + e.getMessage());
+			e.printStackTrace();
+			model.addAttribute("jobs", java.util.Collections.emptyList());
+			model.addAttribute("companyName", "Nhà tuyển dụng");
+			return "employer-jobs";
+		}
+	}
+	
+	// Thêm endpoint để tương thích với route /employers/{employerId}
+	@GetMapping("/employers/{employerId}")
+	public String employerJobsAlternative(@PathVariable Long employerId, Model model) {
+		return employerJobs(employerId, model);
 	}
 
 	// API cho trang find employers
