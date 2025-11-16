@@ -6,6 +6,7 @@ import com.joblink.joblink.entity.Province;
 import com.joblink.joblink.entity.Skill;
 import com.joblink.joblink.service.*;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.ui.Model;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -20,6 +21,7 @@ import java.util.Map;
 @RequestMapping("/jobPosting")
 @RequiredArgsConstructor
 public class JobPostingController {
+    private final JdbcTemplate jdbc;
     private final IJobPostingService jobPostingService;
     private final ISkillService skillService;
     private final IProvinceService provinceService;
@@ -65,34 +67,15 @@ public class JobPostingController {
             System.err.println("Error checking tier: " + e.getMessage());
         }
         model.addAttribute("jobForm", new JobPostingDto());
-        // ✅ Dữ liệu giả để test (sau này lấy từ DB)
-        List<Skill> skills = List.of(
-                new Skill(1L, "Java"),
-                new Skill(2L, "Spring Boot"),
-                new Skill(3L, "React"),
-                new Skill(4L, "SQL")
-        );
-
-        List<Province> provinces = List.of(
-                new Province(1L, "Hà Nội", "HN"),
-                new Province(2L, "TP Hồ Chí Minh", "HCM")
-        );
-
-        List<District> districts = List.of(
-                new District(1L, "Quận 1", 1L),
-                new District(2L, "Quận 3", 1L),
-                new District(3L, "Ba Đình", 1L)
-        );
-
-        model.addAttribute("skills", skills);
-        model.addAttribute("provinces", provinces);
-        model.addAttribute("districts", districts);
+        model.addAttribute("skills", skillService.getAllSkills());
+        model.addAttribute("provinces", provinceService.getAllProvinces());
+        model.addAttribute("districts", districtService.getAllDistricts());
         return "employer/job-post";
     }
 
     @PostMapping
     public String createJobPosting(
-            @ModelAttribute("jobForm") JobPostingDto dto, Long employerId,
+            @ModelAttribute("jobForm") JobPostingDto dto,
             BindingResult result,
             Model model,
             HttpSession session,
@@ -104,6 +87,12 @@ public class JobPostingController {
 
         com.joblink.joblink.dto.UserSessionDTO user =
                 (com.joblink.joblink.dto.UserSessionDTO) userObj;
+        Integer userId = user.getUserId();
+        Integer employerId = jdbc.queryForObject(
+                "SELECT employer_id FROM EmployerProfile WHERE user_id = ?",
+                Integer.class,
+                user.getUserId()
+        );
         try {
             Map<String, Object> tierInfo = paymentService.getEmployerTierInfo(user.getUserId());
             Integer currentTier = (Integer) tierInfo.get("tierLevel");
@@ -125,33 +114,15 @@ public class JobPostingController {
             // vì khi trả về, trang "job-post" sẽ cần các dữ liệu này để hiển thị.
             System.out.println("Validation errors found: " + result.getAllErrors()); // Dòng này để debug, có thể xóa
 
-            List<Skill> skills = List.of(
-                    new Skill(1L, "Java"),
-                    new Skill(2L, "Spring Boot"),
-                    new Skill(3L, "React"),
-                    new Skill(4L, "SQL")
-            );
-
-            List<Province> provinces = List.of(
-                    new Province(1L, "Hà Nội", "HN"),
-                    new Province(2L, "TP Hồ Chí Minh", "HCM")
-            );
-
-            List<District> districts = List.of(
-                    new District(1L, "Quận 1", 1L),
-                    new District(2L, "Quận 3", 1L),
-                    new District(3L, "Ba Đình", 1L)
-            );
-
             // Đưa dữ liệu trở lại Model để Thymeleaf có thể render trang
-            model.addAttribute("skills", skills);
-            model.addAttribute("provinces", provinces);
-            model.addAttribute("districts", districts);
+            model.addAttribute("skills", skillService.getAllSkills());
+            model.addAttribute("provinces", provinceService.getAllProvinces());
+            model.addAttribute("districts", districtService.getAllDistricts());
 
             // Trả về lại trang form để người dùng sửa lỗi
             return "employer/job-post";
         }
-        jobPostingService.createJobPosting(dto);
+        jobPostingService.createJobPosting(dto,employerId);
         return "redirect:/jobPosting/viewList";
     }
 
