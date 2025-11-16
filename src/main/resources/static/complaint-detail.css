@@ -1,166 +1,257 @@
-/* ==============================
-   Global Layout
-============================== */
-body {
-  font-family: "Inter", "Segoe UI", sans-serif;
-  background-color: #f8f9fa;
-  color: #333;
-  margin: 0;
-  padding: 0;
-}
+* {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-.container {
-  max-width: 800px;
-  background: #fff;
-  margin: 40px auto;
-  padding: 40px 50px;
-  border-radius: 12px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
-}
+        body {
 
-/* ==============================
-   Heading
-============================== */
-h2 {
-  font-size: 24px;
-  font-weight: 600;
-  color: #0d6efd;
-  margin-bottom: 25px;
-  border-bottom: 2px solid #eee;
-  padding-bottom: 10px;
-}
+            margin-top:30px;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
 
-/* ==============================
-   Complaint Info Section
-============================== */
-.info {
-  background-color: #f9fafb;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 30px;
-}
+        .container {
 
-.info p {
-  margin: 8px 0;
-  line-height: 1.5;
-}
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
 
-.info b {
-  color: #333;
-}
+        header {
+            background: linear-gradient(135deg, #3498db, #2c3e50);
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+        }
 
-/* ==============================
-   Form Styling
-============================== */
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
 
-label {
-  font-weight: 500;
-  color: #555;
-  margin-bottom: 6px;
-  display: inline-block;
-}
+        .complaint-id {
+            font-size: 18px;
+            opacity: 0.9;
+        }
 
-textarea,
-select {
-  width: 100%;
-  font-size: 15px;
-  padding: 10px 12px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background-color: #fff;
-  resize: vertical;
-  transition: all 0.2s ease;
-}
+        .content {
+            padding: 30px;
+        }
 
-textarea:focus,
-select:focus {
-  border-color: #0d6efd;
-  box-shadow: 0 0 4px rgba(13, 110, 253, 0.3);
-  outline: none;
-}
+        .info-card {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-left: 4px solid #3498db;
+        }
 
-/* ==============================
-   Status Dropdown Colors
-============================== */
-#status option[value="PENDING"] {
-  color: #f39c12;
-}
-#status option[value="IN_PROGRESS"] {
-  color: #17a2b8;
-}
-#status option[value="RESOLVED"] {
-  color: #28a745;
-}
-#status option[value="REJECTED"] {
-  color: #dc3545;
-}
+        .info-row {
+            display: flex;
+            margin-bottom: 15px;
+        }
 
-/* ==============================
-   Action Buttons
-============================== */
-.actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 25px;
-}
+        .info-label {
+            font-weight: 600;
+            min-width: 120px;
+            color: #2c3e50;
+        }
 
-.btn {
-  display: inline-block;
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-weight: 500;
-  text-decoration: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 15px;
-  border: none;
-}
+        .info-value {
+            flex: 1;
+        }
 
-.btn-primary {
-  background-color: #0d6efd;
-  color: white;
-}
+        .complaint-content {
+            background-color: white;
+            border: 1px solid #e1e8ed;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 10px;
+            line-height: 1.8;
+        }
 
-.btn-primary:hover {
-  background-color: #0b5ed7;
-}
+        .form-group {
+            margin-bottom: 25px;
+        }
 
-.btn-secondary {
-  background-color: #6c757d;
-  color: white;
-}
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
 
-.btn-secondary:hover {
-  background-color: #5c636a;
-}
+        textarea, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
 
-/* ==============================
-   Responsive
-============================== */
-@media (max-width: 768px) {
-  .container {
-    padding: 25px 20px;
-    margin: 20px;
-  }
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
 
-  h2 {
-    font-size: 20px;
-  }
+        textarea:focus, select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
 
-  .actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
+        .actions {
+                    display: flex;
+                    margin-top: 30px;
+                    flex-wrap: wrap;
+                    justify-content: center; /* Căn giữa các nút */
+                    align-items: center;
+                }
 
-  .btn {
-    width: 100%;
-    text-align: center;
-  }
-}
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            min-width: 160px;
+        }
+
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-secondary {
+            background-color: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-gmail {
+            background-color: #d44638;
+            color: white;
+        }
+
+        .btn-gmail:hover {
+            background-color: #c1351d;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .status-PENDING {
+            background-color: #f39c12;
+            color: white;
+        }
+
+        .status-IN_PROGRESS {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .status-RESOLVED {
+            background-color: #2ecc71;
+            color: white;
+        }
+
+        .status-REJECTED {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 6px;
+            margin-bottom: 25px;
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .gmail-info {
+            background-color: #e8f4fd;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 10px;
+            font-size: 14px;
+            border-left: 3px solid #3498db;
+        }
+
+        .email-address {
+            font-weight: bold;
+            color: #d44638;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @media (max-width: 600px) {
+            .actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .info-row {
+                flex-direction: column;
+            }
+
+            .info-label {
+                min-width: auto;
+                margin-bottom: 5px;
+            }
+        }
+
+        .btn-icon {
+            margin-right: 8px;
+            font-size: 18px;
+        }

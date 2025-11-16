@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{employer/employer-layout}">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Response</title>
+    <link rel="stylesheet" th:href="@{/complaint-detail.css}"/>
+</head>
+<body layout:fragment="content">
+<div class="container">
+    <header>
+        <h1>Xử lý khiếu nại</h1>
+        <div class="complaint-id">Mã khiếu nại: #<span th:text="${complaint.id}"></span></div>
+    </header>
+
+    <div class="content">
+        <div id="alert" class="alert"></div>
+
+        <div class="info-card">
+            <div class="info-row">
+                <div class="info-label">Người gửi:</div>
+                <div class="info-value" id="jobSeekerName" ><span th:text="${complaint.jobSeeker.fullName}"></span></div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Chủ đề:</div>
+                <div class="info-value" id="complaintSubject"><span th:text="${complaint.subject}"></span></div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Nội dung:</div>
+                <div class="info-value">
+                    <div class="complaint-content" id="complaintContent">
+                        <p th:text="${complaint.content}"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Ngày gửi:</div>
+                <div class="info-value" id="createdAt"><span th:text="${#temporals.format(complaint.createdAt, 'dd/MM/yyyy')}"></span></div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Trạng thái:</div>
+                <div class="info-value">
+                    <span id="currentStatus" class="status-badge status-PENDING">Chưa xử lý</span>
+                </div>
+            </div>
+        </div>
+
+        <form id="responseForm">
+            <div class="form-group">
+                <label for="response">Phản hồi tới admin:</label>
+                <textarea id="response" name="response" rows="4" placeholder="Nhập phản hồi của bạn tại đây..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="status">Cập nhật trạng thái:</label>
+                <select id="status" name="status">
+                    <option value="PENDING">Chưa xử lý</option>
+                    <option value="IN_PROGRESS">Đang xử lý</option>
+                    <option value="RESOLVED">Đã xử lý</option>
+                    <option value="REJECTED">Từ chối</option>
+                </select>
+            </div>
+
+            <div class="gmail-info">
+                <strong>Gửi phản hồi qua Gmail:</strong> Phản hồi sẽ được gửi đến địa chỉ
+                <span class="email-address">hoaibao30101@gmail.com</span>
+            </div>
+
+            <div class="actions">
+                <button type="button" id="gmailBtn" class="btn btn-gmail">
+                    <span class="btn-icon">✉</span> Gửi qua Gmail
+                </button>
+
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Dữ liệu mẫu cho khiếu nại
+    const complaintData = {
+        id: "12345",
+        jobSeeker: {
+            fullName: "Nguyễn Văn A",
+            email: "nguyenvana@example.com"
+        },
+        subject: "Vấn đề về thanh toán",
+        content: "Tôi đã hoàn thành công việc từ ngày 15/10 nhưng đến nay vẫn chưa nhận được thanh toán. Tôi đã liên hệ nhiều lần nhưng không nhận được phản hồi. Tôi yêu cầu được thanh toán đầy đủ và kịp thời theo đúng thỏa thuận trong hợp đồng.",
+        createdAt: "25/10/2023",
+        status: "PENDING",
+        response: ""
+    };
+
+    // Email mặc định để gửi phản hồi
+    const adminEmail = "hoaibao30101@gmail.com";
+
+    // Khởi tạo trang với dữ liệu khiếu nại
+    document.addEventListener('DOMContentLoaded', function() {
+        // Hiển thị thông tin khiếu nại
+        document.getElementById('complaintId').textContent = complaintData.id;
+        document.getElementById('jobSeekerName').textContent = complaintData.jobSeeker.fullName;
+        document.getElementById('complaintSubject').textContent = complaintData.subject;
+        document.getElementById('complaintContent').textContent = complaintData.content;
+        document.getElementById('createdAt').textContent = complaintData.createdAt;
+
+        // Thiết lập trạng thái hiện tại
+        updateStatusDisplay(complaintData.status);
+
+        // Thiết lập giá trị phản hồi nếu có
+        if (complaintData.response) {
+            document.getElementById('response').value = complaintData.response;
+        }
+
+        // Thiết lập trạng thái trong dropdown
+        document.getElementById('status').value = complaintData.status;
+    });
+
+    // Cập nhật hiển thị trạng thái
+    function updateStatusDisplay(status) {
+        const statusElement = document.getElementById('currentStatus');
+        statusElement.textContent = getStatusText(status);
+        statusElement.className = 'status-badge status-' + status;
+    }
+
+    // Chuyển đổi mã trạng thái thành văn bản
+    function getStatusText(status) {
+        const statusMap = {
+            'PENDING': 'Chưa xử lý',
+            'IN_PROGRESS': 'Đang xử lý',
+            'RESOLVED': 'Đã xử lý',
+            'REJECTED': 'Từ chối'
+        };
+        return statusMap[status] || status;
+    }
+
+    // Xử lý gửi form
+    document.getElementById('responseForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const response = document.getElementById('response').value.trim();
+        const status = document.getElementById('status').value;
+
+        // Kiểm tra xem đã nhập phản hồi chưa
+        if (!response) {
+            showAlert('Vui lòng nhập phản hồi trước khi gửi.', 'error');
+            return;
+        }
+
+        // Cập nhật dữ liệu khiếu nại
+        complaintData.response = response;
+        complaintData.status = status;
+
+        // Cập nhật hiển thị trạng thái
+        updateStatusDisplay(status);
+
+        // Hiển thị thông báo thành công
+        showAlert('Phản hồi đã được gửi thành công!', 'success');
+
+        // Trong thực tế, ở đây bạn sẽ gửi dữ liệu đến server
+        console.log('Dữ liệu gửi đi:', {
+            response: response,
+            status: status
+        });
+    });
+
+    // Xử lý nút Gmail - ĐÃ SỬA LỖI
+    document.getElementById('gmailBtn').addEventListener('click', function() {
+        const response = document.getElementById('response').value.trim();
+        const status = document.getElementById('status').value;
+
+        // Kiểm tra xem đã nhập phản hồi chưa
+        if (!response) {
+            showAlert('Vui lòng nhập phản hồi trước khi gửi qua Gmail.', 'error');
+            return;
+        }
+
+        // Tạo nội dung email
+        const subject = `Phản hồi khiếu nại #${complaintData.id}: ${complaintData.subject}`;
+        const body = `Kính gửi Admin,\n\nTôi xin phản hồi về khiếu nại #${complaintData.id}:\n\n${response}\n\nTrạng thái: ${getStatusText(status)}\n\nTrân trọng,\nNhà tuyển dụng`;
+
+        // Tạo URL Gmail với email mặc định - ĐÃ SỬA LỖI ENCODE
+        const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(adminEmail)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+        // Mở Gmail trong tab mới
+        window.open(gmailUrl, '_blank');
+
+        // Hiển thị thông báo
+        showAlert(`Đang mở Gmail để gửi phản hồi đến ${adminEmail}...`, 'success');
+    });
+
+    // Hiển thị thông báo
+    function showAlert(message, type) {
+        const alertElement = document.getElementById('alert');
+        alertElement.textContent = message;
+        alertElement.className = `alert alert-${type}`;
+        alertElement.style.display = 'block';
+
+        // Ẩn thông báo sau 5 giây
+        setTimeout(function() {
+            alertElement.style.display = 'none';
+        }, 5000);
+    }
+</script>
+</body>
+</html>
