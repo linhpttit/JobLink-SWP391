@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Page Not Found - JobLink</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <script th:src="@{/JS/translate.js}"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .error-main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .error-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1200px;
+            width: 100%;
+            gap: 60px;
+        }
+
+        .error-content {
+            flex: 1;
+            color: white;
+            z-index: 2;
+        }
+
+        .error-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .error-message {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .error-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #1976d2;
+            color: white;
+            box-shadow: 0 4px 15px rgba(25, 118, 210, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: #1565c0;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(25, 118, 210, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid rgba(255,255,255,0.5);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: white;
+            transform: translateY(-2px);
+        }
+
+        .error-illustration {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .robot-container {
+            position: relative;
+            width: 400px;
+            height: 400px;
+        }
+
+        .robot {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(-50%, -50%) translateY(0px); }
+            50% { transform: translate(-50%, -50%) translateY(-20px); }
+        }
+
+        .robot-head {
+            width: 120px;
+            height: 80px;
+            background: #4a5568;
+            border-radius: 15px 15px 5px 5px;
+            position: relative;
+            margin: 0 auto 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .robot-screen {
+            width: 80px;
+            height: 50px;
+            background: #2d3748;
+            border-radius: 8px;
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .error-code {
+            color: #e53e3e;
+            font-weight: bold;
+            font-size: 14px;
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+
+        .robot-antenna {
+            width: 3px;
+            height: 25px;
+            background: #718096;
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .antenna-ball {
+            width: 8px;
+            height: 8px;
+            background: #3182ce;
+            border-radius: 50%;
+            position: absolute;
+            top: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: translateX(-50%) scale(1); opacity: 1; }
+            50% { transform: translateX(-50%) scale(1.2); opacity: 0.7; }
+        }
+
+        .robot-body {
+            width: 140px;
+            height: 160px;
+            background: #4a5568;
+            border-radius: 20px;
+            margin: 0 auto;
+            position: relative;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+
+        .robot-panel {
+            width: 100px;
+            height: 120px;
+            background: #2d3748;
+            border-radius: 12px;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+
+        .robot-button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            position: absolute;
+            animation: buttonBlink 2s infinite;
+        }
+
+        .button-1 { background: #38a169; top: 20px; left: 20px; }
+        .button-2 { background: #d69e2e; top: 20px; left: 40px; animation-delay: 0.5s; }
+        .button-3 { background: #e53e3e; top: 20px; left: 60px; animation-delay: 1s; }
+
+        @keyframes buttonBlink {
+            0%, 90% { opacity: 0.3; }
+            95%, 100% { opacity: 1; }
+        }
+
+<!--        .robot-arms {-->
+<!--            position: absolute;-->
+<!--            top: 40px;-->
+<!--        }-->
+
+<!--        .robot-arm {-->
+<!--            width: 20px;-->
+<!--            height: 80px;-->
+<!--            background: #4a5568;-->
+<!--            border-radius: 10px;-->
+<!--            position: absolute;-->
+<!--        }-->
+
+<!--        .arm-left {-->
+<!--            left: -30px;-->
+<!--            transform: rotate(-20deg);-->
+<!--            animation: armMove 4s ease-in-out infinite;-->
+<!--        }-->
+
+<!--        .arm-right {-->
+<!--            right: -50px;-->
+<!--            transform: rotate(20deg);-->
+<!--            animation: armMove 4s ease-in-out infinite reverse;-->
+<!--        }-->
+
+<!--        @keyframes armMove {-->
+<!--            0%, 100% { transform: rotate(-20deg); }-->
+<!--            50% { transform: rotate(-30deg); }-->
+<!--        }-->
+
+        .robot-legs {
+            display: flex;
+            justify-content: space-between;
+            width: 100px;
+            margin: 10px auto 0;
+        }
+
+        .robot-leg {
+            width: 25px;
+            height: 60px;
+            background: #4a5568;
+            border-radius: 12px;
+            position: relative;
+        }
+
+        .robot-foot {
+            width: 35px;
+            height: 15px;
+            background: #2d3748;
+            border-radius: 8px;
+            position: absolute;
+            bottom: -8px;
+            left: -5px;
+        }
+
+        .floating-elements {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .floating-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            animation: floatAround 15s linear infinite;
+        }
+
+        .circle-1 { width: 60px; height: 60px; top: 10%; left: 10%; animation-delay: 0s; }
+        .circle-2 { width: 40px; height: 40px; top: 70%; left: 20%; animation-delay: 5s; }
+        .circle-3 { width: 80px; height: 80px; top: 30%; right: 15%; animation-delay: 10s; }
+
+        @keyframes floatAround {
+            0% { transform: translateY(0px) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+        }
+
+        .sparks {
+            position: absolute;
+            top: 20%;
+            right: 25%;
+        }
+
+        .spark {
+            width: 4px;
+            height: 4px;
+            background: #ffd700;
+            border-radius: 50%;
+            position: absolute;
+            animation: sparkle 2s ease-in-out infinite;
+        }
+
+        .spark:nth-child(1) { top: 0; left: 0; animation-delay: 0s; }
+        .spark:nth-child(2) { top: -10px; left: 15px; animation-delay: 0.3s; }
+        .spark:nth-child(3) { top: 5px; left: 30px; animation-delay: 0.6s; }
+
+        @keyframes sparkle {
+            0%, 100% { transform: scale(0) rotate(0deg); opacity: 0; }
+            50% { transform: scale(1) rotate(180deg); opacity: 1; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .error-container {
+                flex-direction: column;
+                text-align: center;
+                gap: 30px;
+            }
+
+            .error-title {
+                font-size: 2.5rem;
+            }
+
+            .robot-container {
+                width: 300px;
+                height: 300px;
+                transform: scale(0.8);
+            }
+        }
+    </style>
+</head>
+<body>
+<!--    <div th:replace="~{header :: header}"></div>-->
+
+    <main class="error-main">
+        <div class="floating-elements">
+            <div class="floating-circle circle-1"></div>
+            <div class="floating-circle circle-2"></div>
+            <div class="floating-circle circle-3"></div>
+        </div>
+
+        <div class="error-container">
+            <div class="error-content">
+                <h1 class="error-title" data-i18n="page_not_found">Opps! Page not found</h1>
+                <p class="error-message" data-i18n="page_not_found_message">
+                    Something went wrong. It's look like the link is<br>
+                    broken or the <strong>page is removed</strong>.
+                </p>
+                <div class="error-buttons">
+                    <a href="/" class="btn btn-primary">
+                        <i class="fas fa-home"></i>
+                        <span data-i18n="go_home">Home</span>
+                    </a>
+                    <a href="javascript:history.back()" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i>
+                        <span data-i18n="go_back">Go Back</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="error-illustration">
+                <div class="robot-container">
+                    <div class="robot">
+                        <div class="robot-antenna">
+                            <div class="antenna-ball"></div>
+                        </div>
+
+                        <div class="robot-head">
+                            <div class="robot-screen">
+                                <span class="error-code">404</span>
+                            </div>
+                        </div>
+
+                        <div class="robot-body">
+                            <div class="robot-panel">
+                                <div class="robot-button button-1"></div>
+                                <div class="robot-button button-2"></div>
+                                <div class="robot-button button-3"></div>
+                            </div>
+
+                            <div class="robot-arms">
+                                <div class="robot-arm arm-left"></div>
+                                <div class="robot-arm arm-right"></div>
+                            </div>
+                        </div>
+
+                        <div class="robot-legs">
+                            <div class="robot-leg">
+                                <div class="robot-foot"></div>
+                            </div>
+                            <div class="robot-leg">
+                                <div class="robot-foot"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sparks">
+                        <div class="spark"></div>
+                        <div class="spark"></div>
+                        <div class="spark"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="~{footer :: footer}"></div>
+</body>
+</html>

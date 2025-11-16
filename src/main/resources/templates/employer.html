@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý nhà tuyển dụng</title>
+    <link rel="stylesheet" href="/CSS/employer.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="employer-management">
+    <!-- Header -->
+    <div class="employer-header">
+        <h2 class="employer-title"><i class="fas fa-user-tie"></i>Tài khoản nhà tuyển dụng</h2>
+        <div class="employer-actions">
+            <button class="btn btn-success" id="exportBtn" onclick="if(typeof window.exportEmployersToExcel === 'function') { window.exportEmployersToExcel(); } else { console.error('exportEmployersToExcel not found'); alert('Chức năng xuất Excel chưa sẵn sàng'); } return false;">
+                <i class="fas fa-download"></i> Xuất Excel
+            </button>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="employer-filters">
+        <div class="filter-row">
+            <div class="filter-group">
+                <label for="keyword">Tìm kiếm</label>
+                <div class="search-box">
+                    <input type="text" id="keyword" name="keyword" 
+                           th:value="${keyword}" 
+                           placeholder="Tên công ty, email, địa chỉ...">
+                    <i class="fas fa-search"></i>
+                </div>
+            </div>
+            <div class="filter-group">
+                <label for="status">Trạng thái</label>
+                <select id="status" name="status">
+                    <option value="">Tất cả</option>
+                    <option value="pending" th:selected="${status == 'pending'}">Chờ xét duyệt</option>
+                    <option value="accepted" th:selected="${status == 'accepted'}">Chấp nhận</option>
+                    <option value="rejected" th:selected="${status == 'rejected'}">Từ chối</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="dateFilter">Ngày đăng ký</label>
+                <input type="date" id="dateFilter" name="dateFilter" th:value="${dateFilter}">
+            </div>
+            <div class="filter-group" style="display: flex; align-items: flex-end; gap: 10px; margin-left: 10px;">
+                <button type="button" class="btn btn-primary" id="filterBtn" style="height: 38px; padding: 0 20px; cursor: pointer; border: none; background-color: #007bff; color: white; border-radius: 4px;">
+                    <i class="fas fa-filter"></i> Lọc
+                </button>
+                <button type="button" class="btn btn-secondary" id="clearBtn" style="height: 38px; padding: 0 20px; cursor: pointer; border: none; background-color: #6c757d; color: white; border-radius: 4px;">
+                    <i class="fas fa-redo"></i> Xóa bộ lọc
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="employer-stats">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-building"></i>
+            </div>
+            <div class="stat-info">
+                <h3 th:text="${totalEmployers}">0</h3>
+                <p>Tổng số nhà tuyển dụng</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon pending">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-info">
+                <h3 th:text="${pendingEmployers}">0</h3>
+                <p>Chờ xét duyệt</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon active">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-info">
+                <h3 th:text="${activeEmployers}">0</h3>
+                <p>Chấp nhận</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon inactive">
+                <i class="fas fa-ban"></i>
+            </div>
+            <div class="stat-info">
+                <h3 th:text="${inactiveEmployers}">0</h3>
+                <p>Từ chối</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Employer Table -->
+    <div class="employer-table-container">
+        <table class="employer-table">
+            <thead>
+            <tr>
+                <th>Công ty</th>
+                <th>Email</th>
+                <th>Điện thoại</th>
+                <th>Ngành nghề</th>
+                <th>Địa chỉ</th>
+                <th>Ngày đăng ký</th>
+                <th>Trạng thái</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${#lists.isEmpty(employers)}">
+                <td colspan="7" style="text-align:center; padding: 20px; color: #888;">
+                    Không có dữ liệu
+                </td>
+            </tr>
+
+            <tr th:each="emp : ${employers}">
+                <td th:text="${emp.companyName}"></td>
+                <td th:text="${emp.email}"></td>
+                <td th:text="${emp.phoneNumber}"></td>
+                <td th:text="${emp.industry}"></td>
+                <td th:text="${emp.location}"></td>
+                <td th:text="${emp.createdAt != null ? #temporals.format(emp.createdAt, 'yyyy-MM-dd') : ''}"></td>
+                <td>
+                    <select name="status" class="status-dropdown" th:classappend="'status-' + ${emp.status}" 
+                            th:attr="data-user-id=${emp.userId},data-current-status=${emp.status}"
+                            onchange="window.updateEmployerStatus(this);">
+                        <option value="pending" th:selected="${emp.status == 'pending'}">Chờ xét duyệt</option>
+                        <option value="rejected" th:selected="${emp.status == 'rejected'}">Từ chối</option>
+                        <option value="accepted" th:selected="${emp.status == 'accepted'}">Chấp nhận</option>
+                    </select>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+        <div class="pagination-info" id="paginationInfo">
+            Hiển thị <span id="fromIndex">1</span>-<span id="toIndex">5</span> của <span id="totalResults">0</span> kết quả
+        </div>
+        <div class="pagination-controls" id="paginationControls">
+            <button class="pagination-btn" id="prevBtn" disabled><i class="fas fa-chevron-left"></i></button>
+            <div id="pageNumbers"></div>
+            <button class="pagination-btn" id="nextBtn"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </div>
+</div>
+
+ <script>
+    // Biến pagination
+    let currentPage = 1;
+    let totalPages = 1;
+    let totalResults = 0;
+    const pageSize = 5;
+
+    // Hàm cập nhật trạng thái employer - chỉ reload bảng dữ liệu
+    window.updateEmployerStatus = async function(selectEl) {
+        const userId = selectEl.getAttribute('data-user-id');
+        const currentStatus = selectEl.getAttribute('data-current-status');
+        const newStatus = selectEl.value;
+        
+        // Nếu trạng thái không thay đổi, không làm gì
+        if (currentStatus === newStatus) {
+            return;
+        }
+        
+        // Disable dropdown trong khi đang xử lý
+        selectEl.disabled = true;
+        
+        try {
+            // Tạo form data
+            const formData = new URLSearchParams();
+            formData.append('status', newStatus);
+            
+            const url = `/admin/employer/${userId}/update-status`;
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: formData.toString(),
+                credentials: 'include'
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok && data.success) {
+                // Chỉ reload bảng dữ liệu (không reload toàn trang)
+                console.log("✅ Đã cập nhật trạng thái employer, đang reload bảng...");
+                await window.filterEmployers();
+            } else {
+                // Nếu lỗi, revert về trạng thái cũ
+                selectEl.value = currentStatus;
+                alert(data.message || 'Có lỗi xảy ra khi cập nhật trạng thái.');
+            }
+        } catch (error) {
+            console.error('❌ Lỗi khi cập nhật trạng thái employer:', error);
+            // Revert về trạng thái cũ
+            selectEl.value = currentStatus;
+            alert('Có lỗi xảy ra khi cập nhật trạng thái.');
+        } finally {
+            // Enable lại dropdown
+            selectEl.disabled = false;
+        }
+    };
+
+
+    // Hàm lọc employer - chỉ load lại bảng dữ liệu
+    // CHỈ HOẠT ĐỘNG KHI ĐANG Ở TRANG EMPLOYER
+    window.filterEmployers = async function() {
+        // Kiểm tra xem có đang ở trang employer không
+        const keywordEl = document.getElementById('keyword');
+        const statusEl = document.getElementById('status');
+        const dateFilterEl = document.getElementById('dateFilter');
+        const tableBody = document.querySelector('.employer-table tbody');
+        
+        // Nếu không có các elements này, có nghĩa là đang ở trang khác (như jobseeker)
+        if (!keywordEl || !statusEl || !dateFilterEl || !tableBody) {
+            // Không log error để tránh nhầm lẫn khi ở trang khác
+            return;
+        }
+        
+        const keyword = keywordEl.value || '';
+        const status = statusEl.value || '';
+        const dateFilter = dateFilterEl.value || '';
+        
+        // Tạo URL với parameters cho API
+        const params = new URLSearchParams();
+        if (keyword.trim()) params.append('keyword', keyword.trim());
+        if (status.trim()) params.append('status', status.trim());
+        if (dateFilter.trim()) params.append('dateFilter', dateFilter.trim());
+        params.append('page', currentPage);
+        params.append('size', pageSize);
+        
+        const url = '/admin/api/employers/table' + (params.toString() ? '?' + params.toString() : '');
+        
+        // Hiển thị loading
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="7" style="text-align:center; padding:20px; color:#888;">
+                    <i class="fas fa-spinner fa-spin"></i> Đang tải dữ liệu...
+                </td>
+            </tr>
+        `;
+        
+        try {
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include'
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            
+            const data = await response.json();
+            console.log("✅ Nhận được dữ liệu employer:", data);
+            
+            // Cập nhật pagination info
+            totalResults = data.total || 0;
+            currentPage = data.page || 1;
+            totalPages = data.totalPages || 1;
+            
+            // Render lại bảng
+            window.renderEmployerTable(data.employers || []);
+            
+            // Render pagination
+            window.renderEmployerPagination();
+            
+        } catch (error) {
+            console.error("❌ Lỗi khi lọc employer:", error);
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="7" style="text-align:center; padding:20px; color:#dc3545;">
+                        <i class="fas fa-exclamation-triangle"></i> Lỗi khi tải dữ liệu: ${error.message}
+                    </td>
+                </tr>
+            `;
+        }
+    };
+
+    // Hàm render bảng employer
+    window.renderEmployerTable = function(employers) {
+        const tableBody = document.querySelector('.employer-table tbody');
+        if (!tableBody) return;
+        
+        tableBody.innerHTML = '';
+        
+        if (!employers || employers.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="7" style="text-align:center; padding:20px; color:#888;">
+                        Không có dữ liệu phù hợp
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+        
+        employers.forEach(emp => {
+            const row = document.createElement('tr');
+            const createdAt = emp.createdAt ? emp.createdAt.split('T')[0] : '';
+            
+            row.innerHTML = `
+                <td>${emp.companyName || ''}</td>
+                <td>${emp.email || ''}</td>
+                <td>${emp.phoneNumber || ''}</td>
+                <td>${emp.industry || ''}</td>
+                <td>${emp.location || ''}</td>
+                <td>${createdAt}</td>
+                <td>
+                    <select name="status" class="status-dropdown status-${emp.status}" 
+                            data-user-id="${emp.userId}" data-current-status="${emp.status}"
+                            onchange="window.updateEmployerStatus(this);">
+                        <option value="pending" ${emp.status === 'pending' ? 'selected' : ''}>Chờ xét duyệt</option>
+                        <option value="rejected" ${emp.status === 'rejected' ? 'selected' : ''}>Từ chối</option>
+                        <option value="accepted" ${emp.status === 'accepted' ? 'selected' : ''}>Chấp nhận</option>
+                    </select>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+        
+        console.log("✅ Đã render", employers.length, "employer records");
+    };
+
+    // Hàm render pagination
+    window.renderEmployerPagination = function() {
+        const paginationInfo = document.getElementById("paginationInfo");
+        const paginationControls = document.getElementById("paginationControls");
+        const pageNumbers = document.getElementById("pageNumbers");
+        const prevBtn = document.getElementById("prevBtn");
+        const nextBtn = document.getElementById("nextBtn");
+
+        if (!paginationInfo || !paginationControls) {
+            console.error("❌ Không tìm thấy pagination elements");
+            return;
+        }
+
+        // Cập nhật thông tin pagination
+        const fromIndex = totalResults > 0 ? (currentPage - 1) * pageSize + 1 : 0;
+        const toIndex = Math.min(currentPage * pageSize, totalResults);
+        
+        const fromIndexEl = document.getElementById("fromIndex");
+        const toIndexEl = document.getElementById("toIndex");
+        const totalResultsEl = document.getElementById("totalResults");
+        
+        if (fromIndexEl) fromIndexEl.textContent = fromIndex;
+        if (toIndexEl) toIndexEl.textContent = toIndex;
+        if (totalResultsEl) totalResultsEl.textContent = totalResults;
+
+        // Cập nhật nút Previous/Next
+        if (prevBtn) {
+            prevBtn.disabled = currentPage <= 1;
+            prevBtn.onclick = currentPage > 1 ? function() {
+                currentPage--;
+                window.filterEmployers();
+            } : null;
+        }
+
+        if (nextBtn) {
+            nextBtn.disabled = currentPage >= totalPages;
+            nextBtn.onclick = currentPage < totalPages ? function() {
+                currentPage++;
+                window.filterEmployers();
+            } : null;
+        }
+
+        // Render số trang
+        if (!pageNumbers) {
+            console.error("❌ Không tìm thấy pageNumbers");
+            return;
+        }
+
+        pageNumbers.innerHTML = "";
+
+        if (totalPages <= 1) {
+            // Chỉ hiển thị trang 1 nếu chỉ có 1 trang
+            const btn = document.createElement("button");
+            btn.className = "pagination-btn active";
+            btn.textContent = "1";
+            btn.disabled = true;
+            pageNumbers.appendChild(btn);
+            return;
+        }
+
+        // Hiển thị tối đa 7 nút (bao gồm ...)
+        let startPage, endPage;
+        
+        if (totalPages <= 7) {
+            // Nếu ít hơn 7 trang, hiển thị tất cả
+            startPage = 1;
+            endPage = totalPages;
+        } else {
+            // Nếu nhiều hơn 7 trang
+            if (currentPage <= 4) {
+                startPage = 1;
+                endPage = 5;
+            } else if (currentPage >= totalPages - 3) {
+                startPage = totalPages - 4;
+                endPage = totalPages;
+            } else {
+                startPage = currentPage - 2;
+                endPage = currentPage + 2;
+            }
+        }
+
+        // Nút đầu tiên
+        if (startPage > 1) {
+            const btn = document.createElement("button");
+            btn.className = "pagination-btn";
+            btn.textContent = "1";
+            btn.onclick = function() {
+                currentPage = 1;
+                window.filterEmployers();
+            };
+            pageNumbers.appendChild(btn);
+            
+            if (startPage > 2) {
+                const dots = document.createElement("button");
+                dots.className = "pagination-btn";
+                dots.textContent = "...";
+                dots.disabled = true;
+                dots.style.cursor = "default";
+                pageNumbers.appendChild(dots);
+            }
+        }
+
+        // Các nút trang
+        for (let i = startPage; i <= endPage; i++) {
+            const btn = document.createElement("button");
+            btn.className = "pagination-btn";
+            if (i === currentPage) {
+                btn.classList.add("active");
+            }
+            btn.textContent = i;
+            btn.onclick = function() {
+                currentPage = i;
+                window.filterEmployers();
+            };
+            pageNumbers.appendChild(btn);
+        }
+
+        // Nút cuối cùng
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                const dots = document.createElement("button");
+                dots.className = "pagination-btn";
+                dots.textContent = "...";
+                dots.disabled = true;
+                dots.style.cursor = "default";
+                pageNumbers.appendChild(dots);
+            }
+            
+            const btn = document.createElement("button");
+            btn.className = "pagination-btn";
+            btn.textContent = totalPages;
+            btn.onclick = function() {
+                currentPage = totalPages;
+                window.filterEmployers();
+            };
+            pageNumbers.appendChild(btn);
+        }
+    };
+
+    // Hàm xóa bộ lọc
+    // CHỈ HOẠT ĐỘNG KHI ĐANG Ở TRANG EMPLOYER
+    window.clearFilters = async function() {
+        const keywordEl = document.getElementById('keyword');
+        const statusEl = document.getElementById('status');
+        const dateFilterEl = document.getElementById('dateFilter');
+        const tableBody = document.querySelector('.employer-table tbody');
+        
+        // Nếu không có các elements này, có nghĩa là đang ở trang khác (như jobseeker)
+        if (!keywordEl || !statusEl || !dateFilterEl || !tableBody) {
+            // Không làm gì cả, return ngay
+            return;
+        }
+        
+        keywordEl.value = '';
+        statusEl.value = '';
+        dateFilterEl.value = '';
+        currentPage = 1; // Reset về trang 1 khi clear filter
+        
+        // Load lại dữ liệu không có filter
+        await window.filterEmployers();
+    };
+
+    // Hàm xuất Excel cho employer
+    window.exportEmployersToExcel = function() {
+        console.log("📥 ===== exportEmployersToExcel() ĐƯỢC GỌI =====");
+        
+        // Lấy lại elements nếu chưa có
+        const keywordEl = document.getElementById('keyword');
+        const statusEl = document.getElementById('status');
+        const dateFilterEl = document.getElementById('dateFilter');
+        
+        if (!keywordEl || !statusEl || !dateFilterEl) {
+            console.error("❌ Không tìm thấy filter elements");
+            return;
+        }
+        
+        try {
+            // Lấy giá trị filter hiện tại
+            const keyword = keywordEl ? keywordEl.value.trim() : "";
+            const status = statusEl ? statusEl.value : "";
+            const dateFilter = dateFilterEl ? dateFilterEl.value : "";
+            
+            console.log("📋 Filter values:", { keyword, status, dateFilter });
+            
+            // Tạo URL với parameters
+            const params = new URLSearchParams();
+            if (keyword) params.append("keyword", keyword);
+            if (status) params.append("status", status);
+            if (dateFilter) params.append("dateFilter", dateFilter);
+            
+            const url = `/admin/employer/export${params.toString() ? '?' + params.toString() : ''}`;
+            console.log("🔗 URL export:", url);
+            
+            // Mở URL để download file
+            window.location.href = url;
+            console.log("✅ Đã redirect đến URL export");
+        } catch (error) {
+            console.error("❌ Lỗi khi xử lý export:", error);
+            alert("Lỗi khi xuất Excel: " + error.message);
+        }
+    };
+
+    // Chỉ cập nhật thống kê động (nếu cần) - dữ liệu chính được render từ server
+    window.updateEmployerStats = async function() {
+        try {
+            const response = await fetch("/admin/api/employers/stats", {
+                method: 'GET',
+                headers: { 'Accept': 'application/json' },
+                credentials: 'include'
+            });
+            
+            if (!response.ok) return;
+            
+            const data = await response.json();
+            const statCards = document.querySelectorAll(".employer-stats .stat-card h3");
+            
+            if (statCards.length >= 4) {
+                statCards[0].textContent = data.total || 0;
+                statCards[1].textContent = data.pending || 0;
+                statCards[2].textContent = data.active || 0;
+                statCards[3].textContent = data.inactive || 0;
+            }
+        } catch (error) {
+            console.error("❌ Lỗi khi cập nhật thống kê:", error);
+        }
+    };
+
+    // Hàm khởi tạo event listeners (chỉ chạy khi đang ở trang employer)
+    function initEmployerFilters() {
+        // Kiểm tra xem có đang ở trang employer không
+        const filterBtn = document.getElementById('filterBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const keywordEl = document.getElementById('keyword');
+        
+        // Nếu không có các elements đặc trưng của employer page, thì đang ở trang khác
+        if (!filterBtn || !clearBtn || !keywordEl) {
+            return; // Không làm gì cả, tránh ảnh hưởng đến trang khác
+        }
+        
+        if (filterBtn) {
+            // Xóa listener cũ (nếu có) và thêm mới
+            const newFilterBtn = filterBtn.cloneNode(true);
+            filterBtn.parentNode.replaceChild(newFilterBtn, filterBtn);
+            newFilterBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                currentPage = 1; // Reset về trang 1 khi filter
+                window.filterEmployers();
+            });
+        }
+        
+        if (clearBtn) {
+            // Xóa listener cũ (nếu có) và thêm mới
+            const newClearBtn = clearBtn.cloneNode(true);
+            clearBtn.parentNode.replaceChild(newClearBtn, clearBtn);
+            newClearBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                window.clearFilters();
+            });
+        }
+        
+        // Thêm event listener cho nút Xuất Excel
+        const exportBtn = document.getElementById('exportBtn');
+        if (exportBtn) {
+            const newExportBtn = exportBtn.cloneNode(true);
+            exportBtn.parentNode.replaceChild(newExportBtn, exportBtn);
+            newExportBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log("📥 ===== [addEventListener] NÚT XUẤT EXCEL ĐƯỢC CLICK =====");
+                if (typeof window.exportEmployersToExcel === 'function') {
+                    console.log("✅ Gọi window.exportEmployersToExcel() từ addEventListener...");
+                    window.exportEmployersToExcel();
+                } else {
+                    console.error("❌ window.exportEmployersToExcel không tồn tại trong addEventListener!");
+                    alert("Chức năng xuất Excel chưa sẵn sàng. Vui lòng refresh trang.");
+                }
+                return false;
+            });
+        }
+
+        // Tự động load dữ liệu ban đầu và render pagination
+        setTimeout(function() {
+            if (typeof window.filterEmployers === 'function') {
+                window.filterEmployers();
+            }
+        }, 100);
+    }
+
+    // Khởi tạo khi DOM sẵn sàng (trang load trực tiếp)
+    // CHỈ CHẠY KHI ĐANG Ở TRANG EMPLOYER
+    if (document.readyState === 'loading') {
+        document.addEventListener("DOMContentLoaded", initEmployerFilters);
+    } else {
+        // DOM đã sẵn sàng
+        setTimeout(initEmployerFilters, 100);
+    }
+
+    // Event listener cho content được load qua AJAX
+    // CHỈ LẮNG NGHE KHI ĐANG Ở TRANG EMPLOYER
+    (function() {
+        // Kiểm tra xem có đang ở trang employer không trước khi lắng nghe
+        const keywordEl = document.getElementById('keyword');
+        if (!keywordEl) {
+            // Không phải trang employer, không lắng nghe
+            return;
+        }
+        
+        const contentAreaEl = document.getElementById('content-area');
+        if (contentAreaEl) {
+            contentAreaEl.addEventListener('contentLoaded', function(e) {
+                // Kiểm tra lại xem có đang ở trang employer không
+                const keywordCheck = document.getElementById('keyword');
+                if (keywordCheck) {
+                    // Đợi một chút để đảm bảo DOM đã update
+                    setTimeout(initEmployerFilters, 100);
+                }
+            });
+        } else {
+            // Nếu contentArea chưa tồn tại, thử lại sau
+            setTimeout(function() {
+                const area = document.getElementById('content-area');
+                if (area) {
+                    area.addEventListener('contentLoaded', function(e) {
+                        // Kiểm tra lại xem có đang ở trang employer không
+                        const keywordCheck = document.getElementById('keyword');
+                        if (keywordCheck) {
+                            setTimeout(initEmployerFilters, 100);
+                        }
+                    });
+                }
+            }, 500);
+        }
+    })();
+ </script>
+
+</body>
+</html>

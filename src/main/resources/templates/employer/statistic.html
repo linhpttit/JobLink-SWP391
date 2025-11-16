@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thống kê hệ thống</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/src/main/resources/static/statistic.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="system-stats">
+    <h2><i class="fas fa-chart-bar"></i>Thống kê hệ thống</h2>
+
+    <!-- Cards tổng quan -->
+    <section>
+        <h2><i class="fas fa-chart-pie"></i>Tổng quan</h2>
+        <ul>
+            <li>Tổng số người dùng: <span>[số lượng Users]</span></li>
+            <li>Tổng số công ty: <span>[số lượng EmployerProfile]</span></li>
+            <li>Tổng số CV / hồ sơ: <span>[số lượng JobSeekerProfile]</span></li>
+            <li>Tổng số công việc: <span>[số lượng Jobs]</span></li>
+            <li>Tổng số đơn ứng tuyển: <span>[số lượng Applications]</span></li>
+            <li>Tổng số gói Premium: <span>[số lượng PremiumPackages]</span></li>
+            <li>Tổng số hóa đơn: <span>[số lượng Invoice]</span></li>
+            <li>Tổng doanh thu: <span>[SUM]</span></li>
+        </ul>
+    </section>
+
+    <!-- Biểu đồ -->
+    <section>
+        <h2><i class="fas fa-chart-line"></i>Biểu đồ thống kê</h2>
+
+        <article>
+        <h3><i class="fas fa-chart-column"></i>Người dùng theo tháng</h3>
+        <!-- Chỗ biểu đồ cột -->
+        <div class="chart-placeholder">
+            <i class="fas fa-chart-bar"></i>
+            <span>Biểu đồ cột</span>
+        </div>
+        </article>
+
+        <article>
+        <h3><i class="fas fa-chart-pie"></i>Ứng tuyển theo ngành nghề</h3>
+        <!-- Chỗ biểu đồ tròn -->
+        <div class="chart-placeholder">
+            <i class="fas fa-chart-pie"></i>
+            <span>Biểu đồ tròn</span>
+        </div>
+        </article>
+
+        <article>
+        <h3><i class="fas fa-chart-line"></i>Doanh thu theo tháng</h3>
+        <!-- Chỗ biểu đồ đường -->
+        <div class="chart-placeholder">
+            <i class="fas fa-chart-line"></i>
+            <span>Biểu đồ đường</span>
+        </div>
+        </article>
+    </section>
+  </div>
+</body>
+</html>

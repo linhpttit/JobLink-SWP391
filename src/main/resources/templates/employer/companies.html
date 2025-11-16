@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quản lý công ty</title>
+<link rel="stylesheet" href="/src/main/resources/static/companies.css">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="companies-management">
+    <div class="header">
+        <h2><i class="fa-regular fa-building"></i>Quản lý công ty</h2>
+        <button class="btn btn-primary"><i class="fas fa-plus"></i> Thêm công ty</button>
+    </div>
+
+    <div class="filters">
+        <input type="text" placeholder="Tìm theo tên công ty, email...">
+        <select>
+            <option value="">Tất cả trạng thái</option>
+            <option value="verified">Đã xác thực</option>
+            <option value="pending">Chờ xác thực</option>
+        </select>
+    </div>
+
+    <div class="stats">
+        <div class="stat-card">
+            <h3>125</h3>
+            <p>Tổng công ty</p>
+        </div>
+        <div class="stat-card">
+            <h3>90</h3>
+            <p>Đã xác thực</p>
+        </div>
+        <div class="stat-card">
+            <h3>35</h3>
+            <p>Chưa xác thực</p>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table class="companies-table">
+            <thead>
+                <tr>
+                    <th>Tên công ty</th>
+                    <th>Email liên hệ</th>
+                    <th>Ngành nghề</th>
+                    <th>Địa chỉ</th>
+                    <th>Trạng thái</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+             <tr class="no-data">
+                    <td colspan="7" style="text-align:center; padding: 20px; color: #888;">
+                        Không có dữ liệu
+                    </td>
+                </tr>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+        <div class="pagination-info">
+            Hiển thị 1-10 của 245 kết quả
+        </div>
+        <div class="pagination-controls">
+            <button class="pagination-btn" disabled>
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="pagination-btn active">1</button>
+            <button class="pagination-btn">2</button>
+            <button class="pagination-btn">3</button>
+            <button class="pagination-btn">...</button>
+            <button class="pagination-btn">10</button>
+            <button class="pagination-btn">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+</div>
+</body>
+</html>

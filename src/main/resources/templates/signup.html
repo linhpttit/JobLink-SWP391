@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobLink Sign Up</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/CSS/signup.css}">
+    <script th:src="@{/JS/translate.js}"></script>
+</head>
+<body>
+<div class="container">
+    <!-- Form Section (Left) -->
+    <div class="form-section">
+        <div class="logo">
+            <a th:href="@{/}" class="logo-link">
+                <i class="fas fa-briefcase"></i> Joblink
+            </a>
+        </div>
+
+        <div class="signup-content">
+            <h1 data-i18n="signup_title">Create account</h1>
+            <p class="login-prompt">
+                <span data-i18n="have_account">Already have account?</span>
+                <a th:href="@{/signin}" data-i18n="signin_link">Log In</a>
+            </p>
+
+            <!-- Hiển thị thông báo lỗi -->
+            <div th:if="${error}" style="background-color: #f8d7da; color: #721c24; padding: 12px; border-radius: 4px; margin-bottom: 15px; border: 1px solid #f5c6cb;">
+                <i class="fas fa-exclamation-circle"></i>
+                <span th:text="${error}"></span>
+            </div>
+
+            <!-- Hiển thị thông báo thành công -->
+            <div th:if="${msg}" style="background-color: #d4edda; color: #155724; padding: 12px; border-radius: 4px; margin-bottom: 15px; border: 1px solid #c3e6cb;">
+                <i class="fas fa-check-circle"></i>
+                <span th:text="${msg}"></span>
+            </div>
+
+            <form th:action="@{/signup}" method="post" class="signup-form">
+                <div class="input-group">
+                    <input type="text" id="fullName" name="fullName"
+                           th:value="${registerRequest?.fullName}"
+                           data-i18n-placeholder="fullname_placeholder" placeholder="Full Name" required>
+
+                    <input type="text" id="username" name="username"
+                           th:value="${registerRequest?.username}"
+                           data-i18n-placeholder="username_placeholder" placeholder="Username" required>
+                </div>
+
+                <input type="email" id="email" name="email"
+                       th:value="${registerRequest?.email}"
+                       data-i18n-placeholder="email_placeholder" placeholder="Email address" required>
+
+                <div class="input-with-icon">
+                    <input type="password" id="password" name="password"
+                           data-i18n-placeholder="password_placeholder" placeholder="Password" required>
+                    <i class="fas fa-eye" onclick="togglePassword('password')"></i>
+                </div>
+
+                <div class="input-with-icon">
+                    <input type="password" id="confirmPassword" name="confirmPassword"
+                           data-i18n-placeholder="confirm_password_placeholder" placeholder="Confirm Password" required>
+                    <i class="fas fa-eye" onclick="togglePassword('confirmPassword')"></i>
+                </div>
+
+<!--                <input type="hidden" id="role" name="role" value="seeker" />-->
+                <div class="role-picker">
+                    <input type="radio" id="role-employer" name="role" value="employer" checked>
+                    <label for="role-employer" data-i18n="role_employer">Employer</label>
+                    <input type="radio" id="role-seeker" name="role" value="seeker">
+                    <label for="role-seeker" data-i18n="role_jobseeker">Jobseeker</label>
+                </div>
+                <div class="terms-checkbox">
+                    <input type="checkbox" id="agreeTerms" name="agreeTerms" required>
+                    <label for="agreeTerms">
+                        <span data-i18n="agree_terms">I've read and agree with your</span>
+                        <a href="/terms" data-i18n="terms_of_service">Terms of Services</a>
+                    </label>
+                </div>
+
+                <button type="submit" class="create-account-btn">
+                    <span data-i18n="create_account_btn">Create Account</span> <i class="fas fa-arrow-right"></i>
+                </button>
+            </form>
+
+            <div class="divider">
+                <span data-i18n="or_signin_with">or</span>
+            </div>
+
+            <div class="social-login">
+                <button class="social-btn google" type="button">
+                    <img src="https://www.gstatic.com/images/branding/product/1x/gsa_64dp.png" alt="Google logo" width="40">
+                    <span data-i18n="signup_with_google">Sign up with Google</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Section (Right) -->
+    <div class="stats-section">
+        <div class="stats-content">
+            <p class="stats-headline">Over 1,75,324 candidates waiting for good employees.</p>
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <i class="fas fa-briefcase"></i>
+                    <p class="number">1,75,324</p>
+                    <span class="label" data-i18n="stat_live_job">Live Job</span>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-building"></i>
+                    <p class="number">97,354</p>
+                    <span class="label" data-i18n="stat_companies">Companies</span>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-file-alt"></i>
+                    <p class="number">7,532</p>
+                    <span class="label" data-i18n="stat_new_jobs">New Jobs</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function togglePassword(inputId) {
+        const input = document.getElementById(inputId);
+        const icon = input.nextElementSibling;
+
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+
+    // Form validation
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        
+        if (password !== confirmPassword) {
+            e.preventDefault();
+            alert('Passwords do not match!');
+            return;
+        }
+        
+        const agreeTerms = document.getElementById('agreeTerms').checked;
+        if (!agreeTerms) {
+            e.preventDefault();
+            alert('Please agree to the Terms of Service');
+            return;
+        }
+    });
+</script>
+</body>
+</html>

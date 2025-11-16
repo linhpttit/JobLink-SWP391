@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Find Job - JobLink</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <script th:src="@{/JS/translate.js}"></script>
+
+<!--    <link rel="stylesheet" th:href="@{/CSS/homepage.css}">-->
+    <link rel="stylesheet" th:href="@{/CSS/search.css}">
+</head>
+<body>
+<!--<div th:replace="~{header :: header}"></div>-->
+
+<main class="search-main">
+    <div class="search-container">
+        <h2 class="search-title" data-i18n="find_job_title">Find Job</h2>
+
+        <div class="search-bar">
+            <input type="text" data-i18n-placeholder="job_title_placeholder" placeholder="Job title, Keyword..." class="search-input search-keyword">
+            <input type="text" data-i18n-placeholder="location_placeholder" placeholder="Location" class="search-input search-location">
+            <select class="search-input search-category">
+                <option data-i18n="select_category">Select Category</option>
+                <option data-i18n="cat_designer">Design</option>
+                <option data-i18n="cat_programming">Programming</option>
+                <option data-i18n="cat_digital_marketing">Marketing</option>
+                <option>Sales</option>
+                <option>Customer Service</option>
+            </select>
+            <div class="search-btn-wrap">
+                <button class="search-btn" data-i18n="find_job_btn">Find Job</button>
+            </div>
+            <div class="search-adv-wrap">
+                <button class="advance-filter-btn" id="openAdvanceFilter">
+                    <i class="fas fa-sliders-h"></i>
+                    <span data-i18n="advance_filter">Advance Filter</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="search-filter-row">
+            <div class="filter-left">
+                <!-- Tags will be added here dynamically -->
+            </div>
+            <div class="filter-right">
+                <select class="search-sort">
+                    <option data-i18n="latest">Latest</option>
+                    <option data-i18n="oldest">Oldest</option>
+                    <option data-i18n="salary_high_to_low">Salary: High to Low</option>
+                    <option data-i18n="salary_low_to_high">Salary: Low to High</option>
+                </select>
+                <select class="search-page">
+                    <option>12 <span data-i18n="per_page">per page</span></option>
+                    <option>24 <span data-i18n="per_page">per page</span></option>
+                    <option>48 <span data-i18n="per_page">per page</span></option>
+                </select>
+                <button class="search-view search-view-grid active">
+                    <i class="fa fa-th-large"></i>
+                </button>
+                <button class="search-view search-view-list">
+                    <i class="fa fa-list"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Job Listings -->
+        <div class="job-listings">
+
+
+
+
+
+
+
+
+
+
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination">
+            <button class="page-btn" disabled><i class="fas fa-chevron-left"></i></button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">3</button>
+            <button class="page-btn">4</button>
+            <button class="page-btn">5</button>
+            <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </div>
+</main>
+
+<!-- Advanced Filter Modal -->
+<div class="advance-filter-modal" id="advanceFilterModal">
+    <div class="advance-filter-content">
+        <div class="filter-header">
+            <h3>Advance Filter</h3>
+            <button class="close-modal" id="closeModal">&times;</button>
+        </div>
+
+        <!-- Experience -->
+        <div class="filter-section">
+            <h4>Experience</h4>
+            <div class="filter-grid">
+                <div class="filter-option">
+                    <input type="radio" name="experience" id="exp-fresh" value="Freshers">
+                    <label for="exp-fresh">Freshers</label>
+                </div>
+                <div class="filter-option">
+                    <input type="radio" name="experience" id="exp-1-2" value="1 - 2 Years">
+                    <label for="exp-1-2">1 - 2 Years</label>
+                </div>
+                <div class="filter-option">
+                    <input type="radio" name="experience" id="exp-2-4" value="2 - 4 Years">
+                    <label for="exp-2-4">2 - 4 Years</label>
+                </div>
+                <div class="filter-option">
+                    <input type="radio" name="experience" id="exp-4-6" value="4 - 6 Years" checked>
+                    <label for="exp-4-6">4 - 6 Years</label>
+                </div>
+                <div class="filter-option">
+                    <input type="radio" name="experience" id="exp-6-8" value="6 - 8 Years">
+                    <label for="exp-6-8">6 - 8 Years</label>
+                </div>
+                <div class="filter-option">
+                    <input type="radio" name="experience" id="exp-8-10" value="8 - 10 Years">
+                    <label for="exp-8-10">8 - 10 Years</label>
+                </div>
+                <div class="filter-option">
+                    <input type="radio" name="experience" id="exp-10-15" value="10 - 15 Years">
+                    <label for="exp-10-15">10 - 15 Years</label>
+                </div>
+                <div class="filter-option">
+                    <input type="radio" name="experience" id="exp-15+" value="15+ Years">
+                    <label for="exp-15+">15+ Years</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Salary -->
+        <div class="filter-section">
+            <h4>Salary</h4>
+            <div class="filter-grid">
+                <div class="filter-option">
+                    <input type="radio" name="salary" id="sal-1" value="$50 - $1000">
+                    <label for="sal-1">$50 - $1000</label>
+                </div>
+                <div class="filter-option">
+                    <input type="radio" name="salary" id="sal-2" value="$1000 - $2000">
+                    <label for="sal-2">$1000 - $2000</label>
+                </div>
+                <div class="filter-option">
+                    <input type="radio" name="salary" id="sal-3" value="$3000 - $4000">
+                    <label for="sal-3">$3000 - $4000</label>
+                </div>
+                <div class="filter-option">
+                    <input type="radio" name="salary" id="sal-4" value="$4000 - $6000">
+                    <label for="sal-4">$4000 - $6000</label>
+                </div>
+                <div class="filter-option">
+                    <input type="radio" name="salary" id="sal-5" value="$6000 - $8000" checked>
+                    <label for="sal-5">$6000 - $8000</label>
+                </div>
+                <div class="filter-option">
+                    <input type="radio" name="salary" id="sal-6" value="$8000 - $10000">
+                    <label for="sal-6">$8000 - $10000</label>
+                </div>
+                <div class="filter-option">
+                    <input type="radio" name="salary" id="sal-7" value="$10000 - $15000">
+                    <label for="sal-7">$10000 - $15000</label>
+                </div>
+                <div class="filter-option">
+                    <input type="radio" name="salary" id="sal-8" value="$15000+">
+                    <label for="sal-8">$15000+</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Job Type -->
+        <div class="filter-section">
+            <h4>Job Type</h4>
+            <div class="filter-grid">
+                <div class="filter-option">
+                    <input type="checkbox" id="type-all" value="All">
+                    <label for="type-all">All</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="type-full" value="Full Time" checked>
+                    <label for="type-full">Full Time</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="type-part" value="Part Time">
+                    <label for="type-part">Part Time</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="type-intern" value="Internship">
+                    <label for="type-intern">Internship</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="type-remote" value="Remote">
+                    <label for="type-remote">Remote</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="type-temp" value="Temporary">
+                    <label for="type-temp">Temporary</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="type-contract" value="Contract Base">
+                    <label for="type-contract">Contract Base</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Education -->
+        <div class="filter-section">
+            <h4>Education</h4>
+            <div class="filter-grid">
+                <div class="filter-option">
+                    <input type="checkbox" id="edu-all" value="All">
+                    <label for="edu-all">All</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="edu-high" value="High School">
+                    <label for="edu-high">High School</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="edu-inter" value="Intermediate">
+                    <label for="edu-inter">Intermediate</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="edu-grad" value="Graduation" checked>
+                    <label for="edu-grad">Graduation</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="edu-master" value="Master Degree">
+                    <label for="edu-master">Master Degree</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="edu-bach" value="Bachelor Degree">
+                    <label for="edu-bach">Bachelor Degree</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Job Level -->
+        <div class="filter-section">
+            <h4>Job Level</h4>
+            <div class="filter-grid">
+                <div class="filter-option">
+                    <input type="radio" name="level" id="level-entry" value="Entry Level">
+                    <label for="level-entry">Entry Level</label>
+                </div>
+                <div class="filter-option">
+                    <input type="radio" name="level" id="level-mid" value="Mid Level" checked>
+                    <label for="level-mid">Mid Level</label>
+                </div>
+                <div class="filter-option">
+                    <input type="radio" name="level" id="level-expert" value="Expert Level">
+                    <label for="level-expert">Expert Level</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="filter-actions">
+            <button class="btn-reset" id="resetFilters">Reset Filters</button>
+            <button class="btn-apply" id="applyFilters">Find Job</button>
+        </div>
+    </div>
+</div>
+
+
+
+<script th:src="@{/JS/search.js}" defer></script>
+</body>
+</html>
