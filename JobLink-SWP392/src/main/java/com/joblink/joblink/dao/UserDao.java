@@ -31,7 +31,7 @@ public class UserDao {
         }
         
         String sql = """
-                SELECT user_id, email, role, username, url_avt, created_at
+                SELECT user_id, email, role, username, url_avt, created_at, enabled
                 FROM dbo.Users
                 WHERE email = ?
                   AND password_hash = HASHBYTES('SHA2_256', ?)
@@ -46,7 +46,8 @@ public class UserDao {
                 u.setFullName(rs.getString("username"));
                 u.setUsername(rs.getString("username"));
                 u.setAvatarUrl(rs.getString("url_avt"));
-                u.setEnabled(true); // Mặc định enabled = true vì DB không có cột này
+                // Lấy enabled từ DB (BIT -> boolean)
+                u.setEnabled(rs.getBoolean("enabled"));
                 // created_at có thể map nếu bạn thêm vào model
                 return u;
             }, email.trim(), rawPassword.trim());

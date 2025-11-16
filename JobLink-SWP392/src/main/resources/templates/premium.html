@@ -323,12 +323,26 @@
 
         // Bind edit buttons
         function bindEditButtons() {
-            document.querySelectorAll('.edit-package-btn').forEach(btn => {
-                if (btn.dataset.bound) return;
+            const editButtons = document.querySelectorAll('.edit-package-btn');
+            console.log('🔍 Tìm thấy', editButtons.length, 'nút chỉnh sửa');
+            editButtons.forEach((btn, index) => {
+                if (btn.dataset.bound) {
+                    console.log(`⏭️ Nút ${index + 1} đã được bind, bỏ qua`);
+                    return;
+                }
                 btn.dataset.bound = 'true';
-                btn.addEventListener('click', function() {
-                    const packageId = this.dataset.id;
-                    openEditModal(packageId);
+                const packageId = btn.dataset.id;
+                console.log(`✅ Binding nút chỉnh sửa ${index + 1}, packageId:`, packageId);
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const pkgId = this.dataset.id || this.getAttribute('data-id');
+                    console.log('🖱️ Nút chỉnh sửa được click, packageId:', pkgId);
+                    if (pkgId) {
+                        openEditModal(pkgId);
+                    } else {
+                        console.error('❌ Không tìm thấy packageId trong nút');
+                    }
                 });
             });
         }
@@ -367,46 +381,97 @@
             document.getElementById('editPdfExportLimit').value = '';
             document.getElementById('editFeatures').value = '';
             document.getElementById('editIsActive').checked = true;
-            document.getElementById('editPackageModal').style.display = 'flex';
+            const modal = document.getElementById('editPackageModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                modal.style.opacity = '1';
+                modal.style.visibility = 'visible';
+            }
         }
 
         // Mở modal edit
         function openEditModal(packageId) {
-            document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-pen"></i> Chỉnh sửa gói Premium';
+            console.log('📝 openEditModal được gọi với packageId:', packageId);
+            const modal = document.getElementById('editPackageModal');
+            if (!modal) {
+                console.error('❌ Không tìm thấy modal editPackageModal');
+                alert('Lỗi: Không tìm thấy modal chỉnh sửa');
+                return;
+            }
+            
+            const modalTitle = document.getElementById('modalTitle');
+            if (modalTitle) {
+                modalTitle.innerHTML = '<i class="fa-solid fa-pen"></i> Chỉnh sửa gói Premium';
+            }
+            
+            console.log('📡 Đang fetch package data từ /admin/premium/' + packageId);
             fetch('/admin/premium/' + packageId)
                 .then(response => {
                     if (!response.ok) throw new Error('Không tìm thấy gói');
                     return response.json();
                 })
                 .then(pkg => {
-                    document.getElementById('editPackageId').value = pkg.packageId;
-                    document.getElementById('editCode').value = pkg.code || '';
-                    document.getElementById('editName').value = pkg.name || '';
-                    document.getElementById('editUserType').value = pkg.userType || 'JOBSEEKER';
-                    document.getElementById('editPrice').value = pkg.price || 0;
-                    document.getElementById('editDurationDays').value = pkg.durationDays || 0;
-                    document.getElementById('editMaxActiveJobs').value = pkg.maxActiveJobs || '';
-                    document.getElementById('editBoostCredits').value = pkg.boostCredits || '';
-                    document.getElementById('editCandidateViews').value = pkg.candidateViews || '';
-                    document.getElementById('editHighlight').checked = pkg.highlight || false;
-                    document.getElementById('editCvTemplatesAccess').checked = pkg.cvTemplatesAccess || false;
-                    document.getElementById('editMessagingEnabled').checked = pkg.messagingEnabled || false;
-                    document.getElementById('editSeekerNetworkingEnabled').checked = pkg.seekerNetworkingEnabled || false;
-                    document.getElementById('editPdfExportLimit').value = pkg.pdfExportLimit || '';
-                    document.getElementById('editFeatures').value = pkg.features || '';
-                    document.getElementById('editIsActive').checked = pkg.isActive !== null ? pkg.isActive : true;
-                    document.getElementById('editPackageModal').style.display = 'flex';
+                    console.log('✅ Nhận được package data:', pkg);
+                    const elements = {
+                        editPackageId: document.getElementById('editPackageId'),
+                        editCode: document.getElementById('editCode'),
+                        editName: document.getElementById('editName'),
+                        editUserType: document.getElementById('editUserType'),
+                        editPrice: document.getElementById('editPrice'),
+                        editDurationDays: document.getElementById('editDurationDays'),
+                        editMaxActiveJobs: document.getElementById('editMaxActiveJobs'),
+                        editBoostCredits: document.getElementById('editBoostCredits'),
+                        editCandidateViews: document.getElementById('editCandidateViews'),
+                        editHighlight: document.getElementById('editHighlight'),
+                        editCvTemplatesAccess: document.getElementById('editCvTemplatesAccess'),
+                        editMessagingEnabled: document.getElementById('editMessagingEnabled'),
+                        editSeekerNetworkingEnabled: document.getElementById('editSeekerNetworkingEnabled'),
+                        editPdfExportLimit: document.getElementById('editPdfExportLimit'),
+                        editFeatures: document.getElementById('editFeatures'),
+                        editIsActive: document.getElementById('editIsActive')
+                    };
+                    
+                    // Kiểm tra và fill values
+                    if (elements.editPackageId) elements.editPackageId.value = pkg.packageId || '';
+                    if (elements.editCode) elements.editCode.value = pkg.code || '';
+                    if (elements.editName) elements.editName.value = pkg.name || '';
+                    if (elements.editUserType) elements.editUserType.value = pkg.userType || 'JOBSEEKER';
+                    if (elements.editPrice) elements.editPrice.value = pkg.price || 0;
+                    if (elements.editDurationDays) elements.editDurationDays.value = pkg.durationDays || 0;
+                    if (elements.editMaxActiveJobs) elements.editMaxActiveJobs.value = pkg.maxActiveJobs || '';
+                    if (elements.editBoostCredits) elements.editBoostCredits.value = pkg.boostCredits || '';
+                    if (elements.editCandidateViews) elements.editCandidateViews.value = pkg.candidateViews || '';
+                    if (elements.editHighlight) elements.editHighlight.checked = pkg.highlight || false;
+                    if (elements.editCvTemplatesAccess) elements.editCvTemplatesAccess.checked = pkg.cvTemplatesAccess || false;
+                    if (elements.editMessagingEnabled) elements.editMessagingEnabled.checked = pkg.messagingEnabled || false;
+                    if (elements.editSeekerNetworkingEnabled) elements.editSeekerNetworkingEnabled.checked = pkg.seekerNetworkingEnabled || false;
+                    if (elements.editPdfExportLimit) elements.editPdfExportLimit.value = pkg.pdfExportLimit || '';
+                    if (elements.editFeatures) elements.editFeatures.value = pkg.features || '';
+                    if (elements.editIsActive) elements.editIsActive.checked = pkg.isActive !== null ? pkg.isActive : true;
+                    
+                    modal.style.display = 'flex';
+                    modal.style.opacity = '1';
+                    modal.style.visibility = 'visible';
+                    console.log('✅ Modal đã được hiển thị');
                 })
                 .catch(err => {
-                    console.error('Lỗi khi load package:', err);
+                    console.error('❌ Lỗi khi load package:', err);
                     alert('Không thể tải thông tin gói: ' + err.message);
                 });
         }
 
         // Đóng modal
         function closeEditModal() {
-            document.getElementById('editPackageModal').style.display = 'none';
-            document.getElementById('editPackageForm').reset();
+            const modal = document.getElementById('editPackageModal');
+            if (modal) {
+                modal.style.display = 'none';
+                modal.style.opacity = '0';
+                modal.style.visibility = 'hidden';
+            }
+            const form = document.getElementById('editPackageForm');
+            if (form) {
+                form.reset();
+            }
         }
 
         // Lưu package (create hoặc update)
@@ -530,10 +595,66 @@
             addBtn.addEventListener('click', openAddModal);
         }
 
-        // Bind events lần đầu
-        bindEditButtons();
-        bindDeleteButtons();
+        // Hàm khởi tạo events
+        function initPremiumEvents() {
+            console.log('🔄 initPremiumEvents được gọi');
+            // Reset bound flag để có thể bind lại
+            const allButtons = document.querySelectorAll('.edit-package-btn, .delete-package-btn');
+            console.log('🔍 Tìm thấy', allButtons.length, 'button(s) cần bind');
+            allButtons.forEach(btn => {
+                if (btn) {
+                    btn.dataset.bound = '';
+                    console.log('🔄 Reset bound flag cho button:', btn);
+                }
+            });
+            bindEditButtons();
+            bindDeleteButtons();
+            console.log('✅ Đã hoàn thành bind edit/delete buttons');
+        }
+
+        // Bind events lần đầu - luôn gọi với delay để đảm bảo DOM đã sẵn sàng
+        console.log('⏰ Sẽ gọi initPremiumEvents sau 100ms');
+        setTimeout(function() {
+            console.log('⏰ Gọi initPremiumEvents lần đầu');
+            initPremiumEvents();
+        }, 100);
         // Pagination listeners đã được attach ở tableWrapper level, không cần gọi attachPaginationListeners()
+
+        // Bind lại events khi content được load qua AJAX (từ admin.js)
+        // Setup listener cho contentLoaded event
+        const contentArea = document.getElementById('content-area');
+        if (contentArea) {
+            // Nếu content-area đã tồn tại, setup listener ngay
+            contentArea.addEventListener('contentLoaded', function(e) {
+                // Chỉ init nếu URL là premium
+                if (e.detail && e.detail.url && e.detail.url.includes('/premium')) {
+                    console.log('📢 Premium content loaded, re-binding events...');
+                    setTimeout(initPremiumEvents, 200);
+                }
+            });
+        } else {
+            // Nếu chưa tồn tại, thử setup listener sau khi DOM sẵn sàng
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', function() {
+                    const area = document.getElementById('content-area');
+                    if (area) {
+                        area.addEventListener('contentLoaded', function(e) {
+                            if (e.detail && e.detail.url && e.detail.url.includes('/premium')) {
+                                console.log('📢 Premium content loaded, re-binding events...');
+                                setTimeout(initPremiumEvents, 200);
+                            }
+                        });
+                    }
+                });
+            }
+        }
+
+        // Nếu content được load trực tiếp (không qua AJAX), bind events sau khi DOM sẵn sàng
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(initPremiumEvents, 150);
+            });
+        }
     })();
 </script>
 </body>

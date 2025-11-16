@@ -44,7 +44,7 @@ public class DashboardService {
      */
     public long countReviewingCVs() {
         long submitted = applicationRepository.countByStatus("submitted");
-        long reviewing = applicationRepository.countByStatus("reviewing");
+        long reviewing = applicationRepository.countByStatus("reviewied");
         return submitted + reviewing;
     }
 

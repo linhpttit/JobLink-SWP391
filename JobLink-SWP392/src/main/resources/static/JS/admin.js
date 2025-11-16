@@ -32,13 +32,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Toggle notification dropdown
 function toggleNotifications() {
-    document.getElementById("notificationDropdown").classList.toggle("show");
+    const notificationDropdown = document.getElementById("notificationDropdown");
+    if (notificationDropdown) {
+        notificationDropdown.classList.toggle("show");
+    }
 }
 
 // Ẩn dropdown khi click ra ngoài
 window.addEventListener("click", (event) => {
     if (!event.target.closest('.notification-icon')) {
-        document.getElementById("notificationDropdown").classList.remove("show");
+        const notificationDropdown = document.getElementById("notificationDropdown");
+        if (notificationDropdown) {
+            notificationDropdown.classList.remove("show");
+        }
     }
 });
 

@@ -1,6 +1,5 @@
 package com.joblink.joblink.controller;
 
-import com.joblink.joblink.auth.model.User;
 import com.joblink.joblink.dto.UserSessionDTO;
 import com.joblink.joblink.model.*;
 import com.joblink.joblink.service.*;
@@ -40,7 +39,7 @@ public class CVTemplateController {
         if (userSession == null) return "redirect:/auth/login";
 
         if (!premiumService.hasFeature(userSession.getUserId(), "cv_templates")) {
-            return "redirect:/jobseeker/premium";
+            return "redirect:/payment/packages";
         }
 
         List<CVTemplate> templates = cvTemplateService.getAllActiveTemplates();
@@ -54,11 +53,11 @@ public class CVTemplateController {
     public String viewTemplate(@PathVariable int templateId,
                                HttpSession session,
                                Model model) {
-        User user = (User) session.getAttribute("user");
+        UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
         if (user == null) return "redirect:/auth/login";
 
         if (!premiumService.hasFeature(user.getUserId(), "cv_templates")) {
-            return "redirect:/jobseeker/premium";
+            return "redirect:/payment/packages";
         }
 
         CVTemplate template = cvTemplateService.getTemplateById(templateId);
@@ -86,7 +85,7 @@ public class CVTemplateController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> exportTemplate(@PathVariable int templateId,
                                                               HttpSession session) {
-        User user = (User) session.getAttribute("user");
+        UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
         Map<String, Object> res = new HashMap<>();
         if (user == null) return ResponseEntity.status(401).body(Map.of("success", false, "error", "Unauthorized"));
 
@@ -123,7 +122,7 @@ public class CVTemplateController {
     public ResponseEntity<byte[]> downloadTemplate(@PathVariable int templateId,
                                                    @RequestParam(name = "fn", required = false) String fn,
                                                    HttpSession session) {
-        User user = (User) session.getAttribute("user");
+        UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
         if (user == null) return ResponseEntity.status(401).build();
         if (!premiumService.hasFeature(user.getUserId(), "cv_templates")) return ResponseEntity.status(403).build();
 
@@ -134,8 +133,7 @@ public class CVTemplateController {
         if (template == null) return ResponseEntity.status(404).build();
 
         byte[] pdf = cvTemplateService.generatePDF(template, profile);
-
-        String fallback = "CV_" + (profile.getFullname() == null ? "User" : profile.getFullname().replaceAll("\\s+", "_"))
+        String fallback = "CV_" + (profile.getFullname() == null ? "UserSessionDTO" : profile.getFullname().replaceAll("\\s+", "_"))
                 + "_" + template.getTemplateCode() + ".pdf";
         String fileName = (fn == null || fn.isBlank()) ? fallback : fn;
 

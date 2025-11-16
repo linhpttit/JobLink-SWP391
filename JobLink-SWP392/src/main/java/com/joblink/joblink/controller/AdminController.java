@@ -148,6 +148,22 @@ public class AdminController {
         // Gọi service
         List<JobSeekerProfile> jobSeekers = jobSeekerService.search(search, experience, status);
 
+        // Populate email từ User nếu JobSeekerProfile.email null
+        for (JobSeekerProfile profile : jobSeekers) {
+            if (profile.getEmail() == null || profile.getEmail().trim().isEmpty()) {
+                if (profile.getUserId() != null) {
+                    try {
+                        User user = userRepository.findById(profile.getUserId()).orElse(null);
+                        if (user != null && user.getEmail() != null) {
+                            profile.setEmail(user.getEmail());
+                        }
+                    } catch (Exception e) {
+                        System.err.println("❌ Lỗi khi lấy email từ User cho seeker " + profile.getSeekerId() + ": " + e.getMessage());
+                    }
+                }
+            }
+        }
+
         // Thống kê
         long total = jobSeekerService.countJobSeeker();
         long active = jobSeekerService.countActive();
@@ -205,6 +221,22 @@ public class AdminController {
 
         // Lấy dữ liệu với pagination
         List<JobSeekerProfile> results = jobSeekerService.searchPaginated(keyword, expValue, status, page, size);
+
+        // Populate email từ User nếu JobSeekerProfile.email null
+        for (JobSeekerProfile profile : results) {
+            if (profile.getEmail() == null || profile.getEmail().trim().isEmpty()) {
+                if (profile.getUserId() != null) {
+                    try {
+                        User user = userRepository.findById(profile.getUserId()).orElse(null);
+                        if (user != null && user.getEmail() != null) {
+                            profile.setEmail(user.getEmail());
+                        }
+                    } catch (Exception e) {
+                        System.err.println("❌ Lỗi khi lấy email từ User cho seeker " + profile.getSeekerId() + ": " + e.getMessage());
+                    }
+                }
+            }
+        }
 
         System.out.println("✅ Found " + results.size() + " results, total: " + total + ", page: " + page + "/" + totalPages);
 
@@ -312,12 +344,19 @@ public class AdminController {
                     Map<String, Object> map = new java.util.HashMap<>();
                     map.put("employerId", emp.getId());
                     map.put("userId", emp.getUser() != null ? emp.getUser().getUserId() : null);
-                    map.put("companyName", emp.getCompanyName());
-                    map.put("email", emp.getUser() != null ? emp.getUser().getEmail() : "");
-                    map.put("phoneNumber", emp.getPhoneNumber());
-                    map.put("industry", emp.getIndustry());
-                    map.put("location", emp.getLocation());
-                    map.put("createdAt", emp.getUser() != null ? emp.getUser().getCreatedAt() : null);
+                    map.put("companyName", emp.getCompanyName() != null ? emp.getCompanyName() : "");
+                    map.put("email", emp.getUser() != null && emp.getUser().getEmail() != null ? emp.getUser().getEmail() : "");
+                    map.put("phoneNumber", emp.getPhoneNumber() != null ? emp.getPhoneNumber() : "");
+                    map.put("industry", emp.getIndustry() != null ? emp.getIndustry() : "");
+                    map.put("location", emp.getLocation() != null ? emp.getLocation() : "");
+                    // Format createdAt để dễ hiển thị trong Thymeleaf
+                    if (emp.getUser() != null && emp.getUser().getCreatedAt() != null) {
+                        map.put("createdAt", emp.getUser().getCreatedAt());
+                        map.put("createdAtFormatted", emp.getUser().getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+                    } else {
+                        map.put("createdAt", null);
+                        map.put("createdAtFormatted", "");
+                    }
                     map.put("enabled", emp.getUser() != null ? emp.getUser().getEnabled() : null);
                     map.put("approved", emp.getApproved());
 
@@ -427,12 +466,19 @@ public class AdminController {
                     Map<String, Object> map = new java.util.HashMap<>();
                     map.put("employerId", emp.getId());
                     map.put("userId", emp.getUser() != null ? emp.getUser().getUserId() : null);
-                    map.put("companyName", emp.getCompanyName());
-                    map.put("email", emp.getUser() != null ? emp.getUser().getEmail() : "");
-                    map.put("phoneNumber", emp.getPhoneNumber());
-                    map.put("industry", emp.getIndustry());
-                    map.put("location", emp.getLocation());
-                    map.put("createdAt", emp.getUser() != null ? emp.getUser().getCreatedAt() : null);
+                    map.put("companyName", emp.getCompanyName() != null ? emp.getCompanyName() : "");
+                    map.put("email", emp.getUser() != null && emp.getUser().getEmail() != null ? emp.getUser().getEmail() : "");
+                    map.put("phoneNumber", emp.getPhoneNumber() != null ? emp.getPhoneNumber() : "");
+                    map.put("industry", emp.getIndustry() != null ? emp.getIndustry() : "");
+                    map.put("location", emp.getLocation() != null ? emp.getLocation() : "");
+                    // Format createdAt để dễ hiển thị trong Thymeleaf
+                    if (emp.getUser() != null && emp.getUser().getCreatedAt() != null) {
+                        map.put("createdAt", emp.getUser().getCreatedAt());
+                        map.put("createdAtFormatted", emp.getUser().getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+                    } else {
+                        map.put("createdAt", null);
+                        map.put("createdAtFormatted", "");
+                    }
                     map.put("enabled", emp.getUser() != null ? emp.getUser().getEnabled() : null);
                     map.put("approved", emp.getApproved());
 
@@ -745,8 +791,8 @@ public class AdminController {
             // Thống kê CV và Applications
             long totalCVs = jobSeekerService.countCV();
             long reviewingCVs = dashboardService.countReviewingCVs();
-            long acceptedCVs = applicationRepository.countByStatus("accepted");
-            long deniedCVs = applicationRepository.countByStatus("denied");
+            long acceptedCVs = applicationRepository.countByStatus("hired");
+            long deniedCVs = applicationRepository.countByStatus("rejected");
 
             model.addAttribute("totalCVs", totalCVs);
             model.addAttribute("reviewingCVs", reviewingCVs);
@@ -2355,6 +2401,22 @@ public class AdminController {
 
         // Lấy danh sách job seekers (có thể có filter)
         List<JobSeekerProfile> jobSeekers = jobSeekerService.search(keyword, expValue, status);
+
+        // Populate email từ User nếu JobSeekerProfile.email null
+        for (JobSeekerProfile profile : jobSeekers) {
+            if (profile.getEmail() == null || profile.getEmail().trim().isEmpty()) {
+                if (profile.getUserId() != null) {
+                    try {
+                        User user = userRepository.findById(profile.getUserId()).orElse(null);
+                        if (user != null && user.getEmail() != null) {
+                            profile.setEmail(user.getEmail());
+                        }
+                    } catch (Exception e) {
+                        System.err.println("❌ Lỗi khi lấy email từ User cho seeker " + profile.getSeekerId() + ": " + e.getMessage());
+                    }
+                }
+            }
+        }
 
         // Tạo workbook Excel
         Workbook workbook = new XSSFWorkbook();

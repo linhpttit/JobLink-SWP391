@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kết Nối - JobLink</title>
-
-    <link rel="stylesheet" th:href="@{/homepage.css}">
-    <link rel="stylesheet" th:href="@{/connections.css}">
-
+    <link rel="stylesheet" th:href="@{/CSS/header.css}">
+    <link rel="stylesheet" th:href="@{/CSS/homepage.css}">
+    <link rel="stylesheet" th:href="@{/CSS/connections.css}">
 </head>
 <body>
+<!-- Header -->
 <div th:replace="~{header :: header}"></div>
 
 <div class="connections-container">
@@ -114,5 +114,6 @@
         window.location.href = '/messages?userId=' + userId;
     }
 </script>
+<script th:src="@{/JS/header-usermenu.js}"></script>
 </body>
 </html>

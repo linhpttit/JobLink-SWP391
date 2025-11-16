@@ -39,9 +39,9 @@
                     <select id="status" name="status">
                         <option value="">Tất cả</option>
                         <option value="submitted" th:selected="${status == 'submitted'}">Đã nộp</option>
-                        <option value="reviewing" th:selected="${status == 'reviewing'}">Đang xem xét</option>
-                        <option value="accepted" th:selected="${status == 'accepted'}">Chấp nhận</option>
-                        <option value="denied" th:selected="${status == 'denied'}">Từ chối</option>
+                        <option value="reviewed" th:selected="${status == 'reviewing'}">Đang xem xét</option>
+                        <option value="hired" th:selected="${status == 'accepted'}">Chấp nhận</option>
+                        <option value="rejected" th:selected="${status == 'denied'}">Từ chối</option>
                         <option value="withdrawn" th:selected="${status == 'withdrawn'}">Rút hồ sơ</option>
                     </select>
                 </div>

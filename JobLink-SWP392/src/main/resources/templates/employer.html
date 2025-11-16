@@ -118,19 +118,19 @@
             </tr>
 
             <tr th:each="emp : ${employers}">
-                <td th:text="${emp.companyName}"></td>
-                <td th:text="${emp.email}"></td>
-                <td th:text="${emp.phoneNumber}"></td>
-                <td th:text="${emp.industry}"></td>
-                <td th:text="${emp.location}"></td>
-                <td th:text="${emp.createdAt != null ? #temporals.format(emp.createdAt, 'yyyy-MM-dd') : ''}"></td>
+                <td th:text="${emp?.companyName ?: ''}"></td>
+                <td th:text="${emp?.email ?: ''}"></td>
+                <td th:text="${emp?.phoneNumber ?: ''}"></td>
+                <td th:text="${emp?.industry ?: ''}"></td>
+                <td th:text="${emp?.location ?: ''}"></td>
+                <td th:text="${emp?.createdAtFormatted != null ? emp.createdAtFormatted : (emp?.createdAt != null ? #temporals.format(emp.createdAt, 'yyyy-MM-dd') : '')}"></td>
                 <td>
-                    <select name="status" class="status-dropdown" th:classappend="'status-' + ${emp.status}"
-                            th:attr="data-user-id=${emp.userId},data-current-status=${emp.status}"
+                    <select name="status" class="status-dropdown" th:classappend="'status-' + ${emp?.status}"
+                            th:attr="data-user-id=${emp?.userId},data-current-status=${emp?.status}"
                             onchange="window.updateEmployerStatus(this);">
-                        <option value="pending" th:selected="${emp.status == 'pending'}">Chờ xét duyệt</option>
-                        <option value="rejected" th:selected="${emp.status == 'rejected'}">Từ chối</option>
-                        <option value="accepted" th:selected="${emp.status == 'accepted'}">Chấp nhận</option>
+                        <option value="pending" th:selected="${emp?.status == 'pending'}">Chờ xét duyệt</option>
+                        <option value="rejected" th:selected="${emp?.status == 'rejected'}">Từ chối</option>
+                        <option value="accepted" th:selected="${emp?.status == 'accepted'}">Chấp nhận</option>
                     </select>
                 </td>
             </tr>

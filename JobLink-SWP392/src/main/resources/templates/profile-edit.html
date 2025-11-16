@@ -131,6 +131,9 @@
                 </button>
             </div>
 
+            <!-- Modal container cho Education (form sẽ hiển thị tại đây) -->
+            <div id="educationModalContainer"></div>
+
             <div class="items-list" id="educationList">
                 <div class="item-card" th:each="edu : ${educations}">
                     <div class="item-content">
@@ -156,8 +159,6 @@
                 </div>
             </div>
 
-            <!-- Modal container cho Education (form sẽ hiển thị tại đây) -->
-            <div id="educationModalContainer"></div>
         </section>
 
         <!-- Experience -->
@@ -168,6 +169,8 @@
                     <i class="fas fa-plus"></i> Add Experience
                 </button>
             </div>
+
+            <div id="experienceModalContainer"></div>
 
             <div class="items-list" id="experienceList">
                 <div class="item-card" th:each="exp : ${experiences}">
@@ -195,8 +198,6 @@
                     <p>No experience added yet</p>
                 </div>
             </div>
-
-            <div id="experienceModalContainer"></div>
         </section>
 
         <!-- Skills -->
@@ -241,6 +242,7 @@
                     <i class="fas fa-plus"></i> Add Language
                 </button>
             </div>
+            <div id="languagesModalContainer"></div>
 
             <div class="items-list" id="languagesList">
                 <div class="item-card" th:each="lang : ${languages}">
@@ -263,7 +265,6 @@
                 </div>
             </div>
 
-            <div id="languagesModalContainer"></div>
         </section>
 
         <!-- Certificates -->
@@ -274,6 +275,8 @@
                     <i class="fas fa-plus"></i> Add Certificate
                 </button>
             </div>
+
+            <div id="certificatesModalContainer"></div>
 
             <div class="certificates-grid" id="certificatesList">
                 <div class="certificate-card" th:each="cert : ${certificates}">
@@ -299,7 +302,6 @@
                 </div>
             </div>
 
-            <div id="certificatesModalContainer"></div>
         </section>
     </main>
 </div>
@@ -314,7 +316,7 @@
 <script th:inline="javascript">
     /*<![CDATA[*/
     const universities        = /*[[${universities}]]*/ [];
-    const degreeLevels        = /*[[${degreeLevels}]]*/ [];
+const degreeLevels        = /*[[${degreeLevels}]]*/ [];
     const commonSkills        = /*[[${commonSkills}]]*/ [];
     const recognizedLanguages = /*[[${recognizedLanguages}]]*/ [];
     const educations          = /*[[${educations}]]*/ [];

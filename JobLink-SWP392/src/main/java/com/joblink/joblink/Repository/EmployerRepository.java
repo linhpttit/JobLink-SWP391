@@ -61,9 +61,9 @@ public interface EmployerRepository extends JpaRepository<Employer, Long> {
                LOWER(e.location) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
                LOWER(e.phone_number) LIKE LOWER(CONCAT('%', :keyword, '%')))
           AND (:status IS NULL OR :status = '' OR
-               (:status = 'active' AND u.enabled = 1 AND NOT (u.created_at >= DATEADD(DAY, -7, GETDATE()))) OR
-               (:status = 'inactive' AND u.enabled = 0) OR
-               (:status = 'pending' AND u.enabled = 1 AND u.created_at >= DATEADD(DAY, -7, GETDATE())))
+               (:status = 'pending' AND e.approved IS NULL) OR
+               (:status = 'accepted' AND e.approved = 1) OR
+               (:status = 'rejected' AND e.approved = 0))
           AND (:industry IS NULL OR :industry = '' OR LOWER(e.industry) LIKE LOWER(CONCAT('%', :industry, '%')))
           AND (:dateFilter IS NULL OR :dateFilter = '' OR CAST(u.created_at AS DATE) = CAST(:dateFilter AS DATE))
         ORDER BY e.employer_id ASC
@@ -89,9 +89,9 @@ public interface EmployerRepository extends JpaRepository<Employer, Long> {
                LOWER(e.location) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
                LOWER(e.phone_number) LIKE LOWER(CONCAT('%', :keyword, '%')))
           AND (:status IS NULL OR :status = '' OR
-               (:status = 'active' AND u.enabled = 1 AND NOT (u.created_at >= DATEADD(DAY, -7, GETDATE()))) OR
-               (:status = 'inactive' AND u.enabled = 0) OR
-               (:status = 'pending' AND u.enabled = 1 AND u.created_at >= DATEADD(DAY, -7, GETDATE())))
+               (:status = 'pending' AND e.approved IS NULL) OR
+               (:status = 'accepted' AND e.approved = 1) OR
+               (:status = 'rejected' AND e.approved = 0))
           AND (:industry IS NULL OR :industry = '' OR LOWER(e.industry) LIKE LOWER(CONCAT('%', :industry, '%')))
           AND (:dateFilter IS NULL OR :dateFilter = '' OR CAST(u.created_at AS DATE) = CAST(:dateFilter AS DATE))
         ORDER BY e.employer_id ASC
@@ -121,9 +121,9 @@ public interface EmployerRepository extends JpaRepository<Employer, Long> {
                LOWER(e.location) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
                LOWER(e.phone_number) LIKE LOWER(CONCAT('%', :keyword, '%')))
           AND (:status IS NULL OR :status = '' OR
-               (:status = 'active' AND u.enabled = 1 AND NOT (u.created_at >= DATEADD(DAY, -7, GETDATE()))) OR
-               (:status = 'inactive' AND u.enabled = 0) OR
-               (:status = 'pending' AND u.enabled = 1 AND u.created_at >= DATEADD(DAY, -7, GETDATE())))
+               (:status = 'pending' AND e.approved IS NULL) OR
+               (:status = 'accepted' AND e.approved = 1) OR
+               (:status = 'rejected' AND e.approved = 0))
           AND (:industry IS NULL OR :industry = '' OR LOWER(e.industry) LIKE LOWER(CONCAT('%', :industry, '%')))
           AND (:dateFilter IS NULL OR :dateFilter = '' OR CAST(u.created_at AS DATE) = CAST(:dateFilter AS DATE))
         """, nativeQuery = true)

@@ -108,12 +108,29 @@ public class JobSeekerService implements IJobSeekerService {
                 return false;
             }
             
-            // Chuyển sang trạng thái đã khóa
+            // Chuyển sang trạng thái đã khóa trong JobSeekerProfile
             profile.setIsLocked(true);
             profile.setReceiveInvitations(false);
             profile.setUpdatedAt(LocalDateTime.now());
             
             jobSeekerRepository.save(profile);
+            
+            // Vô hiệu hóa tài khoản User để không thể đăng nhập
+            if (profile.getUserId() != null) {
+                try {
+                    com.joblink.joblink.entity.User user = userRepository.findById(profile.getUserId()).orElse(null);
+                    if (user != null) {
+                        user.setEnabled(false);
+                        userRepository.save(user);
+                        System.out.println("✅ Đã vô hiệu hóa tài khoản User ID: " + profile.getUserId());
+                    }
+                } catch (Exception e) {
+                    System.err.println("❌ Lỗi khi vô hiệu hóa User cho seeker " + seekerId + ": " + e.getMessage());
+                    e.printStackTrace();
+                    // Vẫn return true vì đã khóa profile thành công
+                }
+            }
+            
             return true;
         } catch (Exception e) {
             System.err.println("❌ Lỗi khi xóa mềm job seeker: " + e.getMessage());

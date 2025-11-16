@@ -156,7 +156,7 @@
                         <span>Job Invitation</span>
                     </a>
 
-                    <a class="usermenu__item" href="/subscriptions">
+                    <a class="usermenu__item" th:href="@{/jobseeker/email-subscriptions}">
                         <svg viewBox="0 0 24 24" width="20" height="20"><path d="M4 4h16v16H4z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 6l8 6 8-6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
                         <span>Email Subscriptions</span>
                     </a>
@@ -269,8 +269,7 @@
                     element.placeholder = translations[lang][key];
                 }
             });
-
-            // Update HTML lang attribute
+// Update HTML lang attribute
             document.documentElement.lang = lang;
         }
 
@@ -344,7 +343,7 @@
                     }
                 })
                 .catch(error => {
-                    console.error("Header auto-login error:", error);
+console.error("Header auto-login error:", error);
                     if (overlay) overlay.style.display = 'none';
                 });
 

@@ -4,8 +4,13 @@ import com.joblink.joblink.dao.BlockedEmployerDao;
 import com.joblink.joblink.dao.JobSeekerProfileDao;
 import com.joblink.joblink.dao.UserDao;
 import com.joblink.joblink.auth.model.User;
+import com.joblink.joblink.Repository.JobSeekerProfileRepository;
+import com.joblink.joblink.entity.JobSeekerProfile;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 @Service
 public class AccountService {
@@ -13,6 +18,8 @@ public class AccountService {
     private final AuthService authService;
     private final JobSeekerProfileDao profileDao;
     private final BlockedEmployerDao blockedEmployerDao;
+    @Autowired
+    private JobSeekerProfileRepository jobSeekerProfileRepository;
 
     public AccountService(UserDao userDao,
                           AuthService authService,
@@ -39,37 +46,40 @@ public class AccountService {
 
     /**
      * Vô hiệu hóa tài khoản (xóa mềm).
+     * Cập nhật cả User.enabled = false và JobSeekerProfile (nếu có).
      */
     @Transactional
     public boolean deactivateAccount(int userId) {
-
-        // VẤN ĐỀ HIỆN TẠI:
-        // 1. Bạn đang gọi `setHidden`, nhưng AuthController kiểm tra `isEnabled`.
-        // 2. Bạn đang truyền `false`, có nghĩa là "kích hoạt" thay vì "vô hiệu hóa".
-
-        // SỬA LẠI:
-        // Bạn phải gọi một phương thức để SET cờ 'enabled' thành 'false'.
-        // Giả sử UserDao của bạn có một phương thức tên là 'setEnabled'.
-        // (Nếu không có, bạn cần tạo nó)
-
         try {
-            // Giả sử userDao có phương thức setEnabled(userId, boolean)
+            // 1. Vô hiệu hóa tài khoản User để không thể đăng nhập
             int rowsAffected = userDao.setEnabled(userId, false);
-            return rowsAffected > 0;
+            
+            if (rowsAffected <= 0) {
+                System.err.println("❌ Không tìm thấy User để vô hiệu hóa, ID: " + userId);
+                return false;
+            }
+            
+            System.out.println("✅ Đã vô hiệu hóa User ID: " + userId);
+            
+            // 2. Nếu là jobseeker, cập nhật JobSeekerProfile để khóa
+            try {
+                JobSeekerProfile profile = jobSeekerProfileRepository.findByUserId(userId).orElse(null);
+                if (profile != null) {
+                    profile.setIsLocked(true);
+                    profile.setReceiveInvitations(false);
+                    profile.setUpdatedAt(LocalDateTime.now());
+                    jobSeekerProfileRepository.save(profile);
+                    System.out.println("✅ Đã cập nhật JobSeekerProfile ID: " + profile.getSeekerId() + " - đánh dấu là đã khóa");
+                }
+            } catch (Exception e) {
+                // Nếu không phải jobseeker hoặc không tìm thấy profile, không sao
+                System.out.println("ℹ️ Không tìm thấy JobSeekerProfile cho User ID: " + userId + " (có thể là employer hoặc chưa tạo profile)");
+            }
+            
+            return true;
 
         } catch (Exception e) {
-            // Có thể userDao không có phương thức setEnabled.
-            // Nếu bạn đang dùng Spring Data JPA (UserRepository), bạn sẽ làm thế này:
-
-            // User user = userRepository.findById(userId).orElse(null);
-            // if (user != null) {
-            //     user.setEnabled(false);
-            //     userRepository.save(user);
-            //     return true;
-            // }
-            // return false;
-
-            System.err.println("Lỗi khi vô hiệu hóa tài khoản: " + e.getMessage());
+            System.err.println("❌ Lỗi khi vô hiệu hóa tài khoản: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
