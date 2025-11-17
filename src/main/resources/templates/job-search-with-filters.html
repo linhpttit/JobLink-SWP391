@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tìm Kiếm Việc Làm - JobLink</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f6fa;
+            color: #333;
+        }
+
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .search-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .search-bar select, .search-bar input {
+            padding: 0.75rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .search-bar input {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .search-btn {
+            padding: 0.75rem 2rem;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .search-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .main-content {
+            display: flex;
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem 2rem;
+        }
+
+        .filters-panel {
+            width: 280px;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+            position: sticky;
+            top: 2rem;
+        }
+
+        .filter-section {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .filter-section:last-child {
+            border-bottom: none;
+        }
+
+        .filter-title {
+            font-weight: bold;
+            margin-bottom: 0.75rem;
+            color: #2c3e50;
+            font-size: 0.95rem;
+        }
+
+        .filter-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+        }
+
+        .checkbox-wrapper input[type="checkbox"] {
+            margin-right: 0.5rem;
+            cursor: pointer;
+        }
+
+        .checkbox-wrapper label {
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .filter-btn {
+            flex: 1;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+        .filter-btn.confirm {
+            background-color: #e74c3c;
+            color: white;
+            border-color: #e74c3c;
+        }
+
+        .filter-btn.reset {
+            background-color: white;
+            color: #333;
+        }
+
+        .filter-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .jobs-panel {
+            flex: 1;
+        }
+
+        .company-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .company-banner-image {
+            width: 120px;
+            height: 120px;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #667eea;
+            flex-shrink: 0;
+        }
+
+        .company-info h3 {
+            margin-bottom: 0.5rem;
+            font-size: 1.3rem;
+        }
+
+        .company-info p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .results-count {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .job-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .job-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            border-left: 4px solid #e74c3c;
+            transition: all 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .job-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateX(4px);
+        }
+
+        .job-card.active {
+            background-color: #f0f0f0;
+            border-left-color: #667eea;
+        }
+
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            gap: 1rem;
+            flex: 1;
+        }
+
+        .job-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .job-company {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .job-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.85rem;
+            color: #95a5a6;
+            flex-wrap: wrap;
+        }
+
+        .job-skills {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 0.75rem;
+        }
+
+        .skill-tag {
+            background-color: #ecf0f1;
+            color: #34495e;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+
+        .job-salary {
+            color: #e74c3c;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .super-hot {
+            background-color: #e74c3c;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .job-details-panel {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            min-height: 400px;
+            position: sticky;
+            top: 2rem;
+        }
+
+        .job-details-panel.hidden {
+            display: none;
+        }
+
+        .detail-header {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #ecf0f1;
+        }
+
+        .detail-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .detail-company {
+            font-size: 1.1rem;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .detail-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-section-title {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+        }
+
+        .detail-content {
+            color: #555;
+            line-height: 1.6;
+            font-size: 0.9rem;
+        }
+
+        .apply-btn {
+            width: 100%;
+            padding: 1rem;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        .apply-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+        }
+
+        .pagination button {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .pagination button.active {
+            background-color: #e74c3c;
+            color: white;
+            border-color: #e74c3c;
+        }
+
+        .pagination button:hover {
+            border-color: #e74c3c;
+        }
+
+        .suggestions-dropdown {
+            position: absolute;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 100%;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 10;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .suggestion-group {
+            padding: 0.5rem 0;
+        }
+
+        .suggestion-group-title {
+            padding: 0.5rem 1rem;
+            background-color: #ecf0f1;
+            font-weight: bold;
+            font-size: 0.8rem;
+            color: #7f8c8d;
+        }
+
+        .suggestion-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .suggestion-item:hover {
+            background-color: #ecf0f1;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                flex-direction: column;
+            }
+
+            .filters-panel {
+                width: 100%;
+                position: static;
+            }
+
+            .job-details-panel {
+                position: static;
+            }
+
+            .company-banner {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="header-content">
+        <h1>JobLink</h1>
+        <div>
+            <a href="/jobseeker/dashboard">Dashboard</a>
+            <a href="/jobseeker/email-subscriptions">Đăng ký thông báo</a>
+            <a href="/auth/logout">Đăng xuất</a>
+        </div>
+    </div>
+</header>
+
+<div class="search-container">
+    <div class="search-bar">
+        <select id="provinceFilter">
+            <option value="">Tất cả thành phố</option>
+            <option th:each="province : ${provinces}"
+                    th:value="${province.provinceId}"
+                    th:text="${province.provinceName}"></option>
+        </select>
+
+        <input type="text" id="keywordInput" placeholder="Nhập từ khóa theo kỹ năng, chức vụ, công ty...">
+
+        <button class="search-btn" onclick="performSearch()">Tìm Kiếm</button>
+        <button class="search-btn" onclick="openAdvancedFilters()">Bộ lọc</button>
+    </div>
+
+    <div id="suggestionsDropdown" class="suggestions-dropdown" style="display: none;"></div>
+</div>
+
+<div class="main-content">
+    <!-- Filters Panel -->
+    <div class="filters-panel">
+        <div class="filter-section">
+            <div class="filter-title">Kỹ năng</div>
+            <div class="filter-options" id="skillsFilter">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <div class="filter-title">Công ty</div>
+            <select id="companyFilter" style="width: 100%; padding: 0.5rem;">
+                <option value="">Tất cả công ty</option>
+            </select>
+        </div>
+
+        <div class="filter-section">
+            <div class="filter-title">Loại công việc</div>
+            <div class="filter-options" id="workTypeFilter">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+
+        <div class="filter-buttons">
+            <button class="filter-btn confirm" onclick="applyFilters()">Áp dụng</button>
+            <button class="filter-btn reset" onclick="resetFilters()">Xóa</button>
+        </div>
+    </div>
+
+    <!-- Jobs Panel -->
+    <div class="jobs-panel">
+        <!-- Company Banner -->
+        <div class="company-banner" th:if="${topCompany != null}">
+            <div class="company-banner-image" th:text="${topCompany.companyName}"></div>
+            <div class="company-info">
+                <h3 th:text="${topCompany.companyName}"></h3>
+                <p th:text="'Nhà tuyển dụng hàng đầu'"></p>
+                <p th:text="'Số lượng việc làm: ' + ${topCompany.jobCount}"></p>
+            </div>
+        </div>
+
+        <!-- Results Header -->
+        <div class="results-header">
+            <div class="results-count" id="resultsCount">Đang tải...</div>
+        </div>
+
+        <!-- Job List -->
+        <div class="job-list" id="jobsList">
+            <!-- Populated by JavaScript -->
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" id="pagination"></div>
+    </div>
+
+    <!-- Job Details Panel -->
+    <div class="job-details-panel" id="jobDetailsPanel">
+        <p style="color: #999; text-align: center;">Chọn một việc làm để xem chi tiết</p>
+    </div>
+</div>
+
+<script>
+    let currentPage = 1;
+    let pageSize = 5;
+    let selectedFilters = {
+        skills: [],
+        company: null,
+        workType: [],
+        province: null
+    };
+
+    // Initialize filters
+    document.addEventListener('DOMContentLoaded', function() {
+        loadSkills();
+        loadCompanies();
+        loadWorkTypes();
+        performSearch();
+
+        // Live search
+        document.getElementById('keywordInput').addEventListener('input', function(e) {
+            if (e.target.value.length > 2) {
+                loadSuggestions(e.target.value);
+            } else {
+                document.getElementById('suggestionsDropdown').style.display = 'none';
+            }
+        });
+    });
+
+    function loadSkills() {
+        fetch('/jobseeker/api/all-skills')
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('skillsFilter');
+                container.innerHTML = '';
+                data.forEach(skill => {
+                    const checkbox = document.createElement('div');
+                    checkbox.className = 'checkbox-wrapper';
+                    checkbox.innerHTML = `
+                        <input type="checkbox" value="${skill.skill_id}"
+                               onchange="updateSkillFilter()">
+                        <label>${skill.skill_name}</label>
+                    `;
+                    container.appendChild(checkbox);
+                });
+            });
+    }
+
+    function loadCompanies() {
+        fetch('/jobseeker/api/all-companies')
+            .then(response => response.json())
+            .then(data => {
+                const select = document.getElementById('companyFilter');
+                data.forEach(company => {
+                    const option = document.createElement('option');
+                    option.value = company.company_id;
+                    option.text = company.company_name;
+                    select.appendChild(option);
+                });
+            });
+    }
+
+    function loadWorkTypes() {
+        fetch('/jobseeker/api/work-types')
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('workTypeFilter');
+                data.forEach(type => {
+                    const checkbox = document.createElement('div');
+                    checkbox.className = 'checkbox-wrapper';
+                    checkbox.innerHTML = `
+                        <input type="checkbox" value="${type}"
+                               onchange="updateWorkTypeFilter()">
+                        <label>${type}</label>
+                    `;
+                    container.appendChild(checkbox);
+                });
+            });
+    }
+
+    function loadSuggestions(query) {
+        fetch(`/jobseeker/api/live-suggestions?query=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+                const dropdown = document.getElementById('suggestionsDropdown');
+                let html = '';
+
+                if (data.skills && data.skills.length > 0) {
+                    html += '<div class="suggestion-group">';
+                    html += '<div class="suggestion-group-title">Skills & Expertise</div>';
+                    data.skills.forEach(skill => {
+                        html += `<div class="suggestion-item" onclick="selectSuggestion('${skill}')">${skill}</div>`;
+                    });
+                    html += '</div>';
+                }
+
+                if (data.companies && data.companies.length > 0) {
+                    html += '<div class="suggestion-group">';
+                    html += '<div class="suggestion-group-title">Companies</div>';
+                    data.companies.forEach(company => {
+                        html += `<div class="suggestion-item" onclick="selectSuggestion('${company.company_name}')">${company.company_name}</div>`;
+                    });
+                    html += '</div>';
+                }
+
+                if (html) {
+                    dropdown.innerHTML = html;
+                    dropdown.style.display = 'block';
+                }
+            });
+    }
+
+    function selectSuggestion(suggestion) {
+        document.getElementById('keywordInput').value = suggestion;
+        document.getElementById('suggestionsDropdown').style.display = 'none';
+        performSearch();
+    }
+
+    function updateSkillFilter() {
+        const checkboxes = document.querySelectorAll('#skillsFilter input[type="checkbox"]');
+        selectedFilters.skills = Array.from(checkboxes)
+            .filter(cb => cb.checked)
+            .map(cb => parseInt(cb.value));
+    }
+
+    function updateWorkTypeFilter() {
+        const checkboxes = document.querySelectorAll('#workTypeFilter input[type="checkbox"]');
+        selectedFilters.workType = Array.from(checkboxes)
+            .filter(cb => cb.checked)
+            .map(cb => cb.value);
+    }
+
+    function performSearch() {
+        const keyword = document.getElementById('keywordInput').value;
+        const province = document.getElementById('provinceFilter').value;
+
+        let url = `/jobseeker/api/jobs-by-filters?page=${currentPage}&pageSize=${pageSize}`;
+        if (keyword) url += `&keyword=${encodeURIComponent(keyword)}`;
+        if (province) url += `&provinceId=${province}`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => displayJobs(data));
+    }
+
+    function applyFilters() {
+        updateSkillFilter();
+        document.getElementById('provinceFilt.value;
+        if (selectedFilters.skills.length > 0) {
+            fetchJobsBySkills();
+        } else {
+            performSearch();
+        }
+        currentPage = 1;
+    }
+
+    function resetFilters() {
+        document.querySelectorAll('#skillsFilter input[type="checkbox"]').forEach(cb => cb.checked = false);
+        document.querySelectorAll('#workTypeFilter input[type="checkbox"]').forEach(cb => cb.checked = false);
+        document.getElementById('companyFilter').value = '';
+        document.getElementById('keywordInput').value = '';
+        selectedFilters = { skills: [], company: null, workType: [], province: null };
+        currentPage = 1;
+        performSearch();
+    }
+
+    function fetchJobsBySkills() {
+        if (selectedFilters.skills.length === 0) {
+            performSearch();
+            return;
+        }
+
+        const provinceId = document.getElementById('provinceFilter').value || null;
+        const skillParams = selectedFilters.skills.map(s => `skillIds=${s}`).join('&');
+        const provinceParam = provinceId ? `&provinceId=${provinceId}` : '';
+
+        fetch(`/jobseeker/api/jobs-by-skills?${skillParams}${provinceParam}&page=${currentPage}&pageSize=${pageSize}`)
+            .then(response => response.json())
+            .then(data => displayJobs(data));
+    }
+
+    function displayJobs(data) {
+        const jobsList = document.getElementById('jobsList');
+        jobsList.innerHTML = '';
+
+        if (!data.jobs || data.jobs.length === 0) {
+            jobsList.innerHTML = '<p style="color: #999;">Không tìm thấy việc làm phù hợp</p>';
+            document.getElementById('resultsCount').textContent = 'Không có kết quả';
+            return;
+        }
+
+        document.getElementById('resultsCount').textContent = `${data.total} việc làm`;
+
+        data.jobs.forEach(job => {
+            const isHot = new Date(job.posted_at).getTime() > Date.now() - 7 * 24 * 60 * 60 * 1000;
+            const skills = job.skills ? job.skills.split(', ') : [];
+
+            const card = document.createElement('div');
+            card.className = 'job-card';
+            card.onclick = () => showJobDetails(job);
+
+            let skillsHtml = skills.slice(0, 3).map(s => `<span class="skill-tag">${s}</span>`).join('');
+
+            card.innerHTML = `
+                <div class="job-header">
+                    <div>
+                        <div class="job-title">${job.title}</div>
+                        <div class="job-company">${job.company_name}</div>
+                        <div class="job-meta">
+                            <span>📍 ${job.province}</span>
+                            <span>${job.work_type}</span>
+                            <span>${job.experience}</span>
+                        </div>
+                        <div class="job-skills">${skillsHtml}</div>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    ${isHot ? '<span class="super-hot">SUPER HOT</span>' : ''}
+                    <div class="job-salary">$${(job.salary_min / 1000000).toFixed(0)}M - $${(job.salary_max / 1000000).toFixed(0)}M</div>
+                </div>
+            `;
+
+            jobsList.appendChild(card);
+        });
+
+        displayPagination(data.total_pages || data.totalPages || 1);
+    }
+
+    function showJobDetails(job) {
+        const panel = document.getElementById('jobDetailsPanel');
+        const skills = job.skills ? job.skills.split(', ') : [];
+
+        panel.innerHTML = `
+            <div class="detail-header">
+                <div class="detail-title">${job.title}</div>
+                <div class="detail-company">${job.company_name}</div>
+            </div>
+
+            <div class="detail-section">
+                <div class="detail-section-title">📍 Địa điểm</div>
+                <div class="detail-content">${job.province}, ${job.district || ''}</div>
+            </div>
+
+            <div class="detail-section">
+                <div class="detail-section-title">💰 Lương</div>
+                <div class="detail-content">$${(job.salary_min / 1000000).toFixed(1)}M - $${(job.salary_max / 1000000).toFixed(1)}M</div>
+            </div>
+
+            <div class="detail-section">
+                <div class="detail-section-title">💼 Loại công việc</div>
+                <div class="detail-content">${job.work_type} • ${job.experience}</div>
+            </div>
+
+            <div class="detail-section">
+                <div class="detail-section-title">🎓 Kỹ năng yêu cầu</div>
+                <div class="detail-content">${skills.join(', ')}</div>
+            </div>
+
+            <button class="apply-btn" onclick="applyJob(${job.job_id})">Ứng tuyển</button>
+        `;
+    }
+
+    function applyJob(jobId) {
+        window.location.href = `/jobseeker/job-detail/${jobId}`;
+    }
+
+    function displayPagination(totalPages) {
+        const pagination = document.getElementById('pagination');
+        pagination.innerHTML = '';
+
+        for (let i = 1; i <= totalPages; i++) {
+            const btn = document.createElement('button');
+            btn.textContent = i;
+            btn.className = i === currentPage ? 'active' : '';
+            btn.onclick = () => {
+                currentPage = i;
+                performSearch();
+            };
+            pagination.appendChild(btn);
+        }
+    }
+
+    function openAdvancedFilters() {
+        alert('Advanced filters modal - expand as needed');
+    }
+</script>
+</body>
+</html>

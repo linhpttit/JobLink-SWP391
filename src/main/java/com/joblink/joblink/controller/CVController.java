@@ -2,7 +2,7 @@ package com.joblink.joblink.controller;
 
 import com.joblink.joblink.dto.UserSessionDTO; // ✅ IMPORT ĐÚNG
 import com.joblink.joblink.model.CVUpload;
-import com.joblink.joblink.model.JobSeekerProfile;
+import com.joblink.joblink.model.JobSeekerProfile2;
 import com.joblink.joblink.service.CVUploadService;
 import com.joblink.joblink.service.FileUploadService;
 import com.joblink.joblink.service.ProfileService;
@@ -58,7 +58,7 @@ public class CVController {
         }
 
         // Get profile to auto-fill basic information
-        JobSeekerProfile profile = profileService.getOrCreateProfile(user.getUserId());
+        JobSeekerProfile2 profile = profileService.getOrCreateProfile(user.getUserId());
 
         // Get recent CV uploads (last 5)
         List<CVUpload> recentCVs = cvUploadService.getRecentCVs(profile.getSeekerId(), 5);
@@ -101,7 +101,7 @@ public class CVController {
             String cvFileUrl = fileUploadService.uploadCV(cvFile);
 
             // Get profile
-            JobSeekerProfile profile = profileService.getOrCreateProfile(user.getUserId());
+            JobSeekerProfile2 profile = profileService.getOrCreateProfile(user.getUserId());
 
             // Create CV upload record
             CVUpload cv = new CVUpload();

@@ -9,7 +9,7 @@ import java.util.Optional;
 public interface IJobPostingService {
 
     // Giữ nguyên: Nhận thêm employerId để không bị hard-code
-    JobPosting createJobPosting(JobPostingDto dto);
+    JobPosting createJobPosting(JobPostingDto dto, Integer employerId);
 
     // Bổ sung phương thức cập nhật
     Optional<JobPosting> updateJobPosting(Long jobPostingId, JobPostingDto dto);
@@ -17,6 +17,7 @@ public interface IJobPostingService {
     void deleteJobPostingById(Long id);
     void editJobPostingByEntity(Long id, JobPosting posting);
     List<JobPosting> getAllJobPostings();
+    List<JobPosting> getJobPostingsByEmployerId(Integer employerId);
 
     // Sửa lại kiểu dữ liệu của ID thành Long cho nhất quán
     Optional<JobPosting> findJobPostingById(Long id);

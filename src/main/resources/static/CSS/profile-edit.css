@@ -1,67 +1,89 @@
-/* === Reset & Font === */
+/* =========================
+   Biến màu & thiết lập chung
+   ========================= */
+:root {
+    --bg-page: #f5f7fb;
+    --card-bg: #ffffff;
+    --primary: #2563eb;
+    --primary-soft: #e0edff;
+    --primary-strong: #1d4ed8;
+    --text-main: #111827;
+    --text-muted: #6b7280;
+    --border-soft: #e5e7eb;
+    --shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.08);
+    --radius-lg: 20px;
+    --radius-xl: 24px;
+    --transition-fast: 0.2s ease;
+    --danger: #ef4444;
+}
+
+/* reset nhẹ */
 body {
-    font-family: "Inter", "Segoe UI", Arial, sans-serif;
-    background-color: #fafafa;
-    color: #333;
-    line-height: 1.6;
-    margin: 0;
-    padding: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg-page);
+    color: var(--text-main);
 }
 
-/* === Container Layout === */
+/* =========================
+   Layout chính
+   ========================= */
+
 .profile-container {
+    max-width: 1200px;
+    margin: 32px 70px 32px 400px;
+    padding: 24px;
     display: flex;
-    gap: 2rem;
-    padding: 2rem 6%;
+    gap: 24px;
+    border-radius: var(--radius-xl);
+    background: #f9fbff;
+    border: 1px solid #d0ddff;
+    box-shadow: var(--shadow-soft);
 }
 
-/* === Sidebar Progress === */
+/* Sidebar bên trái */
 .progress-sidebar {
-    width: 25%;
-    position: sticky;
-    top: 90px;
-    align-self: flex-start;
+    flex: 0 0 260px;
 }
 
 .progress-card {
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-    padding: 1.5rem;
-    text-align: center;
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    padding: 24px 20px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+    position: sticky;
+    top: 96px;
 }
 
 .progress-card h3 {
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: #222;
-    margin-bottom: 1rem;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 18px;
 }
 
-/* === Circle Progress === */
+/* Vòng tròn tiến độ */
 .progress-circle {
-    position: relative;
     width: 130px;
     height: 130px;
-    margin: 1rem auto;
+    margin: 0 auto 18px;
+    position: relative;
 }
 
 .progress-circle svg {
+    width: 100%;
+    height: 100%;
     transform: rotate(-90deg);
-    width: 130px;
-    height: 130px;
 }
 
 .progress-bg {
     fill: none;
-    stroke: #f0f0f0;
-    stroke-width: 10;
+    stroke: #e5edff;
+    stroke-width: 8;
 }
 
 .progress-bar {
     fill: none;
-    stroke: #e63946; /* ITviec red */
-    stroke-width: 10;
+    stroke: var(--primary);
+    stroke-width: 8;
     stroke-linecap: round;
     stroke-dasharray: 283;
     transition: stroke-dashoffset 0.4s ease;
@@ -69,314 +91,702 @@ body {
 
 .progress-text {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-weight: 700;
-    font-size: 1.3rem;
-    color: #222;
+    font-size: 20px;
+    color: var(--primary-strong);
 }
 
-/* === Missing Sections === */
 .missing-sections {
-    text-align: left;
-    margin-top: 1.2rem;
+    margin-bottom: 16px;
+    padding: 12px;
+    border-radius: 12px;
+    background: #f9fafb;
+    border: 1px dashed #e5e7eb;
 }
 
 .missing-sections h4 {
-    font-size: 0.95rem;
+    font-size: 13px;
     font-weight: 600;
-    margin-bottom: 0.3rem;
+    margin-bottom: 6px;
 }
 
 .missing-sections ul {
-    list-style: none;
-    padding: 0;
+    padding-left: 18px;
     margin: 0;
+    font-size: 13px;
+    color: var(--text-muted);
 }
 
-.missing-sections li {
-    font-size: 0.9rem;
-    padding-left: 1.1rem;
-    position: relative;
-    margin-bottom: 0.2rem;
-}
-
-.missing-sections li::before {
-    content: "+";
-    position: absolute;
-    left: 0;
-    color: #e63946;
-    font-weight: bold;
-}
-
-/* === Preview Button === */
+/* nút preview CV */
 .btn-preview {
-    display: inline-block;
-    margin-top: 1.3rem;
-    background: #e63946;
-    color: white;
-    font-weight: 600;
-    padding: 0.7rem 1.2rem;
-    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--primary);
+    color: var(--primary);
+    background: #eff6ff;
+    font-size: 14px;
+    font-weight: 500;
     text-decoration: none;
-    transition: 0.25s;
-}
-
-.btn-preview i {
-    margin-right: 6px;
+    transition: background var(--transition-fast), color var(--transition-fast),
+                box-shadow var(--transition-fast), transform var(--transition-fast);
 }
 
 .btn-preview:hover {
-    background: #cc2f3d;
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 8px 18px rgba(37, 99, 235, 0.35);
+    transform: translateY(-1px);
 }
 
-/* === Main Content === */
+/* Khu vực main bên phải */
 .profile-main {
-    width: 75%;
+    flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 24px;
 }
 
-/* === Section Card === */
+/* =========================
+   Alert / message
+   ========================= */
+
+/* Alert nổi giữa màn hình, tự mờ sau 7s */
+.alert {
+    position: fixed;
+    left: 50%;
+    top: 20px;                 /* có thể chỉnh cao/thấp hơn */
+    transform: translateX(-50%);
+    z-index: 9999;
+
+    max-width: 600px;
+    width: fit-content;
+    padding: 10px 24px;
+    border-radius: 999px;
+    font-size: 14px;
+
+    /* màu ban đầu: tím */
+    background: #6d28d9;
+    color: #ffffff;
+    border: 1px solid #4c1d95;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.25);
+
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    pointer-events: none;      /* không chặn click vào nội dung phía dưới */
+
+    /* animation 7s: hiện lên + nhạt màu + mờ dần */
+    animation: alert-fade 7s ease-in-out forwards;
+}
+
+/* Nếu muốn vẫn phân biệt success/error bằng viền & icon màu khác */
+.alert-success {
+    border-color: #22c55e;
+}
+
+.alert-error {
+    border-color: #ef4444;
+}
+
+/* Keyframes: từ tím đậm -> tím nhạt -> trong suốt */
+@keyframes alert-fade {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -10px);
+        background: #6d28d9;
+        color: #ffffff;
+    }
+    15% {
+        opacity: 1;
+        transform: translate(-50%, 0);
+        background: #6d28d9;
+        color: #ffffff;
+    }
+    80% {
+        opacity: 1;
+        background: #e9d5ff;   /* tím rất nhạt */
+        color: #4c1d95;
+    }
+    100% {
+        opacity: 0;
+        background: rgba(233, 213, 255, 0);
+        color: rgba(76, 29, 149, 0);
+    }
+}
+
+
+/* =========================
+   Section chung
+   ========================= */
+
 .profile-section {
-    background: #fff;
-    border-radius: 10px;
-    padding: 1.5rem 2rem;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.07);
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    padding: 20px 24px 24px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
 }
 
 .section-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.3rem;
+    justify-content: space-between;
+    margin-bottom: 18px;
 }
 
 .section-header h2 {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: #222;
+    font-size: 18px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
+.section-header h2 i {
+    color: var(--primary);
+}
+
+/* nút thêm (+ Add New) */
 .btn-add {
-    background: #f5f5f5;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 0.5rem 0.9rem;
-    font-weight: 600;
-    color: #333;
+    border: none;
+    outline: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 500;
+    background: #eff6ff;
+    color: var(--primary-strong);
     cursor: pointer;
-    transition: 0.2s;
+    transition: background var(--transition-fast), transform var(--transition-fast),
+                box-shadow var(--transition-fast);
 }
 
 .btn-add i {
-    color: #e63946;
-    margin-right: 4px;
+    font-size: 12px;
 }
 
 .btn-add:hover {
-    background: #fff2f2;
-    border-color: #e63946;
+    background: var(--primary);
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(37, 99, 235, 0.25);
 }
 
-/* === Avatar Upload === */
-.avatar-upload {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    margin-bottom: 1.5rem;
-}
+/* =========================
+   Form Basic Info
+   ========================= */
 
-.avatar-preview img {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid #e63946;
-}
-
-.btn-upload {
-    display: inline-block;
-    background: #f8f8f8;
-    border: 1px solid #ddd;
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 600;
-}
-
-.btn-upload:hover {
-    background: #fff2f2;
-    color: #e63946;
-}
-
-/* === Form === */
 .profile-form {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 20px;
 }
 
+/* avatar + nút đổi avatar */
+.avatar-upload {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 8px;
+}
+
+.avatar-preview img {
+    width: 80px;
+    height: 80px;
+    border-radius: 999px;
+    object-fit: cover;
+    border: 4px solid #e5edff;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
+    background: #f3f4f6;
+}
+
+.avatar-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.btn-upload {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: #f3f4ff;
+    color: var(--primary-strong);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--primary-soft);
+    transition: background var(--transition-fast), color var(--transition-fast),
+                box-shadow var(--transition-fast), transform var(--transition-fast);
+}
+
+.btn-upload i {
+    font-size: 13px;
+}
+
+.btn-upload:hover {
+    background: var(--primary);
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 20px rgba(37, 99, 235, 0.35);
+}
+
+/* lưới các input */
 .form-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1rem 2rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 18px;
 }
 
 .form-group {
     display: flex;
     flex-direction: column;
+    gap: 6px;
+    font-size: 14px;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
 }
 
 .form-group label {
-    font-weight: 600;
-    font-size: 0.9rem;
-    margin-bottom: 0.3rem;
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea {
-    padding: 0.6rem 0.8rem;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-size: 0.95rem;
-    transition: 0.2s;
-}
-
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-    border-color: #e63946;
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(230, 57, 70, 0.15);
-}
-
-.form-group small {
-    font-size: 0.8rem;
-    color: #777;
+    font-weight: 500;
 }
 
 .required {
-    color: #e63946;
+    color: #ef4444;
 }
 
-/* === Buttons === */
+/* input, select, textarea chung */
+.profile-form input[type="text"],
+.profile-form input[type="date"],
+.profile-form input[type="tel"],
+.profile-form input[type="email"],
+.profile-form select,
+.profile-form textarea {
+    width: 100%;
+    font-size: 14px;
+    padding: 9px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--border-soft);
+    background: #f9fafb;
+    outline: none;
+    transition: border-color var(--transition-fast),
+                box-shadow var(--transition-fast),
+                background var(--transition-fast),
+                transform var(--transition-fast);
+}
+
+.profile-form textarea {
+    border-radius: 14px;
+    resize: vertical;
+    min-height: 110px;
+    line-height: 1.4;
+}
+
+.profile-form input:focus,
+.profile-form select:focus,
+.profile-form textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.3);
+    background: #ffffff;
+    transform: translateY(-1px);
+}
+
+.profile-form small {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* =========================
+   Nút chính (Save Basic Info)
+   ========================= */
+
 .btn-primary {
-    background: #e63946;
-    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 22px;
+    border-radius: 999px;
     border: none;
-    border-radius: 6px;
-    padding: 0.7rem 1.3rem;
+    font-size: 14px;
     font-weight: 600;
+    background: var(--primary);
+    color: #fff;
     cursor: pointer;
-    transition: 0.25s;
-    align-self: flex-start;
+    margin-top: 4px;
+    align-self: flex-end;
+    box-shadow: 0 12px 25px rgba(37, 99, 235, 0.5);
+    transition: background var(--transition-fast), transform var(--transition-fast),
+                box-shadow var(--transition-fast);
+}
+
+.btn-primary i {
+    font-size: 14px;
 }
 
 .btn-primary:hover {
-    background: #cc2f3d;
+    background: var(--primary-strong);
+    transform: translateY(-1px);
+    box-shadow: 0 16px 32px rgba(37, 99, 235, 0.6);
 }
 
-/* === Item Lists (Education, Experience, etc.) === */
-.items-list,
-.skills-grid,
-.certificates-grid {
+/* =========================
+   Card list: Education / Exp / Language
+   ========================= */
+
+.items-list {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 10px;
 }
 
-.item-card,
-.skill-card,
-.certificate-card {
+.item-card {
     display: flex;
-    justify-content: space-between;
     align-items: flex-start;
-    background: #fff;
-    border: 1px solid #eee;
-    border-radius: 8px;
-    padding: 1rem 1.3rem;
-    transition: 0.2s;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    transition: box-shadow var(--transition-fast), transform var(--transition-fast),
+                background var(--transition-fast), border-color var(--transition-fast);
 }
 
-.item-card:hover,
-.skill-card:hover,
-.certificate-card:hover {
-    border-color: #e63946;
-    background: #fff7f7;
+.item-card:hover {
+    background: #ffffff;
+    border-color: #d1d5db;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.07);
+    transform: translateY(-1px);
 }
 
-.item-content h3,
-.skill-content h4 {
-    margin: 0;
-    color: #111;
+.item-content h3 {
+    font-size: 15px;
     font-weight: 600;
+    margin-bottom: 4px;
 }
 
 .item-meta {
-    font-size: 0.9rem;
-    color: #777;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
 }
 
-.item-desc,
-.skill-desc {
-    margin-top: 0.3rem;
-    font-size: 0.9rem;
-    color: #444;
+.item-desc {
+    font-size: 13px;
+    color: #4b5563;
 }
 
+.item-desc a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.item-desc a:hover {
+    text-decoration: underline;
+}
+
+/* nút icon chỉnh sửa / xóa */
 .item-actions,
 .skill-actions,
 .certificate-actions {
     display: flex;
-    gap: 0.4rem;
+    align-items: center;
+    gap: 6px;
 }
 
 .btn-icon {
-    background: #f8f8f8;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    padding: 0.4rem 0.6rem;
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    border: none;
+    background: #eef2ff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    transition: 0.2s;
+    font-size: 13px;
+    color: #4b5563;
+    transition: background var(--transition-fast), color var(--transition-fast),
+                transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .btn-icon:hover {
-    background: #fff2f2;
-    border-color: #e63946;
+    background: var(--primary);
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 16px rgba(37, 99, 235, 0.4);
 }
 
-.btn-icon i {
-    color: #e63946;
+.btn-icon.btn-danger {
+    background: #fee2e2;
+    color: #b91c1c;
 }
 
-.btn-danger i {
-    color: #a80000;
+.btn-icon.btn-danger:hover {
+    background: var(--danger);
+    color: #fff;
+    box-shadow: 0 8px 18px rgba(239, 68, 68, 0.5);
 }
 
-/* === Empty State === */
+/* empty state */
 .empty-state {
+    padding: 18px 14px;
+    border-radius: 14px;
+    border: 1px dashed #d1d5db;
+    background: #f9fafb;
     text-align: center;
-    color: #999;
-    padding: 2rem 0;
+    font-size: 13px;
+    color: var(--text-muted);
 }
 
 .empty-state i {
-    font-size: 1.8rem;
-    color: #e63946;
-    margin-bottom: 0.5rem;
+    font-size: 18px;
+    margin-bottom: 6px;
+    color: #9ca3af;
 }
 
-/* === Responsive === */
+/* =========================
+   Skills
+   ========================= */
+
+.skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 12px;
+}
+
+.skill-card {
+    padding: 14px 14px;
+    border-radius: 16px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    transition: box-shadow var(--transition-fast), transform var(--transition-fast),
+                background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.skill-card:hover {
+    background: #ffffff;
+    border-color: #d1d5db;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.07);
+    transform: translateY(-1px);
+}
+
+.skill-content h4 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.skill-years {
+    font-size: 12px;
+    color: var(--primary-strong);
+    margin-bottom: 4px;
+}
+
+.skill-desc {
+    font-size: 13px;
+    color: #4b5563;
+}
+
+/* =========================
+   Certificates
+   ========================= */
+
+.certificates-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 14px;
+}
+
+.certificate-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 16px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    transition: box-shadow var(--transition-fast), transform var(--transition-fast),
+                background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.certificate-card:hover {
+    background: #ffffff;
+    border-color: #d1d5db;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.07);
+    transform: translateY(-1px);
+}
+
+.certificate-image img {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    object-fit: cover;
+    border: 1px solid #e5e7eb;
+    background: #f3f4f6;
+}
+
+.certificate-content h4 {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.certificate-content p {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+/* =========================
+   Responsive
+   ========================= */
+
 @media (max-width: 992px) {
     .profile-container {
         flex-direction: column;
+        padding: 18px;
     }
-    .progress-sidebar,
-    .profile-main {
-        width: 100%;
+
+    .progress-sidebar {
+        flex: 1;
+        order: -1;
+    }
+
+    .progress-card {
+        position: static;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .btn-primary {
+        align-self: stretch;
+        justify-content: center;
     }
 }
+
+@media (max-width: 640px) {
+    .profile-container {
+        margin: 16px auto 32px;
+        border-radius: 0;
+    }
+
+    .profile-section {
+        padding: 16px 14px 20px;
+    }
+
+    .section-header h2 {
+        font-size: 16px;
+    }
+
+    .avatar-upload {
+        align-items: flex-start;
+    }
+}
+/* ========= Căn giữa tiêu đề BASIC INFORMATION ========= */
+
+/* Section đầu tiên trong profile-main (Basic Information) */
+.profile-main .profile-section:first-of-type .section-header {
+    justify-content: center;
+}
+
+.profile-main .profile-section:first-of-type .section-header h2 {
+    font-size: 18px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.profile-main .profile-section:first-of-type .section-header h2 i {
+    color: #2563eb;
+}
+
+/* ========= Layout lại form Basic Information ========= */
+
+/* Dùng grid 1/4 + 3/4 cho avatar + các field */
+.profile-section .profile-form {
+    display: grid;
+    grid-template-columns: 1fr 3fr;    /* 1/4 : 3/4 */
+    column-gap: 24px;
+    row-gap: 20px;
+    align-items: flex-start;
+}
+
+/* Avatar ở cột trái, trên cùng */
+.profile-section .avatar-upload {
+    grid-column: 1 / 2;
+    grid-row: 1 / 3;                   /* span xuống để cao gần bằng khối bên phải */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Khối input thông tin cơ bản ở cột phải */
+.profile-section .form-grid {
+    grid-column: 2 / 3;
+    grid-row: 1 / 2;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 18px;
+}
+
+/* Headline và Self-Introduction full-width, nằm bên dưới */
+.profile-section .form-group.full-width {
+    grid-column: 1 / -1;               /* span cả 2 cột */
+}
+
+/* Nút Save Basic Info nằm giữa khung */
+.profile-section .btn-primary {
+    grid-column: 1 / -1;               /* full-width */
+    justify-self: center;
+    margin-top: 8px;
+}
+
+/* ========= Responsive (màn nhỏ: quay về 1 cột) ========= */
+
+@media (max-width: 992px) {
+    .profile-section .profile-form {
+        grid-template-columns: 1fr;    /* 1 cột */
+    }
+
+    .profile-section .avatar-upload {
+        grid-column: 1 / -1;
+        grid-row: auto;
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 18px;
+    }
+
+    .profile-section .form-grid {
+        grid-column: 1 / -1;
+        grid-template-columns: 1fr;
+    }
+
+    .profile-section .btn-primary {
+        justify-self: stretch;
+    }
+}
+

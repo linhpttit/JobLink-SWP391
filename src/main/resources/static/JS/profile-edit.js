@@ -1734,6 +1734,13 @@ function saveCertificate(isEdit) {
     .catch(() => showNotification("Error saving certificate", "error"));
 }
 
+    window.addEventListener('load', function () {
+        const alerts = document.querySelectorAll('.alert');
+        setTimeout(() => {
+            alerts.forEach(a => a.remove());
+        }, 7000); // 7 giây
+    });
+
 function editCertificate(id) { openCertificateModal(id); }
 function deleteCertificate(id) {
   if (!confirm("Are you sure you want to delete this certificate?")) return;

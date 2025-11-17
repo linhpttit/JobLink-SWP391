@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -190,8 +191,13 @@ public interface EmployerRepository extends JpaRepository<Employer, Long> {
             "GROUP BY e.id, e.companyName, e.industry, e.location, e.phoneNumber, e.description " +
             "ORDER BY jobCount DESC")
     List<Employer> findTopEmployersWithActiveJobs();
+    @Query("SELECT e FROM Employer e JOIN FETCH e.user WHERE e.subscriptionExpiresAt < :now AND e.tierLevel > 0")
+    List<Employer> findExpiredSubscriptions(@Param("now") LocalDateTime now);
 
     // Đếm số job active của một employer
     @Query("SELECT COUNT(j) FROM JobPosting j WHERE j.employer.id = :employerId AND j.status = 'ACTIVE'")
     Long countActiveJobsByEmployerId(@Param("employerId") Long employerId);
+
+    @Query("SELECT e FROM Employer e JOIN FETCH e.user WHERE e.subscriptionExpiresAt BETWEEN CURRENT_TIMESTAMP AND :expiryDate AND e.tierLevel > 0")
+    List<Employer> findExpiringSubscriptions(@Param("expiryDate") LocalDateTime expiryDate);
 }

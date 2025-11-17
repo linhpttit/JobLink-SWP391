@@ -8,35 +8,41 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Outfit:wght@600;800&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
     <link rel="stylesheet" th:href="@{/CSS/forgot.css}" href="/CSS/forgot.css"/>
 </head>
+
 <body class="sky">
 
-<!-- lớp nền -->
+<!-- layers (chỉ để giữ hiệu ứng hoặc làm nền mờ) -->
 <div class="stars"></div>
 <div class="glows"></div>
 
-<!-- card -->
+<!-- MAIN WRAPPER -->
 <main class="wrap">
     <section class="card">
+
         <!-- tabs -->
         <div class="tabs">
             <a th:href="@{/signup}" href="/signup" class="tab">REGISTER</a>
             <a th:href="@{/signin}" href="/signin" class="tab">LOG IN</a>
         </div>
 
+        <!-- FORM -->
         <form class="form" th:action="@{/forgot/send-otp}" action="/forgot/send-otp" method="post" autocomplete="off">
-            <h2 style="text-align: center; margin-bottom: 1.5rem; color: #333;">Forgot Password</h2>
 
-            <!-- thông báo từ server -->
+            <h2 style="text-align:center; margin-bottom:1.5rem;">Forgot Password</h2>
+
+            <!-- alerts -->
             <div class="alert error" th:if="${error}" th:text="${error}"></div>
             <div class="alert success" th:if="${msg}" th:text="${msg}"></div>
 
-            <p style="text-align: center; color: #666; margin-bottom: 1.5rem;">
+            <p style="text-align:center; margin-bottom:1.5rem;">
                 Enter your email address and we'll send you a verification code to reset your password.
             </p>
 
-            <!-- Email -->
+            <!-- Email input -->
             <label class="field">
                 <span class="hint">Email Address</span>
                 <input type="email" name="email" placeholder="name@email.com" required>
@@ -44,10 +50,11 @@
 
             <button class="btn main" type="submit">SEND VERIFICATION CODE</button>
 
-            <div class="row right" style="margin-top: 1rem;">
+            <div class="row right" style="margin-top:1rem;">
                 <a th:href="@{/signin}" href="/signin" class="muted small">Back to Login</a>
             </div>
         </form>
+
     </section>
 </main>
 
