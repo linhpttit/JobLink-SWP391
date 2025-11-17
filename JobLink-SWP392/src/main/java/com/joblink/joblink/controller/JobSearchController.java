@@ -20,7 +20,7 @@ public class JobSearchController {
         this.jobSearchService = jobSearchService;
     }
 
-    @GetMapping("/search")
+    @GetMapping("/jobseeker/search")
     public String searchJobs(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) Integer provinceId,
@@ -87,12 +87,13 @@ public class JobSearchController {
             @RequestParam(required = false) Integer minSalary,
             @RequestParam(required = false) Integer maxSalary,
             @RequestParam(required = false) String experience,
+            @RequestParam(required = false) Integer employerId,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "5") int pageSize) {
 
         Map<String, Object> results = jobSearchService.searchJobsWithAdvancedFilters(
                 keyword, provinceId, districtId, categoryId, workType,
-                minSalary, maxSalary, experience, page, pageSize
+                minSalary, maxSalary, experience, employerId, page, pageSize
         );
         return ResponseEntity.ok(results);
     }
@@ -182,5 +183,19 @@ public class JobSearchController {
     public ResponseEntity<List<Map<String, Object>>> getCategories() {
         List<Map<String, Object>> categories = jobSearchService.getAllCategories();
         return ResponseEntity.ok(categories);
+    }
+
+    @GetMapping("/api/companies")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, Object>>> getCompanies() {
+        List<Map<String, Object>> companies = jobSearchService.getAllCompanies();
+        return ResponseEntity.ok(companies);
+    }
+
+    @GetMapping("/api/skills")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, Object>>> getSkills() {
+        List<Map<String, Object>> skills = jobSearchService.getAllSkills();
+        return ResponseEntity.ok(skills);
     }
 }

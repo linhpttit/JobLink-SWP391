@@ -32,9 +32,20 @@ public class JobSearchDao {
                 p.province_name,
                 d.district_name,
                 c.name as category_name,
-                (SELECT STRING_AGG(s.name, ', ') FROM JobSkills js 
-                 JOIN Skills s ON js.skill_id = s.skill_id 
-                 WHERE js.job_id = j.job_id) as skills
+                ISNULL((
+                    SELECT STRING_AGG(CAST(s.name AS NVARCHAR(MAX)), ', ') WITHIN GROUP (ORDER BY s.name)
+                    FROM (
+                        SELECT DISTINCT skill_id
+                        FROM (
+                            SELECT j.skill_id
+                            UNION
+                            SELECT skill_id FROM JobRequiredSkills WHERE job_id = j.job_id
+                            UNION
+                            SELECT skill_id FROM JobSkills WHERE job_id = j.job_id
+                        ) combined
+                    ) c
+                    INNER JOIN Skills s ON c.skill_id = s.skill_id
+                ), '') as skills
             FROM JobsPosting j
             JOIN EmployerProfile ep ON j.employer_id = ep.employer_id
             LEFT JOIN Provinces p ON j.province_id = p.province_id
@@ -118,6 +129,16 @@ public class JobSearchDao {
         });
     }
 
+    public List<Map<String, Object>> getAllSkills() {
+        String sql = "SELECT skill_id, name FROM Skills ORDER BY name";
+        return jdbc.query(sql, (rs, rowNum) -> {
+            Map<String, Object> skill = new HashMap<>();
+            skill.put("skillId", rs.getInt("skill_id"));
+            skill.put("skillName", rs.getString("name"));
+            return skill;
+        });
+    }
+
     public List<Map<String, Object>> getDistrictsByProvince(Integer provinceId) {
         String sql = """
             SELECT district_id, district_name 
@@ -161,10 +182,36 @@ public class JobSearchDao {
         return results.isEmpty() ? new HashMap<>() : results.get(0);
     }
 
+    public List<Map<String, Object>> getAllCompanies() {
+        String sql = """
+            SELECT DISTINCT
+                ep.employer_id,
+                ep.company_name,
+                ep.industry,
+                ep.location
+            FROM EmployerProfile ep
+            WHERE EXISTS (
+                SELECT 1 FROM JobsPosting j 
+                WHERE j.employer_id = ep.employer_id 
+                AND j.status = 'ACTIVE'
+            )
+            ORDER BY ep.company_name
+            """;
+
+        return jdbc.query(sql, (rs, rowNum) -> {
+            Map<String, Object> company = new HashMap<>();
+            company.put("employerId", rs.getInt("employer_id"));
+            company.put("companyName", rs.getString("company_name"));
+            company.put("industry", rs.getString("industry"));
+            company.put("location", rs.getString("location"));
+            return company;
+        });
+    }
+
     public Map<String, Object> searchJobsWithAdvancedFilters(
             String keyword, Integer provinceId, Integer districtId, Integer categoryId,
             String workType, Integer minSalary, Integer maxSalary, String experience,
-            int page, int pageSize) {
+            Integer employerId, int page, int pageSize) {
 
         StringBuilder sql = new StringBuilder("""
             SELECT 
@@ -180,9 +227,20 @@ public class JobSearchDao {
                 p.province_name,
                 d.district_name,
                 c.name as category_name,
-                (SELECT STRING_AGG(s.name, ', ') FROM JobSkills js 
-                 JOIN Skills s ON js.skill_id = s.skill_id 
-                 WHERE js.job_id = j.job_id) as skills
+                ISNULL((
+                    SELECT STRING_AGG(CAST(s.name AS NVARCHAR(MAX)), ', ') WITHIN GROUP (ORDER BY s.name)
+                    FROM (
+                        SELECT DISTINCT skill_id
+                        FROM (
+                            SELECT j.skill_id
+                            UNION
+                            SELECT skill_id FROM JobRequiredSkills WHERE job_id = j.job_id
+                            UNION
+                            SELECT skill_id FROM JobSkills WHERE job_id = j.job_id
+                        ) combined
+                    ) c
+                    INNER JOIN Skills s ON c.skill_id = s.skill_id
+                ), '') as skills
             FROM JobsPosting j
             JOIN EmployerProfile ep ON j.employer_id = ep.employer_id
             LEFT JOIN Provinces p ON j.province_id = p.province_id
@@ -224,6 +282,10 @@ public class JobSearchDao {
         if (experience != null && !experience.isEmpty()) {
             sql.append(" AND j.year_experience LIKE ?");
             params.add("%" + experience + "%");
+        }
+        if (employerId != null) {
+            sql.append(" AND j.employer_id = ?");
+            params.add(employerId);
         }
 
         sql.append(" ORDER BY j.posted_at DESC");
@@ -289,6 +351,10 @@ public class JobSearchDao {
             countSql.append(" AND j.year_experience LIKE ?");
             countParams.add("%" + experience + "%");
         }
+        if (employerId != null) {
+            countSql.append(" AND j.employer_id = ?");
+            countParams.add(employerId);
+        }
 
         Integer total = jdbc.queryForObject(countSql.toString(), Integer.class, countParams.toArray());
 
@@ -324,9 +390,20 @@ public class JobSearchDao {
                 p.province_name,
                 d.district_name,
                 c.name as category_name,
-                (SELECT STRING_AGG(s.name, ', ') FROM JobSkills js 
-                 JOIN Skills s ON js.skill_id = s.skill_id 
-                 WHERE js.job_id = j.job_id) as skills
+                ISNULL((
+                    SELECT STRING_AGG(CAST(s.name AS NVARCHAR(MAX)), ', ') WITHIN GROUP (ORDER BY s.name)
+                    FROM (
+                        SELECT DISTINCT skill_id
+                        FROM (
+                            SELECT j.skill_id
+                            UNION
+                            SELECT skill_id FROM JobRequiredSkills WHERE job_id = j.job_id
+                            UNION
+                            SELECT skill_id FROM JobSkills WHERE job_id = j.job_id
+                        ) combined
+                    ) c
+                    INNER JOIN Skills s ON c.skill_id = s.skill_id
+                ), '') as skills
             FROM JobsPosting j
             JOIN EmployerProfile ep ON j.employer_id = ep.employer_id
             LEFT JOIN Provinces p ON j.province_id = p.province_id
@@ -475,9 +552,20 @@ public class JobSearchDao {
                 p.province_name,
                 d.district_name,
                 c.name as category_name,
-                (SELECT STRING_AGG(s.name, ', ') FROM JobSkills js 
-                 JOIN Skills s ON js.skill_id = s.skill_id 
-                 WHERE js.job_id = j.job_id) as skills,
+                ISNULL((
+                    SELECT STRING_AGG(CAST(s.name AS NVARCHAR(MAX)), ', ') WITHIN GROUP (ORDER BY s.name)
+                    FROM (
+                        SELECT DISTINCT skill_id
+                        FROM (
+                            SELECT j.skill_id
+                            UNION
+                            SELECT skill_id FROM JobRequiredSkills WHERE job_id = j.job_id
+                            UNION
+                            SELECT skill_id FROM JobSkills WHERE job_id = j.job_id
+                        ) combined
+                    ) c
+                    INNER JOIN Skills s ON c.skill_id = s.skill_id
+                ), '') as skills,
                 CASE 
                     WHEN DATEDIFF(HOUR, j.posted_at, GETDATE()) <= 7*24 THEN 1 
                     ELSE 0 

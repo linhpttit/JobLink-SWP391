@@ -1,10 +1,8 @@
 package com.joblink.joblink.controller;
 
-import com.joblink.joblink.auth.model.User;
 import com.joblink.joblink.dto.UserSessionDTO;
 import com.joblink.joblink.model.ConnectionRequest;
 import com.joblink.joblink.model.JobSeekerProfile2;
-import com.joblink.joblink.entity.PremiumSubscriptions;
 import com.joblink.joblink.model.PremiumSubscription;
 import com.joblink.joblink.service.ConnectionService;
 import com.joblink.joblink.service.PremiumService;
@@ -65,54 +63,81 @@ public class ConnectionController {
     @PostMapping("/request")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> sendRequest(@RequestBody Map<String, Object> payload, HttpSession session) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) return ResponseEntity.status(401).body(Map.of("error", "Unauthorized"));
+        UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
+        if (user == null || !"seeker".equalsIgnoreCase(user.getRole())) {
+            return ResponseEntity.status(401).body(Map.of("success", false, "error", "Unauthorized"));
+        }
 
         try {
             JobSeekerProfile2 profile = profileService.getOrCreateProfile(user.getUserId());
             if (profile == null) {
-                return ResponseEntity.status(400).body(Map.of("error", "Vui lòng tạo hồ sơ JobSeeker trước"));
+                return ResponseEntity.status(400).body(Map.of("success", false, "error", "Vui lòng tạo hồ sơ JobSeeker trước"));
             }
-            int targetSeekerId = (Integer) payload.get("targetSeekerId");
+            
+            Object targetSeekerIdObj = payload.get("targetSeekerId");
+            if (targetSeekerIdObj == null) {
+                return ResponseEntity.status(400).body(Map.of("success", false, "error", "targetSeekerId is required"));
+            }
+            
+            int targetSeekerId;
+            if (targetSeekerIdObj instanceof Integer) {
+                targetSeekerId = (Integer) targetSeekerIdObj;
+            } else if (targetSeekerIdObj instanceof Number) {
+                targetSeekerId = ((Number) targetSeekerIdObj).intValue();
+            } else {
+                targetSeekerId = Integer.parseInt(targetSeekerIdObj.toString());
+            }
+            
             String message = (String) payload.getOrDefault("message", "");
             var request = connectionService.sendConnectionRequest(profile.getSeekerId(), targetSeekerId, message);
             return ResponseEntity.ok(Map.of("success", true, "requestId", request.getRequestId()));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(400).body(Map.of("success", false, "error", e.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(Map.of("success", false, "error", e.getMessage() != null ? e.getMessage() : "Internal server error"));
         }
     }
 
     @PostMapping("/accept/{requestId}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> acceptRequest(@PathVariable int requestId, HttpSession session) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) return ResponseEntity.status(401).body(Map.of("error", "Unauthorized"));
+        UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
+        if (user == null || !"seeker".equalsIgnoreCase(user.getRole())) {
+            return ResponseEntity.status(401).body(Map.of("success", false, "error", "Unauthorized"));
+        }
         try {
             connectionService.acceptConnectionRequest(requestId);
             return ResponseEntity.ok(Map.of("success", true));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(Map.of("success", false, "error", e.getMessage() != null ? e.getMessage() : "Internal server error"));
         }
     }
 
     @PostMapping("/reject/{requestId}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> rejectRequest(@PathVariable int requestId, HttpSession session) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) return ResponseEntity.status(401).body(Map.of("error", "Unauthorized"));
+        UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
+        if (user == null || !"seeker".equalsIgnoreCase(user.getRole())) {
+            return ResponseEntity.status(401).body(Map.of("success", false, "error", "Unauthorized"));
+        }
         try {
             connectionService.rejectConnectionRequest(requestId);
             return ResponseEntity.ok(Map.of("success", true));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(Map.of("success", false, "error", e.getMessage() != null ? e.getMessage() : "Internal server error"));
         }
     }
 
     @GetMapping("/suggestions")
     @ResponseBody
     public ResponseEntity<List<Map<String, Object>>> getSuggestions(HttpSession session) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) return ResponseEntity.status(401).build();
+        UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
+        if (user == null || !"seeker".equalsIgnoreCase(user.getRole())) {
+            return ResponseEntity.status(401).build();
+        }
         return ResponseEntity.ok(connectionService.getSuggestedConnections(user.getUserId()));
     }
 }

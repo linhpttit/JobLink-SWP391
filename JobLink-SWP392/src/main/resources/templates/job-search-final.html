@@ -652,7 +652,7 @@
 <div class="header">
     <h1>🔍 JobLink - Find Your Dream Job</h1>
     <div class="header-actions">
-        <a href="/jobseeker/dashboard">Dashboard</a>
+        <a href="/jobseeker/dashboardjobseeker">Dashboard</a>
         <a href="/jobseeker/profile">Profile</a>
         <button onclick="logout()">Logout</button>
     </div>
@@ -819,6 +819,8 @@
         loadExperienceLevels();
         loadSalaryRange();
         loadTopCompany();
+        loadCompanies();
+        loadSkills();
         performSearch();
 
         // Live search with suggestions
@@ -925,6 +927,77 @@
             });
     }
 
+    function loadCompanies() {
+        fetch('/jobseeker/api/companies')
+            .then(r => {
+                if (!r.ok) {
+                    throw new Error('Failed to load companies: ' + r.status);
+                }
+                return r.json();
+            })
+            .then(data => {
+                console.log('Companies loaded:', data); // Debug log
+                const select = document.getElementById('companyFilter');
+                if (select) {
+                    select.innerHTML = '<option value="">All Companies</option>';
+                    if (data && data.length > 0) {
+                        data.forEach(company => {
+                            const option = document.createElement('option');
+                            option.value = company.employerId;
+                            option.textContent = company.companyName;
+                            select.appendChild(option);
+                        });
+                    } else {
+                        console.warn('No companies found');
+                    }
+                } else {
+                    console.warn('companyFilter element not found');
+                }
+            })
+            .catch(err => {
+                console.error('Error loading companies:', err);
+                alert('Không thể tải danh sách công ty. Vui lòng thử lại.');
+            });
+    }
+
+    function loadSkills() {
+        fetch('/jobseeker/api/skills')
+            .then(r => {
+                if (!r.ok) {
+                    throw new Error('Failed to load skills: ' + r.status);
+                }
+                return r.json();
+            })
+            .then(data => {
+                console.log('Skills loaded:', data); // Debug log
+                const container = document.getElementById('skillsCheckboxes');
+                if (container) {
+                    container.innerHTML = '';
+                    if (data && data.length > 0) {
+                        data.forEach(skill => {
+                            const checkboxItem = document.createElement('div');
+                            checkboxItem.className = 'checkbox-item';
+                            const checkboxId = 'skill_' + skill.skillId;
+                            checkboxItem.innerHTML = `
+                                <input type="checkbox" id="${checkboxId}" value="${skill.skillName}" class="skill-checkbox">
+                                <label for="${checkboxId}">${skill.skillName}</label>
+                            `;
+                            container.appendChild(checkboxItem);
+                        });
+                    } else {
+                        console.warn('No skills found');
+                        container.innerHTML = '<div style="padding: 10px; color: #999;">Không có kỹ năng nào</div>';
+                    }
+                } else {
+                    console.warn('skillsCheckboxes element not found');
+                }
+            })
+            .catch(err => {
+                console.error('Error loading skills:', err);
+                alert('Không thể tải danh sách kỹ năng. Vui lòng thử lại.');
+            });
+    }
+
     function fetchLiveSuggestions(query) {
         fetch('/jobseeker/api/live-suggestions?query=' + encodeURIComponent(query))
             .then(r => r.json())
@@ -980,21 +1053,30 @@
         const keyword = document.getElementById('jobSearch').value;
         const provinceId = document.getElementById('locationFilter').value || null;
         const salary = document.getElementById('salaryFilter').value;
+        const companyId = document.getElementById('companyFilter')?.value || null;
 
         const params = new URLSearchParams();
         if (keyword) params.append('keyword', keyword);
         if (provinceId) params.append('provinceId', provinceId);
         if (salary) params.append('maxSalary', salary * 1000000);
+        if (companyId) params.append('employerId', companyId);
         params.append('page', 1);
         params.append('pageSize', pageSize);
 
         fetch('/jobseeker/api/jobs-by-filters?' + params)
             .then(r => r.json())
             .then(data => {
+                console.log('Jobs data:', data.jobs); // Debug log
+                if (data.jobs && data.jobs.length > 0) {
+                    console.log('First job skills:', data.jobs[0].skills); // Debug log
+                }
                 displayJobs(data.jobs);
                 updateJobCount(data.total);
                 currentPage = 1;
                 allJobs = data.jobs;
+            })
+            .catch(err => {
+                console.error('Error fetching jobs:', err);
             });
     }
 
@@ -1024,7 +1106,7 @@
                     <span>💰 ${job.salaryMin / 1000000}M - ${job.salaryMax / 1000000}M</span>
                 </div>
                 <div class="job-skills">
-                    ${(job.skills || '').split(', ').slice(0, 3).map(s => `<span class="skill-tag">${s}</span>`).join('')}
+                    ${job.skills && job.skills.trim() ? job.skills.split(',').map(s => s.trim()).filter(s => s).slice(0, 3).map(s => `<span class="skill-tag">${s}</span>`).join('') : '<span class="skill-tag">N/A</span>'}
                 </div>
             `;
 
@@ -1042,7 +1124,10 @@
         document.getElementById('detailSalary').textContent = `${job.salaryMin / 1000000}M - ${job.salaryMax / 1000000}M per month`;
         document.getElementById('detailRequirements').textContent = `Experience: ${job.experience}`;
         document.getElementById('detailBenefits').textContent = 'Competitive salary, Health insurance, Career development';
-        document.getElementById('detailSkills').innerHTML = (job.skills || '').split(', ').map(s => `<span class="skill-tag">${s}</span>`).join('');
+        const skills = job.skills && job.skills.trim() ? job.skills.split(',').map(s => s.trim()).filter(s => s) : [];
+        document.getElementById('detailSkills').innerHTML = skills.length > 0 
+            ? skills.map(s => `<span class="skill-tag">${s}</span>`).join('')
+            : '<span class="skill-tag">Chưa có thông tin</span>';
         document.getElementById('jobDetailsContent').style.display = 'block';
     }
 
@@ -1051,6 +1136,9 @@
     }
 
     function openAdvancedFilter() {
+        // Ensure companies and skills are loaded when opening modal
+        loadCompanies();
+        loadSkills();
         document.getElementById('advancedFilterModal').classList.add('active');
     }
 
@@ -1068,6 +1156,9 @@
         document.getElementById('minSalary').value = '';
         document.getElementById('maxSalary').value = '';
         document.getElementById('jobSearch').value = '';
+        if (document.getElementById('companyFilter')) {
+            document.getElementById('companyFilter').value = '';
+        }
         performSearch();
         closeAdvancedFilter();
     }

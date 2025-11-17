@@ -608,7 +608,7 @@
             <div class="job-detail-section">
                 <h4>Skills</h4>
                 <div class="skills-list">
-                    ${(job.skills || '').split(',').map(skill => `<span class="skill-tag">${skill.trim()}</span>`).join('')}
+                    ${job.skills && job.skills.trim() ? job.skills.split(',').map(skill => skill.trim()).filter(skill => skill).map(skill => `<span class="skill-tag">${skill}</span>`).join('') : '<span class="skill-tag">N/A</span>'}
                 </div>
             </div>
 

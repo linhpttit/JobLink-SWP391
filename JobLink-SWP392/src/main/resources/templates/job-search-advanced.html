@@ -936,40 +936,18 @@
 
         <!-- Skills -->
         <div class="filter-section">
-            <div class="filter-section-title">Lĩnh vực công việc</div>
-            <input type="text" class="filter-search" placeholder="Tìm kiếm lĩnh vực">
-            <div class="filter-checkboxes">
-                <div class="checkbox-item">
-                    <input type="checkbox" id="skill1" value="blockchain">
-                    <label for="skill1">Dịch vụ Blockchain & Web3</label>
-                </div>
-                <div class="checkbox-item">
-                    <input type="checkbox" id="skill2" value="food">
-                    <label for="skill2">Thực Phẩm và Đồ Uống</label>
-                </div>
-                <div class="checkbox-item">
-                    <input type="checkbox" id="skill3" value="travel">
-                    <label for="skill3">Du Lịch và Dịch Vụ Lưu Trú</label>
-                </div>
-                <div class="checkbox-item">
-                    <input type="checkbox" id="skill4" value="insurance">
-                    <label for="skill4">Bảo Hiểm</label>
-                </div>
-                <div class="checkbox-item">
-                    <input type="checkbox" id="skill5" value="ecommerce">
-                    <label for="skill5">Hàng Tiêu Dùng</label>
-                </div>
+            <div class="filter-section-title">Kỹ năng tìm kiếm</div>
+            <input type="text" class="filter-search" id="skillSearchInput" placeholder="Tìm kiếm kỹ năng" onkeyup="filterSkills(this.value)">
+            <div class="filter-checkboxes" id="skillsCheckboxesAdvanced">
+                <!-- Skills will be loaded here -->
             </div>
         </div>
 
         <!-- Company Field -->
         <div class="filter-section">
-            <div class="filter-section-title">Lĩnh vực công ty</div>
-            <select class="filter-search" style="appearance: auto; cursor: pointer; padding: 10px;">
-                <option value="">-- Chọn lĩnh vực --</option>
-                <option value="tech">Công nghệ</option>
-                <option value="finance">Tài chính</option>
-                <option value="retail">Bán lẻ</option>
+            <div class="filter-section-title">Công ty</div>
+            <select id="companyFilter" class="filter-search" style="appearance: auto; cursor: pointer; padding: 10px;">
+                <option value="">-- Chọn công ty --</option>
             </select>
         </div>
 
@@ -1145,8 +1123,80 @@
 
     // Initialize
     function init() {
+        loadCompanies();
+        loadSkillsForAdvanced();
         renderJobs();
         setupEventListeners();
+    }
+
+    function loadCompanies() {
+        fetch('/jobseeker/api/companies')
+            .then(r => {
+                if (!r.ok) {
+                    throw new Error('Failed to load companies: ' + r.status);
+                }
+                return r.json();
+            })
+            .then(data => {
+                console.log('Companies loaded for advanced:', data); // Debug log
+                window.companiesData = data;
+            })
+            .catch(err => {
+                console.error('Error loading companies:', err);
+                alert('Không thể tải danh sách công ty. Vui lòng thử lại.');
+            });
+    }
+
+    function loadSkillsForAdvanced() {
+        fetch('/jobseeker/api/skills')
+            .then(r => {
+                if (!r.ok) {
+                    throw new Error('Failed to load skills: ' + r.status);
+                }
+                return r.json();
+            })
+            .then(data => {
+                console.log('Skills loaded for advanced:', data); // Debug log
+                window.allSkillsData = data;
+                if (data && data.length > 0) {
+                    renderSkillsCheckboxes(data);
+                } else {
+                    console.warn('No skills found');
+                    const container = document.getElementById('skillsCheckboxesAdvanced');
+                    if (container) {
+                        container.innerHTML = '<div style="padding: 10px; color: #999;">Không có kỹ năng nào</div>';
+                    }
+                }
+            })
+            .catch(err => {
+                console.error('Error loading skills:', err);
+                alert('Không thể tải danh sách kỹ năng. Vui lòng thử lại.');
+            });
+    }
+
+    function renderSkillsCheckboxes(skills) {
+        const container = document.getElementById('skillsCheckboxesAdvanced');
+        if (!container) return;
+        
+        container.innerHTML = '';
+        skills.forEach(skill => {
+            const checkboxItem = document.createElement('div');
+            checkboxItem.className = 'checkbox-item';
+            const checkboxId = 'skill_adv_' + skill.skillId;
+            checkboxItem.innerHTML = `
+                <input type="checkbox" id="${checkboxId}" value="${skill.skillName}" class="skill-checkbox-adv">
+                <label for="${checkboxId}">${skill.skillName}</label>
+            `;
+            container.appendChild(checkboxItem);
+        });
+    }
+
+    function filterSkills(searchTerm) {
+        if (!window.allSkillsData) return;
+        const filtered = window.allSkillsData.filter(skill => 
+            skill.skillName.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        renderSkillsCheckboxes(filtered);
     }
 
     // Setup Event Listeners
@@ -1176,8 +1226,56 @@
 
         // Filter Modal
         document.getElementById('filterBtn').addEventListener('click', () => {
+            loadCompaniesIntoFilter();
+            if (!window.allSkillsData) {
+                loadSkillsForAdvanced();
+            }
             document.getElementById('filterModal').classList.add('active');
         });
+
+        function loadCompaniesIntoFilter() {
+            const select = document.getElementById('companyFilter');
+            if (!select) {
+                console.warn('companyFilter element not found');
+                return;
+            }
+            
+            if (window.companiesData && window.companiesData.length > 0) {
+                select.innerHTML = '<option value="">-- Chọn công ty --</option>';
+                window.companiesData.forEach(company => {
+                    const option = document.createElement('option');
+                    option.value = company.employerId;
+                    option.textContent = company.companyName;
+                    select.appendChild(option);
+                });
+            } else {
+                fetch('/jobseeker/api/companies')
+                    .then(r => {
+                        if (!r.ok) {
+                            throw new Error('Failed to load companies: ' + r.status);
+                        }
+                        return r.json();
+                    })
+                    .then(data => {
+                        console.log('Companies loaded into filter:', data); // Debug log
+                        select.innerHTML = '<option value="">-- Chọn công ty --</option>';
+                        if (data && data.length > 0) {
+                            data.forEach(company => {
+                                const option = document.createElement('option');
+                                option.value = company.employerId;
+                                option.textContent = company.companyName;
+                                select.appendChild(option);
+                            });
+                        } else {
+                            console.warn('No companies found');
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Error loading companies:', err);
+                        alert('Không thể tải danh sách công ty. Vui lòng thử lại.');
+                    });
+            }
+        }
 
         document.getElementById('filterCloseBtn').addEventListener('click', () => {
             document.getElementById('filterModal').classList.remove('active');

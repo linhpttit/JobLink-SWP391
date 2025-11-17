@@ -31,6 +31,10 @@ public class JobSearchService {
         return jobSearchDao.getAllCategories();
     }
 
+    public List<Map<String, Object>> getAllSkills() {
+        return jobSearchDao.getAllSkills();
+    }
+
     public List<Map<String, Object>> getDistrictsByProvince(Integer provinceId) {
         return jobSearchDao.getDistrictsByProvince(provinceId);
     }
@@ -39,13 +43,17 @@ public class JobSearchService {
         return jobSearchDao.getTopCompanyByJobCount();
     }
 
+    public List<Map<String, Object>> getAllCompanies() {
+        return jobSearchDao.getAllCompanies();
+    }
+
     public Map<String, Object> searchJobsWithAdvancedFilters(
             String keyword, Integer provinceId, Integer districtId, Integer categoryId,
             String workType, Integer minSalary, Integer maxSalary, String experience,
-            int page, int pageSize) {
+            Integer employerId, int page, int pageSize) {
         return jobSearchDao.searchJobsWithAdvancedFilters(
                 keyword, provinceId, districtId, categoryId, workType,
-                minSalary, maxSalary, experience, page, pageSize
+                minSalary, maxSalary, experience, employerId, page, pageSize
         );
     }
 
