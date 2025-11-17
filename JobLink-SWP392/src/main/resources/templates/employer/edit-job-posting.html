@@ -3,70 +3,331 @@
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{employer/employer-layout}">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Chỉnh sửa tin tuyển dụng</title>
-    <link rel="stylesheet" th:href="@{/edit-job-posting.css}"/>
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        /* STYLES CHO TRANG CHỈNH SỬA */
+        .edit-container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 30px 20px;
+        }
+
+        .edit-card {
+            background: #fff;
+            padding: 40px 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease;
+            border: 1px solid #e8f4ff;
+        }
+
+        .edit-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 50px rgba(59, 130, 246, 0.15);
+        }
+
+        .title {
+            font-size: 30px;
+            margin-bottom: 25px;
+            font-weight: 700;
+            background: linear-gradient(90deg, #3b82f6, #1e40af);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+        }
+
+        .sub-title {
+            font-size: 22px;
+            margin: 30px 0 10px;
+            color: #1e40af;
+            font-weight: 600;
+            border-left: 4px solid #3b82f6;
+            padding-left: 12px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        label {
+            font-size: 15px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        label i {
+            color: #3b82f6;
+            width: 16px;
+            text-align: center;
+        }
+
+        input, select, textarea {
+            padding: 14px 16px 14px 40px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all .3s ease;
+            background: #f8fafc;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+            background: #ffffff;
+            outline: none;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .three-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            border: none;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: #fff;
+            border-radius: 15px;
+            margin-top: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: #9ca3af;
+            font-style: italic;
+        }
+
+        /* Icon positioning */
+        .field::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 40px;
+            color: #3b82f6;
+            font-size: 16px;
+            pointer-events: none;
+        }
+
+        /* Custom select styling */
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%233b82f6'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 16px;
+        }
+
+        /* Form header decoration */
+        .form-header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .form-header::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, #3b82f6, #1e40af);
+            border-radius: 2px;
+        }
+
+        /* RESPONSIVE STYLES */
+        @media (max-width: 768px) {
+            .edit-container {
+                padding: 20px 15px;
+                margin: 20px auto;
+            }
+
+            .edit-card {
+                padding: 30px 20px;
+            }
+
+            .title {
+                font-size: 24px;
+            }
+
+            .sub-title {
+                font-size: 18px;
+            }
+
+            .two-col, .three-col {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            input, select, textarea {
+                padding: 12px 14px 12px 40px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .edit-card {
+                padding: 20px 15px;
+            }
+
+            .title {
+                font-size: 20px;
+                margin-bottom: 20px;
+            }
+
+            .btn-primary {
+                padding: 12px;
+                font-size: 14px;
+            }
+        }
+    </style>
 </head>
+
 <body layout:fragment="content">
-<main class="wrap">
-    <article class="card">
-        <header class="head">
-            <h1>Chỉnh sửa tin tuyển dụng</h1>
-        </header>
+<main class="edit-container">
+    <div class="edit-card">
+        <div class="form-header">
+            <h1 class="title">Chỉnh sửa tin tuyển dụng</h1>
+        </div>
 
-        <form th:action="@{/jobPosting/{id}/edit(id=${job.jobId})}" th:object="${job}" method="post">
-            <input type="hidden" th:field="*{jobId}" />
+        <form th:action="@{/jobPosting/{id}/edit(id=${job.jobId})}" th:object="${job}" method="post" class="form">
+            <input type="hidden" th:field="*{jobId}"/>
 
-            <label>Tiêu đề</label>
-            <input type="text" th:field="*{title}"/>
+            <!-- Tiêu đề công việc -->
+            <div class="field">
+                <label><i class="fas fa-heading"></i> Tiêu đề công việc</label>
+                <input type="text" th:field="*{title}" placeholder="Nhập tiêu đề công việc hấp dẫn">
+            </div>
 
-            <label>Ngành nghề</label>
-            <select th:field="*{skill.skillId}">
-                <option value="" disabled selected>--Chọn kỹ năng--</option>
-                <option th:each="s : ${skills}" th:value="${s.skillId}" th:text="${s.name}"></option>
-            </select>
+            <!-- Ngành nghề -->
+            <div class="field">
+                <label><i class="fas fa-code"></i> Ngành nghề</label>
+                <select th:field="*{skill.skillId}">
+                    <option value="" disabled selected>--Chọn kỹ năng chuyên môn--</option>
+                    <option th:each="s : ${skills}" th:value="${s.skillId}" th:text="${s.name}"></option>
+                </select>
+            </div>
 
-            <label>Thành phố</label>
-            <select th:field="*{province.provinceId}">
-                <option value="" disabled selected>--Chọn tỉnh--</option>
-                <option th:each="p : ${provinces}" th:value="${p.provinceId}" th:text="${p.provinceName}"></option>
-            </select>
+            <!-- Địa điểm -->
+            <div class="two-col">
+                <div class="field">
+                    <label><i class="fas fa-city"></i> Thành phố</label>
+                    <select th:field="*{province.provinceId}">
+                        <option value="" disabled selected>--Chọn tỉnh/thành phố--</option>
+                        <option th:each="p : ${provinces}" th:value="${p.provinceId}" th:text="${p.provinceName}"></option>
+                    </select>
+                </div>
 
-            <label>Quận/Huyện</label>
-            <select th:field="*{district.districtId}">
-                <option value="" disabled selected>--Chọn quận/huyện--</option>
-                <option th:each="d : ${districts}" th:value="${d.districtId}" th:text="${d.districtName}"></option>
-            </select>
+                <div class="field">
+                    <label><i class="fas fa-map-marker-alt"></i> Quận/Huyện</label>
+                    <select th:field="*{district.districtId}">
+                        <option value="" disabled selected>--Chọn quận/huyện--</option>
+                        <option th:each="d : ${districts}" th:value="${d.districtId}" th:text="${d.districtName}"></option>
+                    </select>
+                </div>
+            </div>
 
-            <label>Kinh nghiệm</label>
-            <input type="text" th:field="*{yearExperience}"/>
+            <!-- Kinh nghiệm và Lương -->
+            <div class="two-col">
+                <div class="field">
+                    <label><i class="fas fa-briefcase"></i> Kinh nghiệm yêu cầu</label>
+                    <input type="text" th:field="*{yearExperience}" placeholder="Ví dụ: 2-3 năm kinh nghiệm">
+                </div>
 
-            <label>Mức lương từ</label>
-            <input type="number" th:field="*{salaryMax}"/>
+                <div class="field">
+                    <label><i class="fas fa-money-bill-wave"></i> Mức lương tối đa</label>
+                    <input type="number" th:field="*{salaryMax}" placeholder="Nhập mức lương (VNĐ)">
+                </div>
+            </div>
 
-            <label>Mô tả công việc</label>
-            <textarea th:field="*{jobDescription}"></textarea>
+            <!-- Mô tả công việc -->
+            <div class="field">
+                <label><i class="fas fa-file-alt"></i> Mô tả công việc</label>
+                <textarea th:field="*{jobDescription}" placeholder="Mô tả chi tiết về công việc, trách nhiệm..."></textarea>
+            </div>
 
-            <label>Yêu cầu công việc</label>
-            <textarea th:field="*{jobRequirements}"></textarea>
+            <!-- Yêu cầu công việc -->
+            <div class="field">
+                <label><i class="fas fa-tasks"></i> Yêu cầu công việc</label>
+                <textarea th:field="*{jobRequirements}" placeholder="Các yêu cầu về kỹ năng, bằng cấp, kinh nghiệm..."></textarea>
+            </div>
 
-            <label>Quyền lợi</label>
-            <textarea th:field="*{benefits}"></textarea>
+            <!-- Quyền lợi -->
+            <div class="field">
+                <label><i class="fas fa-gift"></i> Quyền lợi</label>
+                <textarea th:field="*{benefits}" placeholder="Các chế độ phúc lợi, đãi ngộ cho ứng viên..."></textarea>
+            </div>
 
-            <label>Họ tên liên hệ</label>
-            <input type="text" th:field="*{contactName}"/>
+            <!-- Thông tin liên hệ -->
+            <h2 class="sub-title">Thông tin liên hệ</h2>
 
-            <label>Email liên hệ</label>
-            <input type="email" th:field="*{contactEmail}"/>
+            <div class="three-col">
+                <div class="field">
+                    <label><i class="fas fa-user"></i> Họ tên liên hệ</label>
+                    <input type="text" th:field="*{contactName}" placeholder="Người liên hệ trực tiếp">
+                </div>
 
-            <label>Số điện thoại</label>
-            <input type="text" th:field="*{contactPhone}"/>
+                <div class="field">
+                    <label><i class="fas fa-envelope"></i> Email liên hệ</label>
+                    <input type="email" th:field="*{contactEmail}" placeholder="email@congty.com">
+                </div>
 
-            <button type="submit" class="btn primary">Lưu thay đổi</button>
+                <div class="field">
+                    <label><i class="fas fa-phone"></i> Số điện thoại</label>
+                    <input type="text" th:field="*{contactPhone}" placeholder="0123 456 789">
+                </div>
+            </div>
+
+            <!-- Nút submit -->
+            <button type="submit" class="btn-primary">
+                <i class="fas fa-save"></i> Lưu thay đổi
+            </button>
         </form>
-    </article>
+    </div>
 </main>
 </body>
 </html>
+

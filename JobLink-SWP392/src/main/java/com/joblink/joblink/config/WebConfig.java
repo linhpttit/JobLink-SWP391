@@ -38,6 +38,8 @@ public class WebConfig implements WebMvcConfigurer {
                 .addResourceLocations("file:src/main/resources/static/uploads/certificates/");
         registry.addResourceHandler("/cvs/**")
                 .addResourceLocations("file:src/main/resources/static/uploads/cvs/");
+        registry.addResourceHandler("/avatars/**")
+                .addResourceLocations("file:/D:/FPT_Documents/CN8/JobLink-SWP391/uploads/avatars/");
     }
 
     @Override

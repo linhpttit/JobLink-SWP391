@@ -1,6 +1,7 @@
 package com.joblink.joblink.service;
 
 import com.joblink.joblink.dto.EmployerProfileDto;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface IEmployerService {
 
@@ -27,4 +28,5 @@ public interface IEmployerService {
      * @return EmployerProfileDto chứa thông tin profile
      */
     EmployerProfileDto getActiveEmployerProfile(Integer userId);
+    void uploadAvatar(Integer userId, MultipartFile file) throws Exception;
 }
