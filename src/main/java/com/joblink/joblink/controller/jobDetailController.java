@@ -3,8 +3,9 @@ package com.joblink.joblink.controller;
 import com.joblink.joblink.dto.UserSessionDTO;
 import com.joblink.joblink.entity.JobPosting;
 import com.joblink.joblink.model.CVUpload;
-import com.joblink.joblink.model.JobSeekerProfile;
+import com.joblink.joblink.model.JobSeekerProfile2;
 import com.joblink.joblink.service.CVUploadService;
+import com.joblink.joblink.service.JobBookmarkService;
 import com.joblink.joblink.service.JobService;
 import com.joblink.joblink.service.ProfileService;
 import jakarta.servlet.http.HttpSession;
@@ -26,6 +27,7 @@ public class jobDetailController {
     private final JobService jobService;
     private final CVUploadService cvUploadService;
     private final ProfileService profileService;
+    private final JobBookmarkService jobBookmarkService;
 
     @GetMapping("/job-detail/{jobId}")
     public String jobDetail(@PathVariable long jobId,
@@ -48,12 +50,15 @@ public class jobDetailController {
             // Nếu user đã login, lấy danh sách CV đã upload
             UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
             if (user != null && "seeker".equalsIgnoreCase(user.getRole())) {
-                JobSeekerProfile profile = profileService.getOrCreateProfile(user.getUserId());
+                JobSeekerProfile2 profile = profileService.getOrCreateProfile(user.getUserId());
                 List<CVUpload> userCVs = cvUploadService.getAllCVsBySeeker(profile.getSeekerId());
                 model.addAttribute("userCVs", userCVs);
                 model.addAttribute("isLoggedIn", true);
+                boolean bookmarked = jobBookmarkService.isBookmarked(profile.getSeekerId(), jobId);
+                model.addAttribute("isBookmarked", bookmarked);
             } else {
                 model.addAttribute("isLoggedIn", false);
+                model.addAttribute("isBookmarked", false);
             }
 
             return "job-detail";
@@ -64,6 +69,43 @@ public class jobDetailController {
         }
     }
 
+    @PostMapping("/job/bookmark")
+    @ResponseBody
+    public Map<String, Object> toggleBookmark(@RequestParam long jobId,
+                                              @RequestParam String action,
+                                              HttpSession session) {
+        Map<String, Object> res = new HashMap<>();
+        UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
+        if (user == null) {
+            res.put("success", false);
+            res.put("message", "Vui lòng đăng nhập");
+            res.put("redirect", "/signin?redirect=/job-detail/" + jobId);
+            return res;
+        }
+        if (!"seeker".equalsIgnoreCase(user.getRole())) {
+            res.put("success", false);
+            res.put("message", "Chỉ ứng viên mới được lưu công việc");
+            return res;
+        }
+        try {
+            JobSeekerProfile2 profile = profileService.getOrCreateProfile(user.getUserId());
+            if ("add".equalsIgnoreCase(action)) {
+                jobBookmarkService.addBookmark(profile.getSeekerId(), jobId);
+            } else if ("remove".equalsIgnoreCase(action)) {
+                jobBookmarkService.removeBookmark(profile.getSeekerId(), jobId);
+            } else {
+                res.put("success", false);
+                res.put("message", "Hành động không hợp lệ");
+                return res;
+            }
+            res.put("success", true);
+            return res;
+        } catch (Exception e) {
+            res.put("success", false);
+            res.put("message", "Lỗi: " + e.getMessage());
+            return res;
+        }
+    }
     @PostMapping("/job/apply")
     @ResponseBody
     public Map<String, Object> applyJob(@RequestParam int jobId,
@@ -87,7 +129,7 @@ public class jobDetailController {
         }
 
         try {
-            JobSeekerProfile profile = profileService.getOrCreateProfile(user.getUserId());
+            JobSeekerProfile2 profile = profileService.getOrCreateProfile(user.getUserId());
 
             // Kiểm tra đã ứng tuyển chưa
             boolean alreadyApplied = jobService.hasApplied(jobId, profile.getSeekerId());

@@ -1,4 +1,3 @@
-
 package com.joblink.joblink.model;
 
 import lombok.Data;
@@ -9,6 +8,8 @@ public class Conversation {
     private Integer conversationId;
     private Integer seekerId;
     private Integer employerId;
+    private Integer seekerId2;
+    private String conversationType; // SEEKER_EMPLOYER or SEEKER_SEEKER
     private LocalDateTime lastMessageAt;
     private LocalDateTime createdAt;
 
@@ -20,3 +21,4 @@ public class Conversation {
     private Integer unreadCount;
     private Boolean isBlocked;
 }
+

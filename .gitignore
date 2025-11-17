@@ -6,7 +6,11 @@
 
 # BlueJ files
 *.ctxt
+# Bỏ qua file .env chứa bí mật
+.env
 
+# Bỏ qua các file properties local
+application-local.properties
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 

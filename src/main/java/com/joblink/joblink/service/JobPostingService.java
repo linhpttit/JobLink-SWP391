@@ -3,13 +3,11 @@ package com.joblink.joblink.service;
 
 import com.joblink.joblink.dto.JobPostingDto;
 import com.joblink.joblink.entity.*;
-import com.joblink.joblink.repository.*; // Gộp các import repository
+import com.joblink.joblink.Repository.*; // Gộp các import repository
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,14 +16,14 @@ import java.util.Optional;
 public class JobPostingService implements IJobPostingService {
 
     private final JobPostingRepository jobPostingRepository;
-    private final com.joblink.joblink.repository.SkillRepository skillRepository;
-    private final com.joblink.joblink.repository.ProvinceRepository provinceRepository;
-    private final com.joblink.joblink.repository.DistrictRepository districtRepository;
+    private final com.joblink.joblink.Repository.SkillRepository skillRepository;
+    private final com.joblink.joblink.Repository.ProvinceRepository provinceRepository;
+    private final com.joblink.joblink.Repository.DistrictRepository districtRepository;
     private final EmployerRepository employerRepository;
 
     @Override
     @Transactional
-    public JobPosting createJobPosting(JobPostingDto dto) {
+    public JobPosting createJobPosting(JobPostingDto dto, Integer employerId) {
         JobPosting posting = new JobPosting();
 
         posting.setTitle(dto.getTitle());
@@ -53,8 +51,7 @@ public class JobPostingService implements IJobPostingService {
         posting.setContactEmail(dto.getContactEmail());
         posting.setContactPhone(dto.getContactPhone());
 
-        Employer employer = new Employer();
-        employer.setId(1L);
+        Employer employer = employerRepository.getById(Long.valueOf(employerId));
         posting.setEmployer(employer);
 
         jobPostingRepository.save(posting);
@@ -126,6 +123,11 @@ public class JobPostingService implements IJobPostingService {
     @Override
     public List<JobPosting> getAllJobPostings() {
         return jobPostingRepository.findAll();
+    }
+
+    @Override
+    public List<JobPosting> getJobPostingsByEmployerId(Integer employerId) {
+        return  jobPostingRepository.findByEmployerId(Long.valueOf(employerId));
     }
 
     @Override

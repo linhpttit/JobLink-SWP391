@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - JobLink</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/CSS/header.css}">
+    <link rel="stylesheet" th:href="@{/CSS/homepage.css}">
+
+    <style>
+        /* RESET */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-main: #020817;
+            --bg-sidebar: #020617;
+            --bg-card: #020b21;
+            --bg-card-soft: #071529;
+            --border-soft: #1f2937;
+            --text-main: #f9fafb;
+            --text-sub: #9ca3af;
+            --accent-blue: #1d4ed8;
+            --accent-cyan: #22d3ee;
+            --accent-green: #22c55e;
+            --accent-orange: #f97316;
+            --accent-red: #ef4444;
+            --radius-lg: 18px;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: var(--bg-main);
+            color: var(--text-main);
+        }
+
+        /* WRAPPER LAYOUT */
+        .dashboard-wrapper {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            min-height: 100vh;
+            background: var(--bg-main);
+        }
+
+        /* ========== SIDEBAR ========== */
+        .dashboard-sidebar {
+            background: var(--bg-sidebar);
+            padding: 24px 0;
+            border-right: 1px solid #111827;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid #111827;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-user-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sidebar-avatar {
+            width: 46px;
+            height: 46px;
+            border-radius: 999px;
+            background: radial-gradient(circle at 30% 0, #38bdf8, #1d4ed8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #f9fafb;
+            flex-shrink: 0;
+            font-size: 1.1rem;
+        }
+
+        .sidebar-user-info h4 {
+            font-size: 0.9rem;
+            color: #e5e7eb;
+            margin-bottom: 2px;
+        }
+
+        .sidebar-user-info p {
+            font-size: 0.78rem;
+            color: #6b7280;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            margin-top: 8px;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 6px;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 20px;
+            color: #9ca3af;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .sidebar-menu a i {
+            width: 18px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background: #0f172a;
+            color: #f9fafb;
+        }
+
+        .sidebar-menu a.active {
+            border-left: 3px solid var(--accent-blue);
+            padding-left: 17px;
+        }
+
+        .sidebar-divider {
+            height: 1px;
+            background: #111827;
+            margin: 10px 0;
+        }
+
+        /* ========== MAIN AREA ========== */
+        .dashboard-main {
+            padding: 28px 32px 32px;
+            overflow-y: auto;
+        }
+
+        .dashboard-header {
+            margin-bottom: 24px;
+        }
+
+        .dashboard-header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #f9fafb;
+            margin-bottom: 6px;
+        }
+
+        .dashboard-header p {
+            color: #6b7280;
+            font-size: 0.95rem;
+        }
+
+        /* ===== SUMMARY CARDS (hàng trên) ===== */
+        .summary-row {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+
+        .summary-card {
+            background: #020b21;
+            border-radius: var(--radius-lg);
+            padding: 18px 20px;
+            border: 1px solid #111827;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .summary-title {
+            font-size: 0.85rem;
+            color: #9ca3af;
+            margin-bottom: 14px;
+        }
+
+        .summary-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #f9fafb;
+        }
+
+        .summary-meta {
+            margin-top: 6px;
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        /* màu icon/gradient từng card */
+        .summary-card.jobs {
+            box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.25);
+        }
+        .summary-card.spending {
+            box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.25);
+        }
+        .summary-card.saved {
+            box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.25);
+        }
+
+        /* ===== MAIN GRID: Bảng ứng tuyển + cột phải ===== */
+        .main-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 2.2fr) minmax(0, 1.1fr);
+            gap: 20px;
+        }
+
+        /* --- Bảng trạng thái ứng tuyển --- */
+        .card-applications {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            border: 1px solid #111827;
+            padding: 20px 22px 24px;
+        }
+
+        .card-applications-header {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 18px;
+        }
+
+        .applications-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+        }
+
+        .applications-table thead {
+            color: #6b7280;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+        }
+
+        .applications-table th,
+        .applications-table td {
+            padding: 10px 0;
+        }
+
+        .applications-table tr + tr {
+            border-top: 1px solid #111827;
+        }
+
+        .applications-table td.job-title {
+            font-weight: 500;
+        }
+
+        .applications-table td.company {
+            color: #9ca3af;
+        }
+
+        .applications-table td.date {
+            color: #9ca3af;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 90px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #f9fafb;
+        }
+
+        .status-pill.interview {
+            background: #ea580c;
+        }
+
+        .status-pill.viewed {
+            background: #1d4ed8;
+        }
+
+        .status-pill.submitted {
+            background: #15803d;
+        }
+
+        .status-pill.rejected {
+            background: #b91c1c;
+        }
+
+        /* --- Cột phải: card thông tin + card CV --- */
+        .side-column {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .info-card,
+        .cv-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            border: 1px solid #111827;
+            padding: 20px 20px 22px;
+        }
+
+        /* Card thông tin (thay Hoàn thiện hồ sơ) */
+        .info-card-title {
+            font-size: 0.98rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .info-card-sub {
+            font-size: 0.85rem;
+            color: #9ca3af;
+            margin-bottom: 14px;
+        }
+
+        .info-progress-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .info-progress-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 999px;
+            border: 6px solid #111827;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+        }
+
+
+
+        .info-progress-value {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .info-progress-text {
+            font-size: 0.85rem;
+            color: #a5b4fc;
+            margin-bottom: 4px;
+        }
+
+        .info-hint {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        .card-btn {
+            margin-top: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 999px;
+            border: none;
+            cursor: pointer;
+            background: linear-gradient(135deg, #1d4ed8, #2563eb);
+            color: #f9fafb;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: transform 0.12s, box-shadow 0.12s, filter 0.12s;
+            box-shadow: 0 12px 25px rgba(37, 99, 235, 0.4);
+        }
+
+        .card-btn:hover {
+            filter: brightness(1.05);
+            transform: translateY(-1px);
+            box-shadow: 0 16px 30px rgba(37, 99, 235, 0.55);
+        }
+
+        .card-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 10px 18px rgba(15, 23, 42, 0.9);
+        }
+
+        /* Card CV (thay Gợi ý cho bạn) */
+        .cv-card-header {
+            font-size: 0.98rem;
+            font-weight: 600;
+            margin-bottom: 14px;
+        }
+
+        .cv-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid #111827;
+        }
+
+        .cv-item:last-child {
+            border-bottom: none;
+        }
+
+        .cv-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-cyan);
+        }
+
+        .cv-text-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .cv-text-meta {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        .cv-empty {
+            text-align: center;
+            padding: 18px 4px;
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1080px) {
+            .dashboard-wrapper {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-sidebar {
+                display: none; /* có thể làm responsive khác nếu muốn */
+            }
+
+            .dashboard-main {
+                padding: 20px 16px;
+            }
+
+            .summary-row {
+                grid-template-columns: 1fr;
+            }
+
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{header :: header}"></div>
+
+<div class="dashboard-wrapper">
+    <!-- SIDEBAR -->
+    <aside class="dashboard-sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-user-card">
+                <div class="sidebar-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="sidebar-user-info">
+                    <h4>Người dùng</h4>
+                    <p th:text="${user.email}">user@email.com</p>
+                </div>
+            </div>
+        </div>
+
+        <nav class="sidebar-menu">
+            <li><a href="/jobseeker/dashboardjobseeker" class="active"><i class="fas fa-house"></i> Trang chủ</a></li>
+            <li><a href="/jobseeker/profile"><i class="fas fa-user"></i> Hồ sơ của tôi</a></li>
+            <li><a href="/jobseeker/cv"><i class="fas fa-file-pdf"></i> CV của tôi</a></li>
+            <li><a href="/jobseeker/search"><i class="fas fa-magnifying-glass"></i> Việc làm đã ứng tuyển</a></li>
+            <li><a href="/jobseeker/jobs"><i class="fas fa-bookmark"></i> Việc làm đã lưu</a></li>
+            <div class="sidebar-divider"></div>
+            <li><a href="/jobseeker/settings"><i class="fas fa-gear"></i> Cài đặt</a></li>
+            <li><a href="/logout"><i class="fas fa-right-from-bracket"></i> Đăng xuất</a></li>
+        </nav>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="dashboard-main">
+        <div class="dashboard-header">
+            <h1>Chào mừng trở lại,
+                <span th:text="${profile.fullname != null ? profile.fullname : user.email}">Tên người dùng</span>!
+            </h1>
+            <p>Đây là tổng quan hoạt động tìm việc của bạn.</p>
+        </div>
+
+        <!-- HÀNG THỐNG KÊ -->
+        <section class="summary-row">
+            <article class="summary-card jobs">
+                <div class="summary-title">Việc làm đã ứng tuyển</div>
+                <div class="summary-number" th:text="${stats.totalApplications}">12</div>
+                <div class="summary-meta">Số lượng job bạn đã gửi hồ sơ</div>
+            </article>
+
+            <article class="summary-card spending">
+                <div class="summary-title">Total spending</div>
+                <div class="summary-number"
+                     th:text="'$' + ${#numbers.formatDecimal(stats.totalSpending, 1, 2)}">$0.00
+                </div>
+                <div class="summary-meta">Tổng chi tiêu cho gói Premium / CV</div>
+            </article>
+
+            <article class="summary-card saved">
+                <div class="summary-title">Việc làm đã lưu</div>
+<!--                <div class="summary-number" th:text="${stats.savedJobs}">8</div>-->
+                <div class="summary-meta">Công việc bạn đang quan tâm</div>
+            </article>
+        </section>
+
+        <!-- LƯỚI CHÍNH: BẢNG + CỘT PHẢI -->
+        <section class="main-grid">
+            <!-- TRẠNG THÁI ỨNG TUYỂN (giữ nguyên yêu cầu) -->
+            <article class="card-applications">
+                <div class="card-applications-header">Trạng thái ứng tuyển</div>
+
+                <table class="applications-table">
+                    <thead>
+                    <tr>
+                        <th align="left">Tên công việc</th>
+                        <th align="left">Công ty</th>
+                        <th align="left">Ngày ứng tuyển</th>
+                        <th align="left">Trạng thái</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <!-- ví dụ, thay bằng th:each theo dữ liệu của bạn -->
+                    <tr th:each="app : ${applications}">
+                        <td class="job-title" th:text="${app.jobTitle}">Senior Product Designer</td>
+                        <td class="company" th:text="${app.companyName}">TechCorp Inc.</td>
+                        <td class="date" th:text="${#dates.format(app.appliedDate, 'dd/MM/yyyy')}">15/07/2024</td>
+                        <td class="date" th:text ="${app.status} "> </td>
+<!--                        <td>-->
+<!--                            <span class="status-pill"-->
+<!--                                  th:classappend="${app.status} == 'INTERVIEW' ? ' interview' :-->
+<!--                                                  ${app.status} == 'VIEWED' ? ' viewed' :-->
+<!--                                                  ${app.status} == 'SUBMITTED' ? ' submitted' :-->
+<!--                                                   ' rejected'"-->
+<!--                                  th:text="${app.statusLabel}">Đã vào vòng phỏng vấn</span>-->
+<!--                        </td>-->
+                    </tr>
+                    </tbody>
+                </table>
+            </article>
+
+            <!-- CỘT PHẢI: THÔNG TIN + CV -->
+            <div class="side-column">
+                <!-- Card THÔNG TIN (thay “Hoàn thiện hồ sơ”) -->
+                <section class="info-card">
+                    <div class="info-card-title">Thông tin hồ sơ</div>
+                    <div class="info-card-sub">
+                        Hồ sơ hoàn chỉnh sẽ tăng cơ hội được nhà tuyển dụng chú ý.
+                    </div>
+
+                    <div class="info-progress-wrapper">
+                        <div class="info-progress-circle">
+                            <span class="info-progress-value"
+                                  th:text="${profile.completionPercentage != null ? profile.completionPercentage + '%' : '0%'}">80%</span>
+                        </div>
+                        <div>
+                            <div class="info-progress-text">Tuyệt vời!</div>
+                            <div class="info-hint">
+                                Hãy cập nhật thêm kỹ năng, kinh nghiệm và CV để tăng mức hoàn thiện.
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="/jobseeker/profile" class="card-btn">
+                        <i class="fas fa-user-pen"></i> Cập nhật hồ sơ ngay
+                    </a>
+                </section>
+
+                <!-- Card CV (thay “Gợi ý cho bạn”) -->
+                <section class="cv-card">
+                    <div class="cv-card-header">CV của bạn</div>
+
+                    <!-- Có CV -->
+                    <div th:if="${mostRecentCV != null}">
+                        <div class="cv-item">
+                            <div class="cv-icon">
+                                <i class="fas fa-file-pdf"></i>
+                            </div>
+                            <div>
+                                <div class="cv-text-title" th:text="${mostRecentCV.fileName}">
+                                    CV_Senior_Designer.pdf
+                                </div>
+                                <div class="cv-text-meta">
+                                    Uploaded:
+                                    <span th:text="${#dates.format(mostRecentCV.uploadedAt, 'dd/MM/yyyy')}">
+                                        15/07/2024
+                                    </span>
+                                </div>
+                                <div class="cv-text-meta">
+                                    Exp:
+                                    <span th:text="${mostRecentCV.yearsOfExperience != null ? mostRecentCV.yearsOfExperience + ' yrs' : 'Not specified'}">
+                                        3 yrs
+                                    </span>
+                                    &nbsp;| Level:
+                                    <span th:text="${mostRecentCV.jobLevel != null ? mostRecentCV.jobLevel : 'Not specified'}">
+                                        Mid-level
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chưa có CV -->
+                    <div th:if="${mostRecentCV == null}" class="cv-empty">
+                        <p>Bạn chưa tải lên CV nào. Hãy thêm CV để nhà tuyển dụng dễ đánh giá hơn.</p>
+                    </div>
+
+                    <a href="/jobseeker/cv" class="card-btn">
+                        <i class="fas fa-upload"></i> Quản lý / tải lên CV
+                    </a>
+                </section>
+            </div>
+        </section>
+    </main>
+</div>
+
+<script th:src="@{/JS/header-usermenu.js}"></script>
+</body>
+</html>

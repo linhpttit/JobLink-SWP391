@@ -1,0 +1,453 @@
+/* ===========================
+   CONNECTIONS PAGE – JobLink
+   File: connections.css
+   =========================== */
+
+:root {
+    --primary: #0b63ff;
+    --primary-dark: #0841b9;
+    --primary-soft: #e0edff;
+    --danger: #ef4444;
+    --success: #16a34a;
+    --text-main: #111827;
+    --text-muted: #6b7280;
+    --border: #e5e7eb;
+    --card-radius: 18px;
+    --shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.06);
+}
+
+/* Reset nhỏ cho page này */
+.connections-container * {
+    box-sizing: border-box;
+}
+
+/* ===== Layout tổng ===== */
+
+body {
+    background: #ffffff; /* theo yêu cầu: nền trắng */
+}
+
+.connections-container {
+    max-width: 1200px;
+    margin: 24px auto 40px;
+    padding: 0 24px 40px;
+    color: var(--text-main);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+/* Tiêu đề & mô tả */
+.connections-container > h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.subtitle {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+}
+
+/* Bố cục 2 cột:
+   - Cột trái: Yêu cầu kết nối + Yêu cầu đã gửi
+   - Cột phải: Gợi ý kết nối
+*/
+.connections-grid {
+    display: grid;
+    grid-template-columns: 320px minmax(0, 1fr);
+    gap: 24px;
+    align-items: flex-start;
+}
+
+/* Nếu bạn chưa có div.connections-grid trong HTML,
+   bọc 3 .section vào một div:
+   <div class="connections-grid">
+      (section pending)
+      (section suggestions)
+      (section sent)
+   </div>
+*/
+
+/* ===== SECTION CHUNG ===== */
+
+.section {
+    background: #ffffff;
+    border-radius: var(--card-radius);
+    box-shadow: var(--shadow-soft);
+    padding: 20px 20px 22px;
+}
+
+.section + .section {
+    margin-top: 16px; /* cho trường hợp mobile một cột */
+}
+
+.section h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.section-description {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+}
+
+/* ====== CỘT TRÁI: Pending + Sent ====== */
+
+/* pending requests card (section đầu tiên trong cột trái) */
+.requests-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.request-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: #f9fafb;
+    border: 1px solid #edf2f7;
+}
+
+/* avatar lớn hơn trong pending */
+.request-card .avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.request-info h3 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.request-info .message {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+.common-skills {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.common-skills strong {
+    color: var(--text-main);
+}
+
+.request-actions {
+    margin-left: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* Yêu cầu đã gửi */
+.sent-requests-list {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.sent-request-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 999px;
+    background: #f9fafb;
+    border: 1px solid #edf2f7;
+}
+
+.avatar-small {
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.sent-request-info h4 {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.sent-request-info .status {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: #e5e7eb;
+    color: #374151;
+    text-transform: uppercase;
+}
+
+/* trạng thái màu */
+.status.accepted {
+    background: #dcfce7;
+    color: #166534;
+}
+.status.pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+.status.rejected {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.btn-message-small {
+    margin-left: 8px;
+    padding: 4px 8px;
+    font-size: 11px;
+    border-radius: 999px;
+    border: none;
+    background: var(--primary-soft);
+    color: var(--primary);
+    cursor: pointer;
+    font-weight: 600;
+}
+
+/* ====== CỘT PHẢI: Gợi ý kết nối ====== */
+
+.suggestions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+    margin-top: 14px;
+}
+
+.suggestion-card {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 20px 18px 18px;
+    box-shadow: var(--shadow-soft);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    border: 1px solid #edf2f7;
+    position: relative; /* để modal “đậu” được bên dưới nếu sau này muốn inline */
+}
+
+.suggestion-card .avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 999px;
+    object-fit: cover;
+    border: 3px solid #e5f0ff;
+    margin-bottom: 10px;
+}
+
+.suggestion-info h3 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.suggestion-info .job-title {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+
+.suggestion-info .common-skills {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 6px;
+}
+
+.suggestion-info .common-skills strong {
+    display: block;
+    margin-bottom: 2px;
+    color: var(--text-main);
+}
+
+/* ====== BUTTONS ====== */
+
+.btn-accept,
+.btn-reject,
+.btn-connect,
+.btn-primary,
+.btn-secondary {
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    padding: 8px 14px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+
+/* nút trong pending */
+.btn-accept {
+    background: var(--success);
+    color: #ffffff;
+}
+.btn-accept:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(22, 163, 74, 0.4);
+}
+
+.btn-reject {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+.btn-reject:hover {
+    background: #fecaca;
+}
+
+/* nút gửi yêu cầu trên card */
+.btn-connect {
+    margin-top: 14px;
+    width: 100%;
+    background: var(--primary);
+    color: #ffffff;
+    box-shadow: 0 10px 20px rgba(11, 99, 255, 0.35);
+}
+.btn-connect:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 14px 26px rgba(11, 99, 255, 0.4);
+}
+
+/* nút trong modal */
+.btn-primary {
+    background: var(--primary);
+    color: #ffffff;
+    box-shadow: 0 8px 18px rgba(11, 99, 255, 0.35);
+}
+.btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: #f3f4f6;
+    color: var(--text-main);
+}
+.btn-secondary:hover {
+    background: #e5e7eb;
+}
+
+/* ====== EMPTY MESSAGE ====== */
+
+.empty-message {
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+/* ====== MODAL – Gửi yêu cầu kết nối ====== */
+
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.25);
+    display: none;
+    z-index: 1000;
+}
+
+/* class "open" sẽ được JS thêm / xoá */
+.modal.open {
+    display: block;
+}
+
+/* modal-content dùng CSS variable để quyết định vị trí,
+   mặc định vẫn nằm ở giữa nếu JS không set biến */
+.modal-content {
+    position: absolute;
+    width: 360px;
+    max-width: calc(100% - 32px);
+    top: var(--modal-top, 20%);
+    left: var(--modal-left, 50%);
+    transform: translateX(-50%);
+    background: #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 20px 45px rgba(15, 23, 42, 0.3);
+    padding: 18px 20px 20px;
+}
+
+/* header nhỏ trong modal */
+.modal-content h2 {
+    font-size: 18px;
+    margin-bottom: 6px;
+}
+
+.modal-content p {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+}
+
+.modal-content textarea {
+    width: 100%;
+    margin-top: 8px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    padding: 10px 12px;
+    font-size: 13px;
+    resize: vertical;
+    min-height: 90px;
+}
+
+.modal-content textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 1px rgba(11, 99, 255, 0.35);
+}
+
+/* nút đóng X */
+.modal-content .close {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    font-size: 18px;
+    cursor: pointer;
+    color: var(--text-muted);
+}
+
+.modal-actions {
+    margin-top: 14px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+/* ====== RESPONSIVE ====== */
+
+@media (max-width: 992px) {
+    .connections-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .section {
+        margin-top: 12px;
+    }
+}
+
+@media (max-width: 640px) {
+    .connections-container {
+        padding-inline: 16px;
+    }
+
+    .suggestions-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .modal-content {
+        width: calc(100% - 32px);
+        left: 50%;
+        transform: translateX(-50%);
+    }
+}

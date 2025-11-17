@@ -6,6 +6,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+import java.util.Map;
+
 @Repository
 @RequiredArgsConstructor
 public class EmployerProfileDao {
@@ -48,4 +51,46 @@ public class EmployerProfileDao {
             return null;
         }
     }
+
+    // Get all companies
+// Get all companies (Employer Profiles)
+    public List<Map<String, Object>> getAllCompanies() {
+        String sql = """
+        SELECT employer_id, company_name, industry, location, phone_number, 
+               description, tier_level, subscription_expires_at
+        FROM EmployerProfile
+        ORDER BY company_name
+        """;
+        return jdbcTemplate.queryForList(sql);
+    }
+
+
+    // Get company by ID
+// Get employer profile by ID
+    public Map<String, Object> getCompanyById(int employerId) {
+        String sql = """
+        SELECT employer_id, company_name, industry, location, phone_number, 
+               description, tier_level, subscription_expires_at
+        FROM EmployerProfile
+        WHERE employer_id = ?
+        """;
+
+        List<Map<String, Object>> result = jdbcTemplate.queryForList(sql, employerId);
+        return result.isEmpty() ? null : result.get(0);
+    }
+
+
+    // Get jobs by company
+// Get all jobs posted by this employer (company)
+    public List<Map<String, Object>> getJobsByCompanyId(int employerId) {
+        String sql = """
+        SELECT job_id, title AS job_title, location, salary_min, salary_max, posted_at, status
+        FROM JobsPosting
+        WHERE employer_id = ? AND status = 'Active'
+        ORDER BY posted_at DESC
+        """;
+
+        return jdbcTemplate.queryForList(sql, employerId);
+    }
+
 }
