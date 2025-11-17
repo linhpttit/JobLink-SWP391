@@ -14,17 +14,15 @@
 
 <!-- Main content wrapper -->
 <div class="main-content">
-    <!-- Banner Slider -->
     <!-- Banner Section -->
     <section class="banner-section">
         <div class="banner-track">
             <img class="banner-image active" th:src="@{/images/banner1.jpg}" alt="Banner 1">
             <img class="banner-image" th:src="@{/images/banner2.jpg}" alt="Banner 2">
             <img class="banner-image" th:src="@{/images/banner3.jpg}" alt="Banner 3">
-            <img class="banner-image" th:src="@{/images/banner4.png}" alt="Banner 4">
+            <img class="banner-image" th:src="@{/images/banner4.jpg}" alt="Banner 4">
         </div>
     </section>
-
 
     <!-- Stats Section -->
     <section class="stats-section" th:if="${stats != null}">
@@ -202,39 +200,47 @@
         if (!dropdown.contains(e.target) && e.target !== btn) close();
       });
 
-document.addEventListener('DOMContentLoaded', function () {
-    const images = document.querySelectorAll('.banner-image');
-    const track = document.querySelector('.banner-track');
-    const blurLayer = track; // dùng ::before
-
-    let index = 0;
-
-    // kích hoạt ảnh đầu tiên
-    images[index].classList.add('active');
-    track.style.backgroundImage = `url(${images[index].src})`;
-    track.style.setProperty('--blur-bg', `url(${images[index].src})`);
-
-    setInterval(() => {
-        // tắt ảnh cũ
-        images[index].classList.remove('active');
-
-        // tăng index
-        index = (index + 1) % images.length;
-
-        // bật ảnh mới
-        images[index].classList.add('active');
-
-        // cập nhật nền + lớp blur
-        track.style.backgroundImage = `url(${images[index].src})`;
-        track.style.setProperty('--blur-bg', `url(${images[index].src})`);
-    }, 3000);
-});
-
-
-document.addEventListener('keydown', (e) => {
+      document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') close();
       });
     })();
+
+    // Banner slider code - tách riêng để luôn chạy
+    document.addEventListener('DOMContentLoaded', function () {
+        const images = document.querySelectorAll('.banner-image');
+        const track = document.querySelector('.banner-track');
+
+        if (!images || images.length === 0 || !track) return;
+
+        let index = 0;
+
+        // kích hoạt ảnh đầu tiên
+        if (images[index]) {
+            images[index].classList.add('active');
+            track.style.backgroundImage = `url(${images[index].src})`;
+            track.style.setProperty('--blur-bg', `url(${images[index].src})`);
+        }
+
+        setInterval(() => {
+            if (images.length === 0) return;
+
+            // tắt ảnh cũ
+            if (images[index]) {
+                images[index].classList.remove('active');
+            }
+
+            // tăng index
+            index = (index + 1) % images.length;
+
+            // bật ảnh mới
+            if (images[index]) {
+                images[index].classList.add('active');
+                // cập nhật nền + lớp blur
+                track.style.backgroundImage = `url(${images[index].src})`;
+                track.style.setProperty('--blur-bg', `url(${images[index].src})`);
+            }
+        }, 3000);
+    });
 </script>
 <div th:replace="~{fragments/chatbot-widget :: chatbot}"></div>
 </body>

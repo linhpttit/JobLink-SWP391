@@ -8,387 +8,511 @@
     <link rel="stylesheet" th:href="@{/CSS/homepage.css}">
     <style>
         * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+             margin: 0;
+             padding: 0;
+             box-sizing: border-box;
+         }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f6fa;
-            color: #333;
-        }
 
-        header {
-            background-color: #2c3e50;
-            color: white;
-            padding: 1rem 2rem;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
+         body {
+             font-family: 'Lexend', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+             background-color: #ffffff;
+             color: #0f172a;
+         }
 
-        header h1 {
-            margin-bottom: 0.5rem;
-        }
 
-        .navbar {
-            display: flex;
-            gap: 1.5rem;
-            margin-top: 0.5rem;
-        }
+         header {
+             background-color: #1e293b;
+             color: white;
+             padding: 1rem 2rem;
+             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+         }
 
-        .navbar a {
-            color: white;
-            text-decoration: none;
-            transition: opacity 0.3s;
-        }
 
-        .navbar a:hover {
-            opacity: 0.8;
-        }
+         header h1 {
+             margin-bottom: 0.5rem;
+             font-size: 1.5rem;
+             font-weight: 600;
+         }
 
-        .sidebar {
-            width: 280px;
-            background: white;
-            padding: 2rem 1.5rem;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            min-height: calc(100vh - 100px);
-        }
 
-        .sidebar-item {
-            padding: 0.75rem 1rem;
-            margin-bottom: 0.5rem;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            text-decoration: none;
-            color: #555;
-        }
+         .navbar {
+             display: flex;
+             gap: 1.5rem;
+             margin-top: 0.5rem;
+         }
 
-        .sidebar-item:hover, .sidebar-item.active {
-            background-color: #ecf0f1;
-            color: #2c3e50;
-            font-weight: 600;
-        }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-        }
+         .navbar a {
+             color: white;
+             text-decoration: none;
+             transition: opacity 0.3s;
+         }
 
-        .main-content {
-            flex: 1;
-            padding: 2rem;
-        }
 
-        .page-title {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 0.5rem;
-        }
+         .navbar a:hover {
+             opacity: 0.8;
+         }
 
-        .page-subtitle {
-            color: #7f8c8d;
-            margin-bottom: 2rem;
-        }
 
-        .card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 2rem;
-        }
+         .sidebar {
+             display: none;
+         }
 
-        .card-title {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 1rem;
-            padding-bottom: 0.75rem;
-            border-bottom: 2px solid #ecf0f1;
-        }
 
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
+         .container {
+             max-width: 900px;
+             margin: 0 auto;
+             display: flex;
+         }
 
-        .form-label {
-            display: block;
-font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: #2c3e50;
-        }
 
-        .form-select, .form-input {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1rem;
-            transition: border-color 0.3s;
-        }
+         .main-content {
+             flex: 1;
+             padding: 3rem 2rem;
+             background-color: #ffffff;
+         }
 
-        .form-select:focus, .form-input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
 
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
+         .page-title {
+             font-size: 2.5rem;
+             font-weight: 700;
+             color: #0f172a;
+             margin-bottom: 0.75rem;
+             text-align: center;
+             line-height: 1.2;
+         }
 
-        .skill-checkboxes, .province-checkboxes {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            max-height: 300px;
-            overflow-y: auto;
-            padding: 1rem;
-            border: 1px solid #ecf0f1;
-            border-radius: 4px;
-            background-color: #f9f9f9;
-        }
 
-        .checkbox-item {
-            display: flex;
-            align-items: center;
-        }
+         .page-subtitle {
+             color: #64748b;
+             margin-bottom: 3rem;
+             font-size: 1rem;
+             text-align: center;
+             line-height: 1.6;
+         }
 
-        .checkbox-item input[type="checkbox"] {
-            margin-right: 0.5rem;
-            cursor: pointer;
-        }
 
-        .checkbox-item label {
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
+         .card {
+             background: #1e293b;
+             padding: 2.5rem;
+             border-radius: 12px;
+             margin-bottom: 2.5rem;
+             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+         }
 
-        .button-group {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1.5rem;
-        }
 
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 4px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 1rem;
-        }
+         .card-title {
+             font-size: 1.3rem;
+             font-weight: 700;
+             color: #ffffff;
+             margin-bottom: 2rem;
+         }
 
-        .btn-primary {
-            background-color: #e74c3c;
-            color: white;
-            flex: 1;
-        }
 
-        .btn-primary:hover {
-            background-color: #c0392b;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3);
-        }
+         .form-group {
+             margin-bottom: 1.5rem;
+         }
 
-        .btn-secondary {
-            background-color: white;
-            color: #333;
-            border: 2px solid #ddd;
-            flex: 1;
-        }
 
-        .btn-secondary:hover {
-            border-color: #667eea;
-            color: #667eea;
-        }
+         .form-label {
+             display: block;
+             font-weight: 600;
+             margin-bottom: 0.75rem;
+             color: #e2e8f0;
+             font-size: 0.95rem;
+         }
 
-        .btn-small {
-            padding: 0.5rem 1rem;
-            font-size: 0.85rem;
-        }
 
-        .btn-danger {
-            background-color: #e74c3c;
-            color: white;
-        }
+         .form-select, .form-input {
+             width: 100%;
+             padding: 1rem;
+             border: 1px solid #334155;
+             border-radius: 6px;
+             font-size: 0.95rem;
+             transition: all 0.3s;
+             background-color: #0f172a;
+             color: #94a3b8;
+         }
 
-        .btn-danger:hover {
-            background-color: #c0392b;
-        }
 
-        .subscription-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-        }
+         .form-select:focus, .form-input:focus {
+             outline: none;
+             border-color: #3b82f6;
+             background-color: #1e293b;
+         }
 
-        .subscription-table th {
-            background-color: #ecf0f1;
-            padding: 0.75rem;
-            text-align: left;
-            font-weight: 600;
-            color: #2c3e50;
-            border-bottom: 2px solid #bdc3c7;
-        }
 
-        .subscription-table td {
-padding: 0.75rem;
-            border-bottom: 1px solid #ecf0f1;
-        }
+         .form-row {
+             display: grid;
+             grid-template-columns: 1fr 1fr;
+             gap: 1.5rem;
+         }
 
-        .subscription-table tr:hover {
-            background-color: #f9f9f9;
-        }
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
+         .button-group {
+             display: flex;
+             gap: 1rem;
+             margin-top: 2rem;
+         }
 
-        .stat-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            text-align: center;
-        }
 
-        .stat-card.alt1 {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        }
+         .btn {
+             padding: 1rem 2rem;
+             border: none;
+             border-radius: 6px;
+             font-weight: 600;
+             cursor: pointer;
+             transition: all 0.3s;
+             font-size: 1rem;
+         }
 
-        .stat-card.alt2 {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-        }
 
-        .stat-value {
-            font-size: 2rem;
-            font-weight: bold;
-        }
+         .btn-primary {
+             background-color: #3b82f6;
+             color: white;
+             width: 100%;
+         }
 
-        .stat-label {
-            font-size: 0.85rem;
-            opacity: 0.9;
-            margin-top: 0.5rem;
-        }
 
-        .empty-state {
-            text-align: center;
-            padding: 2rem;
-            color: #7f8c8d;
-        }
+         .btn-primary:hover {
+             background-color: #2563eb;
+             transform: translateY(-1px);
+             box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+         }
 
-        .alert {
-            padding: 1rem;
-            border-radius: 4px;
-            margin-bottom: 1rem;
-        }
 
-        .alert-success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
+         .btn-secondary {
+             background-color: transparent;
+             color: #666;
+             border: 2px solid #ddd;
+             flex: 1;
+         }
 
-        .alert-error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
 
-        @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
-            }
+         .btn-secondary:hover {
+             border-color: #3b82f6;
+             color: #3b82f6;
+         }
 
-            .sidebar {
-                width: 100%;
-                display: flex;
-                gap: 1rem;
-                min-height: auto;
-                padding: 1rem;
-            }
 
-            .form-row {
-                grid-template-columns: 1fr;
-            }
+         .btn-small {
+             padding: 0.625rem 1.25rem;
+             font-size: 0.875rem;
+         }
 
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
 
-            .skill-checkboxes, .province-checkboxes {
-                grid-template-columns: 1fr;
-            }
-        }
+         .btn-danger {
+             background-color: #3b82f6;
+             color: white;
+         }
+
+
+         .btn-danger:hover {
+             background-color: #2563eb;
+         }
+
+
+         .subscription-table {
+             width: 100%;
+             border-collapse: collapse;
+             margin-top: 1rem;
+         }
+
+
+         .subscription-table th {
+             background-color: #2a2e35;
+             padding: 0.75rem;
+             text-align: left;
+             font-weight: 600;
+             color: #fff;
+             border-bottom: 2px solid #2a2e35;
+         }
+
+
+         .subscription-table td {
+             padding: 0.75rem;
+             border-bottom: 1px solid #e9ecef;
+             color: white;
+         }
+
+
+         .subscription-table tr:hover {
+             background-color: #f8f9fa;
+         }
+
+
+         .stats-grid {
+             display: grid;
+             grid-template-columns: repeat(3, 1fr);
+             gap: 1rem;
+             margin-bottom: 2rem;
+         }
+
+
+         .stat-card {
+             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+             color: white;
+             padding: 1.5rem;
+             border-radius: 8px;
+             text-align: center;
+         }
+
+
+         .stat-card.alt1 {
+             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+         }
+
+
+         .stat-card.alt2 {
+             background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+         }
+
+
+         .stat-value {
+             font-size: 2rem;
+             font-weight: bold;
+         }
+
+
+         .stat-label {
+             font-size: 0.85rem;
+             opacity: 0.9;
+             margin-top: 0.5rem;
+         }
+
+
+         .empty-state {
+             text-align: center;
+             padding: 2rem;
+             color: #666;
+         }
+
+
+         .alert {
+             padding: 1rem;
+             border-radius: 4px;
+             margin-bottom: 1rem;
+         }
+
+
+         .alert-success {
+             background-color: #d4edda;
+             color: #155724;
+             border: 1px solid #c3e6cb;
+         }
+
+
+         .alert-error {
+             background-color: #f8d7da;
+             color: #721c24;
+             border: 1px solid #f5c6cb;
+         }
+
+
+         /* History card specific styles */
+         .card.history-card {
+             background: #ffffff;
+             padding: 2.5rem;
+             border-radius: 12px;
+         }
+
+
+         .card.history-card .card-title {
+             color: #0f172a;
+             margin-bottom: 1.5rem;
+         }
+
+
+         .history-item {
+             background: #1e293b;
+             padding: 1.75rem;
+             border-radius: 8px;
+             margin-bottom: 1.25rem;
+         }
+
+
+         .history-date {
+             color: #94a3b8;
+             font-size: 0.875rem;
+             margin-bottom: 1rem;
+         }
+
+
+         .history-table {
+             width: 100%;
+             margin-bottom: 1.5rem;
+         }
+
+
+         .history-table-row {
+             display: grid;
+             grid-template-columns: 1fr 1fr;
+             gap: 1rem;
+             margin-bottom: 0.75rem;
+         }
+
+
+         .history-label {
+             color: #e2e8f0;
+             font-weight: 600;
+             margin-bottom: 0.5rem;
+             font-size: 0.9rem;
+         }
+
+
+         .skill-tags {
+             display: flex;
+             gap: 0.625rem;
+             flex-wrap: wrap;
+         }
+
+
+         .skill-tag {
+             background-color: #334155;
+             color: #e2e8f0;
+             padding: 0.5rem 0.875rem;
+             border-radius: 6px;
+             font-size: 0.875rem;
+         }
+
+
+         .location-tags {
+             display: flex;
+             gap: 0.625rem;
+             flex-wrap: wrap;
+         }
+
+
+         .location-tag {
+             background-color: #334155;
+             color: #e2e8f0;
+             padding: 0.5rem 0.875rem;
+             border-radius: 6px;
+             font-size: 0.875rem;
+         }
+
+
+         .privacy-note {
+             text-align: center;
+             margin-top: 1.5rem;
+             color: #64748b;
+             font-size: 0.875rem;
+         }
+
+
+         .privacy-note a {
+             color: #3b82f6;
+             text-decoration: none;
+         }
+
+
+         .privacy-note a:hover {
+             text-decoration: underline;
+         }
+
+
+         @media (max-width: 768px) {
+             .container {
+                 flex-direction: column;
+             }
+
+
+             .sidebar {
+                 width: 100%;
+                 display: flex;
+                 gap: 1rem;
+                 min-height: auto;
+                 padding: 1rem;
+             }
+
+
+             .form-row {
+                 grid-template-columns: 1fr;
+             }
+
+
+             .stats-grid {
+                 grid-template-columns: 1fr;
+             }
+
+
+             .page-title {
+                 font-size: 2rem;
+             }
+
+
+             .main-content {
+                 padding: 2rem 1rem;
+             }
+
+
+             .card {
+                 padding: 1.5rem;
+             }
+         }
     </style>
 </head>
 <body>
 
+
 <div th:replace="header :: header"></div>
 <!-- Header with Navigation -->
 <header>
-    <h1>👋 Xin chào, <span th:text="${user.fullName}"></span></h1>
-    <div class="navbar">
-        <a href="/jobseeker/dashboard">📊 Tổng quan</a>
-        <a href="/jobseeker/search">🔍 Tìm kiếm việc</a>
-        <a href="/jobseeker/email-subscriptions" style="font-weight: bold;">📧 Đăng ký thông báo</a>
-        <a href="/auth/logout">🚪 Đăng xuất</a>
-    </div>
+    <h1>Xin chào, <span th:text="${user.fullName}"></span></h1>
+    <!--    <div class="navbar">-->
+    <!--        <a href="/jobseeker/dashboard">📊 Tổng quan</a>-->
+    <!--        <a href="/jobseeker/search">🔍 Tìm kiếm việc</a>-->
+    <!--        <a href="/jobseeker/email-subscriptions" style="font-weight: bold;">📧 Đăng ký thông báo</a>-->
+    <!--        <a href="/auth/logout">🚪 Đăng xuất</a>-->
+    <!--    </div>-->
 </header>
+
 
 <div class="container">
     <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="sidebar-item active">📧 Quản lý đăng ký</div>
-        <div class="sidebar-item">📋 Hộ số định kèm</div>
-        <div class="sidebar-item">👤 Hộ số ITviec</div>
-        <div class="sidebar-item">💼 Việc làm của tôi</div>
-        <div class="sidebar-item">❤️ Lời mời công việc <span style="background: #e74c3c; color: white; border-radius: 12px; padding: 0 0.5rem; margin-left: auto;">0</span></div>
-        <div class="sidebar-item">📧 Đăng ký nhận email</div>
-        <div class="sidebar-item">🔔 Thông báo</div>
-        <div class="sidebar-item">⚙️ Cài đặt</div>
-    </aside>
+    <!--    <aside class="sidebar">-->
+    <!--        <div class="sidebar-item active">📧 Quản lý đăng ký</div>-->
+    <!--        <div class="sidebar-item">📋 Hộ số định kèm</div>-->
+    <!--        <div class="sidebar-item">👤 Hộ số ITviec</div>-->
+    <!--        <div class="sidebar-item">💼 Việc làm của tôi</div>-->
+    <!--        <div class="sidebar-item">❤️ Lời mời công việc <span style="background: #e74c3c; color: white; border-radius: 12px; padding: 0 0.5rem; margin-left: auto;">0</span></div>-->
+    <!--        <div class="sidebar-item">📧 Đăng ký nhận email</div>-->
+    <!--        <div class="sidebar-item">🔔 Thông báo</div>-->
+    <!--        <div class="sidebar-item">⚙️ Cài đặt</div>-->
+    <!--    </aside>-->
+
 
     <!-- Main Content -->
     <main class="main-content">
-        <div class="page-title">Kỹ năng đã đăng ký (3/5)</div>
-        <div class="page-subtitle">Đăng ký Job Robot để không bỏ lỡ việc làm phù hợp với kỹ năng của bạn.</div>
+        <div class="page-title">Hãy Đăng Ký Kỹ Năng </div>
+        <div class="page-subtitle">JOB LINK 2025</div>
+
 
         <!-- Alerts -->
         <div id="alertContainer"></div>
 
-        <!-- Statistics -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-value" id="totalSubscriptions">0</div>
-                <div class="stat-label">Đơn đã đăng ký</div>
-            </div>
-            <div class="stat-card alt1">
-                <div class="stat-value" id="emailsSent">0</div>
-                <div class="stat-label">Thư đã gửi</div>
-            </div>
-            <div class="stat-card alt2">
-                <div class="stat-value" id="jobsMatched">0</div>
-                <div class="stat-label">Việc phù hợp</div>
-            </div>
-        </div>
+
+        <!--        &lt;!&ndash; Statistics &ndash;&gt;-->
+        <!--        <div class="stats-grid">-->
+        <!--            <div class="stat-card">-->
+        <!--                <div class="stat-value" id="totalSubscriptions">0</div>-->
+        <!--                <div class="stat-label">Đơn đã đăng ký</div>-->
+        <!--            </div>-->
+        <!--            <div class="stat-card alt1">-->
+        <!--                <div class="stat-value" id="emailsSent">0</div>-->
+        <!--                <div class="stat-label">Thư đã gửi</div>-->
+        <!--            </div>-->
+        <!--            <div class="stat-card alt2">-->
+        <!--                <div class="stat-value" id="jobsMatched">0</div>-->
+        <!--                <div class="stat-label">Việc phù hợp</div>-->
+        <!--            </div>-->
+        <!--        </div>-->
+
 
         <!-- Subscription Form -->
         <div class="card">
-            <div class="card-title">➕ Thêm đơn đăng ký mới</div>
+            <div class="card-title"> Thêm đơn đăng ký mới</div>
             <form id="subscriptionForm" onsubmit="handleAddSubscription(event)">
                 <div class="form-row">
                     <div class="form-group">
@@ -411,9 +535,10 @@ padding: 0.75rem;
             </form>
         </div>
 
+
         <!-- Subscription History -->
         <div class="card">
-            <div class="card-title">📋 Lịch sử đơn đăng ký</div>
+            <div class="card-title"> Lịch sử đơn đăng ký</div>
             <table class="subscription-table" id="subscriptionTable">
                 <thead>
                 <tr>
@@ -434,6 +559,7 @@ padding: 0.75rem;
     </main>
 </div>
 
+
 <script>
     // Initialize page
     document.addEventListener('DOMContentLoaded', function() {
@@ -443,6 +569,7 @@ padding: 0.75rem;
         loadStatistics();
     });
 
+
     function showAlert(message, type = 'success') {
         const alertContainer = document.getElementById('alertContainer');
         const alert = document.createElement('div');
@@ -450,10 +577,12 @@ padding: 0.75rem;
         alert.textContent = message;
         alertContainer.appendChild(alert);
 
+
         setTimeout(() => {
             alert.remove();
         }, 5000);
     }
+
 
     function loadSkillsForSelect() {
         fetch('/jobseeker/api/subscription-skills')
@@ -470,6 +599,7 @@ padding: 0.75rem;
             .catch(error => console.error('Error loading skills:', error));
     }
 
+
     function loadProvincesForSelect() {
         fetch('/jobseeker/api/subscription-provinces')
             .then(response => response.json())
@@ -485,6 +615,7 @@ padding: 0.75rem;
             .catch(error => console.error('Error loading provinces:', error));
     }
 
+
     function loadUserSubscriptions() {
         fetch('/jobseeker/api/my-subscriptions')
             .then(response => response.json())
@@ -492,16 +623,20 @@ padding: 0.75rem;
                 const tbody = document.getElementById('subscriptionTableBody');
                 tbody.innerHTML = '';
 
+
                 if (data.length === 0) {
                     document.getElementById('emptyStateTable').style.display = 'block';
                     return;
                 }
 
+
                 document.getElementById('emptyStateTable').style.display = 'none';
+
 
                 data.forEach(subscription => {
                     const row = document.createElement('tr');
-const createdDate = new Date(subscription.created_at).toLocaleDateString('vi-VN');
+                    const createdDate = new Date(subscription.created_at).toLocaleDateString('vi-VN');
+
 
                     row.innerHTML = `
                         <td><strong>${subscription.skill_name}</strong></td>
@@ -520,6 +655,7 @@ const createdDate = new Date(subscription.created_at).toLocaleDateString('vi-VN'
             .catch(error => console.error('Error loading subscriptions:', error));
     }
 
+
     function loadStatistics() {
         fetch('/jobseeker/api/subscription-stats')
             .then(response => response.json())
@@ -532,16 +668,20 @@ const createdDate = new Date(subscription.created_at).toLocaleDateString('vi-VN'
             .catch(error => console.error('Error loading statistics:', error));
     }
 
+
     function handleAddSubscription(event) {
         event.preventDefault();
 
+
         const skillId = document.getElementById('skillSelect').value;
         const provinceId = document.getElementById('provinceSelect').value;
+
 
         if (!skillId || !provinceId) {
             showAlert('Vui lòng chọn kỹ năng và tỉnh/thành phố', 'error');
             return;
         }
+
 
         fetch('/jobseeker/api/create-subscription', {
             method: 'POST',
@@ -567,6 +707,7 @@ const createdDate = new Date(subscription.created_at).toLocaleDateString('vi-VN'
         });
     }
 
+
     function handleCancelSubscription(subscriptionId) {
         if (confirm('Bạn có chắc chắn muốn hủy đơn đăng ký này?')) {
             fetch(`/jobseeker/api/cancel-subscription/${subscriptionId}`, {
@@ -576,7 +717,7 @@ const createdDate = new Date(subscription.created_at).toLocaleDateString('vi-VN'
             .then(data => {
                 if (data.success) {
                     showAlert(data.message, 'success');
-loadUserSubscriptions();
+                    loadUserSubscriptions();
                     loadStatistics();
                 } else {
                     showAlert(data.message, 'error');

@@ -1,9 +1,12 @@
+
+
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Verify OTP — JobLink</title>
+
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,9 +15,11 @@
 </head>
 <body class="sky">
 
+
 <!-- lớp nền -->
 <div class="stars"></div>
 <div class="glows"></div>
+
 
 <!-- card -->
 <main class="wrap">
@@ -25,16 +30,20 @@
             <a th:href="@{/signin}" href="/signin" class="tab">LOG IN</a>
         </div>
 
+
         <form class="form" th:action="@{/forgot/verify-otp}" action="/forgot/verify-otp" method="post" autocomplete="off">
             <h2 style="text-align: center; margin-bottom: 1.5rem; color: #333;">Verify OTP</h2>
+
 
             <!-- thông báo từ server -->
             <div class="alert error" th:if="${error}" th:text="${error}"></div>
             <div class="alert success" th:if="${msg}" th:text="${msg}"></div>
 
+
             <p style="text-align: center; color: #666; margin-bottom: 1.5rem;">
                 We've sent a verification code to <strong th:text="${email}">email@example.com</strong>
             </p>
+
 
             <!-- OTP Code -->
             <label class="field">
@@ -43,13 +52,17 @@
                        maxlength="6" pattern="[0-9]{6}" required>
             </label>
 
+
             <button class="btn main" type="submit">VERIFY CODE</button>
 
+
             <div class="or">OR</div>
+
 
             <button class="btn discord" type="button" onclick="resendOtp()" id="resendBtn">
                 Resend Code
             </button>
+
 
             <div class="row right" style="margin-top: 1rem;">
                 <a th:href="@{/forgot}" href="/forgot" class="muted small">Change Email</a>
@@ -58,16 +71,20 @@
     </section>
 </main>
 
+
 <script>
     let canResend = true;
     let countdown = 60;
 
+
     function resendOtp() {
         if (!canResend) return;
+
 
         const btn = document.getElementById('resendBtn');
         canResend = false;
         btn.disabled = true;
+
 
         fetch('/forgot/resend-otp', {
             method: 'POST',
@@ -93,13 +110,16 @@
         });
     }
 
+
     function startCountdown() {
         const btn = document.getElementById('resendBtn');
         countdown = 60;
 
+
         const timer = setInterval(() => {
             countdown--;
             btn.textContent = `Resend Code (${countdown}s)`;
+
 
             if (countdown <= 0) {
                 clearInterval(timer);
@@ -111,5 +131,7 @@
     }
 </script>
 
+
 </body>
 </html>
+
