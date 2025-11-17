@@ -1,155 +1,284 @@
-:root{
-  --ink:#0f172a;
-  --muted:#475569;
-  --line:#e2e8f0;
-  --bg:#ffffff;
-  --bgpage:#f7faf9;
-  --brand:#16a34a;
-  --brand-ink:#fff;
-  --danger:#ef4444;
-  --shadow: rgba(22,163,74,.15);
+:root {
+    --ink: #0f172a;
+    --muted: #6b7280;
+    --line: #e5e7eb;
+    --bg: #ffffff;
+    --bgpage: #f9fafb;
+    --brand: #4f46e5;        /* tím cho nút chính */
+    --brand-soft: #eef2ff;
+    --accent: #16a34a;       /* xanh lương & deadline */
+    --danger: #ef4444;
+    --danger-soft: #fef2f2;
 }
 
-/* Reset + Base */
-*{box-sizing:border-box}
-body{
-  margin:0;
-  background:var(--bgpage);
-  color:var(--ink);
-  font:16px/1.6 Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-}
-.wrap{
-    max-width: 1200px; /* tăng từ 920px lên */
-    margin: 2px auto;
-    padding: 0 20px;
+/*==================================================
+  THIẾT LẬP CHUNG
+==================================================*/
+body.bg-soft {
+    margin: 0;
+    background: var(--bgpage);
+    color: var(--ink);
+    font: 14px/1.6 Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
 
-.card{
-    width: 100%;       /* chiếm hết không gian wrap */
-    margin: 0 auto;    /* canh giữa */
-    padding: 30px 36px;
-    border-radius: 16px;
-    box-shadow: 0 8px 24px rgba(22,163,74,.15);
+
+/* Vùng content bên phải (bên trong layout employer) */
+.job-detail-page {
+    padding: 24px 32px 40px;
+    /* bỏ căn giữa */
+    display: block;
+}
+
+/* Container chính của trang chi tiết */
+.job-detail-container {
+    width: 100%;        /* chiếm hết phần main bên phải sidebar */
+    max-width: none;    /* bỏ giới hạn 1120px */
+    margin: 0;          /* không cần căn giữa nữa */
+}
+
+/* Card trên/dưới vẫn full theo container */
+.job-summary-card,
+.job-content-card {
+    width: 100%;
+}
+
+/*==================================================
+  HEADER
+==================================================*/
+.job-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.job-header-text h1 {
+    margin: 0 0 4px;
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.job-subtitle {
+    margin: 0;
+    font-size: 14px;
+    color: var(--muted);
+}
+
+.job-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/*==================================================
+  BUTTONS
+==================================================*/
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 18px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background .15s ease, color .15s ease, box-shadow .15s ease, transform .15s ease;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+}
+
+/* nút chính – tím */
+.btn-primary {
+    background: var(--brand);
+    color: #ffffff;
+    border-color: var(--brand);
+}
+
+/* nút xóa – nền nhạt, viền đỏ */
+.btn-ghost-danger {
+    background: var(--danger-soft);
+    color: var(--danger);
+    border-color: #fecaca;
+}
+
+.btn-ghost-danger:hover {
+    background: #fee2e2;
+}
+
+/*==================================================
+  SUMMARY CARD (PHẦN TRÊN)
+==================================================*/
+.job-summary-card {
     background: var(--bg);
+    border-radius: 16px;
+    border: 1px solid var(--line);
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+    padding: 24px 28px 20px;
 }
 
-/* Header */
-.head{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  flex-wrap:wrap;
-  border-left:4px solid var(--brand);
-  padding-left:12px;
-}
-.head h1{
-  font-size:24px;
-  margin:0;
-  font-weight:700;
-}
-.chip{
-  display:inline-block;
-  background:#e8fff3;
-  border:1px solid #b7f2cf;
-  color:#075e41;
-  padding:8px 14px;
-  border-radius:999px;
-  text-decoration:none;
-  font-weight:700;
-  font-size:14px;
-  margin-top:8px;
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    row-gap: 20px;
+    column-gap: 40px;
 }
 
-/* Section blocks */
-.block{
-  margin-top:24px;
-}
-.block h2{
-  font-size:18px;
-  margin:0 0 12px;
-  color:#0f5132;
-  font-weight:600;
-  border-bottom:1px solid #e2e8f0;
-  padding-bottom:4px;
-}
-.list{
-  margin:0;
-  padding-left:24px;
-}
-.list li{
-  margin:8px 0;
-  line-height:1.5;
-}
-.list.dash{
-  list-style: "- ";
-  padding-left:20px;
-}
-.para{
-  margin:8px 0;
-  color:var(--ink);
-}
-.deadline{
-  margin-top:12px;
-  background:#f0fdf4;
-  border:1px solid #bbf7d0;
-  color:#166534;
-  padding:10px 14px;
-  border-radius:12px;
-  display:inline-block;
-  font-weight:600;
+.summary-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
-/* Contact info */
-.contact-info li{
-  margin:6px 0;
-}
-.contact-info span{
-  font-weight:600;
-  color:var(--brand);
+.summary-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
 }
 
-/* Actions */
-.actions{
-  display:flex;
-  gap:16px;
-  flex-wrap:wrap;
-  margin-top:28px;
-}
-.btn{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
-  padding:12px 20px;
-  border-radius:12px;
-  border:1px solid var(--line);
-  text-decoration:none;
-  font-weight:600;
-  background:#fff;
-  color:#111;
-  transition:0.2s;
-}
-.btn.primary{
-  background:var(--brand);
-  border-color:var(--brand);
-  color:var(--brand-ink);
-  box-shadow:0 10px 20px -10px rgba(22,163,74,.45);
-}
-.btn.danger{
-  background:#fff;
-  color:var(--danger);
-  border-color:#fecaca;
-}
-.btn:hover{
-  filter:brightness(.95);
+.summary-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
 }
 
-/* Responsive */
-@media (max-width: 860px){
-  .wrap{padding:0 12px}
-  .head h1{font-size:20px}
-  .chip{font-size:13px;padding:6px 12px}
-  .block h2{font-size:16px}
-  .deadline{padding:8px 10px}
-  .btn{padding:10px 16px}
+/* Lương */
+.summary-value.salary {
+    color: var(--accent);
+}
+
+/* line ngăn cách giữa 2 phần của card */
+.summary-divider {
+    margin: 20px 0;
+    border-top: 1px solid var(--line);
+}
+
+/* Hàng dưới: lương + deadline */
+.summary-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.summary-deadline {
+    align-items: flex-end;
+}
+
+/* pill deadline */
+.deadline-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #dcfce7;
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 13px;
+    color: #166534;
+    font-weight: 600;
+}
+
+.deadline-icon {
+    font-size: 16px;
+}
+
+.deadline-text {
+    line-height: 1;
+}
+
+/*==================================================
+  CONTENT CARD (PHẦN DƯỚI)
+==================================================*/
+.job-content-card {
+    background: var(--bg);
+    border-radius: 16px;
+    border: 1px solid var(--line);
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+    padding: 24px 28px 28px;
+    margin-top: 20px;
+}
+
+.content-block + .content-block {
+    margin-top: 24px;
+}
+
+.content-block h2 {
+    margin: 0 0 8px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ink);
+}
+
+.content-block p {
+    margin: 0;
+    font-size: 14px;
+    color: #111827;
+}
+
+/* Thông tin liên hệ */
+.contact-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.contact-list li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    font-size: 14px;
+    margin-bottom: 6px;
+}
+
+.contact-label {
+    font-weight: 600;
+    color: var(--muted);
+}
+
+.contact-value {
+    font-weight: 500;
+    color: var(--ink);
+}
+
+/*==================================================
+  RESPONSIVE
+==================================================*/
+@media (max-width: 1024px) {
+    .summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .job-detail-page {
+        padding: 16px;
+    }
+
+    .job-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .job-header-actions {
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .summary-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 }
