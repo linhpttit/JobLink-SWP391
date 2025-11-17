@@ -327,19 +327,10 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
+
         }
 
-        .info-progress-circle::before {
-            content: "";
-            position: absolute;
-            inset: 4px;
-            border-radius: 999px;
-            border: 5px solid transparent;
-            border-top-color: var(--accent-blue);
-            border-right-color: var(--accent-blue);
-            transform: rotate(30deg); /* demo 80% */
-        }
+
 
         .info-progress-value {
             font-weight: 700;
@@ -542,14 +533,15 @@
                         <td class="job-title" th:text="${app.jobTitle}">Senior Product Designer</td>
                         <td class="company" th:text="${app.companyName}">TechCorp Inc.</td>
                         <td class="date" th:text="${#dates.format(app.appliedDate, 'dd/MM/yyyy')}">15/07/2024</td>
-                        <td>
-                            <span class="status-pill"
-                                  th:classappend="${app.status} == 'INTERVIEW' ? ' interview' :
-                                                  ${app.status} == 'VIEWED' ? ' viewed' :
-                                                  ${app.status} == 'SUBMITTED' ? ' submitted' :
-                                                   ' rejected'"
-                                  th:text="${app.statusLabel}">Đã vào vòng phỏng vấn</span>
-                        </td>
+                        <td class="date" th:text ="${app.status} "> </td>
+<!--                        <td>-->
+<!--                            <span class="status-pill"-->
+<!--                                  th:classappend="${app.status} == 'INTERVIEW' ? ' interview' :-->
+<!--                                                  ${app.status} == 'VIEWED' ? ' viewed' :-->
+<!--                                                  ${app.status} == 'SUBMITTED' ? ' submitted' :-->
+<!--                                                   ' rejected'"-->
+<!--                                  th:text="${app.statusLabel}">Đã vào vòng phỏng vấn</span>-->
+<!--                        </td>-->
                     </tr>
                     </tbody>
                 </table>

@@ -99,4 +99,50 @@ public class DashboardDao {
 
         return stats;
     }
+
+    public List<Map<String, Object>> getApplications(int seekerId) {
+        String sql = """
+        SELECT 
+            a.application_id,
+            a.status,
+            a.applied_at,
+            jp.title as job_title,
+            ep.company_name
+        FROM Applications a
+        JOIN JobsPosting jp ON a.job_id = jp.job_id
+        JOIN EmployerProfile ep ON jp.employer_id = ep.employer_id
+        WHERE a.seeker_id = ?
+        ORDER BY a.applied_at DESC
+        """;
+
+        return jdbc.query(sql, (rs, rowNum) -> {
+            Map<String, Object> app = new HashMap<>();
+            app.put("applicationId", rs.getInt("application_id"));
+            app.put("jobTitle", rs.getString("job_title"));
+            app.put("companyName", rs.getString("company_name"));
+            app.put("appliedDate", rs.getTimestamp("applied_at"));
+
+            String status = rs.getString("status");
+            app.put("status", status);
+
+            // Map status to Vietnamese label
+            String statusLabel = mapStatusToLabel(status);
+            app.put("statusLabel", statusLabel);
+
+            return app;
+        }, seekerId);
+    }
+
+    private String mapStatusToLabel(String status) {
+        if (status == null) return "Unknown";
+        return switch (status.toUpperCase()) {
+            case "SUBMITTED" -> "Đã gửi";
+            case "VIEWED" -> "Đã xem";
+            case "INTERVIEW" -> "Phỏng vấn";
+            case "REJECTED" -> "Từ chối";
+            case "HIRED" -> "Được nhận";
+            default -> status;
+        };
+    }
+
 }

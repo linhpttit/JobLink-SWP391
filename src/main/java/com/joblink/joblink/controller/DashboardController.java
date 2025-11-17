@@ -42,7 +42,9 @@ public class DashboardController {
         model.addAttribute("profile", dashboardData.get("profile"));
         model.addAttribute("mostRecentCV", dashboardData.get("mostRecentCV"));
         model.addAttribute("stats", dashboardData.get("statistics"));
+        model.addAttribute("applications", dashboardData.get("applications"));
 
         return "dashboardjobseeker";
     }
+
 }

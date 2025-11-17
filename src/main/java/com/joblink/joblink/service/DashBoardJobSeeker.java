@@ -3,6 +3,8 @@ package com.joblink.joblink.service;
 import com.joblink.joblink.dao.DashboardDao;
 import  com.joblink.joblink.dao.JobSeekerProfileDao;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -16,15 +18,22 @@ public class DashBoardJobSeeker {
         this.jobSeekerProfileDao = jobSeekerProfileDao;
     }
 
+
+    public Map<String, Object> getDashboardStatistics(int seekerId) {
+        return dashboardDao.getStatistics(seekerId);
+    }
+
+    public List<Map<String, Object>> getApplications(int seekerId) {
+        return dashboardDao.getApplications(seekerId);
+    }
+
     public Map<String, Object> getCompleteDashboardData(int seekerId) {
         Map<String, Object> dashboardData = new java.util.HashMap<>();
         dashboardData.put("profile", dashboardDao.getUserProfileInfo(seekerId));
         dashboardData.put("mostRecentCV", dashboardDao.getMostRecentCV(seekerId));
         dashboardData.put("statistics", dashboardDao.getStatistics(seekerId));
+        dashboardData.put("applications", dashboardDao.getApplications(seekerId));
         return dashboardData;
     }
 
-    public Map<String, Object> getDashboardStatistics(int seekerId) {
-        return dashboardDao.getStatistics(seekerId);
-    }
 }
