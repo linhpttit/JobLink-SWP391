@@ -290,37 +290,51 @@ public class AdminController {
     public String recruitment(Model model, HttpSession session) {
         if (!ensureAdmin(session)) return "redirect:/signin";
         putUser(model, session);
+
         List<JobPosting> jobs = jobPostingService.getAllJobPostings();
         model.addAttribute("jobs", jobs);
+
         long total = jobs.size();
-        long active = jobs.stream().filter(j -> "active".equals(j.getStatus())).count();
-        long inactive = jobs.stream().filter(j -> "inactive".equals(j.getStatus())).count();
+        long active = jobs.stream()
+                .filter(j -> j.getStatus() != null && j.getStatus().equalsIgnoreCase("active"))
+                .count();
+        long inactive = jobs.stream()
+                .filter(j -> j.getStatus() != null && j.getStatus().equalsIgnoreCase("inactive"))
+                .count();
 
         model.addAttribute("totalJobs", total);
         model.addAttribute("activeJobs", active);
         model.addAttribute("inactiveJobs", inactive);
 
-        return "recruitment"; // template file is recruitment.html in templates
+        return "recruitment";
     }
+
+
     @PostMapping("/job/toggle/{id}")
     @ResponseBody
     public Map<String, Object> toggleJobStatus(@PathVariable("id") Long jobId) {
-        JobPosting job = jobPostingService.toggleJobStatus(jobId); // toggle trạng thái
 
-        // Lấy toàn bộ danh sách để thống kê
+        JobPosting job = jobPostingService.toggleJobStatus(jobId);
+
         List<JobPosting> allJobs = jobPostingService.getAllJobPostings();
+
         long total = allJobs.size();
-        long active = allJobs.stream().filter(j -> "active".equals(j.getStatus())).count();
-        long inactive = allJobs.stream().filter(j -> "inactive".equals(j.getStatus())).count();
+        long active = allJobs.stream()
+                .filter(j -> j.getStatus() != null && j.getStatus().equalsIgnoreCase("active"))
+                .count();
+        long inactive = allJobs.stream()
+                .filter(j -> j.getStatus() != null && j.getStatus().equalsIgnoreCase("inactive"))
+                .count();
 
         Map<String, Object> response = new HashMap<>();
-        response.put("status", job.getStatus()); // "active" hoặc "inactive"
+        response.put("status", job.getStatus());       // ACTIVE / active / Active
         response.put("totalJobs", total);
         response.put("activeJobs", active);
         response.put("inactiveJobs", inactive);
 
         return response;
     }
+
     @GetMapping("/jobs/filter")
     @ResponseBody
     public List<Map<String,Object>> filterJobs(

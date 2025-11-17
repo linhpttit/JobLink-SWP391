@@ -15,48 +15,6 @@
         <h2 class="recruitment-title"><i class="fa-solid fa-file"></i> Tin tuyển dụng</h2>
     </div>
 
-    <!-- Filters -->
-    <div class="recruitment-filters">
-        <div class="filter-row">
-            <div class="filter-group">
-                <label for="jobSearch">Tìm kiếm</label>
-                <div class="search-box">
-                    <input type="text" id="jobSearch" placeholder="Tìm theo tiêu đề, công ty...">
-                    <i class="fas fa-search"></i>
-                </div>
-            </div>
-            <div class="filter-group">
-                <label for="statusFilter">Trạng thái</label>
-                <select id="statusFilter">
-                    <option value="">Tất cả</option>
-                    <option value="active">Đang hoạt động</option>
-                    <option value="pending">Chờ duyệt</option>
-                    <option value="expired">Hết hạn</option>
-                    <option value="rejected">Từ chối</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label for="dateFilter">Ngày đăng</label>
-                <select id="dateFilter">
-                    <option value="">Tất cả thời gian</option>
-                    <option value="today">Hôm nay</option>
-                    <option value="week">Tuần này</option>
-                    <option value="month">Tháng này</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label for="categoryFilter">Kỹ năng</label>
-                <select id="categoryFilter">
-                    <option value="">Tất cả</option>
-                    <option value="it">Công nghệ thông tin</option>
-                    <option value="finance">Tài chính - Ngân hàng</option>
-                    <option value="marketing">Marketing</option>
-                    <option value="hr">Nhân sự</option>
-                </select>
-            </div>
-        </div>
-    </div>
-
     <div class="recruitment-stats">
         <div class="stat-card">
             <div class="stat-icon">
@@ -84,7 +42,7 @@
             </div>
             <div class="stat-info">
                 <h3 th:text="${inactiveJobs}">0</h3>
-                <p>Tạm ẩn</p>
+                <p>Bị ẩn</p>
             </div>
         </div>
     </div>
@@ -105,171 +63,81 @@
                 <th>Thao tác</th>
             </tr>
             </thead>
+
             <tbody>
-            <!-- Khi không có dữ liệu -->
             <tr th:if="${jobs == null or #lists.isEmpty(jobs)}">
                 <td colspan="8" style="text-align:center; padding:20px; color:#888;">
                     Không có dữ liệu
                 </td>
             </tr>
 
-            <!-- Danh sách job -->
             <tr th:each="job : ${jobs}">
                 <td th:text="${job.title}"></td>
                 <td th:text="${job.employer.companyName}"></td>
                 <td th:text="${job.skill.name}"></td>
                 <td th:text="${job.province.provinceName}"></td>
                 <td>
-                    <span th:text="${job.salaryMin}"></span> - <span th:text="${job.salaryMax}"></span>
+                    <span th:text="${job.salaryMin}"></span> -
+                    <span th:text="${job.salaryMax}"></span>
                 </td>
                 <td th:text="${#temporals.format(job.postedAt, 'dd/MM/yyyy')}"></td>
+
+                <!-- Status -->
                 <td class="job-status"
-                    th:classappend="${job.status == 'active'} ? 'job-status-active' : 'job-status-inactive'"
-                    th:text="${job.status == 'active' ? 'Đang hoạt động' : 'Tạm ẩn'}">
+                    th:classappend="${#strings.toLowerCase(job.status) == 'active'} ? 'job-status-active' : 'job-status-inactive'"
+                    th:text="${#strings.toLowerCase(job.status) == 'active' ? 'Đang hoạt động' : 'Bị ẩn'}">
                 </td>
 
+                <!-- Button -->
                 <td>
                     <button class="btn-toggle"
                             th:data-job-id="${job.jobId}"
-                            th:classappend="${job.status == 'active'} ? 'active' : 'inactive'"
-                            th:text="${job.status == 'active' ? 'Ẩn bài' : 'Active'}">
-                        Ẩn bài
+                            th:classappend="${#strings.toLowerCase(job.status) == 'active'} ? 'active' : 'inactive'"
+                            th:text="${#strings.toLowerCase(job.status) == 'active' ? 'Ẩn bài' : 'Mở bài'}">
                     </button>
                 </td>
             </tr>
             </tbody>
+
         </table>
     </div>
 
-    <!-- Pagination -->
-    <div class="pagination">
-        <div class="pagination-info">
-            Hiển thị 1-10 của 245 kết quả
-        </div>
-        <div class="pagination-controls">
-            <button class="pagination-btn" disabled>
-                <i class="fas fa-chevron-left"></i>
-            </button>
-            <button class="pagination-btn active">1</button>
-            <button class="pagination-btn">2</button>
-            <button class="pagination-btn">3</button>
-            <button class="pagination-btn">...</button>
-            <button class="pagination-btn">10</button>
-            <button class="pagination-btn">
-                <i class="fas fa-chevron-right"></i>
-            </button>
-        </div>
-    </div>
 </div>
 
-<!-- JS toggle trạng thái -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 <script>
     $(document).ready(function(){
-    $('.btn-toggle').click(function(){
-        if(!confirm('Bạn có chắc muốn thay đổi trạng thái bài tuyển dụng này không?')) return;
 
-        let btn = $(this);
-        let jobId = btn.data('job-id');
+        $(".btn-toggle").click(function(){
+            if(!confirm("Bạn có chắc muốn thay đổi trạng thái bài tuyển dụng này không?")) return;
 
-        $.post('/admin/job/toggle/' + jobId, function(response){
-            // Cập nhật trạng thái bài
-            if(response.status === 'active'){
-                btn.text('Ẩn bài');
-                btn.removeClass('inactive').addClass('active');
-                btn.closest('tr').find('.job-status')
-                   .text('Đang hoạt động')
-                   .removeClass('job-status-inactive')
-                   .addClass('job-status-active');
-            } else {
-                btn.text('Active');
-                btn.removeClass('active').addClass('inactive');
-                btn.closest('tr').find('.job-status')
-                   .text('Tạm ẩn')
-                   .removeClass('job-status-active')
-                   .addClass('job-status-inactive');
-            }
-
-            // Cập nhật thống kê
-            $('.stat-card').eq(0).find('h3').text(response.totalJobs);   // Tổng số tin
-            $('.stat-card').eq(1).find('h3').text(response.activeJobs);  // Đang hoạt động
-            $('.stat-card').eq(2).find('h3').text(response.inactiveJobs);// Tạm ẩn
-        });
-    });
-});
-    function applyFilters() {
-    let keyword = $('#jobSearch').val();
-    let status = $('#statusFilter').val();
-    let skill = $('#categoryFilter').val();
-    let date = $('#dateFilter').val();
-
-    $.get('/admin/jobs/filter', { keyword, status, skill, date }, function(jobs){
-        let tbody = $('.recruitment-table tbody');
-        tbody.empty();
-
-        if(jobs.length === 0) {
-            tbody.append('<tr><td colspan="8" style="text-align:center; padding:20px; color:#888;">Không có dữ liệu</td></tr>');
-            return;
-        }
-
-        jobs.forEach(job => {
-            let statusText = job.status === 'active' ? 'Đang hoạt động' : 'Tạm ẩn';
-            let btnText = job.status === 'active' ? 'Ẩn bài' : 'Active';
-            let statusClass = job.status === 'active' ? 'job-status-active' : 'job-status-inactive';
-            let btnClass = job.status === 'active' ? 'active' : 'inactive';
-
-            tbody.append(`
-                <tr>
-                    <td>${job.title}</td>
-                    <td>${job.employer.companyName}</td>
-                    <td>${job.skill.name}</td>
-                    <td>${job.province.provinceName}</td>
-                    <td>${job.salaryMin} - ${job.salaryMax}</td>
-                    <td>${job.postedAtFormatted}</td>
-                    <td class="job-status ${statusClass}">${statusText}</td>
-                    <td>
-                        <button class="btn-toggle ${btnClass}" data-job-id="${job.jobId}">${btnText}</button>
-                    </td>
-                </tr>
-            `);
-        });
-
-        // Gán lại sự kiện toggle cho button mới
-        $('.btn-toggle').off('click').on('click', function(){
             let btn = $(this);
-            let jobId = btn.data('job-id');
+            let jobId = btn.data("job-id");
 
-            if(!confirm('Bạn có chắc muốn thay đổi trạng thái bài tuyển dụng này không?')) return;
+            $.post("/admin/job/toggle/" + jobId, function(response){
 
-            $.post('/admin/job/toggle/' + jobId, function(response){
-                if(response.status === 'active'){
-                    btn.text('Ẩn bài');
-                    btn.removeClass('inactive').addClass('active');
-                    btn.closest('tr').find('.job-status')
-                       .text('Đang hoạt động')
-                       .removeClass('job-status-inactive')
-                       .addClass('job-status-active');
-                } else {
-                    btn.text('Active');
-                    btn.removeClass('active').addClass('inactive');
-                    btn.closest('tr').find('.job-status')
-                       .text('Tạm ẩn')
-                       .removeClass('job-status-active')
-                       .addClass('job-status-inactive');
-                }
+                let isActive = response.status.toLowerCase() === "active";
 
-                // Update thống kê
-                $('.stat-card').eq(0).find('h3').text(response.totalJobs);
-                $('.stat-card').eq(1).find('h3').text(response.activeJobs);
-                $('.stat-card').eq(2).find('h3').text(response.inactiveJobs);
+                // Update button
+                btn.text(isActive ? "Ẩn bài" : "Active");
+                btn.toggleClass("active", isActive);
+                btn.toggleClass("inactive", !isActive);
+
+                // Update status text
+                btn.closest("tr").find(".job-status")
+                    .text(isActive ? "Đang hoạt động" : "Bị ẩn")
+                    .toggleClass("job-status-active", isActive)
+                    .toggleClass("job-status-inactive", !isActive);
+
+                // Update statistics
+                $(".stat-card").eq(0).find("h3").text(response.totalJobs);
+                $(".stat-card").eq(1).find("h3").text(response.activeJobs);
+                $(".stat-card").eq(2).find("h3").text(response.inactiveJobs);
             });
         });
+
     });
-}
-
-// Gán sự kiện onchange cho các filter
-$('#jobSearch, #statusFilter, #categoryFilter, #dateFilter').on('change keyup', applyFilters);
-
 </script>
 
 </body>
