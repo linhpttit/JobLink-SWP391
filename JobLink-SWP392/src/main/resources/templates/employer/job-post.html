@@ -51,7 +51,7 @@
 
         <div class="grid grid-1">
             <label class="lbl" for="title">Tiêu đề tin tuyển dụng <span class="req">*</span></label>
-            <input id="title" class="ipt" type="text" th:field="*{title}" placeholder="Vị trí hiển thị đăng tuyển"/>
+            <input id="title" class="ipt" type="text" th:field="*{title}" placeholder="Vị trí hiển thị đăng tuyển" required />
             <small class="err" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></small>
         </div>
 
@@ -67,19 +67,19 @@
 
             <div>
                 <label class="lbl">Kinh nghiệm <span class="req">*</span></label>
-                <input class="ipt" type="text"  th:field="*{yearExperience}" placeholder="Nhập yêu cầu số năm kinh nghiệm"/>
+                <input class="ipt" type="text"  th:field="*{yearExperience}" placeholder="Nhập yêu cầu số năm kinh nghiệm" required/>
                 <small class="err" th:if="${#fields.hasErrors('yearExperience')}" th:errors="*{yearExperience}"></small>
             </div>
 
             <div>
                 <label class="lbl">Số lượng tuyển <span class="req">*</span></label>
-                <input class="ipt" type="number" min="1" th:field="*{hiringNumber}" placeholder="Chỉ nhập số. VD: 10"/>
+                <input class="ipt" type="number" min="1" th:field="*{hiringNumber}" placeholder="Chỉ nhập số. VD: 10" required/>
                 <small class="err" th:if="${#fields.hasErrors('hiringNumber')}" th:errors="*{hiringNumber}"></small>
             </div>
 
             <div>
                 <label class="lbl">Hạn nộp hồ sơ <span class="req">*</span></label>
-                <input class="ipt" type="date" th:field="*{submissionDeadline}"/>
+                <input class="ipt" type="date" th:field="*{submissionDeadline}" required/>
                 <small class="err" th:if="${#fields.hasErrors('submissionDeadline')}" th:errors="*{submissionDeadline}"></small>
             </div>
         </div>
@@ -120,27 +120,27 @@
         <div class="grid grid-4">
             <div>
                 <label class="lbl">Hình thức làm việc <span class="req">*</span></label>
-                <input class="ipt" type="text" th:field="*{workType}" placeholder="VD: Offline, Online, Linh hoạt,..."/>
+                <input class="ipt" type="text" th:field="*{workType}" placeholder="VD: Offline, Online, Linh hoạt,..." required/>
                 <small class="err" th:if="${#fields.hasErrors('workType')}" th:errors="*{workType}"></small>
             </div>
 
             <div>
                 <label class="lbl">Vị trí <span class="req">*</span></label>
-                <input class="ipt" type="text" th:field="*{position}" placeholder="VD: Nhân viên, Trưởng phòng,..."/>
+                <input class="ipt" type="text" th:field="*{position}" placeholder="VD: Nhân viên, Trưởng phòng,..." required/>
                 <small class="err" th:if="${#fields.hasErrors('position')}" th:errors="*{position}"></small>
             </div>
 
             <div class="salary">
                 <label class="lbl">Lương tối thiểu <span class="req">*</span></label>
                 <div class="unit">
-                    <input class="ipt" type="number" min="0" th:field="*{salaryMin}" placeholder="0"/>
+                    <input class="ipt" type="number" min="0" th:field="*{salaryMin}" placeholder="0" required/>
                     <span class="u">Triệu</span>
                 </div>
                 <small class="err" th:if="${#fields.hasErrors('salaryMin')}" th:errors="*{salaryMin}"></small>
             </div>
 
             <div class="salary">
-                <label class="lbl">Lương tối đa <span class="req">*</span></label>
+                <label class="lbl">Lương tối đa <span class="req"></span></label>
                 <div class="unit">
                     <input class="ipt" type="number" min="0" th:field="*{salaryMax}" placeholder="0"/>
                     <span class="u">Triệu</span>
@@ -152,7 +152,7 @@
             <div class="ed-hd">
                 <strong>Mô tả công việc <span class="req">*</span></strong>
             </div>
-            <textarea class="ed-ipt" rows="8" th:field="*{jobDescription}"></textarea>
+            <textarea class="ed-ipt" rows="8" th:field="*{jobDescription}" required></textarea>
             <small class="err" th:if="${#fields.hasErrors('jobDescription')}" th:errors="*{jobDescription}"></small>
         </div>
 
@@ -160,7 +160,7 @@
             <div class="ed-hd">
                 <strong>Yêu cầu công việc <span class="req">*</span></strong>
             </div>
-            <textarea class="ed-ipt" rows="8" th:field="*{jobRequirements}"></textarea>
+            <textarea class="ed-ipt" rows="8" th:field="*{jobRequirements}" required></textarea>
             <small class="err" th:if="${#fields.hasErrors('jobRequirements')}" th:errors="*{jobRequirements}"></small>
         </div>
 
@@ -168,7 +168,7 @@
             <div class="ed-hd">
                 <strong>Quyền lợi <span class="req">*</span></strong>
             </div>
-            <textarea class="ed-ipt" rows="8" th:field="*{benefits}"></textarea>
+            <textarea class="ed-ipt" rows="8" th:field="*{benefits}" required></textarea>
             <small class="err" th:if="${#fields.hasErrors('benefits')}" th:errors="*{benefits}"></small>
         </div>
 
@@ -177,23 +177,22 @@
         <div class="grid grid-3">
             <div>
                 <label class="lbl">Họ và tên <span class="req">*</span></label>
-                <input class="ipt" type="text" th:field="*{contactName}"/>
+                <input class="ipt" type="text" th:field="*{contactName}" required/>
                 <small class="err" th:if="${#fields.hasErrors('contactName')}" th:errors="*{contactName}"></small>
             </div>
             <div>
                 <label class="lbl">Email nhận hồ sơ <span class="req">*</span></label>
-                <input class="ipt" type="email" th:field="*{contactEmail}"/>
+                <input class="ipt" type="email" th:field="*{contactEmail}" required/>
                 <small class="err" th:if="${#fields.hasErrors('contactEmail')}" th:errors="*{contactEmail}"></small>
             </div>
             <div>
                 <label class="lbl">Điện thoại <span class="req">*</span></label>
-                <input class="ipt" type="tel" th:field="*{contactPhone}" placeholder="0912345678"/>
+                <input class="ipt" type="tel" th:field="*{contactPhone}" placeholder="0912345678" required/>
                 <small class="err" th:if="${#fields.hasErrors('contactPhone')}" th:errors="*{contactPhone}"></small>
             </div>
         </div>
 
         <div class="actions">
-            <a class="btn ghost" th:href="@{/jobs/preview(temp=true)}">Xem trước</a>
             <button class="btn primary" type="submit">Lưu & tiếp tục</button>
         </div>
 
