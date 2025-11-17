@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyJob - Employer Dashboard</title>
+    <title>MyJob - Job Seeker Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-    <link rel="stylesheet" th:href="@{/CSS/header.css}">
     <link rel="stylesheet" th:href="@{/CSS/homepage.css}">
-    <script th:src="@{/js/translate.js}"></script>
+    <script th:src="@{/JS/translate.js}"></script>
 </head>
 <body>
 <!-- Header fragment -->
@@ -15,45 +14,17 @@
 
 <!-- Main content wrapper -->
 <div class="main-content">
-    <!-- Hero Section -->
-    <section class="hero-section">
-        <div class="container">
-            <div class="hero-content">
-                <div class="hero-text">
-                    <h1 data-i18n="hero_title">Find a job that suits your interest & skills.</h1>
-                    <p data-i18n="hero_description">Aliquam vitae turpis in diam convallis finibus in at risus. Nullam in scelerisque leo, eget sollicitudin velit bestibulum.</p>
-
-                    <div class="search-container">
-                        <input type="text" class="search-input" data-i18n-placeholder="hero_search_job" placeholder="Job title, Keyword...">
-                        <input type="text" class="search-input" data-i18n-placeholder="hero_search_location" placeholder="Your Location">
-                        <button class="search-btn" data-i18n="hero_find_job">Find Job</button>
-                    </div>
-
-                    <div class="suggestions">
-                        <span data-i18n="hero_suggestion">Suggestion:</span>
-                        <a href="#" data-i18n="cat_designer">Designer</a>,
-                        <a href="#" data-i18n="cat_programming">Programming</a>,
-                        <a href="#" data-i18n="cat_digital_marketing">Digital Marketing</a>,
-                        <a href="#" data-i18n="cat_video">Video</a>,
-                        <a href="#" data-i18n="cat_animation">Animation</a>.
-                    </div>
-                </div>
-
-                <div class="hero-illustration">
-                    <svg width="400" height="300" viewBox="0 0 400 300" fill="none">
-                        <rect x="50" y="100" width="300" height="200" rx="10" fill="white" opacity="0.9"/>
-                        <circle cx="120" cy="80" r="30" fill="#60a5fa"/>
-                        <rect x="70" y="130" width="260" height="8" rx="4" fill="#e5e7eb"/>
-                        <rect x="70" y="150" width="200" height="8" rx="4" fill="#e5e7eb"/>
-                        <rect x="70" y="170" width="180" height="8" rx="4" fill="#e5e7eb"/>
-                        <circle cx="300" cy="200" r="20" fill="#34d399"/>
-                        <circle cx="280" cy="220" r="15" fill="#f59e0b"/>
-                        <circle cx="320" cy="240" r="18" fill="#8b5cf6"/>
-                    </svg>
-                </div>
-            </div>
+    <!-- Banner Slider -->
+    <!-- Banner Section -->
+    <section class="banner-section">
+        <div class="banner-track">
+            <img class="banner-image active" th:src="@{/images/banner1.jpg}" alt="Banner 1">
+            <img class="banner-image" th:src="@{/images/banner2.jpg}" alt="Banner 2">
+            <img class="banner-image" th:src="@{/images/banner3.jpg}" alt="Banner 3">
+            <img class="banner-image" th:src="@{/images/banner4.png}" alt="Banner 4">
         </div>
     </section>
+
 
     <!-- Stats Section -->
     <section class="stats-section" th:if="${stats != null}">
@@ -96,7 +67,8 @@
         <div class="container">
             <div class="section-header">
                 <h2 class="section-title" data-i18n="section_popular_category">Popular category</h2>
-                <a href="#" class="view-all"><span data-i18n="view_all">View All</span> <i class="fas fa-arrow-right"></i></a>
+                <a href="/search" class="view-all"><span data-i18n="view_all">View All</span> <i
+                        class="fas fa-arrow-right"></i></a>
             </div>
 
             <div class="categories-grid">
@@ -163,6 +135,7 @@
                     <button class="btn-outline"><i class="fas fa-bookmark"></i></button>
                     <button class="btn-primary"
                             th:onclick="|window.location.href='/job-detail/${job.jobId}'|">
+
                         Apply Now <i class="fas fa-arrow-right"></i>
                     </button>
                 </div>
@@ -200,28 +173,69 @@
         </div>
     </section>
 </div>
-    <!-- Call to Action -->
-    <section class="cta-section">
-        <div class="container">
-            <div class="cta-grid">
-                <div class="cta-card candidate">
-
-                    <h3 data-i18n="cta_become_candidate">Become a Candidate</h3>
-                 <button class="cta-btn blue"><span data-i18n="cta_register_now">Register Now</span> <i class="fas fa-arrow-right"></i></button>
-                </div>
-
-                <div class="cta-card employer">
-                    <h3 data-i18n="cta_become_employer">Become a Employers</h3>
-                <button class="cta-btn white"  th:onclick="|window.location.href='/signin'|">
-                    <span data-i18n="cta_register_now">Register Now</span> <i class="fas fa-arrow-right"></i></button>
-                </div>
-            </div>
-        </div>
-    </section>
-</div>
 
 <!-- Footer fragment -->
-<div th:replace="~{fragments/chatbot-widget :: chatbot}"></div>
 <div th:replace="footer :: footer"></div>
+
+<script>
+    (function(){
+      const btn = document.getElementById('usermenuBtn');
+      const dropdown = document.getElementById('usermenuDropdown');
+
+      if (!btn || !dropdown) return;
+
+      const close = () => {
+        dropdown.classList.remove('open');
+        btn.setAttribute('aria-expanded','false');
+      };
+      const open = () => {
+        dropdown.classList.add('open');
+        btn.setAttribute('aria-expanded','true');
+      };
+
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdown.classList.contains('open') ? close() : open();
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!dropdown.contains(e.target) && e.target !== btn) close();
+      });
+
+document.addEventListener('DOMContentLoaded', function () {
+    const images = document.querySelectorAll('.banner-image');
+    const track = document.querySelector('.banner-track');
+    const blurLayer = track; // dùng ::before
+
+    let index = 0;
+
+    // kích hoạt ảnh đầu tiên
+    images[index].classList.add('active');
+    track.style.backgroundImage = `url(${images[index].src})`;
+    track.style.setProperty('--blur-bg', `url(${images[index].src})`);
+
+    setInterval(() => {
+        // tắt ảnh cũ
+        images[index].classList.remove('active');
+
+        // tăng index
+        index = (index + 1) % images.length;
+
+        // bật ảnh mới
+        images[index].classList.add('active');
+
+        // cập nhật nền + lớp blur
+        track.style.backgroundImage = `url(${images[index].src})`;
+        track.style.setProperty('--blur-bg', `url(${images[index].src})`);
+    }, 3000);
+});
+
+
+document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') close();
+      });
+    })();
+</script>
+<div th:replace="~{fragments/chatbot-widget :: chatbot}"></div>
 </body>
 </html>

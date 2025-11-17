@@ -227,63 +227,6 @@
         }
     })();
 
-    // Function để xem chi tiết application
-    function viewApplicationDetail(applicationId) {
-        const modal = document.getElementById('applicationDetailModal');
-        if (!modal) {
-            // Nếu modal chưa có, tạo nó
-            const modalContainer = document.createElement('div');
-            modalContainer.id = 'applicationDetailModal';
-            modalContainer.className = 'modal';
-            modalContainer.style.cssText = 'display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5);';
-            document.body.appendChild(modalContainer);
-        }
-
-        // Load modal content từ server
-        fetch(`/admin/applications/${applicationId}/detail`)
-            .then(response => {
-                if (!response.ok) throw new Error('Network response was not ok');
-                return response.text();
-            })
-            .then(html => {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-                const modalContent = doc.querySelector('.modal-content') || doc.body.querySelector('div');
-
-                const modal = document.getElementById('applicationDetailModal');
-                if (modalContent) {
-                    modal.innerHTML = modalContent.outerHTML;
-                } else {
-                    modal.innerHTML = '<div class="modal-content"><p>Không thể tải chi tiết</p></div>';
-                }
-                modal.style.display = 'block';
-
-                // Attach close event
-                const closeBtn = modal.querySelector('.close-modal');
-                if (closeBtn) {
-                    closeBtn.onclick = closeApplicationDetailModal;
-                }
-
-                // Close when clicking outside
-                modal.onclick = function(event) {
-                    if (event.target === modal) {
-                        closeApplicationDetailModal();
-                    }
-                };
-            })
-            .catch(error => {
-                console.error('Error loading application detail:', error);
-                alert('Lỗi khi tải chi tiết đơn ứng tuyển');
-            });
-    }
-
-    // Function để đóng modal
-    function closeApplicationDetailModal() {
-        const modal = document.getElementById('applicationDetailModal');
-        if (modal) {
-            modal.style.display = 'none';
-        }
-    }
 </script>
 
 <style>

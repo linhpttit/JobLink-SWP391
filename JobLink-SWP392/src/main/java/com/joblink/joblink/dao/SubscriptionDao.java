@@ -55,9 +55,9 @@ public class SubscriptionDao {
         return jdbc.queryForObject(selectSql, Integer.class, seekerId, skillId, provinceId);
     }
 
-    // Delete subscription
+    // Delete subscription (set status to inactive instead of deleting)
     public void deleteSubscription(int subscriptionId) {
-        String sql = "DELETE FROM EmailSubscriptions WHERE subscription_id = ?";
+        String sql = "UPDATE EmailSubscriptions SET status = 'inactive' WHERE subscription_id = ?";
         jdbc.update(sql, subscriptionId);
     }
 

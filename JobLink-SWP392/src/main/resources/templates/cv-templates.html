@@ -65,6 +65,15 @@
             border-color: #3b82f6;
         }
 
+        .template-card a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .template-card a:hover {
+            text-decoration: none;
+        }
+
         .template-thumbnail {
             width: 100%;
             height: 400px;
@@ -157,38 +166,38 @@
         <p>Choose from our collection of professionally designed CV templates</p>
     </div>
 
-    <div class="templates-grid" th:if="${templates != null and !templates.isEmpty()}">
-        <div class="template-card" th:each="template : ${templates}">
-            <div class="template-thumbnail">
-                <img th:if="${template.thumbnailUrl != null}"
-                     th:src="${template.thumbnailUrl}"
-                     alt="Template thumbnail">
-                <div th:unless="${template.thumbnailUrl != null}" class="template-thumbnail-placeholder">
-                    <i class="fas fa-file-alt"></i>
+    <!-- FlowCV Templates Section -->
+    <div class="templates-grid" th:if="${flowcvTemplates != null and !flowcvTemplates.isEmpty()}">
+        <div class="template-card" th:each="template : ${flowcvTemplates}">
+            <a th:href="${template.externalLink}" target="_blank" style="text-decoration: none; color: inherit; display: block;">
+                <div class="template-thumbnail" style="cursor: pointer;">
+                    <img th:src="${template.imageUrl}" 
+                         th:alt="${template.name} + ' Template'"
+                         onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                         style="width: 100%; height: 100%; object-fit: cover;">
+                    <div class="template-thumbnail-placeholder" style="display: none;">
+                        <i class="fas fa-image"></i>
+                        <p style="font-size: 14px; margin-top: 10px; color: #94a3b8;">Ảnh template</p>
+                    </div>
                 </div>
-            </div>
-            <div class="template-info">
-                <div class="template-name" th:text="${template.templateName}">Template Name</div>
-                <div class="template-description" th:text="${template.description}">Template description</div>
-                <div class="template-actions">
-                    <a th:href="@{/jobseeker/cv-templates/{id}(id=${template.templateId})}"
-                       class="btn-view">
-                        <i class="fas fa-eye"></i> View & Edit
-                    </a>
-                    <button class="btn-export"
-                            th:onclick="'exportCV(' + ${template.templateId} + ')'">
-                        <i class="fas fa-download"></i>
-                    </button>
+                <div class="template-info">
+                    <div class="template-name" th:text="${template.name}">Template Name</div>
+                    <div class="template-description" th:text="${template.description}">Template description</div>
+                    <div class="template-actions">
+                        <div class="btn-view" style="width: 100%; text-align: center;">
+                            <i class="fas fa-external-link-alt"></i> Xem Template trên FlowCV
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
     </div>
 
-    <div th:if="${templates == null or templates.isEmpty()}"
+    <div th:if="${flowcvTemplates == null or flowcvTemplates.isEmpty()}"
          style="text-align: center; padding: 60px 20px; color: #94a3b8;">
         <i class="fas fa-file-alt" style="font-size: 64px; margin-bottom: 20px;"></i>
-        <h3 style="font-size: 24px; color: #475569; margin-bottom: 10px;">No Templates Available</h3>
-        <p>CV templates will be available soon!</p>
+        <h3 style="font-size: 24px; color: #475569; margin-bottom: 10px;">Chưa có Template nào</h3>
+        <p style="margin-bottom: 20px;">Hiện tại chưa có template CV nào trong hệ thống.</p>
     </div>
 </div>
 

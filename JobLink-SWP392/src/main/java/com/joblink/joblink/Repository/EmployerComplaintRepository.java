@@ -22,4 +22,10 @@ public interface EmployerComplaintRepository extends JpaRepository<EmployerCompl
     List<EmployerComplaint> searchByEmployer(@Param("employerId") Long employerId,
                                              @Param("status") String status,
                                              @Param("keyword") String keyword);
+    
+    @Query("SELECT c FROM EmployerComplaint c " +
+           "JOIN FETCH c.jobSeeker " +
+           "JOIN FETCH c.employer " +
+           "ORDER BY c.createdAt DESC")
+    List<EmployerComplaint> findAllWithRelations();
 }

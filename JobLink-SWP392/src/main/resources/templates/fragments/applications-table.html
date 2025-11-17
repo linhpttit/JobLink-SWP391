@@ -14,12 +14,11 @@
                 <th>Trạng thái</th>
                 <th>CV / Tài liệu</th>
                 <th>Ghi chú</th>
-                <th>Thao tác</th>
             </tr>
             </thead>
             <tbody>
             <tr th:if="${applications == null or #lists.isEmpty(applications)}">
-                <td colspan="8" style="text-align:center; padding: 20px; color: #888;">
+                <td colspan="7" style="text-align:center; padding: 20px; color: #888;">
                     Không có dữ liệu
                 </td>
             </tr>
@@ -63,15 +62,6 @@
                             Ghi chú
                         </span>
                     <span class="note-text" th:if="${app.note == null or app.note == ''}">Không có ghi chú</span>
-                </td>
-                <td>
-                    <div class="action-buttons">
-                        <button class="btn-icon"
-                                title="Xem chi tiết"
-                                th:onclick="'viewApplicationDetail(' + ${app.applicationId} + ')'">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                    </div>
                 </td>
             </tr>
             </tbody>

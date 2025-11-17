@@ -35,7 +35,7 @@ public class HomeController implements ErrorController {
                 case "admin":
                     return "redirect:/admin";
                 case "employer":
-                    return "redirect:/employer/employer-layout";
+                    return "redirect:/employer/dashboard";
                 case "seeker":
                     return "redirect:/seeker/home";
                 default:

@@ -130,11 +130,15 @@
     <div class="cv-sidebar">
         <h3>Actions</h3>
         <div class="cv-actions">
+            <a th:href="@{'/jobseeker/cv-templates/' + ${template.templateId} + '?mode=edit'}" class="btn-action btn-primary" style="text-decoration: none;">
+                <i class="fas fa-edit"></i>
+                Edit CV
+            </a>
             <button class="btn-action btn-success" onclick="exportCV()">
                 <i class="fas fa-download"></i>
                 Export as PDF
             </button>
-            <button class="btn-action btn-primary" onclick="window.print()">
+            <button class="btn-action btn-secondary" onclick="window.print()">
                 <i class="fas fa-print"></i>
                 Print
             </button>

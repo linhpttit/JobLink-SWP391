@@ -22,6 +22,7 @@ public class JobPostingService implements IJobPostingService {
     private final com.joblink.joblink.Repository.ProvinceRepository provinceRepository;
     private final com.joblink.joblink.Repository.DistrictRepository districtRepository;
     private final EmployerRepository employerRepository;
+    private final JobNotificationService jobNotificationService;
 
     @Override
     @Transactional
@@ -56,8 +57,19 @@ public class JobPostingService implements IJobPostingService {
         Employer employer = employerRepository.getById(Long.valueOf(employerId));
         posting.setEmployer(employer);
 
-        jobPostingRepository.save(posting);
-        return posting;
+        JobPosting savedPosting = jobPostingRepository.save(posting);
+        
+        // Notify subscribers about new job
+        try {
+            if (jobNotificationService != null) {
+                jobNotificationService.checkAndNotifyNewJob(savedPosting.getJobId().intValue());
+            }
+        } catch (Exception e) {
+            // Log error but don't fail job creation
+            System.err.println("Error notifying subscribers about new job: " + e.getMessage());
+        }
+        
+        return savedPosting;
     }
 
     @Override

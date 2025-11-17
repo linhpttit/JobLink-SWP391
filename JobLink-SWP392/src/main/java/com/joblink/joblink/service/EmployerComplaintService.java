@@ -4,6 +4,8 @@ import com.joblink.joblink.Repository.EmployerComplaintRepository;
 import com.joblink.joblink.Repository.EmployerRepository;
 import com.joblink.joblink.Repository.JobSeekerProfileRepository;
 import com.joblink.joblink.entity.EmployerComplaint;
+import com.joblink.joblink.entity.Employer;
+import com.joblink.joblink.entity.JobSeekerProfile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,22 +19,23 @@ public class EmployerComplaintService implements IEmployerComplaintService {
     private final EmployerRepository employerRepository;
     private final JobSeekerProfileRepository jobSeekerRepository;
 
-//    @Override
-//    public EmployerComplaint createComplaint(int jobSeekerId, Long employerId, String subject, String content) {
-//        JobSeekerProfile jobSeeker = jobSeekerRepository.findById(jobSeekerId)
-//                .orElseThrow(() -> new RuntimeException("JobSeeker not found"));
-//        Employer employer = employerRepository.findById(employerId)
-//                .orElseThrow(() -> new RuntimeException("Employer not found"));
-//
-//        EmployerComplaint complaint = EmployerComplaint.builder()
-//                .jobSeeker(jobSeeker)
-//                .employer(employer)
-//                .subject(subject)
-//                .content(content)
-//                .build();
-//
-//        return complaintRepository.save(complaint);
-//    }
+    @Override
+    public EmployerComplaint createComplaint(int jobSeekerId, Long employerId, String subject, String content, java.time.LocalDate incidentDate) {
+        JobSeekerProfile jobSeeker = jobSeekerRepository.findById(jobSeekerId)
+                .orElseThrow(() -> new RuntimeException("JobSeeker not found"));
+        Employer employer = employerRepository.findById(employerId)
+                .orElseThrow(() -> new RuntimeException("Employer not found"));
+
+        EmployerComplaint complaint = new EmployerComplaint();
+        complaint.setJobSeeker(jobSeeker);
+        complaint.setEmployer(employer);
+        complaint.setSubject(subject);
+        complaint.setContent(content);
+        complaint.setStatus("PENDING");
+        complaint.setCreatedAt(incidentDate != null ? incidentDate : java.time.LocalDate.now());
+
+        return complaintRepository.save(complaint);
+    }
 
     @Override
     public List<EmployerComplaint> getComplaintsByEmployer(Long employerId) {
@@ -81,6 +84,40 @@ public class EmployerComplaintService implements IEmployerComplaintService {
         EmployerComplaint complaint = complaintRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy khiếu nại!"));
         return complaint;
+    }
+
+    @Override
+    public List<EmployerComplaint> getAllComplaintsForAdmin() {
+        return complaintRepository.findAllWithRelations();
+    }
+
+    @Override
+    public EmployerComplaint updateComplaint(Long id, String subject, String content, String status, String response) {
+        EmployerComplaint complaint = complaintRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Complaint not found"));
+        
+        if (subject != null && !subject.trim().isEmpty()) {
+            complaint.setSubject(subject);
+        }
+        if (content != null && !content.trim().isEmpty()) {
+            complaint.setContent(content);
+        }
+        if (status != null && !status.trim().isEmpty()) {
+            complaint.setStatus(status);
+        }
+        if (response != null) {
+            complaint.setResponse(response);
+        }
+        complaint.setUpdatedAt(LocalDate.now());
+        
+        return complaintRepository.save(complaint);
+    }
+
+    @Override
+    public void deleteComplaint(Long id) {
+        EmployerComplaint complaint = complaintRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Complaint not found"));
+        complaintRepository.delete(complaint);
     }
 
 }

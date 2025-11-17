@@ -64,22 +64,10 @@ public class MessageController {
             return "redirect:/messages";
         }
 
-        // Enrich conversation with otherUserId and other details from getUserConversations
-        List<Conversation> enrichedConversations = messageService.getUserConversations(user.getUserId());
-        Conversation enrichedConversation = enrichedConversations.stream()
-                .filter(c -> c.getConversationId() != null && c.getConversationId().equals(conversationId))
-                .findFirst()
-                .orElse(null);
-        
-        // If not found, use basic conversation (shouldn't happen but fallback)
-        if (enrichedConversation == null) {
-            enrichedConversation = conversation;
-        }
-
         List<Message> messages = messageService.getConversationMessages(conversationId);
         messageService.markMessagesAsRead(conversationId, user.getUserId());
 
-        model.addAttribute("conversation", enrichedConversation);
+        model.addAttribute("conversation", conversation);
         model.addAttribute("messages", messages);
         model.addAttribute("currentUserId", user.getUserId());
 
@@ -92,13 +80,12 @@ public class MessageController {
             @RequestParam int receiverUserId,
             @RequestParam String content,
             @RequestParam(required = false, defaultValue = "text") String messageType,
-            @RequestParam(required = false) Integer seekerId,
-            @RequestParam(required = false) Integer employerId,
-            @RequestParam(required = false) Integer seekerId2,
+            @RequestParam int seekerId,
+            @RequestParam int employerId,
             HttpSession session) {
 
         Map<String, Object> response = new HashMap<>();
-        UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
+    UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
 
         if (user == null) {
             response.put("error", "Vui lòng đăng nhập");
@@ -106,34 +93,14 @@ public class MessageController {
         }
 
         try {
-            Message message;
-            
-            // Determine conversation type and send appropriate message
-            if (seekerId2 != null && seekerId != null) {
-                // SEEKER_SEEKER conversation - use seekerId and seekerId2
-                message = messageService.sendSeekerToSeekerMessage(
-                        user.getUserId(),
-                        receiverUserId,
-                        content,
-                        messageType,
-                        seekerId,
-                        seekerId2
-                );
-            } else if (seekerId != null && employerId != null) {
-                // SEEKER_EMPLOYER conversation - use seekerId and employerId
-                message = messageService.sendMessage(
-                        user.getUserId(),
-                        receiverUserId,
-                        content,
-                        messageType,
-                        seekerId,
-                        employerId
-                );
-            } else {
-                response.put("error", "Invalid conversation parameters. Need seekerId+seekerId2 for SEEKER_SEEKER or seekerId+employerId for SEEKER_EMPLOYER");
-                return ResponseEntity.badRequest().body(response);
-            }
-            
+            Message message = messageService.sendMessage(
+                    user.getUserId(),
+                    receiverUserId,
+                    content,
+                    messageType,
+                    seekerId,
+                    employerId
+            );
             response.put("success", true);
             response.put("message", message);
             return ResponseEntity.ok(response);

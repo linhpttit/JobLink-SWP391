@@ -179,10 +179,8 @@ Share Address Modal
     const currentUserId = /*[[${currentUserId}]]*/ 0;
     const conversationId = /*[[${conversation.conversationId}]]*/ 0;
     const receiverUserId = /*[[${conversation.otherUserId}]]*/ 0;
-    const conversationType = /*[[${conversation.conversationType}]]*/ '';
-    const seekerId = /*[[${conversation.seekerId}]]*/ null;
-    const seekerId2 = /*[[${conversation.seekerId2}]]*/ null;
-    const employerId = /*[[${conversation.employerId}]]*/ null;
+    const seekerId = /*[[${conversation.seekerId}]]*/ 0;
+    const employerId = /*[[${conversation.employerId}]]*/ 0;
 
     let stompClient = null;
 
@@ -214,36 +212,19 @@ Share Address Modal
         const content = input.value.trim();
 
         if (!content) return;
-        
-        if (!receiverUserId) {
-            alert('Không thể xác định người nhận. Vui lòng tải lại trang.');
-            return;
-        }
-
-        // Build request body based on conversation type
-        const params = new URLSearchParams({
-            receiverUserId: receiverUserId,
-            content: content,
-            messageType: 'text'
-        });
-        
-        // Only add seekerId or employerId based on conversation type
-        if (conversationType === 'SEEKER_SEEKER') {
-            // For seeker-seeker conversation, use seekerId and seekerId2
-            if (seekerId) params.append('seekerId', seekerId);
-            if (seekerId2) params.append('seekerId2', seekerId2);
-        } else if (conversationType === 'SEEKER_EMPLOYER') {
-            // For seeker-employer conversation, use seekerId and employerId
-            if (seekerId) params.append('seekerId', seekerId);
-            if (employerId) params.append('employerId', employerId);
-        }
 
         fetch('/messages/send', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
-            body: params
+            body: new URLSearchParams({
+                receiverUserId: receiverUserId,
+                content: content,
+                messageType: 'text',
+                seekerId: seekerId,
+                employerId: employerId
+            })
         })
         .then(response => response.json())
         .then(data => {
@@ -269,36 +250,19 @@ Share Address Modal
     function sendAddress() {
         const address = document.getElementById('addressInput').value.trim();
         if (!address) return;
-        
-        if (!receiverUserId) {
-            alert('Không thể xác định người nhận. Vui lòng tải lại trang.');
-            return;
-        }
-
-        // Build request body based on conversation type
-        const params = new URLSearchParams({
-            receiverUserId: receiverUserId,
-            content: address,
-            messageType: 'address'
-        });
-        
-        // Only add seekerId or employerId based on conversation type
-        if (conversationType === 'SEEKER_SEEKER') {
-            // For seeker-seeker conversation, use seekerId and seekerId2
-            if (seekerId) params.append('seekerId', seekerId);
-            if (seekerId2) params.append('seekerId2', seekerId2);
-        } else if (conversationType === 'SEEKER_EMPLOYER') {
-            // For seeker-employer conversation, use seekerId and employerId
-            if (seekerId) params.append('seekerId', seekerId);
-            if (employerId) params.append('employerId', employerId);
-        }
 
         fetch('/messages/send', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
-            body: params
+            body: new URLSearchParams({
+                receiverUserId: receiverUserId,
+                content: address,
+                messageType: 'address',
+                seekerId: seekerId,
+                employerId: employerId
+            })
         })
         .then(response => response.json())
         .then(data => {

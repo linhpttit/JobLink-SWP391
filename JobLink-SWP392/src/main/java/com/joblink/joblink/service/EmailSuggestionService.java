@@ -123,36 +123,66 @@ public class EmailSuggestionService {
     private String buildEmailBody(String seekerName, List<Map<String, Object>> jobs,
                                   String skillName, String provinceName) {
         StringBuilder body = new StringBuilder();
-        body.append(String.format("Dear %s,\n\n", seekerName));
-        body.append(String.format("Great news! We found %d new job opportunity(ies) matching your subscription for %s in %s.\n\n",
+        body.append(String.format("Xin chào %s,\n\n", seekerName));
+        body.append(String.format("Tin tốt! Chúng tôi đã tìm thấy %d cơ hội việc làm mới phù hợp với đăng ký của bạn cho %s tại %s.\n\n",
                 jobs.size(), skillName, provinceName));
         body.append("=".repeat(60)).append("\n");
-        body.append("MATCHING JOB OPPORTUNITIES:\n");
+        body.append("CƠ HỘI VIỆC LÀM PHÙ HỢP:\n");
         body.append("=".repeat(60)).append("\n\n");
 
         int index = 1;
         for (Map<String, Object> job : jobs) {
-            body.append(String.format("%d. %s\n", index++, job.get("jobTitle")));
-            body.append(String.format("   Company: %s\n", job.get("companyName")));
-            body.append(String.format("   Location: %s\n", job.get("location")));
-            body.append(String.format("   Salary: $%s - $%s\n",
-                    job.get("salaryMin"), job.get("salaryMax")));
-            body.append(String.format("   Experience Level: %s\n", job.get("experienceLevel")));
-            body.append(String.format("   Job ID: %s\n", job.get("jobId")));
+            body.append(String.format("%d. %s\n", index++, job.get("jobTitle") != null ? job.get("jobTitle") : job.get("title")));
+            body.append(String.format("   Công ty: %s\n", job.get("companyName") != null ? job.get("companyName") : "N/A"));
+            body.append(String.format("   Địa điểm: %s\n", job.get("location") != null ? job.get("location") : provinceName));
+            
+            Object salaryMin = job.get("salaryMin");
+            Object salaryMax = job.get("salaryMax");
+            if (salaryMin != null || salaryMax != null) {
+                String salaryStr = "";
+                if (salaryMin != null && salaryMax != null) {
+                    salaryStr = String.format("%s - %s VNĐ", formatSalary(salaryMin), formatSalary(salaryMax));
+                } else if (salaryMin != null) {
+                    salaryStr = "Từ " + formatSalary(salaryMin) + " VNĐ";
+                } else if (salaryMax != null) {
+                    salaryStr = "Đến " + formatSalary(salaryMax) + " VNĐ";
+                }
+                body.append(String.format("   Mức lương: %s\n", salaryStr));
+            }
+            
+            body.append(String.format("   Kinh nghiệm: %s\n", job.get("experienceLevel") != null ? job.get("experienceLevel") : job.get("year_experience")));
+            body.append(String.format("   Loại công việc: %s\n", job.get("work_type") != null ? job.get("work_type") : "N/A"));
+            body.append(String.format("   Xem chi tiết: http://localhost:8080/job/%s\n", job.get("job_id") != null ? job.get("job_id") : job.get("jobId")));
             body.append("\n");
         }
 
         body.append("=".repeat(60)).append("\n");
-        body.append("NEXT STEPS:\n");
-        body.append("1. Visit JobLink to view full job details\n");
-        body.append("2. Apply to positions that interest you\n");
-        body.append("3. Manage your subscriptions anytime\n\n");
-        body.append("Best regards,\n");
-        body.append("JobLink Team\n\n");
+        body.append("BƯỚC TIẾP THEO:\n");
+        body.append("1. Truy cập JobLink để xem chi tiết công việc\n");
+        body.append("2. Ứng tuyển vào các vị trí bạn quan tâm\n");
+        body.append("3. Quản lý đăng ký của bạn bất cứ lúc nào\n\n");
+        body.append("Trân trọng,\n");
+        body.append("Đội ngũ JobLink\n\n");
         body.append("---\n");
-        body.append("Manage your subscriptions: https://joblink.com/email-subscriptions\n");
-        body.append("Unsubscribe: Contact support@joblink.com\n");
+        body.append("Quản lý đăng ký: http://localhost:8080/jobseeker/email-subscriptions\n");
+        body.append("Hủy đăng ký: Vào trang quản lý đăng ký và nhấn nút 'Hủy'\n");
 
         return body.toString();
+    }
+
+    /**
+     * Format salary number
+     */
+    private String formatSalary(Object salary) {
+        if (salary == null) return "0";
+        try {
+            double amount = Double.parseDouble(salary.toString());
+            if (amount >= 1000000) {
+                return String.format("%.0f triệu", amount / 1000000);
+            }
+            return String.format("%.0f", amount);
+        } catch (Exception e) {
+            return salary.toString();
+        }
     }
 }
