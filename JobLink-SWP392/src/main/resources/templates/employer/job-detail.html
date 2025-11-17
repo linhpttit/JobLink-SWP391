@@ -9,129 +9,153 @@
     <title>Chi tiết tin tuyển dụng</title>
     <link rel="stylesheet" th:href="@{/job-detail.css}"/>
 </head>
-<body class="bg-soft">
-<main class="wrap" layout:fragment="content">
-    <article class="card">
 
-        <!-- Header -->
-        <header class="head">
-            <h1>Chi tiết tin tuyển dụng</h1>
+<body class="bg-soft">
+<main class="job-detail-page" layout:fragment="content">
+    <div class="job-detail-container">
+
+        <!-- HEADER -->
+        <header class="job-header">
+            <div class="job-header-text">
+                <h1>Chi tiết tin tuyển dụng</h1>
+                <!-- Tiêu đề job ở dạng subtitle -->
+                <p class="job-subtitle" th:text="${job.title}">Senior Frontend Developer (ReactJS)</p>
+            </div>
+
+            <div class="job-header-actions">
+                <!-- XÓA TIN -->
+                <form th:action="@{/jobPosting/{id}/delete(id=${job.jobId})}"
+                      method="post"
+                      class="inline">
+                    <input type="hidden" name="_method" value="delete"/>
+                    <button class="btn btn-ghost-danger" type="submit">
+                        Xóa tin
+                    </button>
+                </form>
+
+                <!-- CHỈNH SỬA TIN -->
+                <a class="btn btn-primary"
+                   th:href="@{/jobPosting/{id}/edit(id=${job.jobId})}">
+                    Chỉnh sửa tin
+                </a>
+            </div>
         </header>
 
-        <!-- Tiêu đề job -->
-        <a class="chip" th:text="${job.title}"></a>
+        <!-- SUMMARY CARD (PHẦN TRÊN) -->
+        <section class="job-summary-card">
 
-        <!-- 1. Ngành nghề -->
-        <section class="block">
-            <h2>Ngành nghề</h2>
-<!--            <ul class="list">-->
-<!--                <li th:text="${job.industry}"></li>-->
-<!--            </ul>-->
-        </section>
+            <div class="summary-grid">
 
-        <!-- 2. Kinh nghiệm -->
-        <section class="block">
-            <h2>Kinh nghiệm</h2>
-            <ul class="list">
-                <li th:text="${job.yearExperience}"></li>
-            </ul>
-        </section>
+                <!-- 1. Ngành nghề -->
+                <div class="summary-item">
+                    <span class="summary-label">Ngành nghề</span>
+                    <span class="summary-value" th:text="${job.skill.name}">Công nghệ thông tin</span>
+                </div>
 
-        <!-- 3. Số lượng tuyển -->
-        <section class="block">
-            <h2>Số lượng tuyển</h2>
-            <ul class="list">
-                <li th:text="${job.hiringNumber}"></li>
-            </ul>
-        </section>
+                <!-- 2. Kinh nghiệm -->
+                <div class="summary-item">
+                    <span class="summary-label">Kinh nghiệm</span>
+                    <span class="summary-value" th:text="${job.yearExperience}">3 năm</span>
+                </div>
 
-        <!-- 4. Hạn nộp hồ sơ -->
-        <section class="block">
-            <h2>Hạn nộp hồ sơ</h2>
-            <div class="deadline">
-                <strong th:text="${#temporals.format(job.submissionDeadline, 'dd/MM/yyyy')}"></strong>
+                <!-- 3. Số lượng tuyển -->
+                <div class="summary-item">
+                    <span class="summary-label">Số lượng tuyển</span>
+                    <span class="summary-value" th:text="${job.hiringNumber}">2 người</span>
+                </div>
+
+                <!-- 4. Thành phố -->
+                <div class="summary-item">
+                    <span class="summary-label">Thành phố</span>
+                    <span class="summary-value" th:text="${job.province.provinceName}">Hà Nội</span>
+                </div>
+
+                <!-- 5. Hình thức làm việc -->
+                <div class="summary-item">
+                    <span class="summary-label">Loại công việc</span>
+                    <span class="summary-value" th:text="${job.workType}">Toàn thời gian</span>
+                </div>
+
+                <!-- 6. Vị trí -->
+                <div class="summary-item">
+                    <span class="summary-label">Chức vụ</span>
+                    <span class="summary-value" th:text="${job.position}">Senior Developer</span>
+                </div>
+            </div>
+
+            <div class="summary-divider"></div>
+
+            <!-- LƯƠNG + DEADLINE -->
+            <div class="summary-bottom">
+                <!-- 8. Mức lương -->
+                <div class="summary-item">
+                    <span class="summary-label">Mức lương từ </span>
+                    <!-- Nếu bạn có min/max thì có thể format ở controller và truyền vào đây -->
+                    <span class="summary-value salary" th:text="${job.salaryMax}">$1500 - $2500</span>
+                </div>
+
+                <!-- 4. Hạn nộp hồ sơ -->
+                <div class="summary-item summary-deadline">
+                    <span class="summary-label">Hạn nộp hồ sơ</span>
+                    <div class="deadline-pill">
+                        <span class="deadline-icon">📅</span>
+                        <span class="deadline-text"
+                              th:text="${#temporals.format(job.submissionDeadline, 'dd/MM/yyyy')}">
+                            06/12/2025
+                        </span>
+                    </div>
+                </div>
             </div>
         </section>
 
-        <!-- 5. Thành phố -->
-        <section class="block">
-            <h2>Thành phố</h2>
-            <ul class="list">
-                <li th:text="${job.province.provinceName}"></li>
-            </ul>
+        <!-- NỘI DUNG CHI TIẾT -->
+        <section class="job-content-card">
+
+            <!-- 9. Mô tả công việc -->
+            <div class="content-block">
+                <h2>Mô tả công việc</h2>
+                <p th:text="${job.jobDescription}">
+                    Nội dung mô tả công việc …
+                </p>
+            </div>
+
+            <!-- 10. Yêu cầu công việc -->
+            <div class="content-block">
+                <h2>Yêu cầu công việc</h2>
+                <p th:text="${job.jobRequirements}">
+                    Các yêu cầu đối với ứng viên …
+                </p>
+            </div>
+
+            <!-- 11. Quyền lợi -->
+            <div class="content-block">
+                <h2>Quyền lợi</h2>
+                <p th:text="${job.benefits}">
+                    Các chế độ và quyền lợi …
+                </p>
+            </div>
+
+            <!-- 12. Thông tin người liên hệ -->
+            <div class="content-block">
+                <h2>Thông tin liên hệ</h2>
+                <ul class="contact-list">
+                    <li>
+                        <span class="contact-label">Họ tên:</span>
+                        <span class="contact-value" th:text="${job.contactName}">Nguyễn Văn A</span>
+                    </li>
+                    <li>
+                        <span class="contact-label">Email:</span>
+                        <span class="contact-value" th:text="${job.contactEmail}">hr@example.com</span>
+                    </li>
+                    <li>
+                        <span class="contact-label">Điện thoại:</span>
+                        <span class="contact-value" th:text="${job.contactPhone}">0123 456 789</span>
+                    </li>
+                </ul>
+            </div>
         </section>
 
-        <!-- 6. Hình thức làm việc -->
-        <section class="block">
-            <h2>Hình thức làm việc</h2>
-            <ul class="list">
-                <li th:text="${job.workType}"></li>
-            </ul>
-        </section>
-
-        <!-- 7. Vị trí -->
-        <section class="block">
-            <h2>Vị trí</h2>
-            <ul class="list">
-                <li th:text="${job.position}"></li>
-            </ul>
-        </section>
-
-        <!-- 8. Mức lương -->
-        <section class="block">
-            <h2>Mức lương</h2>
-            <ul class="list">
-                <li th:text="${job.salaryMax}"></li>
-            </ul>
-        </section>
-
-        <!-- 9. Mô tả công việc -->
-        <section class="block">
-            <h2>Mô tả công việc</h2>
-            <ul class="list">
-                <li th:text="${job.jobDescription}"></li>
-            </ul>
-        </section>
-
-        <!-- 10. Yêu cầu công việc -->
-        <section class="block">
-            <h2>Yêu cầu công việc</h2>
-            <ul class="list">
-                <li th:text="${job.jobRequirements}"></li>
-            </ul>
-        </section>
-
-        <!-- 11. Quyền lợi -->
-        <section class="block">
-            <h2>Quyền lợi</h2>
-            <ul class="list">
-                <li th:text="${job.benefits}"></li>
-            </ul>
-        </section>
-
-        <!-- 12. Thông tin người liên hệ: Họ tên -->
-        <section class="block">
-            <h2>Người liên hệ</h2>
-            <ul class="list">
-                <li>Họ tên: <span th:text="${job.contactName}"></span></li>
-                <li>Email: <span th:text="${job.contactEmail}"></span></li>
-                <li>Điện thoại: <span th:text="${job.contactPhone}"></span></li>
-            </ul>
-        </section>
-
-        <!-- Actions -->
-        <footer class="actions">
-            <!-- XÓA TIN -->
-            <form th:action="@{/jobPosting/{id}/delete(id=${job.jobId})}" method="post" class="inline">
-                <input type="hidden" name="_method" value="delete"/>
-                <button class="btn danger" type="submit">Xóa tin</button>
-            </form>
-
-            <!-- CHỈNH SỬA TIN -->
-            <a class="btn primary" th:href="@{/jobPosting/{id}/edit(id=${job.jobId})}">Chỉnh sửa tin</a>
-        </footer>
-
-    </article>
+    </div>
 </main>
 </body>
 </html>
