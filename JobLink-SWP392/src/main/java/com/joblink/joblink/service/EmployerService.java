@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -189,5 +190,39 @@ public class    EmployerService implements IEmployerService {
 
     public List<EmployerProfile> searchOpenEmployers(String keyword, String location, String industry, String sortBy) {
         return List.of();
+    }
+    @Override
+    public void uploadAvatar(Integer userId, MultipartFile file) throws Exception {
+
+        if (file.isEmpty()) {
+            throw new IllegalArgumentException("Không có file nào được chọn!");
+        }
+
+        // Chỉ cho phép ảnh
+        String contentType = file.getContentType();
+        if (contentType == null || !contentType.startsWith("image/")) {
+            throw new IllegalArgumentException("File tải lên phải là ảnh!");
+        }
+
+        // Tạo tên file
+        String fileName = "avatar_" + userId + "_" + System.currentTimeMillis() + ".jpg";
+
+        // Folder lưu ảnh (tự tạo thư mục nếu chưa có)
+        String uploadDir = "D:/FPT_Documents/CN8/JobLink-SWP391/uploads/avatars/";
+        java.nio.file.Path uploadPath = java.nio.file.Paths.get(uploadDir);
+
+        if (!java.nio.file.Files.exists(uploadPath)) {
+            java.nio.file.Files.createDirectories(uploadPath);
+        }
+
+        // Lưu file
+        java.nio.file.Path filePath = uploadPath.resolve(fileName);
+        java.nio.file.Files.copy(file.getInputStream(), filePath,
+                java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+
+        // Cập nhật đường dẫn vào database
+        User user = getUserById(userId);
+        user.setUrlAvt("/avatars/" + fileName);
+        userRepository.save(user);
     }
 }

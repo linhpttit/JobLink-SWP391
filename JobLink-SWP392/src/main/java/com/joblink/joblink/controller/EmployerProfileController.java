@@ -7,6 +7,7 @@ import org.springframework.ui.Model;
 import com.joblink.joblink.service.IEmployerService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import jakarta.servlet.http.HttpSession;
 
@@ -93,4 +94,27 @@ public class EmployerProfileController {
         }
         return "redirect:/employer/profile";
     }
+    @PostMapping("/profile/avatar")
+    public String uploadAvatar(
+            @RequestParam("avatar") MultipartFile file,
+            HttpSession session,
+            RedirectAttributes ra) {
+
+        // Lấy user từ session
+        UserSessionDTO user = (UserSessionDTO) session.getAttribute("user");
+        if (user == null) {
+            ra.addFlashAttribute("error", "Vui lòng đăng nhập");
+            return "redirect:/signin";
+        }
+
+        try {
+            employerService.uploadAvatar(user.getUserId(), file);
+            ra.addFlashAttribute("message", "Ảnh đại diện đã được cập nhật!");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", e.getMessage());
+        }
+
+        return "redirect:/employer/profile";
+    }
+
 }
