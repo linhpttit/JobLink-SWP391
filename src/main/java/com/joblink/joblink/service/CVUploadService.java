@@ -43,6 +43,14 @@ public class CVUploadService {
         return cvUploadDao.findBySeekerId(seekerId);
     }
 
+    /**
+     * Đếm tổng số CV đã được tạo trong hệ thống.
+     * @return Tổng số CV.
+     */
+    public long countAllCVs() {
+        return cvUploadDao.countAll();
+    }
+
     private void validateCV(CVUpload cv) {
         if (cv.getFullName() == null || cv.getFullName().trim().isEmpty()) {
             throw new IllegalArgumentException("Full name is required");

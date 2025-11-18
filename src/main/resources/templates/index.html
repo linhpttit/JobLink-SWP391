@@ -41,7 +41,6 @@
 
                 <div class="hero-illustration">
                     <svg width="400" height="300" viewBox="0 0 400 300" fill="none">
-                        <!-- Simplified illustration -->
                         <rect x="50" y="100" width="300" height="200" rx="10" fill="white" opacity="0.9"/>
                         <circle cx="120" cy="80" r="30" fill="#60a5fa"/>
                         <rect x="70" y="130" width="260" height="8" rx="4" fill="#e5e7eb"/>
@@ -57,35 +56,35 @@
     </section>
 
     <!-- Stats Section -->
-    <section class="stats-section">
+    <section class="stats-section" th:if="${stats != null}">
         <div class="container">
             <div class="stats-grid">
                 <div class="stat-item">
                     <div class="stat-icon">
                         <i class="fas fa-briefcase"></i>
                     </div>
-                    <div class="stat-number">1,75,324</div>
+                    <div class="stat-number" th:text="${#numbers.formatInteger(stats.liveJobs, 0, 'COMMA')}">0</div>
                     <div class="stat-label" data-i18n="stat_live_job">Live Job</div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-icon">
                         <i class="fas fa-building"></i>
                     </div>
-                    <div class="stat-number">97,354</div>
+                    <div class="stat-number" th:text="${#numbers.formatInteger(stats.companies, 0, 'COMMA')}">0</div>
                     <div class="stat-label" data-i18n="stat_companies">Companies</div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-icon">
                         <i class="fas fa-users"></i>
                     </div>
-                    <div class="stat-number">38,47,154</div>
+                    <div class="stat-number" th:text="${#numbers.formatInteger(stats.candidates, 0, 'COMMA')}">0</div>
                     <div class="stat-label" data-i18n="stat_candidates">Candidates</div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-icon">
                         <i class="fas fa-plus-circle"></i>
                     </div>
-                    <div class="stat-number">7,532</div>
+                    <div class="stat-number" th:text="${#numbers.formatInteger(stats.newJobs, 0, 'COMMA')}">0</div>
                     <div class="stat-label" data-i18n="stat_new_jobs">New Jobs</div>
                 </div>
             </div>
@@ -93,7 +92,7 @@
     </section>
 
     <!-- Popular Categories -->
-    <section class="categories-section">
+    <section class="categories-section" th:if="${categories != null and !categories.isEmpty()}">
         <div class="container">
             <div class="section-header">
                 <h2 class="section-title" data-i18n="section_popular_category">Popular category</h2>
@@ -101,142 +100,81 @@
             </div>
 
             <div class="categories-grid">
-                <div class="category-card">
-                    <div class="category-icon blue">
-                        <i class="fas fa-palette"></i>
+                <div class="category-card" th:each="category, iterStat : ${categories}">
+                    <div class="category-icon"
+                         th:classappend="${iterStat.index % 8 == 0 ? 'blue' :
+                                         iterStat.index % 8 == 1 ? 'green' :
+                                         iterStat.index % 8 == 2 ? 'purple' :
+                                         iterStat.index % 8 == 3 ? 'orange' :
+                                         iterStat.index % 8 == 4 ? 'pink' :
+                                         iterStat.index % 8 == 5 ? 'cyan' :
+                                         iterStat.index % 8 == 6 ? 'blue' : 'green'}">
+                        <i class="fas"
+                           th:classappend="${iterStat.index % 8 == 0 ? 'fa-palette' :
+                                           iterStat.index % 8 == 1 ? 'fa-code' :
+                                           iterStat.index % 8 == 2 ? 'fa-bullhorn' :
+                                           iterStat.index % 8 == 3 ? 'fa-video' :
+                                           iterStat.index % 8 == 4 ? 'fa-music' :
+                                           iterStat.index % 8 == 5 ? 'fa-calculator' :
+                                           iterStat.index % 8 == 6 ? 'fa-heartbeat' : 'fa-database'}"></i>
                     </div>
-                    <h3 class="category-title" data-i18n="cat_graphics_design">Graphics & Design</h3>
-                    <p class="category-jobs"><span>357</span> <span data-i18n="open_position">Open position</span></p>
-                </div>
-
-                <div class="category-card">
-                    <div class="category-icon green">
-                        <i class="fas fa-code"></i>
-                    </div>
-                    <h3 class="category-title" data-i18n="cat_code_programming">Code & Programming</h3>
-                    <p class="category-jobs"><span>312</span> <span data-i18n="open_position">Open position</span></p>
-                </div>
-
-                <div class="category-card">
-                    <div class="category-icon purple">
-                        <i class="fas fa-bullhorn"></i>
-                    </div>
-                    <h3 class="category-title" data-i18n="cat_digital_marketing">Digital Marketing</h3>
-                    <p class="category-jobs"><span>297</span> <span data-i18n="open_position">Open position</span></p>
-                </div>
-
-                <div class="category-card">
-                    <div class="category-icon orange">
-                        <i class="fas fa-video"></i>
-                    </div>
-                    <h3 class="category-title" data-i18n="cat_video_animation">Video & Animation</h3>
-                    <p class="category-jobs"><span>247</span> <span data-i18n="open_position">Open position</span></p>
-                </div>
-
-                <div class="category-card">
-                    <div class="category-icon pink">
-                        <i class="fas fa-music"></i>
-                    </div>
-                    <h3 class="category-title" data-i18n="cat_music_audio">Music & Audio</h3>
-                    <p class="category-jobs"><span>204</span> <span data-i18n="open_position">Open position</span></p>
-                </div>
-
-                <div class="category-card">
-                    <div class="category-icon cyan">
-                        <i class="fas fa-calculator"></i>
-                    </div>
-                    <h3 class="category-title" data-i18n="cat_account_finance">Account & Finance</h3>
-                    <p class="category-jobs"><span>167</span> <span data-i18n="open_position">Open position</span></p>
-                </div>
-
-                <div class="category-card">
-                    <div class="category-icon blue">
-                        <i class="fas fa-heartbeat"></i>
-                    </div>
-                    <h3 class="category-title" data-i18n="cat_health_care">Health & Care</h3>
-                    <p class="category-jobs"><span>125</span> <span data-i18n="open_position">Open position</span></p>
-                </div>
-
-                <div class="category-card">
-                    <div class="category-icon green">
-                        <i class="fas fa-database"></i>
-                    </div>
-                    <h3 class="category-title" data-i18n="cat_data_science">Data & Science</h3>
-                    <p class="category-jobs"><span>57</span> <span data-i18n="open_position">Open position</span></p>
+                    <h3 class="category-title" th:text="${category.name}">Category Name</h3>
+                    <p class="category-jobs">
+                        <span th:text="${category.jobCount}">0</span>
+                        <span data-i18n="open_position">Open position</span>
+                    </p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Featured Jobs -->
-    <section class="featured-jobs-section">
+    <section class="featured-jobs-section" th:if="${featuredJobs != null and !featuredJobs.isEmpty()}">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title" data-i18n="section_featured_job">Featured job</h2>
-                <a href="#" class="view-all"><span data-i18n="view_all">View All</span> <i class="fas fa-arrow-right"></i></a>
+                <h2 class="section-title">Featured job</h2>
+                <a href="#" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
             </div>
 
-            <div class="job-card">
+            <div th:each="job : ${featuredJobs}" class="job-card">
                 <div class="job-info">
-                    <div class="job-logo" style="background: #10b981;">Up</div>
+                    <div class="job-logo" style="background: #3b82f6;">
+                        <span th:text="${job.companyName != null and job.companyName.length() >= 2 ? job.companyName.substring(0, 2).toUpperCase() : 'CO'}">Co</span>
+                    </div>
                     <div class="job-details">
-                        <h3 data-i18n="job_senior_ux">Senior UX Designer</h3>
+                        <h3 th:text="${job.title}">Job Title</h3>
                         <div class="job-meta">
-                            <span><i class="fas fa-map-marker-alt"></i> <span data-i18n="location_australia">Australia</span></span>
-                            <span><i class="fas fa-dollar-sign"></i> $30K-$35K</span>
-                            <span><i class="fas fa-clock"></i> <span>4</span> <span data-i18n="days_remaining">Days Remaining</span></span>
+                            <span>
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span th:text="${job.location != null ? job.location : 'Remote'}">Location</span>
+                            </span>
+                            <span>
+                                <i class="fas fa-dollar-sign"></i>
+                                <span th:text="${job.salaryRange != null ? job.salaryRange : 'Negotiable'}">Salary</span>
+                            </span>
+                            <span>
+                                <i class="fas fa-clock"></i>
+                                <span th:text="${job.daysRemaining + ' Days Remaining'}">Days Remaining</span>
+                            </span>
                         </div>
                     </div>
                 </div>
                 <div class="job-actions">
                     <button class="btn-outline"><i class="fas fa-bookmark"></i></button>
-                    <button class="btn-primary"><span data-i18n="apply_now">Apply Now</span> <i class="fas fa-arrow-right"></i></button>
-                </div>
-            </div>
-
-            <div class="job-card">
-                <div class="job-info">
-                    <div class="job-logo" style="background: #1e293b;"><i class="fab fa-apple"></i></div>
-                    <div class="job-details">
-                        <h3 data-i18n="job_software_engineer">Software Engineer</h3>
-                        <div class="job-meta">
-                            <span><i class="fas fa-map-marker-alt"></i> <span data-i18n="location_china">China</span></span>
-                            <span><i class="fas fa-dollar-sign"></i> $50K-$60K</span>
-                            <span><i class="fas fa-clock"></i> <span>4</span> <span data-i18n="days_remaining">Days Remaining</span></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="job-actions">
-                    <button class="btn-outline"><i class="fas fa-bookmark"></i></button>
-                    <button class="btn-primary"><span data-i18n="apply_now">Apply Now</span> <i class="fas fa-arrow-right"></i></button>
-                </div>
-            </div>
-
-            <div class="job-card">
-                <div class="job-info">
-                    <div class="job-logo" style="background: #8b5cf6;"><i class="fas fa-paint-brush"></i></div>
-                    <div class="job-details">
-                        <h3 data-i18n="job_junior_graphic">Junior Graphic Designer</h3>
-                        <div class="job-meta">
-                            <span><i class="fas fa-map-marker-alt"></i> <span data-i18n="location_canada">Canada</span></span>
-                            <span><i class="fas fa-dollar-sign"></i> $50K-$70K</span>
-                            <span><i class="fas fa-clock"></i> <span>4</span> <span data-i18n="days_remaining">Days Remaining</span></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="job-actions">
-                    <button class="btn-outline"><i class="fas fa-bookmark"></i></button>
-                    <button class="btn-primary"><span data-i18n="apply_now">Apply Now</span> <i class="fas fa-arrow-right"></i></button>
+                    <button class="btn-primary"
+                            th:onclick="|window.location.href='/job-detail/${job.jobId}'|">
+                        Apply Now <i class="fas fa-arrow-right"></i>
+                    </button>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Top Companies -->
-    <section class="companies-section">
+    <section class="companies-section" th:if="${topCompanies != null and !topCompanies.isEmpty()}">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title" data-i18n="section_top_companies">Top companies</h2>
+                <h2 class="section-title">Top companies</h2>
                 <div style="display: flex; gap: 10px;">
                     <button class="btn-outline"><i class="fas fa-chevron-left"></i></button>
                     <button class="btn-outline"><i class="fas fa-chevron-right"></i></button>
@@ -244,51 +182,38 @@
             </div>
 
             <div class="companies-grid">
-                <div class="company-card">
-                    <div class="company-logo" style="background: #ec4899;">Dr</div>
-                    <h3 class="company-name">Dribbble</h3>
-                    <p class="company-location"><i class="fas fa-map-marker-alt"></i> <span data-i18n="location_us">United States</span></p>
-                    <button class="company-btn" data-i18n="open_position">Open Position</button>
-                </div>
-
-                <div class="company-card">
-                    <div class="company-logo" style="background: #10b981;">Up</div>
-                    <h3 class="company-name">Upwork</h3>
-                    <p class="company-location"><i class="fas fa-map-marker-alt"></i> <span data-i18n="location_us">United States</span></p>
-                    <button class="company-btn" data-i18n="open_position">Open Position</button>
-                </div>
-
-                <div class="company-card">
-                    <div class="company-logo" style="background: #3b82f6;"><i class="fab fa-slack"></i></div>
-                    <h3 class="company-name">Slack</h3>
-                    <p class="company-location"><i class="fas fa-map-marker-alt"></i> <span data-i18n="location_china">China</span></p>
-                    <button class="company-btn" data-i18n="open_position">Open Position</button>
-                </div>
-
-                <div class="company-card">
-                    <div class="company-logo" style="background: #1e40af;">Fr</div>
-                    <h3 class="company-name">Freepik</h3>
-                    <p class="company-location"><i class="fas fa-map-marker-alt"></i> <span data-i18n="location_us">United States</span></p>
-                    <button class="company-btn" data-i18n="open_position">Open Position</button>
+                <div class="company-card" th:each="company : ${topCompanies}">
+                    <div class="company-logo" th:style="'background: ' + ${company.companyColor}">
+                        <span th:text="${company.companyInitials}">Co</span>
+                    </div>
+                    <h3 class="company-name" th:text="${company.companyName}">Company Name</h3>
+                    <p class="company-location">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span th:text="${company.location != null ? company.location : 'Vietnam'}">Location</span>
+                    </p>
+                    <button class="company-btn"
+                            th:onclick="|window.location.href='/employers/${company.employerId}'|">
+                        <span th:text="${company.openPositions + (company.openPositions > 1 ? ' Open Positions' : ' Open Position')}">Open Position</span>
+                    </button>
                 </div>
             </div>
         </div>
     </section>
-
+</div>
     <!-- Call to Action -->
     <section class="cta-section">
         <div class="container">
             <div class="cta-grid">
                 <div class="cta-card candidate">
+
                     <h3 data-i18n="cta_become_candidate">Become a Candidate</h3>
-                    <p data-i18n="cta_candidate_desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras cursus a dolor convallis efficitur.</p>
-                    <button class="cta-btn blue"><span data-i18n="cta_register_now">Register Now</span> <i class="fas fa-arrow-right"></i></button>
+                 <button class="cta-btn blue"><span data-i18n="cta_register_now">Register Now</span> <i class="fas fa-arrow-right"></i></button>
                 </div>
 
                 <div class="cta-card employer">
                     <h3 data-i18n="cta_become_employer">Become a Employers</h3>
-                    <p data-i18n="cta_employer_desc">Cras in massa pellentesque, mollis ligula non, luctus dui. Morbi sed efficitur dolor. Pelque cursus risus, aliqu.</p>
-                    <button class="cta-btn white"><span data-i18n="cta_register_now">Register Now</span> <i class="fas fa-arrow-right"></i></button>
+                <button class="cta-btn white"  th:onclick="|window.location.href='/signin'|">
+                    <span data-i18n="cta_register_now">Register Now</span> <i class="fas fa-arrow-right"></i></button>
                 </div>
             </div>
         </div>

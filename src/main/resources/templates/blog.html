@@ -4,22 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý Blog</title>
-    <link rel="stylesheet" href="blog.css">
+    <link rel="stylesheet" href="/CSS/blog.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
 <div class="blog-management">
     <div class="header">
         <h2><i class="fa-solid fa-rss"></i>Quản lý Blog / Tin tức</h2>
-        <button class="btn btn-primary"><i class="fas fa-plus"></i> Thêm bài viết</button>
+        <button class="btn btn-primary" id="addBlogBtn"><i class="fas fa-plus"></i> Thêm bài viết</button>
     </div>
 
     <div class="filters">
-        <input type="text" placeholder="Tìm theo tiêu đề, nội dung...">
-        <select>
-            <option value="">Tất cả danh mục</option>
-            <!-- Fill từ Categories -->
-        </select>
+        <input id="searchInput" type="text" placeholder="Tìm theo tiêu đề, nội dung..." th:value="${param.search}" />
+        <input id="createdDate" type="date" th:value="${param.createdDate}" />
+        <button id="resetFiltersBtn" type="button" class="btn btn-secondary"><i class="fa-solid fa-rotate-right"></i> Reset</button>
     </div>
 
     <div class="table-container">
@@ -29,16 +27,66 @@
                 <th>Tiêu đề</th>
                 <th>Danh mục</th>
                 <th>Ngày tạo</th>
-                <th>Ngày cập nhật</th>
+                <th>Trạng thái</th>
                 <th>Hành động</th>
             </tr>
             </thead>
-            <tr class="no-data">
+            <tbody>
+            <tr th:each="b : ${blogs}" th:attr="data-created=${#temporals.format(b.createdAt,'yyyy-MM-dd')}">
+                <td th:text="${b.title}"></td>
+                <td th:text="${b.categoryId}"></td>
+                <td th:text="${#temporals.format(b.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+                <td>
+                    <span th:if="${b.deleted}" class="status-inactive">
+                        Đã xóa
+                    </span>
+                    <span th:unless="${b.deleted}" class="status-active">
+                        Hoạt động
+                    </span>
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-warning edit-blog-btn" th:data-id="${b.blogId}">
+                        <i class="fa-solid fa-pen"></i> Sửa
+                    </button>
+                    <form class="delete-blog-form" th:action="@{/admin/blog/delete/{id}(id=${b.blogId})}" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-sm btn-danger">
+                            <i class="fa-solid fa-trash"></i> <span th:text="${b.deleted ? 'Khôi phục' : 'Xóa'}"></span>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(blogs)}">
                 <td colspan="5" style="text-align:center; padding: 20px; color: #888;">
                     Không có dữ liệu
                 </td>
             </tr>
+            <tr th:each="p : ${posts}" th:attr="data-created=${#temporals.format(p.createdAt,'yyyy-MM-dd')}">
+                <td th:text="${p.title}"></td>
+                <td th:text="${p.categoryId}"></td>
+                <td th:text="${#temporals.format(p.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+                <td>
+                    <span th:if="${p.deleted}" class="status-inactive">
+                        Đã xóa
+                    </span>
+                    <span th:unless="${p.deleted}" class="status-active">
+                        Hoạt động
+                    </span>
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-warning edit-post-btn" th:data-id="${p.postId}">
+                        <i class="fa-solid fa-pen"></i> Sửa
+                    </button>
+                    <form class="delete-post-form" th:action="@{/admin/blogpost/delete/{id}(id=${p.postId})}" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-sm btn-danger">
+                            <i class="fa-solid fa-trash"></i> <span th:text="${p.deleted ? 'Khôi phục' : 'Xóa'}"></span>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+
+            </tbody>
         </table>
+
     </div>
 
     <!-- Pagination -->
@@ -61,5 +109,623 @@
         </div>
     </div>
 </div>
+
+<!-- Edit Blog Modal -->
+<div id="editBlogModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalTitle"><i class="fa-solid fa-pen"></i> Chỉnh sửa Blog</h3>
+            <button type="button" class="modal-close" id="modalCloseBtn">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="editBlogForm">
+                <input type="hidden" id="editType" name="editType">
+                <input type="hidden" id="editBlogId" name="blogId">
+                <div class="form-group">
+                    <label for="editTitle">Tiêu đề <span class="required-star">*</span></label>
+                    <input type="text" id="editTitle" name="title" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="editCategoryId">Danh mục ID <span class="required-star">*</span></label>
+                    <input type="number" id="editCategoryId" name="categoryId" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="editContent">Nội dung <span class="required-star">*</span></label>
+                    <textarea id="editContent" name="content" class="form-control" rows="10" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="editParentBlogId">Blog cha (ID, tùy chọn)</label>
+                    <input type="number" id="editParentBlogId" name="parentBlogId" class="form-control">
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="modalCancelBtn">Hủy</button>
+            <button type="button" class="btn btn-primary" id="modalSaveBtn">
+                <i class="fa-solid fa-save"></i> Lưu
+            </button>
+        </div>
+    </div>
+</div>
+
+
+<script>
+(function() {
+    // Pagination settings
+    let PAGE_SIZE = 5;
+    let currentPage = 1;
+    // Hàm reload chỉ phần table
+    function getCurrentFilters() {
+        const searchEl = document.getElementById('searchInput');
+        const dateEl = document.getElementById('createdDate');
+        return {
+            search: searchEl ? searchEl.value.trim() : '',
+            createdDate: dateEl ? (dateEl.value || '') : ''
+        };
+    }
+
+    function buildQueryString(params) {
+        const qs = new URLSearchParams();
+        if (params.search) qs.append('search', params.search);
+        if (params.createdDate) qs.append('createdDate', params.createdDate);
+        const str = qs.toString();
+        return str ? ('?' + str) : '';
+    }
+
+    function reloadTable() {
+        const query = buildQueryString(getCurrentFilters());
+        fetch('/admin/blog' + query)
+            .then(response => response.text())
+            .then(html => {
+                // Tạo một div tạm để parse HTML
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = html;
+                
+                // Lấy phần table-container mới
+                const newTableContainer = tempDiv.querySelector('.table-container');
+                const currentTableContainer = document.querySelector('.table-container');
+                
+                if (newTableContainer && currentTableContainer) {
+                    // Thay thế chỉ phần table
+                    currentTableContainer.innerHTML = newTableContainer.innerHTML;
+                    
+                    // Re-bind lại các event listeners cho form mới
+                    bindDeleteForms();
+                    bindEditButtons();
+                    bindEditPostButtons();
+                    // Không cần re-bind filters vì chúng nằm ngoài .table-container
+                    // Modal events chỉ cần bind một lần
+                    // Áp dụng lại bộ lọc hiện tại sau khi reload dữ liệu bảng
+                    filterTable();
+                }
+            })
+            .catch(err => {
+                console.error('Lỗi khi reload table:', err);
+                alert('Có lỗi xảy ra khi tải lại dữ liệu');
+            });
+    }
+
+    // Debounce helper
+    function debounce(fn, delay) {
+        let t;
+        return function() {
+            clearTimeout(t);
+            const ctx = this, args = arguments;
+            t = setTimeout(function() { fn.apply(ctx, args); }, delay);
+        };
+    }
+
+    // Parse date from row: prefer data-created (yyyy-MM-dd or ISO), fallback to cell text dd/MM/yyyy
+    function parseDateFromText(text) {
+        if (!text) return null;
+        const iso = Date.parse(text);
+        if (!isNaN(iso)) return new Date(iso);
+        const m = text.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+        if (m) {
+            const d = parseInt(m[1], 10);
+            const mm = parseInt(m[2], 10) - 1;
+            const yyyy = parseInt(m[3], 10);
+            return new Date(yyyy, mm, d);
+        }
+        return null;
+    }
+
+    function filterTable() {
+        const { search, createdDate } = getCurrentFilters();
+        const searchLower = (search || '').toLowerCase();
+
+        const tbody = document.querySelector('.table-container tbody');
+        if (!tbody) return;
+
+        let visibleCount = 0;
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        rows.forEach(row => {
+            // Skip the empty-data row if present
+            const firstCell = row.querySelector('td');
+            const isEmptyRow = firstCell && firstCell.hasAttribute('colspan');
+            if (isEmptyRow) return;
+
+            const cells = row.querySelectorAll('td');
+            if (cells.length < 3) return;
+            const titleText = (cells[0].textContent || '').toLowerCase().trim();
+            const dateText = (cells[2].textContent || '').trim();
+            const dataCreated = row.getAttribute('data-created') || '';
+            let rowDateKey = dataCreated;
+            if (!rowDateKey) {
+                const m = dateText.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+                if (m) {
+                    const dd = m[1].padStart(2, '0');
+                    const mm = m[2].padStart(2, '0');
+                    const yyyy = m[3];
+                    rowDateKey = `${yyyy}-${mm}-${dd}`;
+                }
+            }
+
+            let matchesSearch = true;
+            if (searchLower) {
+                matchesSearch = titleText.includes(searchLower);
+            }
+
+            let matchesDate = true;
+            if (createdDate) {
+                matchesDate = rowDateKey === createdDate;
+            }
+
+            const show = matchesSearch && matchesDate;
+            row.dataset.matched = show ? '1' : '0';
+            row.style.display = show ? '' : 'none';
+            if (show) visibleCount++;
+        });
+
+        // Handle empty state row (create if missing)
+        const theadRow = document.querySelector('.blog-table thead tr');
+        const colCount = theadRow ? theadRow.children.length : 5;
+        const serverEmptyRow = rows.find(r => {
+            const td = r.querySelector('td');
+            return td && td.hasAttribute('colspan') && !r.classList.contains('empty-row');
+        });
+        let dynamicEmptyRow = tbody.querySelector('tr.empty-row');
+
+        if (visibleCount === 0) {
+            if (!dynamicEmptyRow) {
+                const tr = document.createElement('tr');
+                tr.className = 'empty-row';
+                const td = document.createElement('td');
+                td.colSpan = colCount;
+                td.style.textAlign = 'center';
+                td.style.padding = '20px';
+                td.style.color = '#888';
+                td.textContent = 'Không có dữ liệu';
+                tr.appendChild(td);
+                tbody.appendChild(tr);
+                dynamicEmptyRow = tr;
+            }
+            dynamicEmptyRow.style.display = '';
+            if (serverEmptyRow) serverEmptyRow.style.display = '';
+        } else {
+            if (dynamicEmptyRow) dynamicEmptyRow.remove();
+            if (serverEmptyRow) serverEmptyRow.style.display = 'none';
+        }
+
+        // Reset to first page when filters change
+        currentPage = 1;
+        updatePagination(visibleCount);
+        applyPagination();
+    }
+
+    function getMatchedRows() {
+        const tbody = document.querySelector('.table-container tbody');
+        if (!tbody) return [];
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        return rows.filter(r => {
+            const td = r.querySelector('td');
+            const isEmptyRow = td && td.hasAttribute('colspan');
+            return !isEmptyRow && r.dataset.matched === '1';
+        });
+    }
+
+    function updatePagination(totalVisible) {
+        const info = document.querySelector('.pagination .pagination-info');
+        const controls = document.querySelector('.pagination .pagination-controls');
+        if (!info || !controls) return;
+
+        const totalPages = Math.max(1, Math.ceil(totalVisible / PAGE_SIZE));
+        if (currentPage > totalPages) currentPage = totalPages;
+
+        const start = totalVisible === 0 ? 0 : ((currentPage - 1) * PAGE_SIZE + 1);
+        const end = Math.min(currentPage * PAGE_SIZE, totalVisible);
+        info.textContent = `Hiển thị ${start}-${end} của ${totalVisible} kết quả`;
+
+        // Build pagination buttons
+        controls.innerHTML = '';
+
+        const btnPrev = document.createElement('button');
+        btnPrev.className = 'pagination-btn';
+        btnPrev.disabled = currentPage === 1;
+        btnPrev.innerHTML = '<i class="fas fa-chevron-left"></i>';
+        btnPrev.addEventListener('click', function() {
+            if (currentPage > 1) {
+                currentPage--;
+                applyPagination();
+                updatePagination(getMatchedRows().length);
+            }
+        });
+        controls.appendChild(btnPrev);
+
+        for (let p = 1; p <= totalPages; p++) {
+            const b = document.createElement('button');
+            b.className = 'pagination-btn' + (p === currentPage ? ' active' : '');
+            b.textContent = String(p);
+            b.addEventListener('click', function() {
+                currentPage = p;
+                applyPagination();
+                updatePagination(getMatchedRows().length);
+            });
+            controls.appendChild(b);
+        }
+
+        const btnNext = document.createElement('button');
+        btnNext.className = 'pagination-btn';
+        btnNext.disabled = currentPage >= totalPages;
+        btnNext.innerHTML = '<i class="fas fa-chevron-right"></i>';
+        btnNext.addEventListener('click', function() {
+            if (currentPage < totalPages) {
+                currentPage++;
+                applyPagination();
+                updatePagination(getMatchedRows().length);
+            }
+        });
+        controls.appendChild(btnNext);
+    }
+
+    function applyPagination() {
+        const tbody = document.querySelector('.table-container tbody');
+        if (!tbody) return;
+        const allRows = Array.from(tbody.querySelectorAll('tr'));
+        const matchedRows = getMatchedRows();
+
+        // Hide all data rows first (leave empty state row as is)
+        allRows.forEach(r => {
+            const td = r.querySelector('td');
+            const isEmptyRow = td && td.hasAttribute('colspan');
+            if (!isEmptyRow) r.style.display = 'none';
+        });
+
+        // Show only current page rows among matched
+        const startIndex = (currentPage - 1) * PAGE_SIZE;
+        const endIndex = startIndex + PAGE_SIZE;
+        matchedRows.slice(startIndex, endIndex).forEach(r => { r.style.display = ''; });
+    }
+    
+    // Hàm bind event cho các form delete
+    function bindDeleteForms() {
+        // Bind cho blog forms
+        document.querySelectorAll('.delete-blog-form').forEach(form => {
+            // Tránh bind nhiều lần
+            if (form.dataset.bound) return;
+            form.dataset.bound = 'true';
+            
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formAction = this.action;
+                const isDeleted = this.querySelector('.btn-danger span').textContent.trim() === 'Khôi phục';
+                const action = isDeleted ? 'khôi phục' : 'xóa';
+                
+                if (confirm('Bạn có chắc chắn muốn ' + action + ' bài viết này?')) {
+                    fetch(formAction, { method: 'POST' })
+                        .then(response => {
+                            if (response.ok) {
+                                reloadTable();
+                            } else {
+                                alert('Có lỗi xảy ra');
+                            }
+                        })
+                        .catch(err => {
+                            console.error('Lỗi:', err);
+                            alert('Có lỗi xảy ra');
+                        });
+                }
+            });
+        });
+        
+        // Bind cho post forms
+        document.querySelectorAll('.delete-post-form').forEach(form => {
+            // Tránh bind nhiều lần
+            if (form.dataset.bound) return;
+            form.dataset.bound = 'true';
+            
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formAction = this.action;
+                const isDeleted = this.querySelector('.btn-danger span').textContent.trim() === 'Khôi phục';
+                const action = isDeleted ? 'khôi phục' : 'xóa';
+                
+                if (confirm('Bạn có chắc chắn muốn ' + action + ' bài viết này?')) {
+                    fetch(formAction, { method: 'POST' })
+                        .then(response => {
+                            if (response.ok) {
+                                reloadTable();
+                            } else {
+                                alert('Có lỗi xảy ra');
+                            }
+                        })
+                        .catch(err => {
+                            console.error('Lỗi:', err);
+                            alert('Có lỗi xảy ra');
+                        });
+                }
+            });
+        });
+    }
+    
+    // Hàm bind event cho các nút edit
+    function bindEditButtons() {
+        document.querySelectorAll('.edit-blog-btn').forEach(btn => {
+            if (btn.dataset.bound) return;
+            btn.dataset.bound = 'true';
+            
+            btn.addEventListener('click', function() {
+                const blogId = this.dataset.id;
+                openEditModal(blogId);
+            });
+        });
+    }
+
+    function bindEditPostButtons() {
+        document.querySelectorAll('.edit-post-btn').forEach(btn => {
+            if (btn.dataset.bound) return;
+            btn.dataset.bound = 'true';
+
+            btn.addEventListener('click', function() {
+                const postId = this.dataset.id;
+                openEditPostModal(postId);
+            });
+        });
+    }
+    
+    // Hàm mở modal thêm mới
+    function openAddModal() {
+        document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-plus"></i> Thêm bài viết mới';
+        document.getElementById('editBlogId').value = '';
+        document.getElementById('editTitle').value = '';
+        document.getElementById('editCategoryId').value = '';
+        document.getElementById('editContent').value = '';
+        document.getElementById('editParentBlogId').value = '';
+        document.getElementById('editBlogModal').classList.add('show');
+    }
+    
+    // Hàm mở modal edit
+    function openEditModal(blogId) {
+        document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-pen"></i> Chỉnh sửa Blog';
+        const typeInput = document.getElementById('editType');
+        if (typeInput) typeInput.value = 'blog';
+        fetch('/admin/blog/' + blogId)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Không tìm thấy blog');
+                }
+                return response.json();
+            })
+            .then(blog => {
+                document.getElementById('editBlogId').value = blog.blogId;
+                document.getElementById('editTitle').value = blog.title || '';
+                document.getElementById('editCategoryId').value = blog.categoryId || '';
+                document.getElementById('editContent').value = blog.content || '';
+                document.getElementById('editParentBlogId').value = blog.parentBlogId || '';
+                document.getElementById('editBlogModal').classList.add('show');
+            })
+            .catch(err => {
+                console.error('Lỗi khi load blog:', err);
+                alert('Không thể tải thông tin blog: ' + err.message);
+            });
+    }
+    
+    // Hàm đóng modal
+    function closeEditModal() {
+        document.getElementById('editBlogModal').classList.remove('show');
+        document.getElementById('editBlogForm').reset();
+    }
+    
+    // Hàm lưu blog (create hoặc update)
+    function saveBlog() {
+        const form = document.getElementById('editBlogForm');
+        const formData = new FormData(form);
+        const blogId = document.getElementById('editBlogId').value;
+        const isEdit = blogId && blogId !== '';
+        
+        const rawCategoryId = formData.get('categoryId');
+        const parsedCategoryId = rawCategoryId !== null && rawCategoryId !== '' ? parseInt(rawCategoryId, 10) : NaN;
+        if (!Number.isInteger(parsedCategoryId) || parsedCategoryId <= 0) {
+            alert('Vui lòng nhập Danh mục ID hợp lệ (số nguyên dương tồn tại trong Categories).');
+            return;
+        }
+
+        const rawParentId = formData.get('parentBlogId');
+        const parsedParentId = rawParentId !== null && rawParentId !== '' ? parseInt(rawParentId, 10) : null;
+        if (rawParentId && (parsedParentId === null || Number.isNaN(parsedParentId))) {
+            alert('Parent Blog ID không hợp lệ.');
+            return;
+        }
+
+        const data = {
+            title: formData.get('title'),
+            content: formData.get('content'),
+            categoryId: parsedCategoryId,
+            parentBlogId: parsedParentId
+        };
+        
+        const params = new URLSearchParams();
+        params.append('title', data.title);
+        params.append('content', data.content);
+        params.append('categoryId', String(data.categoryId));
+        if (Number.isInteger(data.parentBlogId)) {
+            params.append('parentBlogId', String(data.parentBlogId));
+        }
+        
+        const editType = (document.getElementById('editType')?.value || 'blog');
+        let url;
+        if (editType === 'post') {
+            url = isEdit ? '/admin/blogpost/update/' + blogId : '/admin/blogpost/create';
+        } else {
+            url = isEdit ? '/admin/blog/update/' + blogId : '/admin/blog/create';
+        }
+        
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: params.toString()
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                closeEditModal();
+                reloadTable();
+            } else {
+                alert('Có lỗi xảy ra: ' + (result.error || 'Không xác định'));
+            }
+        })
+        .catch(err => {
+            console.error('Lỗi khi lưu blog:', err);
+            alert('Có lỗi xảy ra khi lưu blog');
+        });
+    }
+
+    function openEditPostModal(postId) {
+        document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-pen"></i> Chỉnh sửa Bài viết';
+        const typeInput = document.getElementById('editType');
+        if (typeInput) typeInput.value = 'post';
+        fetch('/admin/blogpost/' + postId)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Không tìm thấy bài viết');
+                }
+                return response.json();
+            })
+            .then(post => {
+                document.getElementById('editBlogId').value = post.postId;
+                document.getElementById('editTitle').value = post.title || '';
+                document.getElementById('editCategoryId').value = post.categoryId || '';
+                document.getElementById('editContent').value = post.content || '';
+                document.getElementById('editParentBlogId').value = post.parentBlogId || '';
+                document.getElementById('editBlogModal').classList.add('show');
+            })
+            .catch(err => {
+                console.error('Lỗi khi load bài viết:', err);
+                alert('Không thể tải thông tin bài viết: ' + err.message);
+            });
+    }
+    
+    // Bind events cho modal buttons - chỉ bind một lần
+    let modalEventsBound = false;
+    function bindModalEvents() {
+        if (modalEventsBound) return;
+        modalEventsBound = true;
+        
+        const modal = document.getElementById('editBlogModal');
+        const closeBtn = document.getElementById('modalCloseBtn');
+        const cancelBtn = document.getElementById('modalCancelBtn');
+        const saveBtn = document.getElementById('modalSaveBtn');
+        
+        if (closeBtn) {
+            closeBtn.addEventListener('click', closeEditModal);
+        }
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', closeEditModal);
+        }
+        if (saveBtn) {
+            saveBtn.addEventListener('click', saveBlog);
+        }
+        
+        // Đóng modal khi click vào overlay
+        if (modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeEditModal();
+                }
+            });
+        }
+        
+        // Đóng modal khi nhấn ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && modal && modal.classList.contains('show')) {
+                closeEditModal();
+            }
+        });
+    }
+    
+    // Bind event cho nút thêm bài viết
+    function bindAddButton() {
+        const addBtn = document.getElementById('addBlogBtn');
+        if (addBtn && !addBtn.dataset.bound) {
+            addBtn.dataset.bound = 'true';
+            addBtn.addEventListener('click', openAddModal);
+        }
+    }
+    
+    // Bind khi trang load hoặc khi content được inject
+    function initPage() {
+        bindDeleteForms();
+        bindEditButtons();
+        bindEditPostButtons();
+        bindAddButton();
+        bindModalEvents();
+        bindFilters();
+        filterTable();
+    }
+    
+    // Khởi tạo khi trang load
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initPage);
+    } else {
+        initPage();
+    }
+    
+    // Nếu content được load động (từ admin.js)
+    const contentArea = document.getElementById('content-area');
+    if (contentArea) {
+        contentArea.addEventListener('contentLoaded', function() {
+            bindDeleteForms();
+            bindEditButtons();
+            bindEditPostButtons();
+            // Modal events chỉ bind một lần
+        });
+    }
+    
+    // Bind tìm kiếm và lọc
+    function bindFilters() {
+        const searchInput = document.getElementById('searchInput');
+        const dateInput = document.getElementById('createdDate');
+        const resetBtn = document.getElementById('resetFiltersBtn');
+
+        if (searchInput && !searchInput.dataset.bound) {
+            searchInput.dataset.bound = 'true';
+            const debounced = debounce(function() { filterTable(); }, 400);
+            searchInput.addEventListener('input', debounced);
+            searchInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    filterTable();
+                }
+            });
+        }
+
+        if (dateInput && !dateInput.dataset.bound) {
+            dateInput.dataset.bound = 'true';
+            dateInput.addEventListener('change', function() { filterTable(); });
+        }
+
+            if (resetBtn && !resetBtn.dataset.bound) {
+                resetBtn.dataset.bound = 'true';
+                resetBtn.addEventListener('click', function() {
+                    if (searchInput) searchInput.value = '';
+                    if (dateInput) dateInput.value = '';
+                    filterTable();
+                });
+            }
+    }
+})();
+</script>
 </body>
 </html>

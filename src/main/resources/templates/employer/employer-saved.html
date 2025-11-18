@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{employer/employer-layout}">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Ứng viên đã lưu — AI Premium</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.min.css">
+    <link rel="stylesheet" th:href="@{/css/employer-saved.css}">
+</head>
+<body>
+<main class="wrap" layout:fragment="content">
+<div class="container">
+    <header>
+        <div class="title">
+            <h1>Ứng viên đã lưu</h1>
+            <p>Theo dõi và quản lý các ứng viên tiềm năng</p>
+        </div>
+        <div class="actions">
+            <button class="btn" id="exportBtn">
+                <i class="ri-download-line"></i>
+                Xuất CSV
+            </button>
+            <button class="btn primary" id="bulkEmailBtn">
+                <i class="ri-mail-send-line"></i>
+                Gửi email hàng loạt
+            </button>
+        </div>
+    </header>
+
+    <!-- Additional Filters -->
+    <div class="searchbar">
+        <input type="text" id="searchInput" placeholder="Tìm theo tên, email hoặc số điện thoại..."
+               th:value="${search}" />
+        <select id="posFilter">
+            <option value="">Tất cả vị trí</option>
+            <option th:each="position : ${positions}"
+                    th:value="${position}"
+                    th:text="${position}"
+                    th:selected="${selectedPositions != null && selectedPositions.contains(position)}"></option>
+        </select>
+        <select id="statusFilter">
+            <option value="">Tất cả trạng thái</option>
+            <option th:each="status : ${statuses}"
+                    th:value="${status}"
+                    th:text="${status}"
+                    th:selected="${selectedStatuses != null && selectedStatuses.contains(status)}"></option>
+        </select>
+        <select id="educationFilter">
+            <option value="">Tất cả học vấn</option>
+            <option th:each="edu : ${educationLevels}"
+                    th:value="${edu}"
+                    th:text="${edu}"
+                    th:selected="${selectedEducationLevels != null && selectedEducationLevels.contains(edu)}"></option>
+        </select>
+        <select id="locationFilter">
+            <option value="">Tất cả địa điểm</option>
+            <option th:each="loc : ${locations}"
+                    th:value="${loc}"
+                    th:text="${loc}"
+                    th:selected="${location != null && location.equals(loc)}"></option>
+        </select>
+        <select id="expFilter">
+            <option value="">Tất cả kinh nghiệm</option>
+            <option value="0">0 năm</option>
+            <option value="1">1 năm</option>
+            <option value="2">2 năm</option>
+            <option value="3">3 năm</option>
+            <option value="4">4 năm</option>
+            <option value="5">5+ năm</option>
+        </select>
+    </div>
+
+    <div class="banner">
+        <div class="banner-content">
+            <h3>Đã lưu <span id="savedCount" th:text="${totalElements}">0</span> ứng viên</h3>
+            <p>Các ứng viên tiềm năng đã được bạn đánh dấu</p>
+        </div>
+        <button class="btn" id="upgradeBtn">
+            <i class="ri-star-line"></i>
+            Nâng cấp Pro
+        </button>
+    </div>
+
+    <div class="card">
+        <table id="candidatesTable">
+            <thead>
+            <tr>
+                <th style="width:36px"><input id="selectAll" type="checkbox" /></th>
+                <th>Ứng viên</th>
+                <th>Vị trí</th>
+                <th>Kinh nghiệm</th>
+                <th>Học vấn</th>
+                <th>Địa điểm</th>
+                <th>Trạng thái</th>
+                <th>Ngày ứng tuyển</th>
+                <th>Hành động</th>
+            </tr>
+            </thead>
+            <tbody id="tbody">
+            <!-- Empty state -->
+            <tr th:if="${#lists.isEmpty(applications)}">
+                <td colspan="9">
+                    <div class="empty-state">
+                        <i class="ri-user-search-line"></i>
+                        <h3>Không có ứng viên nào được lưu</h3>
+                        <p>Khi bạn lưu ứng viên, họ sẽ xuất hiện ở đây</p>
+                    </div>
+                </td>
+            </tr>
+
+            <!-- Applications list -->
+            <tr th:each="app : ${applications}" th:data-id="${app.applicationId}">
+                <td><input class="rowCheckbox" type="checkbox" th:data-id="${app.applicationId}" /></td>
+                <td>
+                    <div style="display:flex;align-items:center;gap:10px">
+                        <div class="avatar" th:style="'background-image:url(' + (${app.avatarUrl} ?: 'https://i.pinimg.com/736x/d7/8b/62/d78b6277dcb138d58685bf93914acbf3.jpg') + ')'"></div>
+                        <div class="name">
+                            <div style="font-weight:600" th:text="${app.candidateName}">Nguyễn Văn A</div>
+                            <small th:text="${app.candidateEmail}">email@example.com</small>
+                            <small th:text="${app.candidatePhone}" style="color: var(--muted); font-size: 11px;"></small>
+                        </div>
+                    </div>
+                </td>
+                <td th:text="${app.position}"></td>
+                <td th:text="${app.experienceYears} + ' năm'"></td>
+                <td th:text="${app.education} ?: 'Chưa cập nhật'"></td>
+                <td th:text="${app.location} ?: 'Chưa cập nhật'"></td>
+                <td style="text-align: center;">
+                    <select class="tag status-dropdown"
+                            th:classappend="'status-' + ${#strings.replace(#strings.toLowerCase(app.status), ' ', '-')}"
+                            th:data-id="${app.applicationId}"
+                            onchange="handleStatusChange(this)">
+                        <option th:each="statusOpt : ${statuses}"
+                                th:value="${statusOpt}"
+                                th:text="${statusOpt}"
+                                th:selected="${app.status == statusOpt}"></option>
+                    </select>
+                </td>
+                <td th:text="${#temporals.format(app.appliedAt, 'dd/MM/yyyy')}">15/01/2024</td>
+                <td class="actions-td">
+                    <div class="dropdown">
+                        <button class="icon-btn" title="Tùy chọn">
+                            <i class="ri-more-2-fill"></i>
+                        </button>
+                        <div class="dropdown-content">
+                            <a href="#" class="send-email-btn"
+                               th:data-app-id="${app.applicationId}"
+                               th:data-candidate-name="${app.candidateName}"
+                               th:data-candidate-email="${app.candidateEmail}"
+                               th:data-position="${app.position}">
+                                <i class="ri-mail-line"></i>
+                                Gửi email
+                            </a>
+                            <a href="#" class="view-cv-btn"
+                               th:data-app-id="${app.applicationId}"
+                               th:data-cv-url="${app.cvUrl}">
+                                <i class="ri-file-text-line"></i>
+                                Xem CV
+                            </a>
+                            <a href="#" class="bookmark-btn"
+                               th:data-app-id="${app.applicationId}">
+                                <i class="ri-bookmark-fill"></i>
+                                Bỏ lưu
+                            </a>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+        <div class="muted" th:text="'Hiển thị ' + ${#lists.size(applications)} + ' của ' + ${totalElements} + ' ứng viên'"></div>
+        <div style="display: flex; gap: 8px;">
+            <button class="btn" id="prevBtn" th:disabled="${currentPage == 0}">
+                <i class="ri-arrow-left-line"></i>
+                Trước
+            </button>
+            <span style="padding: 8px 12px;" id="pageInfo">
+                Trang <span th:text="${currentPage + 1}">1</span> / <span th:text="${totalPages}">1</span>
+            </span>
+            <button class="btn" id="nextBtn" th:disabled="${currentPage == totalPages - 1}">
+                Sau
+                <i class="ri-arrow-right-line"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Email Modal -->
+<div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal">
+        <h3>Gửi email hàng loạt</h3>
+        <div class="muted" id="recipientsPreview">Người nhận: —</div>
+        <div class="field">
+            <label class="muted">Tiêu đề</label>
+            <input id="emailSubject" placeholder="Thư mời phỏng vấn – Vị trí [Tên vị trí] tại AI Premium" />
+        </div>
+        <div class="field">
+            <label class="muted">Nội dung</label>
+            <textarea id="emailBody">📩 Tiêu đề: Thư mời phỏng vấn – Vị trí [Tên vị trí] tại [Tên công ty]
+
+👋 Kính gửi [Tên ứng viên],
+
+Cảm ơn bạn đã quan tâm và gửi hồ sơ ứng tuyển cho vị trí [Tên vị trí] tại AI Premium. Sau khi xem xét hồ sơ, chúng tôi nhận thấy kỹ năng và kinh nghiệm của bạn rất phù hợp với yêu cầu tuyển dụng hiện tại.
+
+Chúng tôi trân trọng mời bạn tham dự 💬 buổi phỏng vấn để trao đổi thêm về công việc và cơ hội phát triển tại công ty.
+
+🗓️ Thông tin buổi phỏng vấn:
+
+⏰ Thời gian: [Ngày, giờ cụ thể]
+
+📍 Địa điểm: [Địa chỉ công ty hoặc link Google Meet/Zoom nếu phỏng vấn online]
+
+👤 Người phỏng vấn: [Tên + chức vụ nếu có]
+
+💻 Hình thức: [Trực tiếp / Online]
+
+Trong buổi phỏng vấn, bạn sẽ có cơ hội tìm hiểu thêm về văn hóa làm việc, dự án hiện tại, và định hướng phát triển nghề nghiệp tại AI Premium.
+
+Vui lòng 📧 phản hồi xác nhận tham dự trước [thời hạn xác nhận, ví dụ: 17h ngày 31/10/2025] để chúng tôi sắp xếp lịch phỏng vấn phù hợp.
+Nếu bạn cần thay đổi thời gian hoặc có bất kỳ thắc mắc nào, hãy liên hệ qua [Email hoặc SĐT của HR] nhé.
+
+Rất mong được gặp bạn trong buổi phỏng vấn sắp tới!
+
+Trân trọng,
+📝 [Tên người gửi]
+[Chức vụ] – AI Premium
+📞 [Số điện thoại] | ✉️ [Email]</textarea>
+        </div>
+        <div class="footer">
+            <button class="btn" id="closeModal">
+                <i class="ri-close-line"></i>
+                Huỷ
+            </button>
+            <button class="btn primary" id="sendEmailBtn">
+                <i class="ri-mail-open-line"></i>
+                Mở Gmail
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Single Email Modal -->
+<div class="modal-backdrop" id="singleEmailModal">
+    <div class="modal">
+        <h3>Gửi email cho ứng viên</h3>
+        <div class="muted" id="singleRecipient">Người nhận: —</div>
+        <div class="field">
+            <label class="muted">Tiêu đề</label>
+            <input id="singleEmailSubject" placeholder="Thư mời phỏng vấn – Vị trí [Tên vị trí] tại AI Premium" />
+        </div>
+        <div class="field">
+            <label class="muted">Nội dung</label>
+            <textarea id="singleEmailBody">📩 Tiêu đề: Thư mời phỏng vấn – Vị trí [Tên vị trí] tại AI Premium
+
+👋 Kính gửi [Tên ứng viên],
+
+Cảm ơn bạn đã quan tâm và gửi hồ sơ ứng tuyển cho vị trí [Tên vị trí] tại [Tên công ty]. Sau khi xem xét hồ sơ, chúng tôi nhận thấy kỹ năng và kinh nghiệm của bạn rất phù hợp với yêu cầu tuyển dụng hiện tại.
+
+Chúng tôi trân trọng mời bạn tham dự 💬 buổi phỏng vấn để trao đổi thêm về công việc và cơ hội phát triển tại công ty.
+
+🗓️ Thông tin buổi phỏng vấn:
+
+⏰ Thời gian: [Ngày, giờ cụ thể]
+
+📍 Địa điểm: [Địa chỉ công ty hoặc link Google Meet/Zoom nếu phỏng vấn online]
+
+👤 Người phỏng vấn: [Tên + chức vụ nếu có]
+
+💻 Hình thức: [Trực tiếp / Online]
+
+Trong buổi phỏng vấn, bạn sẽ có cơ hội tìm hiểu thêm về văn hóa làm việc, dự án hiện tại, và định hướng phát triển nghề nghiệp tại AI Premium.
+
+Vui lòng 📧 phản hồi xác nhận tham dự trước [thời hạn xác nhận, ví dụ: 17h ngày 31/10/2025] để chúng tôi sắp xếp lịch phỏng vấn phù hợp.
+Nếu bạn cần thay đổi thời gian hoặc có bất kỳ thắc mắc nào, hãy liên hệ qua [Email hoặc SĐT của HR] nhé.
+
+Rất mong được gặp bạn trong buổi phỏng vấn sắp tới!
+
+Trân trọng,
+📝 [Tên người gửi]
+[Chức vụ] – AI Premium
+📞 [Số điện thoại] | ✉️ [Email]</textarea>
+        </div>
+        <div class="footer">
+            <button class="btn" id="closeSingleModal">
+                <i class="ri-close-line"></i>
+                Huỷ
+            </button>
+            <button class="btn primary" id="sendSingleEmailBtn">
+                <i class="ri-mail-open-line"></i>
+                Mở Gmail
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script th:src="@{/js/employer-saved.js}"></script>
+</main>
+</body>
+</html>
