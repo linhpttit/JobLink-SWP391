@@ -27,11 +27,6 @@ public class EmployerProfileController {
         return "employer/password";
     }
 
-    @GetMapping("/job-posting")
-    public String viewJobPostingPage() {
-        return "employer/job-post";
-    }
-
     @PostMapping("/password")
     public String changePassword(
             @RequestParam("newPassword") String newPass,

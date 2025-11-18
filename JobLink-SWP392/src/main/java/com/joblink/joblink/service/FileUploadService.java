@@ -37,8 +37,19 @@ public class FileUploadService {
             throw new IllegalArgumentException("File không được để trống");
         }
 
+        // Resolve upload directory - convert relative path to absolute if needed
+        Path baseUploadPath;
+        if (uploadDir.startsWith("/") || uploadDir.contains(":")) {
+            // Absolute path
+            baseUploadPath = Paths.get(uploadDir);
+        } else {
+            // Relative path - resolve from project root
+            String projectRoot = System.getProperty("user.dir");
+            baseUploadPath = Paths.get(projectRoot, uploadDir);
+        }
+
         // Create upload directory if not exists
-        Path uploadPath = Paths.get(uploadDir, subDir);
+        Path uploadPath = baseUploadPath.resolve(subDir);
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);
         }
@@ -54,7 +65,7 @@ public class FileUploadService {
         Path filePath = uploadPath.resolve(filename);
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-        // Return relative URL
+        // Return relative URL for resource handler
         return "/" + subDir + "/" + filename;
     }
 

@@ -102,15 +102,6 @@ public class DashboardDao {
         Integer totalFollows = jdbc.queryForObject(followsSql, Integer.class, seekerId);
         stats.put("companiesFollowed", totalFollows != null ? totalFollows : 0);
 
-        // Follow Jobs - số lượng jobs từ các companies đã follow
-        String followJobsSql = """
-           SELECT COUNT(DISTINCT jp.job_id) as total
-           FROM CompanyFollows cf
-           INNER JOIN JobsPosting jp ON cf.employer_id = jp.employer_id
-           WHERE cf.seeker_id = ? AND jp.status = 'ACTIVE'
-           """;
-        Integer followJobs = jdbc.queryForObject(followJobsSql, Integer.class, seekerId);
-        stats.put("followJobs", followJobs != null ? followJobs : 0);
 
         // Total spending (from invoices)
         String spendingSql = """

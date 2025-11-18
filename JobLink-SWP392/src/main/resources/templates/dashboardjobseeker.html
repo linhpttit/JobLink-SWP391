@@ -545,7 +545,7 @@
             <li><a href="/jobseeker/profile"><i class="fas fa-user"></i> Hồ sơ của tôi</a></li>
             <li><a href="/jobseeker/cv"><i class="fas fa-file-pdf"></i> CV của tôi</a></li>
             <li><a href="/jobseeker/search"><i class="fas fa-magnifying-glass"></i> Việc làm đã ứng tuyển</a></li>
-            <li><a href="/jobseeker/jobs"><i class="fas fa-heart"></i> Follow Jobs</a></li>
+            <li><a href="/jobseeker/jobs"><i class="fas fa-bookmark"></i> Việc làm đã lưu</a></li>
             <div class="sidebar-divider"></div>
             <li><a href="/jobseeker/settings"><i class="fas fa-gear"></i> Cài đặt</a></li>
             <li><a href="/logout"><i class="fas fa-right-from-bracket"></i> Đăng xuất</a></li>
@@ -582,9 +582,9 @@
 
 
             <article class="summary-card saved">
-                <div class="summary-title">Follow Jobs</div>
-                <div class="summary-number" th:text="${stats.followJobs != null ? stats.followJobs : 0}">0</div>
-                <div class="summary-meta">Công việc từ các công ty bạn đang follow</div>
+                <div class="summary-title">Việc làm đã lưu</div>
+                <!--                <div class="summary-number" th:text="${stats.savedJobs}">8</div>-->
+                <div class="summary-meta">Công việc bạn đang quan tâm</div>
             </article>
         </section>
 

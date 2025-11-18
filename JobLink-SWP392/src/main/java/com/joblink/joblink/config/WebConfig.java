@@ -32,14 +32,18 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // Get project root directory
+        String projectRoot = System.getProperty("user.dir");
+        // Use Paths to handle both Windows and Unix paths correctly
+        java.nio.file.Path uploadBasePath = java.nio.file.Paths.get(projectRoot, "src", "main", "resources", "static", "uploads");
+        String uploadBasePathStr = uploadBasePath.toAbsolutePath().toString().replace("\\", "/");
+        
         registry.addResourceHandler("/avatars/**")
-                .addResourceLocations("file:src/main/resources/static/uploads/avatars/");
+                .addResourceLocations("file:" + uploadBasePathStr + "/avatars/");
         registry.addResourceHandler("/certificates/**")
-                .addResourceLocations("file:src/main/resources/static/uploads/certificates/");
+                .addResourceLocations("file:" + uploadBasePathStr + "/certificates/");
         registry.addResourceHandler("/cvs/**")
-                .addResourceLocations("file:src/main/resources/static/uploads/cvs/");
-        registry.addResourceHandler("/avatars/**")
-                .addResourceLocations("file:/D:/FPT_Documents/CN8/JobLink-SWP391/uploads/avatars/");
+                .addResourceLocations("file:" + uploadBasePathStr + "/cvs/");
     }
 
     @Override
