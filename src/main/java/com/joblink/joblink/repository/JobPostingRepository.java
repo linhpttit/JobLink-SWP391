@@ -24,4 +24,6 @@ public interface JobPostingRepository extends JpaRepository<JobPosting, Long> {
     List<JobPosting> findBySkillSkillIdAndJobIdNot(@Param("skillId") Long skillId,
                                                    @Param("excludeJobId") Long excludeJobId);
 
+    long count();
+
 }
