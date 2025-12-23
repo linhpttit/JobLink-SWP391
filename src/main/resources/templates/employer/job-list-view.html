@@ -11,6 +11,10 @@
 </head>
 <body class="bg-soft">
 <main class="wrap" layout:fragment="content">
+    <div class="header-bar">
+        <h1 class="page-title">Danh sách việc làm</h1>
+        <a href="/jobPosting/showCreateForm" class="btn-create">+ Tạo tin</a>
+    </div>
     <section class="list">
 
         <!-- lặp qua danh sách -->
@@ -33,10 +37,20 @@
                     <span class="tag" th:text="${j.province.provinceName}"></span>
                     <span class="tag" th:text="${j.yearExperience}"></span>
                 </div>
+                <div>
+                    <div style="padding-left: 20px;">
+                        <span th:text="${j.jobDescription}"
+                            style="white-space: pre-line; margin:0; display: list-item; list-style-type: disc; list-style-position: outside;"></span>
+                    </div>
+                    <div style="padding-left: 20px;">
+                        <span th:text="${j.jobRequirements}"
+                              style="white-space: pre-line; margin:0; display: list-item; list-style-type: disc; list-style-position: outside;"></span>
+                    </div>
+                </div>
 
                 <!-- dòng ngành / chức danh -->
                 <div class="meta-line">
-                     <span th:text="${j.position}"></span>
+                    <span th:text="${j.position}"></span>
                 </div>
             </div>
 
