@@ -1,7 +1,7 @@
 package com.joblink.joblink.service;
 
 import com.joblink.joblink.entity.Skill;
-import com.joblink.joblink.repository.SkillRepository;
+import com.joblink.joblink.Repository.SkillRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
